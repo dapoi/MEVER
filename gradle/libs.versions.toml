@@ -1,0 +1,103 @@
+[versions]
+androidGradlePlugin = "8.6.1"
+androidTools = "31.7.1"
+androidxActivity = "1.9.3"
+androidxComposeBom = "2024.10.00"
+androidxComposeCompiler = "1.5.12"  # Compose VC
+androidxLifecycle = "2.8.6"
+androidxNavigation = "2.8.3"
+baseJunit = "4.13.2"
+coreKtxVersion = "1.13.1"
+espressoCore = "3.6.1"
+hilt = "2.52"
+hiltNavigation = "1.2.0"
+junit = "1.2.1"
+kotlin = "2.0.10"
+kotlinxSerializationJson = "1.7.1"
+ksp = "2.0.10-1.0.24"
+dataStorePreferences = "1.1.1"
+room = "2.6.1"
+retrofit = "2.9.0"
+interceptor = "4.11.0"
+ketch = "2.0.2"
+appcompat = "1.7.0"
+material = "1.12.0"
+
+[libraries]
+# Compose
+androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidxActivity" }
+androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "androidxComposeBom" }
+androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation" }
+androidx-compose-foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout" }
+androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime" }
+androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "androidxNavigation" }
+androidx-compose-ui-util = { group = "androidx.compose.ui", name = "ui-util" }
+androidx-lifecycle-runtimeCompose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidxLifecycle" }
+androidx-lifecycle-viewModelCompose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "androidxLifecycle" }
+# End
+
+# Testing
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junit" }
+# End
+
+# Hilt
+hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
+hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
+hilt-navigation = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref ="hiltNavigation" }
+# End
+
+# Kotlin
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+# End
+
+# Ketch
+ketch = { group = "com.github.khushpanchal", name = "Ketch", version.ref = "ketch" }
+# End
+
+# Networking
+retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+retrofit-converter = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
+okhttp-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "interceptor" }
+# End
+
+# Persistence
+room = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+dataStorePreferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "dataStorePreferences" }
+# End
+
+#
+
+# Dependencies of the included build-logic
+android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }
+kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
+ksp-gradlePlugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtxVersion" }
+android-tools-common = { group = "com.android.tools", name = "common", version.ref = "androidTools" }
+junit = { group = "junit", name = "junit", version.ref = "baseJunit" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+# End
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
+android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
+hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+
+# Plugins defined by this project
+jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+jetbrains-compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+mever-android-application = { id = "mever.android.application", version = "unspecified" }
+mever-android-application-compose = { id = "mever.android.application.compose", version = "unspecified" }
+mever-android-library = { id = "mever.android.library", version = "unspecified" }
+mever-android-library-compose = { id = "mever.android.library.compose", version = "unspecified" }
+mever-android-feature = { id = "mever.android.feature", version = "unspecified" }
+mever-android-hilt = { id = "mever.android.hilt", version = "unspecified" }
+# End
