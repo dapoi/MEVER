@@ -1,35 +1,40 @@
 package com.dapascript.mever.feature.home
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
-import com.ketch.Ketch
+import androidx.compose.ui.text.input.TextFieldValue
+import com.dapascript.mever.core.common.component.MeverTextField
+import com.dapascript.mever.core.common.ui.BaseScreen
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
 
 @Composable
-fun HomeRoute(userId: String) {
-    HomeScreen(userId = userId)
+fun HomeRoute() {
+    HomeScreen()
 }
 
 @Composable
-fun HomeScreen(userId: String) {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(
-            text = "Welcome to Home Screen\nUser ID: $userId",
-            style = MaterialTheme.typography.titleLarge,
-            textAlign = TextAlign.Center
+fun HomeScreen() {
+    val webDomain = remember { mutableStateOf(TextFieldValue()) }
+
+    BaseScreen(
+        isHome = true,
+        listMenuAction = mapOf(
+            R.drawable.ic_notification to "Notification",
+            R.drawable.ic_setting to "Setting"
         )
+    ) {
+        Column(
+            modifier = Modifier.padding(top = Dp32),
+            horizontalAlignment = CenterHorizontally
+        ) {
+            MeverTextField(webDomainValue = webDomain.value) {
+                webDomain.value = it
+            }
+        }
     }
-}
-
-@Composable
-@Preview(showBackground = true)
-fun HomeScreenPreview() {
-    HomeScreen("123")
 }

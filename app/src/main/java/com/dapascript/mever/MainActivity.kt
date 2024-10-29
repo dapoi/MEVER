@@ -8,8 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
+import com.dapascript.mever.core.common.ui.theme.StarterTheme
 import com.dapascript.mever.navigation.AppNavHost
-import com.dapascript.mever.ui.theme.StarterTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
