@@ -61,3 +61,4 @@ private fun View.isKeyboardOpen(): Boolean {
     val keypadHeight = screenHeight - rect.bottom
     return keypadHeight > screenHeight * 0.15
 }
+

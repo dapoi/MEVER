@@ -31,6 +31,8 @@ android {
 
 dependencies {
     implementation(projects.feature.home)
+    implementation(projects.feature.notification)
+    implementation(projects.feature.setting)
     implementation(projects.core.common)
 
     implementation(libs.androidx.core.ktx)

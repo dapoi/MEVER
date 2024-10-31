@@ -1,4 +1,4 @@
-package com.dapascript.mever.core.common.component
+package com.dapascript.mever.core.common.ui.component
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues

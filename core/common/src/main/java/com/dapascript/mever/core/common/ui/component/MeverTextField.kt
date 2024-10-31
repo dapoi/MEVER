@@ -1,4 +1,4 @@
-package com.dapascript.mever.core.common.component
+package com.dapascript.mever.core.common.ui.component
 
 import android.R.drawable
 import androidx.compose.foundation.background

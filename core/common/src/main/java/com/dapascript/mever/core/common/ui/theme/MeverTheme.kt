@@ -36,7 +36,7 @@ object MeverTheme {
 }
 
 @Composable
-fun StarterTheme(
+fun MeverTheme(
     meverTypography: MeverTypography = MeverTheme.typography,
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
