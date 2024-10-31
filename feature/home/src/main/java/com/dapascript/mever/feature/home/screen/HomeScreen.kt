@@ -9,11 +9,16 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
 import com.dapascript.mever.core.common.navigation.base.BaseNavigator
+import com.dapascript.mever.core.common.navigation.graph.NotificationNavGraph
 import com.dapascript.mever.core.common.navigation.graph.SettingNavGraph
 import com.dapascript.mever.core.common.ui.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.ActionMenuAttr.ActionMenu
 import com.dapascript.mever.core.common.ui.component.MeverTextField
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
+import com.dapascript.mever.core.common.util.Constant.EMPTY_STRING
+import com.dapascript.mever.core.common.util.Constant.ScreenName.EXPLORE
+import com.dapascript.mever.core.common.util.Constant.ScreenName.NOTIFICATION
+import com.dapascript.mever.core.common.util.Constant.ScreenName.SETTING
 import com.dapascript.mever.feature.home.R
 
 @Composable
@@ -22,24 +27,25 @@ fun HomeScreen(
 ) {
     val webDomain = remember { mutableStateOf(TextFieldValue()) }
     val listOfActionMenu = mapOf(
-        "Notification" to R.drawable.ic_notification,
-        "Explore" to R.drawable.ic_explore,
-        "Setting" to R.drawable.ic_setting
+        NOTIFICATION to R.drawable.ic_notification,
+        EXPLORE to R.drawable.ic_explore,
+        SETTING to R.drawable.ic_setting
     )
     val onClickActionMenu = remember {
         { name: String ->
             // Handle action menu click
             when (name) {
-                "Notification" -> {
-                    // Handle notification click
+                NOTIFICATION -> {
+                    navigator.run {
+                        navigate(getNavGraph<NotificationNavGraph>().getNotificationRoute())
+                    }
                 }
 
-                "Explore" -> {
+                EXPLORE -> {
                     // Handle explore click
                 }
 
-                "Setting" -> {
-                    // Handle setting click
+                SETTING -> {
                     navigator.run {
                         navigate(getNavGraph<SettingNavGraph>().getSettingRoute())
                     }
@@ -51,10 +57,10 @@ fun HomeScreen(
     }
 
     BaseScreen(
-        screenName = "",
+        screenName = EMPTY_STRING,
         isHome = true,
         listMenuAction = listOfActionMenu.map { (name, resource) ->
-            ActionMenu(resource = resource, name = name, isShowBadge = name == "Notification")
+            ActionMenu(resource = resource, name = name, isShowBadge = name == NOTIFICATION)
         },
         onClickActionMenu = { name -> onClickActionMenu(name) }
     ) {

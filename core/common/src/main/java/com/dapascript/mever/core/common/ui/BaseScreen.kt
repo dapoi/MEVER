@@ -40,10 +40,10 @@ fun BaseScreen(
         .padding(Dp24)
 ) {
     Box(contentAlignment = Center) {
-        if (screenName.isNotEmpty()) {
+        screenName.isNotEmpty().let {
             Text(
                 text = screenName,
-                style = typography.h7,
+                style = typography.h7
             )
         }
         Row(
@@ -53,7 +53,7 @@ fun BaseScreen(
         ) {
             Image(
                 painter = painterResource(id = if (isHome) R.drawable.ic_mever else R.drawable.ic_back),
-                contentDescription = "Logo or back",
+                contentDescription = "Back",
                 modifier = if (isHome.not()) Modifier.clickableSingle { onClickBack() } else Modifier
             )
             listMenuAction.isNotEmpty().let {
@@ -61,7 +61,7 @@ fun BaseScreen(
                     listMenuAction.forEach { (resource, name) ->
                         MeverActionButton(
                             resource = resource,
-                            showNotifBadge = name == "Notification"
+                            name = name
                         ) { onClickActionMenu(name) }
                     }
                 }

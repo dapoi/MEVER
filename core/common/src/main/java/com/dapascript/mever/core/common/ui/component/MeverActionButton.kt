@@ -18,28 +18,30 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
+import com.dapascript.mever.core.common.ui.attr.ActionMenuAttr.getContentDescription
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp15
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
+import com.dapascript.mever.core.common.util.Constant.ScreenName.NOTIFICATION
 
 @Composable
 fun MeverActionButton(
     resource: Int,
-    showNotifBadge: Boolean = false,
+    name: String,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
     Box(modifier = modifier.size(Dp32)) {
-        IconButton(onClick = onDebounceClick(onClick)) {
+        IconButton(onClick = onDebounceClick { onClick() }) {
             Icon(
                 modifier = Modifier.size(Dp24),
                 imageVector = ImageVector.vectorResource(resource),
-                contentDescription = "Action Button"
+                contentDescription = getContentDescription(name)
             )
         }
-        if (showNotifBadge) Badge(
+        if (name == NOTIFICATION) Badge(
             modifier = Modifier
                 .size(Dp15)
                 .border(width = Dp2, color = MeverWhite, shape = CircleShape)
@@ -52,8 +54,8 @@ fun MeverActionButton(
 
 @Composable
 private fun onDebounceClick(
-    onClick: () -> Unit,
-    debounceTimeMillis: Long = 1000L
+    debounceTimeMillis: Long = 1000L,
+    onClick: () -> Unit
 ): () -> Unit {
     var lastClickTimeMillis: Long by remember { mutableLongStateOf(value = 0L) }
     return {
