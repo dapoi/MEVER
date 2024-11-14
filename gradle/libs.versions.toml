@@ -22,6 +22,7 @@ interceptor = "4.11.0"
 ketch = "2.0.2"
 appcompat = "1.7.0"
 material = "1.12.0"
+coil = "3.0.2"
 
 [libraries]
 # Compose
@@ -46,7 +47,7 @@ androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "j
 # Hilt
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
-hilt-navigation = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref ="hiltNavigation" }
+hilt-navigation = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigation" }
 # End
 
 # Kotlin
@@ -70,7 +71,11 @@ room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 dataStorePreferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "dataStorePreferences" }
 # End
 
-#
+# Coil
+coil = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
+coil-video = { group = "io.coil-kt.coil3", name = "coil-video", version.ref = "coil" }
+coil-network = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
+# End
 
 # Dependencies of the included build-logic
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }

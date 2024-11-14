@@ -25,6 +25,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MeverTheme {
+
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     MeverNavHost(
                         meverNavGraphs = meverNavGraphs,

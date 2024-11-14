@@ -13,4 +13,6 @@ dependencies {
     implementation(libs.hilt.compiler)
     implementation(libs.hilt.navigation)
     implementation(libs.ketch)
+    implementation(libs.coil)
+    implementation(libs.coil.video)
 }
