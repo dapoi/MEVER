@@ -98,11 +98,7 @@ fun HomeScreen(
         ) {
             PermissionDialog(
                 isPermissionsDeclined = shouldShowRequestPermissionRationale(activity, permission).not(),
-                descriptionPermission = when (permission) {
-                    READ_MEDIA_IMAGES -> "We need to access your images to download the file"
-                    READ_MEDIA_VIDEO -> "We need to access your videos to download the file"
-                    else -> "We need to access your storage to download the file"
-                },
+                descriptionPermission = getDescriptionPermission(permission),
                 onGoToSetting = {
                     dismissDialog()
                     activity.goToSetting()
@@ -131,4 +127,10 @@ private fun Activity.goToSetting() {
         ACTION_APPLICATION_DETAILS_SETTINGS,
         fromParts("package", packageName, null)
     ).also(::startActivity)
+}
+
+private fun getDescriptionPermission(permission: String) = when (permission) {
+    READ_MEDIA_IMAGES -> "We need to access your images to download the file"
+    READ_MEDIA_VIDEO -> "We need to access your videos to download the file"
+    else -> "We need to access your storage to download the file"
 }
