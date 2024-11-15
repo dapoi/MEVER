@@ -7,9 +7,11 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import com.dapascript.mever.core.common.navigation.MeverNavGraphs
 import com.dapascript.mever.core.common.ui.theme.MeverTheme
+import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.navigation.MeverNavHost
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -25,12 +27,13 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MeverTheme {
-
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    MeverNavHost(
-                        meverNavGraphs = meverNavGraphs,
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                CompositionLocalProvider(LocalActivity provides this) {
+                    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                        MeverNavHost(
+                            meverNavGraphs = meverNavGraphs,
+                            modifier = Modifier.padding(innerPadding)
+                        )
+                    }
                 }
             }
         }

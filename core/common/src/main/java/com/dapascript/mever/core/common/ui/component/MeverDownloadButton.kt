@@ -18,7 +18,11 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp20
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
 
 @Composable
-fun MeverDownloadButton(enabled: Boolean, modifier: Modifier = Modifier) {
+fun MeverDownloadButton(
+    enabled: Boolean,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
     Box(
         modifier = modifier.height(Dp48)
     ) {
@@ -27,7 +31,7 @@ fun MeverDownloadButton(enabled: Boolean, modifier: Modifier = Modifier) {
             enabled = enabled,
             shape = CircleShape,
             contentPadding = PaddingValues(Dp1),
-            onClick = { /*TODO*/ }
+            onClick = onClick
         ) {
             Icon(
                 modifier = Modifier.size(Dp20),

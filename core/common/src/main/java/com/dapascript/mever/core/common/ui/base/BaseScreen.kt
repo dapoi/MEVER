@@ -1,4 +1,4 @@
-package com.dapascript.mever.core.common.ui
+package com.dapascript.mever.core.common.ui.base
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween

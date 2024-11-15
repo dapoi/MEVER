@@ -4,12 +4,9 @@ import android.R.drawable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -43,35 +40,20 @@ import com.dapascript.mever.core.common.ui.theme.MeverGray
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverTheme
 import com.dapascript.mever.core.common.util.clearFocusOnKeyboardDismiss
-import com.dapascript.mever.core.common.util.isValidUrl
 
 @Composable
 fun MeverTextField(
     webDomainValue: TextFieldValue,
     modifier: Modifier = Modifier,
     onValueChange: (TextFieldValue) -> Unit
-) = Row(
-    modifier = modifier.fillMaxWidth(),
-    horizontalArrangement = spacedBy(Dp16)
-) {
-    MeverTextFieldComponent(webDomainValue) { onValueChange(it) }
-    MeverDownloadButton(enabled = webDomainValue.text.isValidUrl())
-}
-
-@Composable
-private fun RowScope.MeverTextFieldComponent(
-    webDomainValue: TextFieldValue,
-    cornerShape: RoundedCornerShape = RoundedCornerShape(Dp48),
-    onValueChange: (TextFieldValue) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
     val interactionSource = remember { MutableInteractionSource() }
 
     Row(
-        modifier = Modifier
-            .weight(1f)
-            .shadow(elevation = Dp2, shape = cornerShape)
-            .background(color = colorScheme.surface, shape = cornerShape),
+        modifier = modifier
+            .shadow(elevation = Dp2, shape = RoundedCornerShape(Dp48))
+            .background(color = colorScheme.surface, shape = RoundedCornerShape(Dp48)),
         verticalAlignment = CenterVertically
     ) {
         Box(
