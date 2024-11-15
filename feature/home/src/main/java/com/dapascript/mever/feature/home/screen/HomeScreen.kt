@@ -6,25 +6,27 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri.fromParts
 import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions
-import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.navigation.base.BaseNavigator
 import com.dapascript.mever.core.common.navigation.graph.NotificationNavGraph
 import com.dapascript.mever.core.common.navigation.graph.SettingNavGraph
 import com.dapascript.mever.core.common.ui.attr.ActionMenuAttr.ActionMenu
-import com.dapascript.mever.core.common.ui.base.BaseScreen
 import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverDownloadButton
 import com.dapascript.mever.core.common.ui.component.MeverTextField
@@ -47,13 +49,12 @@ fun HomeScreen(
 ) = with(viewModel) {
     val activity = LocalActivity.current
     val dialogQueue = showDialogPermission
-    val requestNotificationPermissionLauncher = rememberLauncherForActivityResult(RequestPermission()) {}
     val requestStoragePermissionLauncher = rememberLauncherForActivityResult(RequestMultiplePermissions()) { perms ->
         getStoragePermission.forEach { permission ->
             onPermissionResult(
                 permission = permission,
                 isGranted = perms[permission] == true
-            ) {}
+            ) { getVideoDownloader() }
         }
     }
     val onClickActionMenu = remember { getActionMenuClick(navigator) }
@@ -62,10 +63,9 @@ fun HomeScreen(
         EXPLORE to R.drawable.ic_explore,
         SETTING to R.drawable.ic_setting
     )
+    val urlValue = urlState.collectAsState()
 
     BaseScreen(
-        screenName = "",
-        isHome = true,
         listMenuAction = listOfActionMenu.map { (name, resource) ->
             ActionMenu(resource = resource, name = name, isShowBadge = name == NOTIFICATION)
         },
@@ -89,25 +89,39 @@ fun HomeScreen(
                 }
             }
         }
-    }
 
-    dialogQueue.reversed().forEach { permission ->
-        MeverDialog(
-            showDialog = true,
-            onDismiss = ::dismissDialog
-        ) {
-            PermissionDialog(
-                isPermissionsDeclined = shouldShowRequestPermissionRationale(activity, permission).not(),
-                descriptionPermission = getDescriptionPermission(permission),
-                onGoToSetting = {
-                    dismissDialog()
-                    activity.goToSetting()
+        dialogQueue.reversed().forEach { permission ->
+            MeverDialog(
+                showDialog = true,
+                onDismiss = ::dismissDialog
+            ) {
+                PermissionDialog(
+                    isPermissionsDeclined = shouldShowRequestPermissionRationale(activity, permission).not(),
+                    descriptionPermission = getDescriptionPermission(permission),
+                    onGoToSetting = {
+                        dismissDialog()
+                        activity.goToSetting()
+                    },
+                    onAllow = {
+                        dismissDialog()
+                        requestStoragePermissionLauncher.launch(arrayOf(permission))
+                    },
+                    onDismiss = ::dismissDialog,
+                )
+            }
+        }
+
+        LaunchedEffect(urlValue.value) {
+            urlValue.handleUiState(
+                onLoading = {
+                    Log.d("HomeScreen", "Loading")
                 },
-                onAllow = {
-                    dismissDialog()
-                    requestStoragePermissionLauncher.launch(arrayOf(permission))
+                onSuccess = {
+                    Log.d("HomeScreen", "Success")
                 },
-                onDismiss = ::dismissDialog,
+                onFailed = { throwable ->
+                    Log.d("HomeScreen", "Failed: $throwable")
+                }
             )
         }
     }

@@ -1,4 +1,4 @@
-package com.dapascript.mever.core.common.ui.base
+package com.dapascript.mever.core.common.base
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
@@ -27,9 +27,8 @@ import com.dapascript.mever.core.common.util.clickableSingle
 
 @Composable
 fun BaseScreen(
-    screenName: String,
     listMenuAction: List<ActionMenu>,
-    isHome: Boolean = false,
+    screenName: String = "",
     modifier: Modifier = Modifier,
     onClickBack: () -> Unit = {},
     onClickActionMenu: (String) -> Unit = {},
@@ -52,9 +51,9 @@ fun BaseScreen(
             horizontalArrangement = SpaceBetween
         ) {
             Image(
-                painter = painterResource(id = if (isHome) R.drawable.ic_mever else R.drawable.ic_back),
+                painter = painterResource(id = if (screenName.isEmpty()) R.drawable.ic_mever else R.drawable.ic_back),
                 contentDescription = "Back",
-                modifier = if (isHome.not()) Modifier.clickableSingle { onClickBack() } else Modifier
+                modifier = if (screenName.isNotEmpty()) Modifier.clickableSingle { onClickBack() } else Modifier
             )
             listMenuAction.isNotEmpty().let {
                 Row(horizontalArrangement = spacedBy(Dp16)) {

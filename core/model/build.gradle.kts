@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.mever.android.library)
-    
+    alias(libs.plugins.mever.android.library.compose)
+    id("kotlin-parcelize")
 }
 
 android {
@@ -8,5 +9,7 @@ android {
 }
 
 dependencies {
-
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter)
+    implementation(libs.okhttp.interceptor)
 }
