@@ -2,10 +2,6 @@ package com.dapascript.mever.feature.home.screen
 
 import android.Manifest.permission.READ_MEDIA_IMAGES
 import android.Manifest.permission.READ_MEDIA_VIDEO
-import android.app.Activity
-import android.content.Intent
-import android.net.Uri.fromParts
-import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions
@@ -17,7 +13,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
@@ -38,6 +37,7 @@ import com.dapascript.mever.core.common.util.Constant.ScreenName.NOTIFICATION
 import com.dapascript.mever.core.common.util.Constant.ScreenName.SETTING
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.getStoragePermission
+import com.dapascript.mever.core.common.util.goToSetting
 import com.dapascript.mever.core.common.util.isValidUrl
 import com.dapascript.mever.feature.home.R
 import com.dapascript.mever.feature.home.viewmodel.HomeViewModel
@@ -57,6 +57,7 @@ fun HomeScreen(
             ) { getVideoDownloader() }
         }
     }
+    var isLoading by remember { mutableStateOf(false) }
     val onClickActionMenu = remember { getActionMenuClick(navigator) }
     val listOfActionMenu = mapOf(
         NOTIFICATION to R.drawable.ic_notification,
@@ -84,12 +85,11 @@ fun HomeScreen(
                     webDomainValue = domain,
                     onValueChange = { domain = it }
                 )
-                MeverDownloadButton(enabled = domain.text.isValidUrl()) {
-                    requestStoragePermissionLauncher.launch(getStoragePermission)
+                MeverDownloadButton(enabled = domain.text.isValidUrl(), isLoading = isLoading) {
+                    if (isLoading.not()) requestStoragePermissionLauncher.launch(getStoragePermission)
                 }
             }
         }
-
         dialogQueue.reversed().forEach { permission ->
             MeverDialog(
                 showDialog = true,
@@ -113,13 +113,13 @@ fun HomeScreen(
 
         LaunchedEffect(urlValue.value) {
             urlValue.handleUiState(
-                onLoading = {
-                    Log.d("HomeScreen", "Loading")
-                },
+                onLoading = { isLoading = true },
                 onSuccess = {
+                    isLoading = false
                     Log.d("HomeScreen", "Success")
                 },
                 onFailed = { throwable ->
+                    isLoading = false
                     Log.d("HomeScreen", "Failed: $throwable")
                 }
             )
@@ -134,13 +134,6 @@ private fun getActionMenuClick(navigator: BaseNavigator) = { name: String ->
         SETTING -> navigator.run { navigate(getNavGraph<SettingNavGraph>().getSettingRoute()) }
         else -> Unit
     }
-}
-
-private fun Activity.goToSetting() {
-    Intent(
-        ACTION_APPLICATION_DETAILS_SETTINGS,
-        fromParts("package", packageName, null)
-    ).also(::startActivity)
 }
 
 private fun getDescriptionPermission(permission: String) = when (permission) {
