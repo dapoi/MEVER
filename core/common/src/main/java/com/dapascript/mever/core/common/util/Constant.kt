@@ -6,4 +6,11 @@ object Constant {
         const val EXPLORE = "Explore"
         const val SETTING = "Setting"
     }
+
+    object ConnectivityName {
+        const val AVAILABLE = "You're online"
+        const val UNAVAILABLE = "No internet connection"
+        const val LOSING = "Internet connection lost"
+        const val LOST = "No internet connection"
+    }
 }
