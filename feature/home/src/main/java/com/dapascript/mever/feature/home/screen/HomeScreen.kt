@@ -2,7 +2,10 @@ package com.dapascript.mever.feature.home.screen
 
 import android.Manifest.permission.READ_MEDIA_IMAGES
 import android.Manifest.permission.READ_MEDIA_VIDEO
+import android.os.Environment.DIRECTORY_DOWNLOADS
+import android.os.Environment.getExternalStoragePublicDirectory
 import android.util.Log
+import android.util.Patterns.WEB_URL
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions
 import androidx.compose.foundation.layout.Arrangement.spacedBy
@@ -12,8 +15,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -26,6 +29,7 @@ import com.dapascript.mever.core.common.navigation.base.BaseNavigator
 import com.dapascript.mever.core.common.navigation.graph.NotificationNavGraph
 import com.dapascript.mever.core.common.navigation.graph.SettingNavGraph
 import com.dapascript.mever.core.common.ui.attr.ActionMenuAttr.ActionMenu
+import com.dapascript.mever.core.common.ui.component.MeverBottomSheet
 import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverDownloadButton
 import com.dapascript.mever.core.common.ui.component.MeverTextField
@@ -38,33 +42,30 @@ import com.dapascript.mever.core.common.util.Constant.ScreenName.SETTING
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.getStoragePermission
 import com.dapascript.mever.core.common.util.goToSetting
-import com.dapascript.mever.core.common.util.isValidUrl
-import com.dapascript.mever.feature.home.R
+import com.dapascript.mever.feature.home.screen.attr.HomeScreenAttr.listOfActionMenu
 import com.dapascript.mever.feature.home.viewmodel.HomeViewModel
+import com.ketch.Ketch
 
 @Composable
 fun HomeScreen(
     navigator: BaseNavigator,
     viewModel: HomeViewModel = hiltViewModel()
 ) = with(viewModel) {
+    val videoState = videoState.collectAsStateValue()
     val activity = LocalActivity.current
     val dialogQueue = showDialogPermission
+    var id by remember { mutableIntStateOf(0) }
+    var urlContent by remember { mutableStateOf<String?>(null) }
+    var isLoading by remember { mutableStateOf(false) }
+    val onClickActionMenu = remember { getActionMenuClick(navigator) }
     val requestStoragePermissionLauncher = rememberLauncherForActivityResult(RequestMultiplePermissions()) { perms ->
         getStoragePermission.forEach { permission ->
             onPermissionResult(
                 permission = permission,
                 isGranted = perms[permission] == true
-            ) { getVideoDownloader() }
+            ) { getApiDownloader(urlSocialMediaState) }
         }
     }
-    var isLoading by remember { mutableStateOf(false) }
-    val onClickActionMenu = remember { getActionMenuClick(navigator) }
-    val listOfActionMenu = mapOf(
-        NOTIFICATION to R.drawable.ic_notification,
-        EXPLORE to R.drawable.ic_explore,
-        SETTING to R.drawable.ic_setting
-    )
-    val urlValue = urlState.collectAsState()
 
     BaseScreen(
         listMenuAction = listOfActionMenu.map { (name, resource) ->
@@ -82,12 +83,13 @@ fun HomeScreen(
             ) {
                 MeverTextField(
                     modifier = Modifier.weight(1f),
-                    webDomainValue = domain,
-                    onValueChange = { domain = it }
+                    webDomainValue = urlSocialMediaState,
+                    onValueChange = { urlSocialMediaState = it }
                 )
-                MeverDownloadButton(enabled = domain.text.isValidUrl(), isLoading = isLoading) {
-                    if (isLoading.not()) requestStoragePermissionLauncher.launch(getStoragePermission)
-                }
+                MeverDownloadButton(
+                    enabled = urlSocialMediaState.text.trim().isValidUrl(),
+                    isLoading = isLoading
+                ) { if (isLoading.not()) requestStoragePermissionLauncher.launch(getStoragePermission) }
             }
         }
         dialogQueue.reversed().forEach { permission ->
@@ -111,21 +113,49 @@ fun HomeScreen(
             }
         }
 
-        LaunchedEffect(urlValue.value) {
-            urlValue.handleUiState(
+        LaunchedEffect(videoState) {
+            videoState.handleUiState(
                 onLoading = { isLoading = true },
                 onSuccess = {
                     isLoading = false
-                    Log.d("HomeScreen", "Success")
+                    urlContent = it.first().url
                 },
                 onFailed = { throwable ->
                     isLoading = false
-                    Log.d("HomeScreen", "Failed: $throwable")
+                    Log.e("HomeScreen", "getApiDownloader: $throwable")
+                }
+            )
+        }
+
+        LaunchedEffect(urlContent) {
+            urlContent?.let {
+                ketch.observeDownloads().collect { model ->
+                    Log.d("HomeScreen", "Download: $model")
+                }
+            }
+        }
+
+        urlContent?.let { url ->
+            MeverBottomSheet(
+                onClick = {
+                    resetState()
+                    id = downloadFile(ketch, url)
+                    urlContent = null
+                },
+                onDismiss = {
+                    resetState()
+                    urlContent = null
                 }
             )
         }
     }
 }
+
+private fun downloadFile(ketch: Ketch, url: String) = ketch.download(
+    url = url,
+    path = getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).path,
+    fileName = "mever_${System.currentTimeMillis()}"
+)
 
 private fun getActionMenuClick(navigator: BaseNavigator) = { name: String ->
     when (name) {
@@ -135,6 +165,8 @@ private fun getActionMenuClick(navigator: BaseNavigator) = { name: String ->
         else -> Unit
     }
 }
+
+private fun String.isValidUrl() = WEB_URL.matcher(this).matches()
 
 private fun getDescriptionPermission(permission: String) = when (permission) {
     READ_MEDIA_IMAGES -> "We need to access your images to download the file"

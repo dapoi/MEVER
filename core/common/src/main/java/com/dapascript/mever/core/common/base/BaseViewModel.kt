@@ -1,6 +1,7 @@
 package com.dapascript.mever.core.common.base
 
-import androidx.compose.runtime.State
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -16,6 +17,7 @@ import com.dapascript.mever.core.common.util.state.UiState.StateSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -40,30 +42,33 @@ open class BaseViewModel @Inject constructor() : ViewModel() {
     }
 
     fun <T> collectApiAsUiState(
-        flow: Flow<ApiState<T>>,
+        response: Flow<ApiState<T>>,
         updateState: (UiState<T>) -> Unit
     ) {
         viewModelScope.launch(IO) {
-            flow.map { response ->
-                when (response) {
-                    is Success -> StateSuccess(response.data)
-                    is Error -> StateFailed(response.throwable)
+            response.map {
+                when (it) {
                     is Loading -> StateLoading
+                    is Success -> StateSuccess(it.data)
+                    is Error -> StateFailed(it.throwable)
                 }
             }.collect { uiState -> updateState(uiState) }
         }
     }
 
-    inline fun <T> State<UiState<T>>.handleUiState(
-        crossinline onSuccess: (T) -> Unit,
-        crossinline onLoading: () -> Unit,
-        crossinline onFailed: (Throwable) -> Unit
+    fun <T> UiState<T>.handleUiState(
+        onSuccess: (T) -> Unit,
+        onLoading: () -> Unit,
+        onFailed: (Throwable) -> Unit
     ) {
-        when (val state = value) {
-            is StateSuccess -> state.data?.let { onSuccess(it) }
+        when (this) {
+            is StateSuccess -> data?.let { onSuccess(it) }
             is StateLoading -> onLoading()
-            is StateFailed -> onFailed(state.throwable)
-            StateInitial -> Unit
+            is StateFailed -> onFailed(throwable)
+            is StateInitial -> Unit
         }
     }
+
+    @Composable
+    fun <T> StateFlow<T>.collectAsStateValue() = collectAsState().value
 }

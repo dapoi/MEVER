@@ -18,8 +18,6 @@ import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.platform.LocalView
 
-fun String.isValidUrl() = WEB_URL.matcher(this).matches()
-
 fun Modifier.clearFocusOnKeyboardDismiss(focusManager: FocusManager) = composed {
     var isFocused by remember { mutableStateOf(false) }
     var keyboardAppearedSinceLastFocused by remember { mutableStateOf(false) }
@@ -61,4 +59,3 @@ private fun View.isKeyboardOpen(): Boolean {
     val keypadHeight = screenHeight - rect.bottom
     return keypadHeight > screenHeight * 0.15
 }
-

@@ -8,7 +8,8 @@ import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.util.state.UiState
 import com.dapascript.mever.core.common.util.state.UiState.StateInitial
 import com.dapascript.mever.core.data.repository.MeverRepository
-import com.dapascript.mever.core.model.local.VideoUrlEntity
+import com.dapascript.mever.core.model.local.VideoGeneralEntity
+import com.ketch.Ketch
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,16 +17,33 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val repository: MeverRepository
+    private val repository: MeverRepository,
+    ketch: Ketch
 ) : BaseViewModel() {
 
-    private val _urlState = MutableStateFlow<UiState<List<VideoUrlEntity>>>(StateInitial)
-    val urlState = _urlState.asStateFlow()
+    val ketch by lazy { ketch }
+    var urlSocialMediaState by mutableStateOf(TextFieldValue(""))
 
-    var domain by mutableStateOf(TextFieldValue(""))
+    private val _videoState = MutableStateFlow<UiState<List<VideoGeneralEntity>>>(StateInitial)
+    val videoState = _videoState.asStateFlow()
 
-    fun getVideoDownloader() = collectApiAsUiState(
-        flow = repository.getVideoDownloader(domain.text),
-        updateState = { _urlState.value = it }
+    fun getApiDownloader(urlSocialMedia: TextFieldValue) = collectApiAsUiState(
+        response = repository.getApiDownloader(urlSocialMedia.text),
+        updateState = { _videoState.value = it }
     )
+
+    fun setUrlSocialMedia(url: TextFieldValue) {
+        urlSocialMediaState = url
+    }
+
+    fun resetState() {
+        _videoState.value = StateInitial
+    }
+
+    private fun MeverRepository.getApiDownloader(typeUrl: String) = when {
+        typeUrl.contains("facebook") -> getFacebookDownloader(typeUrl)
+        typeUrl.contains("instagram") -> getInstagramDownloader(typeUrl)
+        typeUrl.contains("twitter") -> getTwitterDownloader(typeUrl)
+        else -> throw IllegalArgumentException("Invalid type url")
+    }
 }

@@ -17,6 +17,7 @@ dependencies {
     implementation(libs.okhttp.interceptor)
     implementation(libs.hilt.android)
     implementation(libs.hilt.compiler)
+    implementation(libs.ketch)
     debugImplementation(libs.chucker.debug)
     releaseImplementation(libs.chucker.release)
 }

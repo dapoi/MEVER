@@ -16,15 +16,16 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
-import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction.Companion.Done
@@ -38,8 +39,9 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
 import com.dapascript.mever.core.common.ui.theme.MeverGray
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
-import com.dapascript.mever.core.common.ui.theme.MeverTheme
+import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.util.clearFocusOnKeyboardDismiss
+import com.dapascript.mever.core.common.util.clickableSingle
 
 @Composable
 fun MeverTextField(
@@ -48,6 +50,7 @@ fun MeverTextField(
     onValueChange: (TextFieldValue) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
+    val clipboardManager = LocalClipboardManager.current
     val interactionSource = remember { MutableInteractionSource() }
 
     Row(
@@ -59,8 +62,10 @@ fun MeverTextField(
         Box(
             modifier = Modifier
                 .padding(horizontal = Dp16, vertical = Dp14)
-                .size(Dp24)
+                .clip(CircleShape)
                 .background(color = Transparent, shape = CircleShape)
+                .size(Dp24)
+                .clickableSingle { clipboardManager.getText()?.text?.let { onValueChange(TextFieldValue(it)) } }
         ) {
             Icon(
                 modifier = Modifier.fillMaxSize(),
@@ -73,20 +78,20 @@ fun MeverTextField(
             modifier = Modifier
                 .weight(1f)
                 .clearFocusOnKeyboardDismiss(focusManager),
-            value = webDomainValue.text,
+            value = webDomainValue.text.trim(),
             onValueChange = { onValueChange(TextFieldValue(it)) },
             interactionSource = interactionSource,
             maxLines = 1,
             singleLine = true,
             cursorBrush = SolidColor(MeverPurple),
-            textStyle = typography.bodyMedium,
+            textStyle = typography.body2,
             keyboardOptions = KeyboardOptions(keyboardType = Uri, imeAction = Done),
             keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
             decorationBox = { innerTextField ->
                 if (webDomainValue.text.isEmpty()) Text(
                     text = "Paste link here...",
                     color = MeverGray,
-                    style = MeverTheme.typography.body2
+                    style = typography.body2
                 )
                 innerTextField()
             }
@@ -95,6 +100,7 @@ fun MeverTextField(
             Box(
                 modifier = Modifier
                     .padding(horizontal = Dp16, vertical = Dp14)
+                    .clip(CircleShape)
                     .size(Dp24)
                     .clickable { onValueChange(TextFieldValue()) }
             ) {

@@ -3,9 +3,9 @@ package com.dapascript.mever.core.data.di
 import android.content.Context
 import com.chuckerteam.chucker.api.ChuckerCollector
 import com.chuckerteam.chucker.api.ChuckerInterceptor
-import com.dapascript.mever.core.data.network.ApiService
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.repository.MeverRepositoryImpl
+import com.dapascript.mever.core.data.source.remote.ApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

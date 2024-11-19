@@ -1,14 +1,25 @@
 package com.dapascript.mever.core.data.repository
 
 import com.dapascript.mever.core.common.base.BaseRepository
-import com.dapascript.mever.core.data.network.ApiService
+import com.dapascript.mever.core.data.source.remote.ApiService
 import javax.inject.Inject
 
 class MeverRepositoryImpl @Inject constructor(
     private val apiService: ApiService
 ) : MeverRepository, BaseRepository() {
-    override fun getVideoDownloader(url: String) = collectApiResult(
-        fetchApi = { apiService.getVideoDownloader(url) },
+
+    override fun getFacebookDownloader(url: String) = collectApiResult(
+        fetchApi = { apiService.getFacebookDownloader(url) },
+        transformData = { it.mapToEntity() }
+    )
+
+    override fun getInstagramDownloader(url: String) = collectApiResult(
+        fetchApi = { apiService.getInstagramDownloader(url) },
+        transformData = { it.mapToEntity() }
+    )
+
+    override fun getTwitterDownloader(url: String) = collectApiResult(
+        fetchApi = { apiService.getTwitterDownloader(url) },
         transformData = { it.mapToEntity() }
     )
 }

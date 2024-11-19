@@ -41,4 +41,5 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.ketch)
 }

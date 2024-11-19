@@ -10,12 +10,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.attr.ActionMenuAttr.ActionMenu
@@ -53,7 +55,11 @@ fun BaseScreen(
             Image(
                 painter = painterResource(id = if (screenName.isEmpty()) R.drawable.ic_mever else R.drawable.ic_back),
                 contentDescription = "Back",
-                modifier = if (screenName.isNotEmpty()) Modifier.clickableSingle { onClickBack() } else Modifier
+                modifier = if (screenName.isNotEmpty()) {
+                    Modifier
+                        .clip(CircleShape)
+                        .clickableSingle { onClickBack() }
+                } else Modifier
             )
             listMenuAction.isNotEmpty().let {
                 Row(horizontalArrangement = spacedBy(Dp16)) {
