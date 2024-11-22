@@ -30,6 +30,7 @@ import com.dapascript.mever.core.common.util.Constant.ScreenName.NOTIFICATION
 fun MeverActionButton(
     resource: Int,
     name: String,
+    showBadge: Boolean,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
@@ -41,7 +42,7 @@ fun MeverActionButton(
                 contentDescription = getContentDescription(name)
             )
         }
-        if (name == NOTIFICATION) Badge(
+        if (showBadge && name == NOTIFICATION) Badge(
             modifier = Modifier
                 .size(Dp15)
                 .border(width = Dp2, color = MeverWhite, shape = CircleShape)

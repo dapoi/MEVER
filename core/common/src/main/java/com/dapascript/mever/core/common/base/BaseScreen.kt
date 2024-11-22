@@ -29,7 +29,7 @@ import com.dapascript.mever.core.common.util.clickableSingle
 
 @Composable
 fun BaseScreen(
-    listMenuAction: List<ActionMenu>,
+    actionMenus: List<ActionMenu>,
     screenName: String = "",
     modifier: Modifier = Modifier,
     onClickBack: () -> Unit = {},
@@ -61,12 +61,13 @@ fun BaseScreen(
                         .clickableSingle { onClickBack() }
                 } else Modifier
             )
-            listMenuAction.isNotEmpty().let {
+            actionMenus.isNotEmpty().let {
                 Row(horizontalArrangement = spacedBy(Dp16)) {
-                    listMenuAction.forEach { (resource, name) ->
+                    actionMenus.forEach { (resource, name, showBadge) ->
                         MeverActionButton(
                             resource = resource,
-                            name = name
+                            name = name,
+                            showBadge = showBadge
                         ) { onClickActionMenu(name) }
                     }
                 }

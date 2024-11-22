@@ -11,7 +11,7 @@ fun SettingScreen(
 
     BaseScreen(
         screenName = "Setting",
-        listMenuAction = emptyList(),
+        actionMenus = emptyList(),
         onClickBack = { navigator.popBackStack() }
     ) { }
 }

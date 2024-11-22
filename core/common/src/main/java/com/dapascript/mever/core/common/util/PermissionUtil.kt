@@ -18,3 +18,9 @@ val getNotificationPermission = POST_NOTIFICATIONS
 
 @ChecksSdkIntAtLeast(api = TIRAMISU)
 fun isAndroidTiramisuAbove() = SDK_INT >= TIRAMISU
+
+fun getDescriptionPermission(permission: String) = when (permission) {
+    READ_MEDIA_IMAGES -> "We need to access your images to download the file"
+    READ_MEDIA_VIDEO -> "We need to access your videos to download the file"
+    else -> "We need to access your storage to download the file"
+}

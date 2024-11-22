@@ -19,6 +19,6 @@ object ActionMenuAttr {
     data class ActionMenu(
         val resource: Int,
         val name: String,
-        val isShowBadge: Boolean = false,
+        val showBadge: Boolean = false,
     )
 }

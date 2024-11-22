@@ -13,4 +13,11 @@ object Constant {
         const val LOSING = "Internet connection lost"
         const val LOST = "No internet connection"
     }
+
+    enum class PlatformType {
+        FACEBOOK,
+        INSTAGRAM,
+        TWITTER,
+        UNKNOWN
+    }
 }

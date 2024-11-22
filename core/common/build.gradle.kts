@@ -13,4 +13,8 @@ dependencies {
     implementation(libs.androidx.compose.ui.util)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.ketch)
+    implementation(libs.coil)
+    implementation(libs.coil.video)
+    implementation(libs.coil.network)
 }
