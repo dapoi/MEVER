@@ -19,7 +19,6 @@ import com.dapascript.mever.core.common.util.toCurrentDate
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.model.local.VideoGeneralEntity
 import com.ketch.Ketch
-import com.ketch.Status.PROGRESS
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -62,7 +61,7 @@ class HomeViewModel @Inject constructor(
 
     fun getObservableKetch() = viewModelScope.launch {
         ketch.observeDownloads().collect { models ->
-            models.filter { it.status == PROGRESS }.let { showBadge = it.isNotEmpty() }
+            models.filter { it.progress < 100 }.let { showBadge = it.isNotEmpty() }
         }
     }
 
