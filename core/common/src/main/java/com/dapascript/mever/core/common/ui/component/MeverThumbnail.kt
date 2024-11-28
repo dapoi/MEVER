@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale.Companion.Crop
 import com.dapascript.mever.core.common.ui.theme.MeverDarkGray
 import com.dapascript.mever.core.common.util.getVideoThumbnail
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -40,13 +41,18 @@ fun MeverThumbnail(
     val videoThumbnail = remember(url) { mutableStateOf<Bitmap?>(null) }
     val showShimmer = remember(videoThumbnail) { mutableStateOf(false) }
 
-    LaunchedEffect(showShimmer, videoThumbnail) {
-        while (showShimmer.value.not() && videoThumbnail.value == null) {
-            showShimmer.value = true
-            scope.launch {
-                videoThumbnail.value = getVideoThumbnail(url)
-                showShimmer.value = false
+    LaunchedEffect(url) {
+        showShimmer.value = true
+        scope.launch {
+            while (videoThumbnail.value == null) {
+                try {
+                    videoThumbnail.value = getVideoThumbnail(url)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+                if (videoThumbnail.value == null) delay(500)
             }
+            showShimmer.value = false
         }
     }
 
