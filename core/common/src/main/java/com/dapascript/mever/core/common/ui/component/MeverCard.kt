@@ -69,6 +69,7 @@ fun MeverCard(
         modifier = modifier
             .fillMaxWidth()
             .height(Max)
+            .clip(RoundedCornerShape(Dp12))
             .clickableSingle { onClick() },
         shape = RoundedCornerShape(Dp12),
         colors = cardColors(colorScheme.background),
