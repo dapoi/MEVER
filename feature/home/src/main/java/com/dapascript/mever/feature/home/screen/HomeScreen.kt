@@ -4,45 +4,64 @@ import android.app.Activity
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions
+import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
+import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults.colors
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.navigation.base.BaseNavigator
+import com.dapascript.mever.core.common.navigation.graph.GalleryNavGraph
 import com.dapascript.mever.core.common.navigation.graph.NotificationNavGraph
 import com.dapascript.mever.core.common.navigation.graph.SettingNavGraph
 import com.dapascript.mever.core.common.ui.attr.ActionMenuAttr.ActionMenu
-import com.dapascript.mever.core.common.ui.attr.MeverDownloadAttr.MeverDownloadArgs
-import com.dapascript.mever.core.common.ui.component.DownloadDialog
+import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
 import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverDownloadButton
 import com.dapascript.mever.core.common.ui.component.MeverTextField
-import com.dapascript.mever.core.common.ui.component.PermissionDialog
+import com.dapascript.mever.core.common.ui.component.MeverThumbnail
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp0
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
+import com.dapascript.mever.core.common.ui.theme.MeverPurple
+import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.util.Constant.PlatformType.UNKNOWN
-import com.dapascript.mever.core.common.util.Constant.ScreenName.EXPLORE
+import com.dapascript.mever.core.common.util.Constant.ScreenName.GALLERY
 import com.dapascript.mever.core.common.util.Constant.ScreenName.NOTIFICATION
 import com.dapascript.mever.core.common.util.Constant.ScreenName.SETTING
 import com.dapascript.mever.core.common.util.LocalActivity
-import com.dapascript.mever.core.common.util.downloadFile
+import com.dapascript.mever.core.common.util.clickableSingle
 import com.dapascript.mever.core.common.util.getDescriptionPermission
 import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.getStoragePermission
 import com.dapascript.mever.core.common.util.goToSetting
+import com.dapascript.mever.core.common.util.isValidUrl
 import com.dapascript.mever.core.model.local.VideoGeneralEntity
+import com.dapascript.mever.feature.home.screen.attr.HomeScreenAttr.DownloaderArgs
 import com.dapascript.mever.feature.home.screen.attr.HomeScreenAttr.listOfActionMenu
 import com.dapascript.mever.feature.home.viewmodel.HomeViewModel
 
@@ -107,11 +126,19 @@ internal fun HomeScreen(
         )
 
         HandleDialogDownload(
-            listVideo = listVideo,
+            downloadArgs = listVideo.map {
+                DownloaderArgs(
+                    url = it.url,
+                    quality = it.quality
+                )
+            },
             showDialog = listVideo.isNotEmpty(),
             onDownloadClick = { url ->
-                Log.d("HomeScreen", "$url ")
-                downloadFile(ketch, url)
+                downloadFile(
+                    url = url,
+                    platformName = urlSocialMediaState.text.getPlatformType().platformName
+                )
+                navigator.navigateToNotif()
                 listVideo = emptyList()
                 resetState()
             },
@@ -137,16 +164,21 @@ private fun HandleDialogPermission(
     onDismiss: () -> Unit
 ) {
     dialogQueue.reversed().forEach { permission ->
+        val isPermissionsDeclined = shouldShowRequestPermissionRationale(activity, permission).not()
+
         MeverDialog(
             showDialog = true,
-            onDismiss = onDismiss
+            meverDialogArgs = MeverDialogArgs(
+                title = "Permission required",
+                actionText = if (isPermissionsDeclined) "Go to setting" else "Allow",
+                onActionClick = if (isPermissionsDeclined) onGoToSetting else onAllow,
+                onDismissClick = onDismiss
+            )
         ) {
-            PermissionDialog(
-                isPermissionsDeclined = shouldShowRequestPermissionRationale(activity, permission).not(),
-                descriptionPermission = getDescriptionPermission(permission),
-                onGoToSetting = onGoToSetting,
-                onAllow = onAllow,
-                onDismiss = onDismiss,
+            Text(
+                text = getDescriptionPermission(permission),
+                style = typography.body1,
+                color = colorScheme.onPrimary
             )
         }
     }
@@ -154,25 +186,53 @@ private fun HandleDialogPermission(
 
 @Composable
 private fun HandleDialogDownload(
-    listVideo: List<VideoGeneralEntity>,
+    downloadArgs: List<DownloaderArgs>,
     showDialog: Boolean,
     onDownloadClick: (String) -> Unit,
     onDismiss: () -> Unit
-) {
+) = with(downloadArgs) {
+    var chooseQuality by remember(this) { mutableStateOf(firstOrNull { it.quality.isNotEmpty() }?.url) }
+
     MeverDialog(
         showDialog = showDialog,
-        onDismiss = onDismiss
-    ) {
-        DownloadDialog(
-            meverDownloadArgs = listVideo.map {
-                MeverDownloadArgs(
-                    url = it.url,
-                    quality = it.quality
-                )
-            },
-            onDownloadClick = { onDownloadClick(it) },
-            onDismiss = onDismiss
+        meverDialogArgs = MeverDialogArgs(
+            title = "The video is ready to download",
+            actionText = "Download",
+            onActionClick = { onDownloadClick(chooseQuality ?: get(0).url) },
+            onDismissClick = onDismiss
         )
+    ) {
+        MeverThumbnail(
+            url = size.takeIf { it > 0 }?.let { get(0).url } ?: "",
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(16f / 9f)
+                .clip(RoundedCornerShape(Dp8))
+        )
+        filter { it.quality.isNotEmpty() && it.url.isValidUrl() }.map { (url, quality) ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(Dp4))
+                    .clickableSingle { chooseQuality = url },
+                horizontalArrangement = SpaceBetween,
+                verticalAlignment = CenterVertically
+            ) {
+                Text(
+                    text = quality,
+                    style = typography.body1,
+                    color = colorScheme.onPrimary
+                )
+                CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp0) {
+                    RadioButton(
+                        modifier = Modifier.padding(vertical = Dp4),
+                        colors = colors(selectedColor = MeverPurple),
+                        selected = chooseQuality == url,
+                        onClick = null
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -184,7 +244,7 @@ private fun HomeScreenContent(
     requestStoragePermissionLauncher: () -> Unit
 ) = with(homeViewModel) {
     Column(
-        modifier = modifier.padding(top = Dp32),
+        modifier = modifier.verticalScroll(rememberScrollState()),
         horizontalAlignment = CenterHorizontally
     ) {
         Row(
@@ -206,9 +266,11 @@ private fun HomeScreenContent(
 
 private fun getActionMenuClick(navigator: BaseNavigator) = { name: String ->
     when (name) {
-        NOTIFICATION -> navigator.run { navigate(getNavGraph<NotificationNavGraph>().getNotificationRoute()) }
-        EXPLORE -> navigator.run {}
+        NOTIFICATION -> navigator.navigateToNotif()
+        GALLERY -> navigator.run { navigate(getNavGraph<GalleryNavGraph>().getGalleryRoute()) }
         SETTING -> navigator.run { navigate(getNavGraph<SettingNavGraph>().getSettingRoute()) }
         else -> Unit
     }
 }
+
+private fun BaseNavigator.navigateToNotif() = navigate(getNavGraph<NotificationNavGraph>().getNotificationRoute())

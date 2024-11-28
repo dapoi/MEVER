@@ -18,14 +18,18 @@ val LightColorScheme = lightColorScheme(
     primary = Light.primary,
     onPrimary = Light.onPrimary,
     surface = Light.surface,
-    background = Light.background
+    background = Light.background,
+    secondary = Light.secondary,
+    onSecondary = Light.onSecondary
 )
 
 val DarkColorScheme = darkColorScheme(
     primary = Dark.primary,
     onPrimary = Dark.onPrimary,
     surface = Dark.surface,
-    background = Dark.background
+    background = Dark.background,
+    secondary = Dark.secondary,
+    onSecondary = Dark.onSecondary
 )
 
 object MeverTheme {

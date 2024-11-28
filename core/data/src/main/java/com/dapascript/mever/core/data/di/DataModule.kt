@@ -14,6 +14,7 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit.SECONDS
 import javax.inject.Singleton
 
 @Module
@@ -45,6 +46,9 @@ class DataModule {
         chuckerInterceptor: ChuckerInterceptor
     ) = OkHttpClient.Builder()
         .addInterceptor(chuckerInterceptor)
+        .connectTimeout(20, SECONDS)
+        .readTimeout(20, SECONDS)
+        .writeTimeout(20, SECONDS)
         .build()
 
     @Provides

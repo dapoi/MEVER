@@ -1,7 +1,6 @@
 package com.dapascript.mever
 
 import android.app.Application
-import android.app.NotificationManager.IMPORTANCE_MAX
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserverImpl
@@ -26,8 +25,7 @@ open class MeverApp : Application() {
             .setNotificationConfig(
                 NotificationConfig(
                     enabled = true,
-                    smallIcon = R.drawable.ic_mever,
-                    importance = IMPORTANCE_MAX
+                    smallIcon = R.drawable.ic_mever
                 )
             )
             .setDownloadConfig(

@@ -3,7 +3,7 @@ package com.dapascript.mever.core.common.util
 object Constant {
     object ScreenName {
         const val NOTIFICATION = "Notification"
-        const val EXPLORE = "Explore"
+        const val GALLERY = "Gallery"
         const val SETTING = "Setting"
     }
 
@@ -14,10 +14,18 @@ object Constant {
         const val LOST = "No internet connection"
     }
 
-    enum class PlatformType {
-        FACEBOOK,
-        INSTAGRAM,
-        TWITTER,
-        UNKNOWN
+    object PlatformName {
+        const val FACEBOOK = "Facebook"
+        const val INSTAGRAM = "Instagram"
+        const val TWITTER = "Twitter"
+        const val TIKTOK = "TikTok"
+        const val UNKNOWN = "Unknown"
+    }
+
+    enum class PlatformType(val platformName: String) {
+        FACEBOOK(PlatformName.FACEBOOK),
+        INSTAGRAM(PlatformName.INSTAGRAM),
+        TWITTER(PlatformName.TWITTER),
+        UNKNOWN(PlatformName.UNKNOWN)
     }
 }

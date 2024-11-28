@@ -1,11 +1,11 @@
 [versions]
 androidGradlePlugin = "8.6.1"
-androidTools = "31.7.1"
+androidTools = "31.7.2"
 androidxActivity = "1.9.3"
-androidxComposeBom = "2024.10.00"
+androidxComposeBom = "2024.11.00"
 androidxComposeCompiler = "1.5.12"  # Compose VC
-androidxLifecycle = "2.8.6"
-androidxNavigation = "2.8.3"
+androidxLifecycle = "2.8.7"
+androidxNavigation = "2.8.4"
 baseJunit = "4.13.2"
 coreKtxVersion = "1.13.1"
 espressoCore = "3.6.1"
@@ -19,11 +19,12 @@ dataStorePreferences = "1.1.1"
 room = "2.6.1"
 retrofit = "2.9.0"
 interceptor = "4.11.0"
-ketch = "2.0.1"
+ketch = "2.0.2"
 appcompat = "1.7.0"
 material = "1.12.0"
 coil = "3.0.2"
 chucker = "4.0.0"
+lottie = "6.6.0"
 
 [libraries]
 # Compose
@@ -59,6 +60,12 @@ hilt-navigation = { group = "androidx.hilt", name = "hilt-navigation-compose", v
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 # End
 
+# Networking
+retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+retrofit-converter = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
+okhttp-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "interceptor" }
+# End
+
 # Ketch
 ketch = { group = "com.github.khushpanchal", name = "Ketch", version.ref = "ketch" }
 # End
@@ -66,11 +73,10 @@ ketch = { group = "com.github.khushpanchal", name = "Ketch", version.ref = "ketc
 # Chucker
 chucker-debug = { group = "com.github.chuckerteam.chucker", name = "library", version.ref = "chucker" }
 chucker-release = { group = "com.github.chuckerteam.chucker", name = "library-no-op", version.ref = "chucker" }
+# End
 
-# Networking
-retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
-retrofit-converter = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
-okhttp-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "interceptor" }
+# DotLottie
+lottie = { group = "com.airbnb.android", name = "lottie-compose", version.ref = "lottie" }
 # End
 
 # Persistence

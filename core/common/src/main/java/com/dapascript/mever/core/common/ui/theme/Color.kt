@@ -7,9 +7,9 @@ val MeverYoungPurple = Color(0xFFE0D6FB)
 val MeverYellow = Color(0xFFF9D966)
 val MeverBlack = Color(0xFF121212)
 val MeverDarkMode = Color(0xFF292929)
-val MeverDarkGray = Color(0xFF888888)
-val MeverGray = Color(0xFFBAC2CD)
-val MeverLightGray = Color(0xFFDCE0E6)
+val MeverGray = Color(0xFF888888)
+val MeverLightGray = Color(0xFFBAC2CD)
+val MeverDarkGray = Color(0xFF535454)
 val MeverWhite = Color(0xFFFFFFFF)
 val MeverLightMode = Color(0xFFF7F7F7)
 val MeverRed = Color(0xFFD00036)
@@ -23,7 +23,8 @@ sealed class MeverThemeColors(
     val primary: Color,
     val onPrimary: Color,
     val secondary: Color,
-    val onSecondary: Color
+    val onSecondary: Color,
+    val onSurfaceVariant: Color
 ) {
     data object Light : MeverThemeColors(
         primary = MeverPurple,
@@ -31,15 +32,17 @@ sealed class MeverThemeColors(
         background = MeverLightMode,
         surface = MeverWhite,
         secondary = MeverYellow,
-        onSecondary = MeverWhite
+        onSecondary = MeverWhite,
+        onSurfaceVariant = MeverWhite
     )
 
     data object Dark : MeverThemeColors(
         primary = MeverPurple,
         onPrimary = MeverWhite,
         background = MeverDarkMode,
-        surface = MeverDarkGray,
+        surface = MeverGray,
         secondary = MeverYellow,
-        onSecondary = MeverWhite
+        onSecondary = MeverWhite,
+        onSurfaceVariant = MeverLightGray
     )
 }

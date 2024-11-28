@@ -17,4 +17,5 @@ dependencies {
     implementation(libs.coil)
     implementation(libs.coil.video)
     implementation(libs.coil.network)
+    implementation(libs.lottie)
 }

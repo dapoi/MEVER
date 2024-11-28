@@ -1,6 +1,5 @@
 package com.dapascript.mever.core.common.ui.component
 
-import android.R.drawable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -37,8 +36,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
-import com.dapascript.mever.core.common.ui.theme.MeverGray
-import com.dapascript.mever.core.common.ui.theme.MeverPurple
+import com.dapascript.mever.core.common.ui.theme.MeverLightGray
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.util.clearFocusOnKeyboardDismiss
 import com.dapascript.mever.core.common.util.clickableSingle
@@ -69,7 +67,7 @@ fun MeverTextField(
         ) {
             Icon(
                 modifier = Modifier.fillMaxSize(),
-                painter = painterResource(id = R.drawable.ic_link),
+                painter = painterResource(R.drawable.ic_link),
                 contentDescription = "Link",
                 tint = colorScheme.onPrimary
             )
@@ -83,15 +81,15 @@ fun MeverTextField(
             interactionSource = interactionSource,
             maxLines = 1,
             singleLine = true,
-            cursorBrush = SolidColor(MeverPurple),
-            textStyle = typography.body2,
+            cursorBrush = SolidColor(colorScheme.onPrimary),
+            textStyle = typography.body2.copy(color = colorScheme.onPrimary),
             keyboardOptions = KeyboardOptions(keyboardType = Uri, imeAction = Done),
             keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
             decorationBox = { innerTextField ->
                 if (webDomainValue.text.isEmpty()) Text(
                     text = "Paste link here...",
-                    color = MeverGray,
-                    style = typography.body2
+                    color = MeverLightGray,
+                    style = typography.body2.copy(color = colorScheme.onPrimary)
                 )
                 innerTextField()
             }
@@ -106,7 +104,7 @@ fun MeverTextField(
             ) {
                 Icon(
                     modifier = Modifier.fillMaxSize(),
-                    painter = painterResource(id = drawable.ic_menu_close_clear_cancel),
+                    painter = painterResource(R.drawable.ic_clear),
                     contentDescription = "Clear",
                     tint = colorScheme.onPrimary
                 )

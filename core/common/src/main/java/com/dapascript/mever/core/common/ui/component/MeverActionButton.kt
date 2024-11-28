@@ -1,5 +1,11 @@
 package com.dapascript.mever.core.common.ui.component
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode.Reverse
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -16,14 +22,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.TopEnd
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
-import com.dapascript.mever.core.common.ui.attr.ActionMenuAttr.getContentDescription
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp15
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
-import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.Constant.ScreenName.NOTIFICATION
 
 @Composable
@@ -34,24 +40,49 @@ fun MeverActionButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
+    val value by rememberInfiniteTransition(label = "Infinite Transition").animateFloat(
+        initialValue = 25f,
+        targetValue = -25f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(
+                durationMillis = 600,
+                easing = LinearEasing
+            ),
+            repeatMode = Reverse
+        ),
+        label = "Rotation Animation"
+    )
+
     Box(modifier = modifier.size(Dp32)) {
         IconButton(onClick = onDebounceClick { onClick() }) {
             Icon(
-                modifier = Modifier.size(Dp24),
+                modifier = Modifier
+                    .size(Dp24)
+                    .showGraphicLayer(state = showBadge && name == NOTIFICATION, value = value),
                 imageVector = ImageVector.vectorResource(resource),
-                contentDescription = getContentDescription(name)
+                contentDescription = "Action Menu"
             )
         }
         if (showBadge && name == NOTIFICATION) Badge(
             modifier = Modifier
                 .size(Dp15)
-                .border(width = Dp2, color = MeverWhite, shape = CircleShape)
+                .border(width = Dp2, color = colorScheme.background, shape = CircleShape)
                 .align(TopEnd)
                 .clip(CircleShape),
             containerColor = colorScheme.primary
         )
     }
 }
+
+private fun Modifier.showGraphicLayer(state: Boolean, value: Float) = if (state) {
+    graphicsLayer(
+        transformOrigin = TransformOrigin(
+            pivotFractionX = 0.5f,
+            pivotFractionY = 0.0f
+        ),
+        rotationZ = value
+    )
+} else this
 
 @Composable
 private fun onDebounceClick(
