@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize.Max
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -44,6 +43,7 @@ import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardType.DOWN
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp10
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp15
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp150
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
@@ -54,6 +54,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp88
 import com.dapascript.mever.core.common.ui.theme.MeverDarkGray
+import com.dapascript.mever.core.common.ui.theme.MeverGray
 import com.dapascript.mever.core.common.ui.theme.MeverLightGray
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.util.calculateDownloadPercentage
@@ -134,7 +135,7 @@ private fun MeverCardDownloading(
                 Text(
                     text = "Type: ${getContentType(path)}",
                     style = typography.label2,
-                    color = MeverLightGray
+                    color = MeverGray
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -198,7 +199,7 @@ private fun MeverCardDownloaded(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(16f / 9)
+                .height(Dp150)
                 .clip(RoundedCornerShape(Dp16)),
             contentAlignment = Center
         ) {
@@ -231,11 +232,12 @@ private fun MeverCardDownloaded(
             ) {
                 Text(
                     text = fileName,
-                    style = typography.h6,
+                    style = typography.bodyBold3,
                 )
                 Text(
                     text = "Type: ${getContentType(path)}",
-                    style = typography.body3,
+                    style = typography.label3,
+                    color = MeverGray
                 )
             }
             IconButton(onClick = { onShareContentClick?.invoke() }) {
