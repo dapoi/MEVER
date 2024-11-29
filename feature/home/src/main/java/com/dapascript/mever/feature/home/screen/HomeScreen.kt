@@ -1,7 +1,6 @@
 package com.dapascript.mever.feature.home.screen
 
 import android.app.Activity
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
@@ -75,13 +74,13 @@ internal fun HomeScreen(
     val dialogQueue = showDialogPermission
     var listVideo by remember { mutableStateOf<List<VideoGeneralEntity>>(emptyList()) }
     var isLoading by remember { mutableStateOf(false) }
+    var isError by remember { mutableStateOf(false) }
     val onClickActionMenu = remember { getActionMenuClick(navigator) }
     val requestStoragePermissionLauncher = rememberLauncherForActivityResult(RequestMultiplePermissions()) { perms ->
-        getStoragePermission.forEach { permission ->
-            onPermissionResult(
-                permission = permission,
-                isGranted = perms[permission] == true
-            ) { getApiDownloader(urlSocialMediaState) }
+        val allGranted = getStoragePermission.all { perms[it] == true }
+        if (allGranted) getApiDownloader(urlSocialMediaState)
+        else getStoragePermission.forEach { permission ->
+            onPermissionResult(permission, isGranted = perms[permission] == true)
         }
     }
 
@@ -104,12 +103,21 @@ internal fun HomeScreen(
                     isLoading = false
                     listVideo = it
                 },
-                onFailed = { throwable ->
+                onFailed = {
                     isLoading = false
-                    Log.e("HomeScreen", "getApiDownloader: $throwable")
+                    isError = true
                 }
             )
         }
+
+        HandleDialogError(
+            showDialog = isError,
+            onRetry = {
+                getApiDownloader(urlSocialMediaState)
+                isError = false
+            },
+            onDismiss = { isError = false }
+        )
 
         HandleDialogPermission(
             activity = activity,
@@ -138,8 +146,8 @@ internal fun HomeScreen(
                     url = url,
                     platformName = urlSocialMediaState.text.getPlatformType().platformName
                 )
-                navigator.navigateToNotif()
                 listVideo = emptyList()
+                urlSocialMediaState = urlSocialMediaState.copy(text = "")
                 resetState()
             },
             onDismiss = {
@@ -152,6 +160,29 @@ internal fun HomeScreen(
             homeViewModel = this,
             isLoading = isLoading
         ) { requestStoragePermissionLauncher.launch(getStoragePermission) }
+    }
+}
+
+@Composable
+private fun HandleDialogError(
+    showDialog: Boolean,
+    onRetry: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    MeverDialog(
+        showDialog = showDialog,
+        meverDialogArgs = MeverDialogArgs(
+            title = "Ups, something went wrong!",
+            actionText = "Retry",
+            onActionClick = onRetry,
+            onDismissClick = onDismiss
+        )
+    ) {
+        Text(
+            text = "Please press the button below to try again",
+            style = typography.body1,
+            color = colorScheme.onPrimary
+        )
     }
 }
 
@@ -169,7 +200,7 @@ private fun HandleDialogPermission(
         MeverDialog(
             showDialog = true,
             meverDialogArgs = MeverDialogArgs(
-                title = "Permission required",
+                title = "Permission Required",
                 actionText = if (isPermissionsDeclined) "Go to setting" else "Allow",
                 onActionClick = if (isPermissionsDeclined) onGoToSetting else onAllow,
                 onDismissClick = onDismiss
@@ -203,7 +234,7 @@ private fun HandleDialogDownload(
         )
     ) {
         MeverThumbnail(
-            url = size.takeIf { it > 0 }?.let { get(0).url } ?: "",
+            source = size.takeIf { it > 0 }?.let { get(0).url } ?: "",
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(16f / 9f)

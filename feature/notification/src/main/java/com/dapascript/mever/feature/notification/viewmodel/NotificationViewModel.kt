@@ -4,7 +4,11 @@ import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.ketch.DownloadModel
 import com.ketch.Ketch
+import com.ketch.Status.CANCELLED
 import com.ketch.Status.FAILED
+import com.ketch.Status.PAUSED
+import com.ketch.Status.PROGRESS
+import com.ketch.Status.STARTED
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,8 +25,8 @@ class NotificationViewModel @Inject constructor(
 
     fun getAllDownloads() = viewModelScope.launch {
         ketch.observeDownloads().collect { downloads ->
-            _downloadList.value = downloads
-            downloads.map { if (it.status == FAILED) ketch.cancel(it.id) }
+            _downloadList.value = downloads.filter { it.status in listOf(STARTED,PAUSED, PROGRESS) }
+            ketch.clearDb(downloads.find { it.status in listOf(CANCELLED, FAILED) }?.id ?: 0)
         }
     }
 

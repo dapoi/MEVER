@@ -19,7 +19,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Offset.Companion.Zero
@@ -30,29 +29,22 @@ import androidx.compose.ui.layout.ContentScale.Companion.Crop
 import com.dapascript.mever.core.common.ui.theme.MeverDarkGray
 import com.dapascript.mever.core.common.util.getVideoThumbnail
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @Composable
 fun MeverThumbnail(
-    url: String,
+    source: String,
     modifier: Modifier = Modifier
 ) {
-    val scope = rememberCoroutineScope()
-    val videoThumbnail = remember(url) { mutableStateOf<Bitmap?>(null) }
-    val showShimmer = remember(videoThumbnail) { mutableStateOf(false) }
+    val videoThumbnail = remember(source) { mutableStateOf<Bitmap?>(null) }
 
-    LaunchedEffect(url) {
-        showShimmer.value = true
-        scope.launch {
-            while (videoThumbnail.value == null) {
-                try {
-                    videoThumbnail.value = getVideoThumbnail(url)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-                if (videoThumbnail.value == null) delay(500)
+    LaunchedEffect(source) {
+        while (videoThumbnail.value == null) {
+            try {
+                videoThumbnail.value = getVideoThumbnail(source)
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-            showShimmer.value = false
+            if (videoThumbnail.value == null) delay(1000)
         }
     }
 
@@ -68,11 +60,7 @@ fun MeverThumbnail(
                 contentScale = Crop,
                 modifier = modifier
             )
-        } ?: Box(
-            modifier = if (showShimmer.value) {
-                modifier.background(shimmerBrush())
-            } else modifier.background(MeverDarkGray)
-        )
+        } ?: Box(modifier = modifier.background(shimmerBrush()))
     }
 }
 

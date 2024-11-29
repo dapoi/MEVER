@@ -1,5 +1,6 @@
 package com.dapascript.mever.core.common.ui.attr
 
+import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardType.DOWNLOADING
 import com.ketch.Status
 
 object MeverCardAttr {
@@ -9,6 +10,15 @@ object MeverCardAttr {
         val status: Status,
         val progress: Int,
         val total: Long,
-        val path: String
+        val path: String,
+        val type: MeverCardType = DOWNLOADING,
+        val onDownloadingClick: (() -> Unit)? = null,
+        val onShareContentClick: (() -> Unit)? = null,
+        val onDeleteContentClick: (() -> Unit)? = null
     )
+
+    enum class MeverCardType {
+        DOWNLOADING,
+        DOWNLOADED
+    }
 }

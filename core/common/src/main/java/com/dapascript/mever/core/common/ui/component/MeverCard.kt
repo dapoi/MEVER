@@ -17,6 +17,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults.cardColors
 import androidx.compose.material3.CardDefaults.cardElevation
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.ProgressIndicatorDefaults.ProgressAnimationSpec
@@ -33,13 +35,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow.Companion.Ellipsis
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardArgs
+import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardType.DOWNLOADED
+import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardType.DOWNLOADING
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp10
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp15
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp200
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp5
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
@@ -50,6 +56,7 @@ import com.dapascript.mever.core.common.util.calculateDownloadPercentage
 import com.dapascript.mever.core.common.util.calculateDownloadedMegabytes
 import com.dapascript.mever.core.common.util.clickableSingle
 import com.dapascript.mever.core.common.util.getContentType
+import com.dapascript.mever.core.common.util.getMeverFiles
 import com.dapascript.mever.core.common.util.getTwoDecimals
 import com.ketch.Status.PAUSED
 
@@ -57,7 +64,17 @@ import com.ketch.Status.PAUSED
 fun MeverCard(
     meverCardArgs: MeverCardArgs,
     modifier: Modifier = Modifier,
-    onClick: () -> Unit
+) = with(meverCardArgs) {
+    when (type) {
+        DOWNLOADING -> MeverCardDownloading(this@with, modifier)
+        DOWNLOADED -> MeverCardDownloaded(this@with, modifier)
+    }
+}
+
+@Composable
+private fun MeverCardDownloading(
+    meverCardArgs: MeverCardArgs,
+    modifier: Modifier = Modifier
 ) = with(meverCardArgs) {
     val animatedProgress by animateFloatAsState(
         targetValue = progress / 100f,
@@ -70,7 +87,7 @@ fun MeverCard(
             .fillMaxWidth()
             .height(Max)
             .clip(RoundedCornerShape(Dp12))
-            .clickableSingle { onClick() },
+            .clickableSingle { onDownloadingClick?.invoke() },
         shape = RoundedCornerShape(Dp12),
         colors = cardColors(colorScheme.background),
         elevation = cardElevation(Dp2)
@@ -81,7 +98,7 @@ fun MeverCard(
                 .padding(Dp4)
         ) {
             MeverThumbnail(
-                url = image,
+                source = image,
                 modifier = Modifier
                     .width(Dp88)
                     .height(Dp80)
@@ -161,6 +178,61 @@ fun MeverCard(
                 colorFilter = tint(colorScheme.onPrimary),
                 contentDescription = "Play/Pause"
             )
+        }
+    }
+}
+
+@Composable
+private fun MeverCardDownloaded(
+    meverCardArgs: MeverCardArgs,
+    modifier: Modifier = Modifier
+) = with(meverCardArgs) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = spacedBy(Dp16)
+    ) {
+        MeverThumbnail(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(Dp200)
+                .clip(RoundedCornerShape(Dp16)),
+            source = getMeverFiles()?.find { it.name == fileName }?.path.orEmpty()
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = spacedBy(Dp12)
+        ) {
+            MeverPlatformIcon(
+                platform = fileName,
+                modifier = Modifier.size(Dp40)
+            )
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = SpaceBetween
+            ) {
+                Text(
+                    text = fileName,
+                    style = typography.h6,
+                )
+                Text(
+                    text = "Type: ${getContentType(path)}",
+                    style = typography.label2,
+                )
+            }
+            IconButton(onClick = { onShareContentClick?.invoke() }) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_share),
+                    tint = colorScheme.onPrimary,
+                    contentDescription = "Share"
+                )
+            }
+            IconButton(onClick = { onDeleteContentClick?.invoke() }) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_trash),
+                    tint = colorScheme.onPrimary,
+                    contentDescription = "Delete"
+                )
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.dapascript.mever.core.common.ui.component
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode.Reverse
 import androidx.compose.animation.core.animateFloat
@@ -32,6 +33,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
 import com.dapascript.mever.core.common.util.Constant.ScreenName.NOTIFICATION
 
+@SuppressLint("UseOfNonLambdaOffsetOverload")
 @Composable
 fun MeverActionButton(
     resource: Int,
@@ -40,7 +42,7 @@ fun MeverActionButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
-    val value by rememberInfiniteTransition(label = "Infinite Transition").animateFloat(
+    val bellTransition by rememberInfiniteTransition(label = "Infinite Transition").animateFloat(
         initialValue = 25f,
         targetValue = -25f,
         animationSpec = infiniteRepeatable(
@@ -58,7 +60,7 @@ fun MeverActionButton(
             Icon(
                 modifier = Modifier
                     .size(Dp24)
-                    .showGraphicLayer(state = showBadge && name == NOTIFICATION, value = value),
+                    .showGraphicLayer(state = showBadge && name == NOTIFICATION, value = bellTransition),
                 imageVector = ImageVector.vectorResource(resource),
                 contentDescription = "Action Menu"
             )

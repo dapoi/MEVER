@@ -46,9 +46,9 @@ class DataModule {
         chuckerInterceptor: ChuckerInterceptor
     ) = OkHttpClient.Builder()
         .addInterceptor(chuckerInterceptor)
-        .connectTimeout(20, SECONDS)
-        .readTimeout(20, SECONDS)
-        .writeTimeout(20, SECONDS)
+        .connectTimeout(10, SECONDS)
+        .readTimeout(10, SECONDS)
+        .writeTimeout(10, SECONDS)
         .build()
 
     @Provides

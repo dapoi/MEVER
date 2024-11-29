@@ -19,6 +19,8 @@ import com.dapascript.mever.core.common.util.toCurrentDate
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.model.local.VideoGeneralEntity
 import com.ketch.Ketch
+import com.ketch.Status.PAUSED
+import com.ketch.Status.PROGRESS
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -53,15 +55,14 @@ class HomeViewModel @Inject constructor(
         if (meverFolder.exists().not()) meverFolder.mkdirs()
         ketch.download(
             url = url,
-            path = meverFolder.absolutePath,
-            fileName = "$platformName - ${currentTimeMillis().toCurrentDate()}"
+            path = meverFolder.path,
+            fileName = "$platformName - ${currentTimeMillis().toCurrentDate()}.mp4"
         )
     }
 
-
     fun getObservableKetch() = viewModelScope.launch {
         ketch.observeDownloads().collect { models ->
-            models.filter { it.progress < 100 }.let { showBadge = it.isNotEmpty() }
+            showBadge = models.any { it.status in listOf(PAUSED, PROGRESS) }
         }
     }
 

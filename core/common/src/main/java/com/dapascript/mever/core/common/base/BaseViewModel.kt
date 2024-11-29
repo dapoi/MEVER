@@ -34,7 +34,7 @@ open class BaseViewModel @Inject constructor() : ViewModel() {
     fun onPermissionResult(
         permission: String,
         isGranted: Boolean,
-        onAction: () -> Unit
+        onAction: () -> Unit = {}
     ) {
         if (isGranted.not() && showDialogPermission.contains(permission).not()) {
             showDialogPermission.add(permission)

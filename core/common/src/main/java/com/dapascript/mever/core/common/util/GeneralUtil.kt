@@ -1,12 +1,13 @@
 package com.dapascript.mever.core.common.util
 
+import android.content.Context
 import android.media.MediaMetadataRetriever
-import android.media.MediaMetadataRetriever.METADATA_KEY_DURATION
 import android.media.MediaMetadataRetriever.OPTION_CLOSEST_SYNC
 import android.os.Environment.DIRECTORY_DOWNLOADS
 import android.os.Environment.getExternalStoragePublicDirectory
-import android.util.Log
 import android.util.Patterns.WEB_URL
+import androidx.core.app.ShareCompat.IntentBuilder
+import androidx.core.content.FileProvider.getUriForFile
 import com.dapascript.mever.core.common.util.Constant.PlatformType
 import com.dapascript.mever.core.common.util.Constant.PlatformType.FACEBOOK
 import com.dapascript.mever.core.common.util.Constant.PlatformType.INSTAGRAM
@@ -15,9 +16,6 @@ import com.dapascript.mever.core.common.util.Constant.PlatformType.UNKNOWN
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.net.HttpURLConnection
-import java.net.HttpURLConnection.HTTP_OK
-import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.Calendar.getInstance
 import java.util.Locale.ROOT
@@ -51,26 +49,10 @@ fun calculateDownloadPercentage(downloadedBytes: Long, totalBytes: Long): String
     return percentage.toInt().toString() + "%"
 }
 
-suspend fun getVideoThumbnail(url: String) = withContext(IO) {
+suspend fun getVideoThumbnail(source: String) = withContext(IO) {
     val retriever = MediaMetadataRetriever()
     try {
-        // Check if URL is accessible
-        val accessible = isUrlAccessible(url)
-        if (!accessible) {
-            Log.e("VideoThumbnail", "URL is not accessible")
-            return@withContext null
-        }
-
-        // Set data source
-        retriever.setDataSource(url, HashMap())
-
-        // Check video duration
-        val duration = retriever.extractMetadata(METADATA_KEY_DURATION)?.toLongOrNull()
-        if (duration == null || duration <= 0) {
-            Log.e("VideoThumbnail", "Invalid video duration")
-            return@withContext null
-        }
-
+        retriever.dataSource(source)
         synchronized(this) { retriever.getFrameAtTime(2000000, OPTION_CLOSEST_SYNC) }
     } catch (e: Exception) {
         e.printStackTrace()
@@ -80,16 +62,9 @@ suspend fun getVideoThumbnail(url: String) = withContext(IO) {
     }
 }
 
-suspend fun isUrlAccessible(url: String) = withContext(IO) {
-    try {
-        val connection = URL(url).openConnection() as HttpURLConnection
-        connection.requestMethod = "GET"
-        connection.connect()
-        connection.responseCode == HTTP_OK
-    } catch (e: Exception) {
-        e.printStackTrace()
-        false
-    }
+fun MediaMetadataRetriever.dataSource(source: String) {
+    if (source.isValidUrl()) setDataSource(source, HashMap())
+    else setDataSource(source)
 }
 
 fun getContentType(path: String) = when {
@@ -100,9 +75,41 @@ fun getContentType(path: String) = when {
 
 fun Long.toCurrentDate(): String {
     val calendar = getInstance()
-    val dateFormat = SimpleDateFormat("MMM dd, yyyy • HH:mm aaa", getDefault())
+    val dateFormat = SimpleDateFormat("MMM dd, yyyy • HH.mm.ss", getDefault())
     calendar.timeInMillis = this
     return dateFormat.format(calendar.time)
 }
 
 fun getMeverFolder() = File(getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS), "MEVER")
+
+fun getMeverFiles(): List<File>? {
+    val meverFolder = getMeverFolder()
+    return if (meverFolder.exists() && meverFolder.isDirectory) {
+        meverFolder.listFiles { file ->
+            file.isFile && file.extension.lowercase() in listOf(
+                "mp4",
+                "mkv",
+                "avi",
+                "mov",
+                "flv",
+                "wmv"
+            )
+        }?.toList()
+    } else emptyList()
+}
+
+fun shareContent(context: Context, authority: String, path: String) {
+    try {
+        if (getMeverFolder().exists()) {
+            val uri = getUriForFile(context, authority, File(path))
+            IntentBuilder(context)
+                .setType(getContentType(path))
+                .setSubject("Shared from Mever")
+                .addStream(uri)
+                .setChooserTitle("Shared Video")
+                .startChooser()
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+}

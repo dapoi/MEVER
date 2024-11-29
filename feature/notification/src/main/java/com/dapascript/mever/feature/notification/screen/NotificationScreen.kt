@@ -16,16 +16,14 @@ import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.util.Constant.ScreenName.NOTIFICATION
 import com.dapascript.mever.feature.notification.viewmodel.NotificationViewModel
-import com.ketch.Status.FAILED
 import com.ketch.Status.PAUSED
-import com.ketch.Status.SUCCESS
 
 @Composable
 internal fun NotificationScreen(
     navigator: BaseNavigator,
     viewModel: NotificationViewModel = hiltViewModel()
 ) = with(viewModel) {
-    val listDownloads = downloadList.collectAsStateValue()
+    val downloadList = downloadList.collectAsStateValue()
 
     BaseScreen(
         screenName = NOTIFICATION,
@@ -34,23 +32,26 @@ internal fun NotificationScreen(
     ) {
         LaunchedEffect(Unit) { getAllDownloads() }
 
-        if (listDownloads.none { it.progress < 100 }) MeverEmptyItem()
+        if (downloadList.isEmpty()) MeverEmptyItem("There are no files being downloaded")
         else LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(
-                items = listDownloads.filter { it.status != SUCCESS && it.status != FAILED },
+                items = downloadList,
                 key = { it.id }
             ) {
                 MeverCard(
-                    modifier = Modifier.padding(vertical = Dp12),
+                    modifier = Modifier
+                        .padding(vertical = Dp12)
+                        .animateItem(),
                     meverCardArgs = MeverCardArgs(
                         image = it.url,
                         fileName = it.fileName,
                         status = it.status,
                         progress = it.progress,
                         total = it.total,
-                        path = it.path
+                        path = it.path,
+                        onDownloadingClick = { stateResumeOrPauseDownload(isPause = it.status == PAUSED, id = it.id) }
                     )
-                ) { stateResumeOrPauseDownload(isPause = it.status == PAUSED, id = it.id) }
+                )
             }
         }
     }
