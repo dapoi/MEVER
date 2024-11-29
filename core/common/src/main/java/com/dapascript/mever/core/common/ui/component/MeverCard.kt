@@ -4,9 +4,11 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Arrangement.spacedBy
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize.Max
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,10 +24,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.ProgressIndicatorDefaults.ProgressAnimationSpec
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment.Companion.Bottom
+import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,7 +46,6 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp15
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp200
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
@@ -50,6 +53,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp5
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp88
+import com.dapascript.mever.core.common.ui.theme.MeverDarkGray
 import com.dapascript.mever.core.common.ui.theme.MeverLightGray
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.util.calculateDownloadPercentage
@@ -191,13 +195,28 @@ private fun MeverCardDownloaded(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = spacedBy(Dp16)
     ) {
-        MeverThumbnail(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(Dp200)
+                .aspectRatio(16f / 9)
                 .clip(RoundedCornerShape(Dp16)),
-            source = getMeverFiles()?.find { it.name == fileName }?.path.orEmpty()
-        )
+            contentAlignment = Center
+        ) {
+            MeverThumbnail(
+                modifier = Modifier.fillMaxSize(),
+                source = getMeverFiles()?.find { it.name == fileName }?.path.orEmpty()
+            )
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = MeverDarkGray.copy(alpha = 0.1f)
+            ) {}
+            Image(
+                painter = painterResource(R.drawable.ic_play_video),
+                colorFilter = tint(MeverLightGray),
+                contentDescription = "Play",
+                modifier = Modifier.size(Dp80)
+            )
+        }
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = spacedBy(Dp12)
@@ -216,7 +235,7 @@ private fun MeverCardDownloaded(
                 )
                 Text(
                     text = "Type: ${getContentType(path)}",
-                    style = typography.label2,
+                    style = typography.body3,
                 )
             }
             IconButton(onClick = { onShareContentClick?.invoke() }) {

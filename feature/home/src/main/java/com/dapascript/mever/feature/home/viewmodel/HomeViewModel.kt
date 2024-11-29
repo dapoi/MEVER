@@ -21,6 +21,7 @@ import com.dapascript.mever.core.model.local.VideoGeneralEntity
 import com.ketch.Ketch
 import com.ketch.Status.PAUSED
 import com.ketch.Status.PROGRESS
+import com.ketch.Status.STARTED
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -62,7 +63,7 @@ class HomeViewModel @Inject constructor(
 
     fun getObservableKetch() = viewModelScope.launch {
         ketch.observeDownloads().collect { models ->
-            showBadge = models.any { it.status in listOf(PAUSED, PROGRESS) }
+            showBadge = models.any { it.status in listOf(STARTED, PAUSED, PROGRESS) }
         }
     }
 

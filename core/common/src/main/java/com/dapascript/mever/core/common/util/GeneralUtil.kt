@@ -1,12 +1,16 @@
 package com.dapascript.mever.core.common.util
 
 import android.content.Context
+import android.content.Intent
+import android.content.Intent.ACTION_SEND
+import android.content.Intent.EXTRA_STREAM
+import android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
+import android.content.Intent.createChooser
 import android.media.MediaMetadataRetriever
 import android.media.MediaMetadataRetriever.OPTION_CLOSEST_SYNC
 import android.os.Environment.DIRECTORY_DOWNLOADS
 import android.os.Environment.getExternalStoragePublicDirectory
 import android.util.Patterns.WEB_URL
-import androidx.core.app.ShareCompat.IntentBuilder
 import androidx.core.content.FileProvider.getUriForFile
 import com.dapascript.mever.core.common.util.Constant.PlatformType
 import com.dapascript.mever.core.common.util.Constant.PlatformType.FACEBOOK
@@ -102,12 +106,13 @@ fun shareContent(context: Context, authority: String, path: String) {
     try {
         if (getMeverFolder().exists()) {
             val uri = getUriForFile(context, authority, File(path))
-            IntentBuilder(context)
-                .setType(getContentType(path))
-                .setSubject("Shared from Mever")
-                .addStream(uri)
-                .setChooserTitle("Shared Video")
-                .startChooser()
+            val shareIntent = Intent().apply {
+                action = ACTION_SEND
+                putExtra(EXTRA_STREAM, uri)
+                type = getContentType(path)
+                flags = FLAG_GRANT_READ_URI_PERMISSION
+            }
+            context.startActivity(createChooser(shareIntent, "Share file via"))
         }
     } catch (e: Exception) {
         e.printStackTrace()
