@@ -34,6 +34,7 @@ open class MeverApp : Application() {
                     readTimeOutInMs = 10000
                 )
             )
+            .enableLogs(true)
             .build(this)
 
         connectivityObserver = ConnectivityObserverImpl(this)

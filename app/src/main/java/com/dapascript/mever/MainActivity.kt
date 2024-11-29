@@ -26,6 +26,7 @@ import com.dapascript.mever.core.common.util.Constant.ConnectivityName.AVAILABLE
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver
 import com.dapascript.mever.navigation.MeverNavHost
+import com.ketch.Ketch
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -37,6 +38,9 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var connectivityObserver: ConnectivityObserver
+
+    @Inject
+    lateinit var ketch: Ketch
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,7 +65,10 @@ class MainActivity : ComponentActivity() {
         var showConnectionModal by remember { mutableStateOf(false) }
 
         connectivityObserver.observe().collectAsState(connectivityObserver.isConnected()).let { state ->
-            showConnectionModal = state.value.message != AVAILABLE
+            (state.value.message != AVAILABLE).let {
+                showConnectionModal = it
+                ketch.cancelAll()
+            }
         }
 
         MeverDialog(
