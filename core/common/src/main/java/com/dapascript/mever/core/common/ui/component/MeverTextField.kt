@@ -31,9 +31,9 @@ import androidx.compose.ui.text.input.ImeAction.Companion.Done
 import androidx.compose.ui.text.input.KeyboardType.Companion.Uri
 import androidx.compose.ui.text.input.TextFieldValue
 import com.dapascript.mever.core.common.R
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp14
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
 import com.dapascript.mever.core.common.ui.theme.MeverLightGray
@@ -53,7 +53,7 @@ fun MeverTextField(
 
     Row(
         modifier = modifier
-            .shadow(elevation = Dp2, shape = RoundedCornerShape(Dp48))
+            .shadow(elevation = Dp1, shape = RoundedCornerShape(Dp48))
             .background(color = colorScheme.surface, shape = RoundedCornerShape(Dp48)),
         verticalAlignment = CenterVertically
     ) {

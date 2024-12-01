@@ -7,6 +7,8 @@ import com.dapascript.mever.core.common.navigation.extension.composableScreen
 import com.dapascript.mever.core.common.navigation.graph.GalleryNavGraph
 import com.dapascript.mever.core.common.navigation.graph.GalleryNavGraphRoute
 import com.dapascript.mever.feature.gallery.navigation.route.GalleryLandingRoute
+import com.dapascript.mever.feature.gallery.navigation.route.GalleryPlayerRoute
+import com.dapascript.mever.feature.gallery.screen.GalleryPlayerScreen
 import com.dapascript.mever.feature.gallery.screen.GalleryScreen
 import javax.inject.Inject
 
@@ -17,6 +19,7 @@ class GalleryNavGraphImpl @Inject constructor() : GalleryNavGraph() {
     ) {
         navGraphBuilder.navigation<GalleryNavGraphRoute>(startDestination = GalleryLandingRoute) {
             composableScreen<GalleryLandingRoute> { GalleryScreen(navigator) }
+            composableScreen<GalleryPlayerRoute> { GalleryPlayerScreen(navigator) }
         }
     }
 

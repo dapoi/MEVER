@@ -4,3 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 object GalleryLandingRoute
+
+@Serializable
+data class GalleryPlayerRoute(val sourceVideo: String)

@@ -16,6 +16,7 @@ val MeverRed = Color(0xFFD00036)
 val MeverPink = Color(0xFFFBD6D6)
 val MeverCreamSemiPink = Color(0xFFFBE5D6)
 val MeverBlueSemiPurple = Color(0xFFD6DDFB)
+val MeverTransparent = Color(0x00000000)
 
 sealed class MeverThemeColors(
     val background: Color,

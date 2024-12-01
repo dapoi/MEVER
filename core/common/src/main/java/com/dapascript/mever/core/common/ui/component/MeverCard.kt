@@ -200,7 +200,8 @@ private fun MeverCardDownloaded(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(Dp150)
-                .clip(RoundedCornerShape(Dp16)),
+                .clip(RoundedCornerShape(Dp16))
+                .clickableSingle { onPlayClick?.invoke() },
             contentAlignment = Center
         ) {
             MeverThumbnail(

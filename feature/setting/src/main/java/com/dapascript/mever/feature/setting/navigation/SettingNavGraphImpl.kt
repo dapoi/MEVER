@@ -1,9 +1,9 @@
 package com.dapascript.mever.feature.setting.navigation
 
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.dapascript.mever.core.common.navigation.base.BaseNavigator
+import com.dapascript.mever.core.common.navigation.extension.composableScreen
 import com.dapascript.mever.core.common.navigation.graph.SettingNavGraph
 import com.dapascript.mever.core.common.navigation.graph.SettingNavGraphRoute
 import com.dapascript.mever.feature.setting.navigation.route.SettingLanding
@@ -16,7 +16,7 @@ class SettingNavGraphImpl @Inject constructor() : SettingNavGraph() {
         navGraphBuilder: NavGraphBuilder
     ) {
         navGraphBuilder.navigation<SettingNavGraphRoute>(startDestination = SettingLanding) {
-            composable<SettingLanding> { SettingScreen(navigator) }
+            composableScreen<SettingLanding> { SettingScreen(navigator) }
         }
     }
 

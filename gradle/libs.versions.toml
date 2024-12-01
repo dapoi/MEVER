@@ -25,6 +25,7 @@ material = "1.12.0"
 coil = "3.0.2"
 chucker = "4.0.0"
 lottie = "6.6.0"
+media3 = "1.5.0"
 
 [libraries]
 # Compose
@@ -90,6 +91,12 @@ dataStorePreferences = { group = "androidx.datastore", name = "datastore-prefere
 coil = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
 coil-video = { group = "io.coil-kt.coil3", name = "coil-video", version.ref = "coil" }
 coil-network = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
+# End
+
+# Media3
+media3-exoplayer = { group = "androidx.media3", name = "media3-exoplayer", version.ref = "media3" }
+media3-ui = { group = "androidx.media3", name = "media3-ui", version.ref = "media3" }
+media3-session = { group = "androidx.media3", name = "media3-session", version.ref = "media3" }
 # End
 
 # Dependencies of the included build-logic

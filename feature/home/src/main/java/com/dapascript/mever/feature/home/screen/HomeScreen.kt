@@ -32,11 +32,12 @@ import androidx.compose.ui.draw.clip
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dapascript.mever.core.common.base.BaseScreen
+import com.dapascript.mever.core.common.base.attr.BaseScreenAttr.ActionMenu
+import com.dapascript.mever.core.common.base.attr.BaseScreenAttr.BaseScreenArgs
 import com.dapascript.mever.core.common.navigation.base.BaseNavigator
 import com.dapascript.mever.core.common.navigation.graph.GalleryNavGraph
 import com.dapascript.mever.core.common.navigation.graph.NotificationNavGraph
 import com.dapascript.mever.core.common.navigation.graph.SettingNavGraph
-import com.dapascript.mever.core.common.ui.attr.ActionMenuAttr.ActionMenu
 import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
 import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverDownloadButton
@@ -44,6 +45,7 @@ import com.dapascript.mever.core.common.ui.component.MeverTextField
 import com.dapascript.mever.core.common.ui.component.MeverThumbnail
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp0
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
@@ -85,14 +87,16 @@ internal fun HomeScreen(
     }
 
     BaseScreen(
-        actionMenus = listOfActionMenu.map { (name, resource) ->
-            ActionMenu(
-                resource = resource,
-                name = name,
-                showBadge = showBadge
-            )
-        },
-        onClickActionMenu = { name -> onClickActionMenu(name) }
+        baseScreenArgs = BaseScreenArgs(
+            screenName = null,
+            actionMenus = listOfActionMenu.map { (name, resource) ->
+                ActionMenu(
+                    icon = resource,
+                    nameIcon = name,
+                    showBadge = showBadge,
+                ) { onClickActionMenu(name) }
+            }
+        )
     ) {
         LaunchedEffect(Unit) { getObservableKetch() }
 
@@ -257,7 +261,7 @@ private fun HandleDialogDownload(
                 CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp0) {
                     RadioButton(
                         modifier = Modifier.padding(vertical = Dp4),
-                        colors = colors(selectedColor = MeverPurple),
+                        colors = colors(selectedColor = MeverPurple, unselectedColor = colorScheme.onPrimary),
                         selected = chooseQuality == url,
                         onClick = null
                     )
@@ -275,7 +279,9 @@ private fun HomeScreenContent(
     requestStoragePermissionLauncher: () -> Unit
 ) = with(homeViewModel) {
     Column(
-        modifier = modifier.verticalScroll(rememberScrollState()),
+        modifier = modifier
+            .padding(top = Dp32)
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = CenterHorizontally
     ) {
         Row(

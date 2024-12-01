@@ -9,6 +9,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dapascript.mever.core.common.base.BaseScreen
+import com.dapascript.mever.core.common.base.attr.BaseScreenAttr.BaseScreenArgs
 import com.dapascript.mever.core.common.navigation.base.BaseNavigator
 import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardArgs
 import com.dapascript.mever.core.common.ui.component.MeverCard
@@ -26,9 +27,10 @@ internal fun NotificationScreen(
     val downloadList = downloadList.collectAsStateValue()
 
     BaseScreen(
-        screenName = NOTIFICATION,
-        actionMenus = emptyList(),
-        onClickBack = { navigator.popBackStack() }
+        baseScreenArgs = BaseScreenArgs(
+            screenName = NOTIFICATION,
+            onClickBack = { navigator.popBackStack() }
+        )
     ) {
         LaunchedEffect(Unit) { getAllDownloads() }
 

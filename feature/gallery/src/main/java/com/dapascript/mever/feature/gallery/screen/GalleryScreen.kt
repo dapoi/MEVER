@@ -9,14 +9,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dapascript.mever.core.common.base.BaseScreen
+import com.dapascript.mever.core.common.base.attr.BaseScreenAttr.BaseScreenArgs
 import com.dapascript.mever.core.common.navigation.base.BaseNavigator
 import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardArgs
 import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardType.DOWNLOADED
 import com.dapascript.mever.core.common.ui.component.MeverCard
 import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
+import com.dapascript.mever.core.common.util.Constant.ScreenName.GALLERY
 import com.dapascript.mever.core.common.util.getMeverFiles
 import com.dapascript.mever.core.common.util.shareContent
+import com.dapascript.mever.feature.gallery.navigation.route.GalleryPlayerRoute
 import com.dapascript.mever.feature.gallery.viewmodel.GalleryViewModel
 
 @Composable
@@ -28,9 +31,10 @@ internal fun GalleryScreen(
     val downloadList = downloadList.collectAsStateValue()
 
     BaseScreen(
-        screenName = "Gallery",
-        actionMenus = emptyList(),
-        onClickBack = { navigator.popBackStack() }
+        baseScreenArgs = BaseScreenArgs(
+            screenName = GALLERY,
+            onClickBack = { navigator.popBackStack() }
+        )
     ) {
         LaunchedEffect(Unit) { getAllDownloads() }
 
@@ -51,6 +55,11 @@ internal fun GalleryScreen(
                         total = it.total,
                         path = it.path,
                         type = DOWNLOADED,
+                        onPlayClick = {
+                            navigator.navigate(GalleryPlayerRoute(getMeverFiles()?.find { file ->
+                                file.name == it.fileName
+                            }?.path.orEmpty()))
+                        },
                         onShareContentClick = {
                             shareContent(
                                 context = context,
