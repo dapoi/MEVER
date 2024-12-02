@@ -20,6 +20,7 @@ import androidx.core.view.WindowCompat.getInsetsController
 import androidx.core.view.WindowInsetsCompat.Type.systemBars
 import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
 import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+import androidx.lifecycle.Lifecycle.Event.ON_CREATE
 import androidx.lifecycle.Lifecycle.Event.ON_START
 import androidx.lifecycle.Lifecycle.Event.ON_STOP
 import androidx.lifecycle.LifecycleEventObserver
@@ -65,24 +66,27 @@ fun MeverVideoPlayer(
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
+                ON_CREATE -> player = initPlayer(context, sourceVideo)
+
                 ON_START -> {
-                    player = initPlayer(context, sourceVideo)
+                    player?.play()
                     playerView.onResume()
                 }
 
                 ON_STOP -> {
-                    playerView.apply {
-                        player?.release()
-                        onPause()
-                        player = null
-                    }
+                    player?.pause()
+                    playerView.onPause()
                 }
 
                 else -> {}
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+        onDispose {
+            player?.release()
+            player = null
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 
     DisposableEffect(Unit) {
@@ -125,6 +129,5 @@ private fun createPlayerView(
 
 private fun initPlayer(context: Context, sourceVideo: String) = Builder(context).build().apply {
     setMediaItem(MediaItem.fromUri(sourceVideo))
-    playWhenReady = true
     prepare()
 }

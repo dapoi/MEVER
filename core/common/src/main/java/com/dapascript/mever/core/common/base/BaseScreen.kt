@@ -2,7 +2,6 @@ package com.dapascript.mever.core.common.base
 
 import android.annotation.SuppressLint
 import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_USER
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement.spacedBy

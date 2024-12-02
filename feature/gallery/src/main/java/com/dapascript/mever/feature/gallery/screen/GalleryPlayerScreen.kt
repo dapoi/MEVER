@@ -31,11 +31,12 @@ internal fun GalleryPlayerScreen(
     BaseScreen(
         baseScreenArgs = BaseScreenArgs(
             screenName = "",
+            statusBarColor = MeverBlack,
+            navigationBarColor = MeverBlack,
             colorBackIcon = MeverWhite,
             topBarColor = MeverBlack,
             onClickBack = { navigator.popBackStack() }
         ),
-        isUseSystemBarsPadding = false,
         overlappingTopBar = true,
         isLockOrientation = false,
         hideTopBar = orientation != ORIENTATION_PORTRAIT,
