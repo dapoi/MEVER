@@ -7,7 +7,7 @@ import com.dapascript.mever.core.common.navigation.extension.composableScreen
 import com.dapascript.mever.core.common.navigation.graph.SettingNavGraph
 import com.dapascript.mever.core.common.navigation.graph.SettingNavGraphRoute
 import com.dapascript.mever.feature.setting.navigation.route.SettingLanding
-import com.dapascript.mever.feature.setting.screen.SettingScreen
+import com.dapascript.mever.feature.setting.screen.SettingLandingScreen
 import javax.inject.Inject
 
 class SettingNavGraphImpl @Inject constructor() : SettingNavGraph() {
@@ -16,9 +16,9 @@ class SettingNavGraphImpl @Inject constructor() : SettingNavGraph() {
         navGraphBuilder: NavGraphBuilder
     ) {
         navGraphBuilder.navigation<SettingNavGraphRoute>(startDestination = SettingLanding) {
-            composableScreen<SettingLanding> { SettingScreen(navigator) }
+            composableScreen<SettingLanding> { SettingLandingScreen(navigator) }
         }
     }
 
-    override fun getSettingRoute() = SettingLanding
+    override fun getSettingLandingRoute() = SettingLanding
 }

@@ -23,5 +23,5 @@ class GalleryNavGraphImpl @Inject constructor() : GalleryNavGraph() {
         }
     }
 
-    override fun getGalleryRoute() = GalleryLandingRoute
+    override fun getGalleryLandingRoute() = GalleryLandingRoute
 }

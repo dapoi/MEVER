@@ -16,13 +16,13 @@ import com.dapascript.mever.core.common.ui.component.MeverCard
 import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.util.Constant.ScreenName.NOTIFICATION
-import com.dapascript.mever.feature.notification.viewmodel.NotificationViewModel
+import com.dapascript.mever.feature.notification.viewmodel.NotificationLandingViewModel
 import com.ketch.Status.PAUSED
 
 @Composable
-internal fun NotificationScreen(
+internal fun NotificationLandingScreen(
     navigator: BaseNavigator,
-    viewModel: NotificationViewModel = hiltViewModel()
+    viewModel: NotificationLandingViewModel = hiltViewModel()
 ) = with(viewModel) {
     val downloadList = downloadList.collectAsStateValue()
 

@@ -31,7 +31,7 @@ import java.lang.System.currentTimeMillis
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(
+class HomeLandingViewModel @Inject constructor(
     private val repository: MeverRepository,
     ketch: Ketch
 ) : BaseViewModel() {

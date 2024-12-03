@@ -7,5 +7,5 @@ import kotlinx.serialization.Serializable
 object HomeNavGraphRoute
 
 abstract class HomeNavGraph : BaseNavGraph() {
-    abstract fun getHomeRoute(): Any
+    abstract fun getHomeLandingRoute(): Any
 }

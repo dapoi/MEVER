@@ -7,5 +7,5 @@ import kotlinx.serialization.Serializable
 object SettingNavGraphRoute
 
 abstract class SettingNavGraph : BaseNavGraph() {
-    abstract fun getSettingRoute(): Any
+    abstract fun getSettingLandingRoute(): Any
 }

@@ -7,7 +7,7 @@ import com.dapascript.mever.core.common.navigation.base.BaseNavigator
 import com.dapascript.mever.core.common.util.Constant.ScreenName.SETTING
 
 @Composable
-internal fun SettingScreen(
+internal fun SettingLandingScreen(
     navigator: BaseNavigator
 ) {
     BaseScreen(

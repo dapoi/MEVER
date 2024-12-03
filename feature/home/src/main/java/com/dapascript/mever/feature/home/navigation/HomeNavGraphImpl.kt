@@ -7,7 +7,7 @@ import com.dapascript.mever.core.common.navigation.extension.composableScreen
 import com.dapascript.mever.core.common.navigation.graph.HomeNavGraph
 import com.dapascript.mever.core.common.navigation.graph.HomeNavGraphRoute
 import com.dapascript.mever.feature.home.navigation.route.HomeLandingRoute
-import com.dapascript.mever.feature.home.screen.HomeScreen
+import com.dapascript.mever.feature.home.screen.HomeLandingScreen
 import javax.inject.Inject
 
 class HomeNavGraphImpl @Inject constructor() : HomeNavGraph() {
@@ -16,9 +16,9 @@ class HomeNavGraphImpl @Inject constructor() : HomeNavGraph() {
         navGraphBuilder: NavGraphBuilder
     ) {
         navGraphBuilder.navigation<HomeNavGraphRoute>(startDestination = HomeLandingRoute) {
-            composableScreen<HomeLandingRoute> { HomeScreen(navigator) }
+            composableScreen<HomeLandingRoute> { HomeLandingScreen(navigator) }
         }
     }
 
-    override fun getHomeRoute() = HomeLandingRoute
+    override fun getHomeLandingRoute() = HomeLandingRoute
 }

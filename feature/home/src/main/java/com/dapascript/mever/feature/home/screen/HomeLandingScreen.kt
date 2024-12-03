@@ -64,12 +64,12 @@ import com.dapascript.mever.core.common.util.isValidUrl
 import com.dapascript.mever.core.model.local.VideoGeneralEntity
 import com.dapascript.mever.feature.home.screen.attr.HomeScreenAttr.DownloaderArgs
 import com.dapascript.mever.feature.home.screen.attr.HomeScreenAttr.listOfActionMenu
-import com.dapascript.mever.feature.home.viewmodel.HomeViewModel
+import com.dapascript.mever.feature.home.viewmodel.HomeLandingViewModel
 
 @Composable
-internal fun HomeScreen(
+internal fun HomeLandingScreen(
     navigator: BaseNavigator,
-    viewModel: HomeViewModel = hiltViewModel()
+    viewModel: HomeLandingViewModel = hiltViewModel()
 ) = with(viewModel) {
     val videoState = videoState.collectAsStateValue()
     val activity = LocalActivity.current
@@ -161,7 +161,7 @@ internal fun HomeScreen(
         )
 
         HomeScreenContent(
-            homeViewModel = this,
+            homeLandingViewModel = this,
             isLoading = isLoading
         ) { requestStoragePermissionLauncher.launch(getStoragePermission) }
     }
@@ -273,11 +273,11 @@ private fun HandleDialogDownload(
 
 @Composable
 private fun HomeScreenContent(
-    homeViewModel: HomeViewModel,
+    homeLandingViewModel: HomeLandingViewModel,
     isLoading: Boolean,
     modifier: Modifier = Modifier,
     requestStoragePermissionLauncher: () -> Unit
-) = with(homeViewModel) {
+) = with(homeLandingViewModel) {
     Column(
         modifier = modifier
             .padding(top = Dp32)
@@ -304,10 +304,10 @@ private fun HomeScreenContent(
 private fun getActionMenuClick(navigator: BaseNavigator) = { name: String ->
     when (name) {
         NOTIFICATION -> navigator.navigateToNotif()
-        GALLERY -> navigator.run { navigate(getNavGraph<GalleryNavGraph>().getGalleryRoute()) }
-        SETTING -> navigator.run { navigate(getNavGraph<SettingNavGraph>().getSettingRoute()) }
+        GALLERY -> navigator.run { navigate(getNavGraph<GalleryNavGraph>().getGalleryLandingRoute()) }
+        SETTING -> navigator.run { navigate(getNavGraph<SettingNavGraph>().getSettingLandingRoute()) }
         else -> Unit
     }
 }
 
-private fun BaseNavigator.navigateToNotif() = navigate(getNavGraph<NotificationNavGraph>().getNotificationRoute())
+private fun BaseNavigator.navigateToNotif() = navigate(getNavGraph<NotificationNavGraph>().getNotificationLandingRoute())

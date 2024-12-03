@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class NotificationViewModel @Inject constructor(
+class NotificationLandingViewModel @Inject constructor(
     private val ketch: Ketch
 ) : BaseViewModel() {
 
@@ -26,7 +26,7 @@ class NotificationViewModel @Inject constructor(
 
     fun getAllDownloads() = viewModelScope.launch {
         ketch.observeDownloads().collect { downloads ->
-            Log.d("NotificationViewModel", "getAllDownloads: $downloads")
+            Log.d("NotificationLandingViewModel", "getAllDownloads: $downloads")
             _downloadList.value = downloads.filter { it.status in listOf(STARTED,PAUSED, PROGRESS) }
             ketch.clearDb(downloads.find { it.status in listOf(CANCELLED, FAILED) }?.id ?: 0)
         }

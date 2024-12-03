@@ -7,7 +7,7 @@ import com.dapascript.mever.core.common.navigation.extension.composableScreen
 import com.dapascript.mever.core.common.navigation.graph.NotificationNavGraph
 import com.dapascript.mever.core.common.navigation.graph.NotificationNavGraphRoute
 import com.dapascript.mever.feature.notification.navigation.route.NotificationLandingRoute
-import com.dapascript.mever.feature.notification.screen.NotificationScreen
+import com.dapascript.mever.feature.notification.screen.NotificationLandingScreen
 import javax.inject.Inject
 
 class NotificationNavGraphImpl @Inject constructor() : NotificationNavGraph() {
@@ -16,9 +16,9 @@ class NotificationNavGraphImpl @Inject constructor() : NotificationNavGraph() {
         navGraphBuilder: NavGraphBuilder
     ) {
         navGraphBuilder.navigation<NotificationNavGraphRoute>(startDestination = NotificationLandingRoute) {
-            composableScreen<NotificationLandingRoute> { NotificationScreen(navigator) }
+            composableScreen<NotificationLandingRoute> { NotificationLandingScreen(navigator) }
         }
     }
 
-    override fun getNotificationRoute() = NotificationLandingRoute
+    override fun getNotificationLandingRoute() = NotificationLandingRoute
 }

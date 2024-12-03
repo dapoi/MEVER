@@ -29,12 +29,12 @@ import com.dapascript.mever.core.common.util.Constant.ScreenName.GALLERY
 import com.dapascript.mever.core.common.util.getMeverFiles
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.feature.gallery.navigation.route.GalleryPlayerRoute
-import com.dapascript.mever.feature.gallery.viewmodel.GalleryViewModel
+import com.dapascript.mever.feature.gallery.viewmodel.GalleryLandingViewModel
 
 @Composable
 internal fun GalleryScreen(
     navigator: BaseNavigator,
-    viewModel: GalleryViewModel = hiltViewModel()
+    viewModel: GalleryLandingViewModel = hiltViewModel()
 ) = with(viewModel) {
     val context = LocalContext.current
     val downloadList = downloadList.collectAsStateValue()

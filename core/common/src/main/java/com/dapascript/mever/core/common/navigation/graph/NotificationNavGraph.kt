@@ -7,5 +7,5 @@ import kotlinx.serialization.Serializable
 object NotificationNavGraphRoute
 
 abstract class NotificationNavGraph : BaseNavGraph() {
-    abstract fun getNotificationRoute(): Any
+    abstract fun getNotificationLandingRoute(): Any
 }

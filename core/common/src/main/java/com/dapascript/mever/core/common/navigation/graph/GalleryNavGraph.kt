@@ -7,5 +7,5 @@ import kotlinx.serialization.Serializable
 object GalleryNavGraphRoute
 
 abstract class GalleryNavGraph : BaseNavGraph() {
-    abstract fun getGalleryRoute(): Any
+    abstract fun getGalleryLandingRoute(): Any
 }

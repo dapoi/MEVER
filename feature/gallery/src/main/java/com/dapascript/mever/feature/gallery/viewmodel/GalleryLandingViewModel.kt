@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class GalleryViewModel @Inject constructor(
+class GalleryLandingViewModel @Inject constructor(
     private val ketch: Ketch
 ) : BaseViewModel() {
 
