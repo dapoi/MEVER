@@ -37,15 +37,21 @@ internal fun GalleryPlayerScreen(
             topBarColor = MeverBlack,
             onClickBack = { navigator.popBackStack() }
         ),
-        overlappingTopBar = true,
         isLockOrientation = false,
-        hideTopBar = orientation != ORIENTATION_PORTRAIT,
+        isUseSystemBarsPadding = false,
+        overlappingTopBar = true,
+        hideTopBar = true,
         modifier = Modifier.background(MeverBlack)
     ) {
         LaunchedEffect(configuration) {
             snapshotFlow { configuration.orientation }.collect { orientation = it }
         }
 
-        MeverVideoPlayer(galleryPlayerRoute.sourceVideo)
+        with(galleryPlayerRoute) {
+            MeverVideoPlayer(
+                sourceVideo = sourceVideo,
+                fileName = fileName
+            ) { navigator.popBackStack() }
+        }
     }
 }

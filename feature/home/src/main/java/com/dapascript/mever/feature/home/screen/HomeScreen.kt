@@ -1,6 +1,7 @@
 package com.dapascript.mever.feature.home.screen
 
 import android.app.Activity
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
@@ -104,10 +105,12 @@ internal fun HomeScreen(
             videoState.handleUiState(
                 onLoading = { isLoading = true },
                 onSuccess = {
+                    Log.d("HomeScreen", "Success: $it")
                     isLoading = false
                     listVideo = it
                 },
                 onFailed = {
+                    Log.e("HomeScreen", "Error: $it")
                     isLoading = false
                     isError = true
                 }

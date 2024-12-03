@@ -56,9 +56,14 @@ internal fun GalleryScreen(
                         path = it.path,
                         type = DOWNLOADED,
                         onPlayClick = {
-                            navigator.navigate(GalleryPlayerRoute(getMeverFiles()?.find { file ->
-                                file.name == it.fileName
-                            }?.path.orEmpty()))
+                            navigator.navigate(
+                                GalleryPlayerRoute(
+                                    sourceVideo = getMeverFiles()?.find { file ->
+                                        file.name == it.fileName
+                                    }?.path.orEmpty(),
+                                    fileName = it.fileName
+                                )
+                            )
                         },
                         onShareContentClick = {
                             shareContent(

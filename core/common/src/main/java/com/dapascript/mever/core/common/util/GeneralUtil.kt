@@ -118,3 +118,26 @@ fun shareContent(context: Context, authority: String, path: String) {
         e.printStackTrace()
     }
 }
+
+//fun Long.formatMinSec(): String {
+//    return if (this == 0L) {
+//        "..."
+//    } else {
+//        String.format(
+//            getDefault(),
+//            "%02d : %02d",
+//            MILLISECONDS.toMinutes(this),
+//            MILLISECONDS.toSeconds(this) - MINUTES.toSeconds(MILLISECONDS.toMinutes(this))
+//        )
+//    }
+//}
+
+fun Long.toTimeFormat(): String {
+    val seconds = this / 1000
+    val minutes = seconds / 60
+    val hours = minutes / 60
+    return when {
+        hours > 0 -> String.format(getDefault(), "%02d:%02d:%02d", hours, minutes % 60, seconds % 60)
+        else -> String.format(getDefault(), "%02d:%02d", minutes, seconds % 60)
+    }
+}
