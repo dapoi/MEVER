@@ -290,7 +290,9 @@ private fun VideoTitleSection(
         painter = painterResource(R.drawable.ic_back),
         colorFilter = tint(MeverWhite),
         contentDescription = "Back",
-        modifier = Modifier.clickable { onClickBack() }
+        modifier = Modifier
+            .clip(CircleShape)
+            .clickable { onClickBack() }
     )
     Text(
         text = title,
