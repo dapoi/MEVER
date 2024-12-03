@@ -32,7 +32,7 @@ import com.dapascript.mever.feature.gallery.navigation.route.GalleryPlayerRoute
 import com.dapascript.mever.feature.gallery.viewmodel.GalleryLandingViewModel
 
 @Composable
-internal fun GalleryScreen(
+internal fun GalleryLandingScreen(
     navigator: BaseNavigator,
     viewModel: GalleryLandingViewModel = hiltViewModel()
 ) = with(viewModel) {
