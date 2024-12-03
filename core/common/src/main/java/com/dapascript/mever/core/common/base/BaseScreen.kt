@@ -146,7 +146,6 @@ private fun MeverTopBar(
                 actionMenus.forEach { (resource, name, showBadge, onClickAction) ->
                     MeverActionButton(
                         resource = resource,
-                        name = name,
                         showBadge = showBadge
                     ) { onClickAction?.invoke(name) }
                 }

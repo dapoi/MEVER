@@ -18,8 +18,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults.cardColors
 import androidx.compose.material3.CardDefaults.cardElevation
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.ProgressIndicatorDefaults.ProgressAnimationSpec
@@ -53,10 +51,11 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp5
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp88
-import com.dapascript.mever.core.common.ui.theme.MeverDarkGray
+import com.dapascript.mever.core.common.ui.theme.MeverBlack
 import com.dapascript.mever.core.common.ui.theme.MeverGray
 import com.dapascript.mever.core.common.ui.theme.MeverLightGray
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
+import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.calculateDownloadPercentage
 import com.dapascript.mever.core.common.util.calculateDownloadedMegabytes
 import com.dapascript.mever.core.common.util.clickableSingle
@@ -210,11 +209,11 @@ private fun MeverCardDownloaded(
             )
             Surface(
                 modifier = Modifier.fillMaxSize(),
-                color = MeverDarkGray.copy(alpha = 0.1f)
+                color = MeverBlack.copy(alpha = 0.3f)
             ) {}
             Image(
                 painter = painterResource(R.drawable.ic_play_video),
-                colorFilter = tint(MeverLightGray),
+                colorFilter = tint(MeverWhite.copy(alpha = 0.7f)),
                 contentDescription = "Play",
                 modifier = Modifier.size(Dp80)
             )
@@ -241,20 +240,8 @@ private fun MeverCardDownloaded(
                     color = MeverGray
                 )
             }
-            IconButton(onClick = { onShareContentClick?.invoke() }) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_share),
-                    tint = colorScheme.onPrimary,
-                    contentDescription = "Share"
-                )
-            }
-            IconButton(onClick = { onDeleteContentClick?.invoke() }) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_trash),
-                    tint = colorScheme.onPrimary,
-                    contentDescription = "Delete"
-                )
-            }
+            MeverActionButton(R.drawable.ic_share) { onShareContentClick?.invoke() }
+            MeverActionButton(R.drawable.ic_trash) { onDeleteContentClick?.invoke() }
         }
     }
 }

@@ -25,16 +25,20 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults.Thumb
 import androidx.compose.material3.SliderDefaults.Track
 import androidx.compose.material3.SliderDefaults.colors
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -69,12 +73,14 @@ import androidx.media3.exoplayer.ExoPlayer.Builder
 import androidx.media3.ui.PlayerView
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp0
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp10
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp20
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp6
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverBlack
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
@@ -155,6 +161,10 @@ fun MeverVideoPlayer(
             override fun onStart(owner: LifecycleOwner) {
                 super.onStart(owner)
                 if (player?.isPlaying?.not() == true) player?.play()
+            }
+
+            override fun onResume(owner: LifecycleOwner) {
+                super.onResume(owner)
                 insetsController.apply {
                     hide(systemBars())
                     systemBarsBehavior = BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
@@ -187,7 +197,10 @@ fun MeverVideoPlayer(
         videoTimer = videoTimer,
         totalDuration = totalDuration,
         onClickAny = { showController = showController.not() },
-        onClickRewind = { player?.seekTo(player?.currentPosition?.minus(5000) ?: 0) },
+        onClickRewind = {
+            player?.seekTo(player?.currentPosition?.minus(5000) ?: 0)
+            showController = true
+        },
         onClickPlayOrPause = {
             when {
                 player?.isPlaying == true -> player?.pause()
@@ -200,9 +213,15 @@ fun MeverVideoPlayer(
             }
             isVideoPlaying = isVideoPlaying?.not()
         },
-        onClickForward = { player?.seekTo(player?.currentPosition?.plus(5000) ?: 0) },
+        onClickForward = {
+            player?.seekTo(player?.currentPosition?.plus(5000) ?: 0)
+            showController = true
+        },
         onClickFullScreen = { if (isFullScreen) exitFullScreen() else enterFullScreen() },
-        onSeekChange = { position -> player?.seekTo(position.toLong()) },
+        onSeekChange = { position ->
+            player?.seekTo(position.toLong())
+            showController = true
+        },
         onClickBack = if (isFullScreen) exitFullScreen else onClickBack
     )
 }
@@ -251,7 +270,10 @@ private fun VideoPlayerContent(
     ) {
         Box(modifier = Modifier.background(MeverBlack.copy(alpha = 0.7f))) {
             VideoTitleSection(
-                modifier = Modifier.align(TopStart),
+                modifier = Modifier
+                    .padding(vertical = Dp20, horizontal = Dp24)
+                    .statusBarsPadding()
+                    .align(TopStart),
                 title = title,
                 onClickBack = onClickBack
             )
@@ -263,7 +285,10 @@ private fun VideoPlayerContent(
                 onClickForward = onClickForward
             )
             VideoBottomControlSection(
-                modifier = Modifier.align(BottomCenter),
+                modifier = Modifier
+                    .padding(horizontal = Dp24)
+                    .navigationBarsPadding()
+                    .align(BottomCenter),
                 videoTimer = videoTimer,
                 totalDuration = totalDuration,
                 isFullScreen = isFullScreen,
@@ -280,9 +305,7 @@ private fun VideoTitleSection(
     modifier: Modifier = Modifier,
     onClickBack: () -> Unit
 ) = Row(
-    modifier = modifier
-        .fillMaxWidth()
-        .padding(Dp24),
+    modifier = modifier.fillMaxWidth(),
     horizontalArrangement = spacedBy(Dp16),
     verticalAlignment = CenterVertically
 ) {
@@ -363,48 +386,50 @@ private fun VideoBottomControlSection(
     val interactionSource = remember { MutableInteractionSource() }
 
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(bottom = Dp16)
+        modifier = modifier,
+        verticalArrangement = spacedBy(Dp10)
     ) {
-        Slider(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = Dp8),
-            value = animatedValue,
-            interactionSource = interactionSource,
-            valueRange = 0f..totalDuration.toFloat(),
-            onValueChange = { onSeekChange(it) },
-            track = { sliderState ->
-                Track(
-                    modifier = Modifier.height(Dp6),
-                    sliderState = sliderState,
-                    drawStopIndicator = null,
-                    thumbTrackGapSize = Dp0,
-                    colors = colors(
-                        activeTrackColor = MeverPurple,
-                        inactiveTrackColor = MeverWhite.copy(alpha = 0.5f)
+        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp0) {
+            Slider(
+                modifier = Modifier.fillMaxWidth(),
+                value = animatedValue,
+                interactionSource = interactionSource,
+                valueRange = 0f..totalDuration.toFloat(),
+                onValueChange = { onSeekChange(it) },
+                track = { sliderState ->
+                    Track(
+                        modifier = Modifier.height(Dp6),
+                        sliderState = sliderState,
+                        drawStopIndicator = null,
+                        thumbTrackGapSize = Dp0,
+                        trackInsideCornerSize = Dp0,
+                        colors = colors(
+                            activeTrackColor = MeverPurple,
+                            inactiveTrackColor = MeverWhite.copy(alpha = 0.5f)
+                        )
                     )
-                )
-            },
-            thumb = {
-                Thumb(
-                    modifier = Modifier
-                        .size(Dp16)
-                        .background(color = MeverPurple, shape = CircleShape),
-                    interactionSource = interactionSource
-                )
-            }
-        )
+                },
+                thumb = {
+                    Thumb(
+                        modifier = Modifier
+                            .size(Dp16)
+                            .background(color = MeverPurple, shape = CircleShape),
+                        interactionSource = interactionSource
+                    )
+                }
+            )
+        }
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = Dp20),
-            horizontalArrangement = SpaceBetween
+                .padding(bottom = Dp16),
+            horizontalArrangement = SpaceBetween,
+            verticalAlignment = CenterVertically
         ) {
             Text(
+                modifier = Modifier.padding(start = Dp12),
                 text = "${videoTimer.toTimeFormat()} / ${totalDuration.toTimeFormat()}",
-                style = typography.body2,
+                style = typography.body1,
                 color = MeverWhite
             )
             Image(
@@ -414,7 +439,8 @@ private fun VideoBottomControlSection(
                 colorFilter = tint(color = MeverWhite),
                 contentDescription = "Fullscreen",
                 modifier = Modifier
-                    .size(Dp24)
+                    .size(Dp32)
+                    .padding(end = Dp6)
                     .clickableSingle { onClickFullScreen() }
             )
         }

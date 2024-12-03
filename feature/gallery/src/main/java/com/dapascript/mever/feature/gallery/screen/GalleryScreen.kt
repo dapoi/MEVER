@@ -3,8 +3,14 @@ package com.dapascript.mever.feature.gallery.screen
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -13,9 +19,12 @@ import com.dapascript.mever.core.common.base.attr.BaseScreenAttr.BaseScreenArgs
 import com.dapascript.mever.core.common.navigation.base.BaseNavigator
 import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardArgs
 import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardType.DOWNLOADED
+import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
 import com.dapascript.mever.core.common.ui.component.MeverCard
+import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
+import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.util.Constant.ScreenName.GALLERY
 import com.dapascript.mever.core.common.util.getMeverFiles
 import com.dapascript.mever.core.common.util.shareContent
@@ -29,6 +38,7 @@ internal fun GalleryScreen(
 ) = with(viewModel) {
     val context = LocalContext.current
     val downloadList = downloadList.collectAsStateValue()
+    var showDeleteDialog by remember { mutableStateOf<Int?>(null) }
 
     BaseScreen(
         baseScreenArgs = BaseScreenArgs(
@@ -72,10 +82,31 @@ internal fun GalleryScreen(
                                 path = getMeverFiles()?.find { file -> file.name == it.fileName }?.path.orEmpty()
                             )
                         },
-                        onDeleteContentClick = { deleteDownload(it.id) }
+                        onDeleteContentClick = { showDeleteDialog = it.id }
                     )
                 )
             }
         } else MeverEmptyItem("You haven't downloaded any files yet")
+    }
+
+    showDeleteDialog?.let { id ->
+        MeverDialog(
+            showDialog = true,
+            meverDialogArgs = MeverDialogArgs(
+                title = "Delete this file?",
+                actionText = "Delete",
+                onActionClick = {
+                    deleteDownload(id)
+                    showDeleteDialog = null
+                },
+                onDismissClick = { showDeleteDialog = null }
+            )
+        ) {
+            Text(
+                text = "File that has been deleted cannot be recovered",
+                style = typography.body1,
+                color = colorScheme.onPrimary
+            )
+        }
     }
 }

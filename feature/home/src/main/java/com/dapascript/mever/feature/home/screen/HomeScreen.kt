@@ -1,7 +1,6 @@
 package com.dapascript.mever.feature.home.screen
 
 import android.app.Activity
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
@@ -94,7 +93,7 @@ internal fun HomeScreen(
                 ActionMenu(
                     icon = resource,
                     nameIcon = name,
-                    showBadge = showBadge,
+                    showBadge = showBadge && name == NOTIFICATION,
                 ) { onClickActionMenu(name) }
             }
         )
@@ -105,12 +104,10 @@ internal fun HomeScreen(
             videoState.handleUiState(
                 onLoading = { isLoading = true },
                 onSuccess = {
-                    Log.d("HomeScreen", "Success: $it")
                     isLoading = false
                     listVideo = it
                 },
                 onFailed = {
-                    Log.e("HomeScreen", "Error: $it")
                     isLoading = false
                     isError = true
                 }
@@ -207,7 +204,7 @@ private fun HandleDialogPermission(
         MeverDialog(
             showDialog = true,
             meverDialogArgs = MeverDialogArgs(
-                title = "Permission Required",
+                title = "Permission required",
                 actionText = if (isPermissionsDeclined) "Go to setting" else "Allow",
                 onActionClick = if (isPermissionsDeclined) onGoToSetting else onAllow,
                 onDismissClick = onDismiss

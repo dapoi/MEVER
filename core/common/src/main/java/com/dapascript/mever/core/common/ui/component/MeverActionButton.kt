@@ -31,14 +31,12 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp15
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
-import com.dapascript.mever.core.common.util.Constant.ScreenName.NOTIFICATION
 
 @SuppressLint("UseOfNonLambdaOffsetOverload")
 @Composable
 fun MeverActionButton(
     resource: Int,
-    name: String,
-    showBadge: Boolean,
+    showBadge: Boolean = false,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
@@ -60,12 +58,12 @@ fun MeverActionButton(
             Icon(
                 modifier = Modifier
                     .size(Dp24)
-                    .showGraphicLayer(state = showBadge && name == NOTIFICATION, value = bellTransition),
+                    .showGraphicLayer(state = showBadge, value = bellTransition),
                 imageVector = ImageVector.vectorResource(resource),
-                contentDescription = "Action Menu"
+                contentDescription = "Action Button"
             )
         }
-        if (showBadge && name == NOTIFICATION) Badge(
+        if (showBadge) Badge(
             modifier = Modifier
                 .size(Dp15)
                 .border(width = Dp2, color = colorScheme.background, shape = CircleShape)

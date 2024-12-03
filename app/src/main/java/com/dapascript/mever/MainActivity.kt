@@ -70,7 +70,7 @@ class MainActivity : ComponentActivity() {
         MeverDialog(
             showDialog = showConnectionModal,
             meverDialogArgs = MeverDialogArgs(
-                title = "No Internet Connection",
+                title = "Ups! It seems you are offline",
                 actionText = null
             )
         ) {
