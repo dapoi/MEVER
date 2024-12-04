@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -35,7 +36,7 @@ fun MeverThumbnail(
     source: String,
     modifier: Modifier = Modifier
 ) {
-    val videoThumbnail = rememberSaveable(source) { mutableStateOf<Bitmap?>(null) }
+    val videoThumbnail = remember(source) { mutableStateOf<Bitmap?>(null) }
 
     LaunchedEffect(source) {
         while (videoThumbnail.value == null) {
