@@ -67,10 +67,6 @@ class HomeLandingViewModel @Inject constructor(
         }
     }
 
-    fun resetState() {
-        _videoState.value = StateInitial
-    }
-
     private fun MeverRepository.getApiDownloader(typeUrl: String) = when (typeUrl.getPlatformType()) {
         FACEBOOK -> getFacebookDownloader(typeUrl)
         INSTAGRAM -> getInstagramDownloader(typeUrl)

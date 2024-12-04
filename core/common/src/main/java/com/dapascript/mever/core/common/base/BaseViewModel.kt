@@ -16,6 +16,7 @@ import com.dapascript.mever.core.common.util.state.UiState.StateLoading
 import com.dapascript.mever.core.common.util.state.UiState.StateSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -43,6 +44,7 @@ open class BaseViewModel @Inject constructor() : ViewModel() {
 
     fun <T> collectApiAsUiState(
         response: Flow<ApiState<T>>,
+        resetState: Boolean = true,
         updateState: (UiState<T>) -> Unit
     ) {
         viewModelScope.launch(IO) {
@@ -52,7 +54,13 @@ open class BaseViewModel @Inject constructor() : ViewModel() {
                     is Success -> StateSuccess(it.data)
                     is Error -> StateFailed(it.throwable)
                 }
-            }.collect { uiState -> updateState(uiState) }
+            }.collect { uiState ->
+                updateState(uiState)
+                if (resetState && (uiState is StateSuccess || uiState is StateFailed)) {
+                    delay(300)
+                    updateState(StateInitial)
+                }
+            }
         }
     }
 

@@ -152,12 +152,8 @@ internal fun HomeLandingScreen(
                 )
                 listVideo = emptyList()
                 urlSocialMediaState = urlSocialMediaState.copy(text = "")
-                resetState()
             },
-            onDismiss = {
-                listVideo = emptyList()
-                resetState()
-            }
+            onDismiss = { listVideo = emptyList() }
         )
 
         HomeScreenContent(
@@ -310,4 +306,5 @@ private fun getActionMenuClick(navigator: BaseNavigator) = { name: String ->
     }
 }
 
-private fun BaseNavigator.navigateToNotif() = navigate(getNavGraph<NotificationNavGraph>().getNotificationLandingRoute())
+private fun BaseNavigator.navigateToNotif() =
+    navigate(getNavGraph<NotificationNavGraph>().getNotificationLandingRoute())
