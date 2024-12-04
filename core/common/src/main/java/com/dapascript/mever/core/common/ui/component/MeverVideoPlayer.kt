@@ -8,6 +8,7 @@ import androidx.activity.compose.BackHandler
 import androidx.annotation.OptIn
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring.DampingRatioLowBouncy
+import androidx.compose.animation.core.Spring.DampingRatioNoBouncy
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
@@ -53,6 +54,7 @@ import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Alignment.Companion.TopStart
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.ColorFilter.Companion.tint
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -337,14 +339,31 @@ private fun VideoCenterControlSection(
     modifier = modifier.fillMaxWidth(),
     horizontalArrangement = SpaceEvenly
 ) {
+    var isRewindRotated by remember { mutableStateOf(false) }
+    var isForwardRotated by remember { mutableStateOf(false) }
+    val rotationRewind by animateFloatAsState(
+        targetValue = if (isRewindRotated) -45f else 0f,
+        animationSpec = spring(dampingRatio = DampingRatioNoBouncy),
+        label = "rotationRewind"
+    ) { isRewindRotated = false }
+    val rotationForward by animateFloatAsState(
+        targetValue = if (isForwardRotated) 45f else 0f,
+        animationSpec = spring(dampingRatio = DampingRatioNoBouncy),
+        label = "rotationForward"
+    ) { isForwardRotated = false }
+
     Image(
         painter = painterResource(R.drawable.ic_rewind),
         colorFilter = tint(color = MeverWhite),
         contentDescription = "Rewind",
         modifier = Modifier
+            .rotate(rotationRewind)
             .size(Dp48)
             .clip(CircleShape)
-            .clickable { onClickRewind() }
+            .clickable {
+                onClickRewind()
+                isRewindRotated = true
+            }
     )
     Image(
         painter = painterResource(iconPlayOrPause),
@@ -360,9 +379,13 @@ private fun VideoCenterControlSection(
         colorFilter = tint(color = MeverWhite),
         contentDescription = "Forward",
         modifier = Modifier
+            .rotate(rotationForward)
             .size(Dp48)
             .clip(CircleShape)
-            .clickable { onClickForward() }
+            .clickable {
+                onClickForward()
+                isForwardRotated = true
+            }
     )
 }
 
