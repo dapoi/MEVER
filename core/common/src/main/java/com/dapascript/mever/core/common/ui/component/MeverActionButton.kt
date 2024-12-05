@@ -1,11 +1,13 @@
 package com.dapascript.mever.core.common.ui.component
 
-import android.annotation.SuppressLint
-import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.RepeatMode.Reverse
+import androidx.compose.animation.core.Spring.DampingRatioNoBouncy
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -16,8 +18,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.TopEnd
@@ -31,8 +35,8 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp15
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp600
 
-@SuppressLint("UseOfNonLambdaOffsetOverload")
 @Composable
 fun MeverActionButton(
     resource: Int,
@@ -40,25 +44,33 @@ fun MeverActionButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
-    val bellTransition by rememberInfiniteTransition(label = "Infinite Transition").animateFloat(
+    var showAnimationIconSize by remember { mutableStateOf(false) }
+    val animateIconSize by animateDpAsState(
+        targetValue = if (showAnimationIconSize) Dp600 else Dp24,
+        animationSpec = spring(dampingRatio = DampingRatioNoBouncy),
+        label = "Size Animation"
+    ) { showAnimationIconSize = false }
+    val animateIconVibrate by rememberInfiniteTransition(label = "Infinite Transition").animateFloat(
         initialValue = 25f,
         targetValue = -25f,
         animationSpec = infiniteRepeatable(
             animation = tween(
                 durationMillis = 600,
-                easing = LinearEasing
+                easing = FastOutLinearInEasing
             ),
             repeatMode = Reverse
         ),
         label = "Rotation Animation"
     )
 
+    LaunchedEffect(showBadge) { showAnimationIconSize = showBadge }
+
     Box(modifier = modifier.size(Dp32)) {
         IconButton(onClick = onDebounceClick { onClick() }) {
             Icon(
                 modifier = Modifier
-                    .size(Dp24)
-                    .showGraphicLayer(state = showBadge, value = bellTransition),
+                    .size(animateIconSize)
+                    .showGraphicLayer(state = showBadge, value = animateIconVibrate),
                 imageVector = ImageVector.vectorResource(resource),
                 contentDescription = "Action Button"
             )

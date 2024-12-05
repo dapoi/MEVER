@@ -45,4 +45,5 @@ object Dimens {
     val Dp88 = 88.dp
     val Dp150 = 150.dp
     val Dp200 = 200.dp
+    val Dp600 = 600.dp
 }
