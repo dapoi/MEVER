@@ -94,12 +94,12 @@ internal fun GalleryLandingScreen(
             showDialog = true,
             meverDialogArgs = MeverDialogArgs(
                 title = "Delete this file?",
-                actionText = "Delete",
-                onActionClick = {
+                primaryButtonText = "Delete",
+                onPrimaryButtonClick = {
                     deleteDownload(id)
                     showDeleteDialog = null
                 },
-                onDismissClick = { showDeleteDialog = null }
+                onSecondaryButtonClick = { showDeleteDialog = null }
             )
         ) {
             Text(

@@ -3,6 +3,7 @@ package com.dapascript.mever.feature.home.screen
 import android.app.Activity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Column
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -21,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,8 +32,12 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale.Companion.Crop
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign.Companion.Center
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.base.attr.BaseScreenAttr.ActionMenu
 import com.dapascript.mever.core.common.base.attr.BaseScreenAttr.BaseScreenArgs
@@ -45,6 +52,7 @@ import com.dapascript.mever.core.common.ui.component.MeverTextField
 import com.dapascript.mever.core.common.ui.component.MeverThumbnail
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp0
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp200
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
@@ -56,7 +64,9 @@ import com.dapascript.mever.core.common.util.Constant.ScreenName.NOTIFICATION
 import com.dapascript.mever.core.common.util.Constant.ScreenName.SETTING
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.clickableSingle
+import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.Status.Available
 import com.dapascript.mever.core.common.util.getDescriptionPermission
+import com.dapascript.mever.core.common.util.getNetworkStatus
 import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.getStoragePermission
 import com.dapascript.mever.core.common.util.goToSetting
@@ -71,17 +81,22 @@ internal fun HomeLandingScreen(
     navigator: BaseNavigator,
     viewModel: HomeLandingViewModel = hiltViewModel()
 ) = with(viewModel) {
+    val isNetworkAvailable = connectivityObserver.observe().collectAsState(connectivityObserver.isConnected())
     val videoState = videoState.collectAsStateValue()
     val activity = LocalActivity.current
     val dialogQueue = showDialogPermission
     var listVideo by remember { mutableStateOf<List<VideoGeneralEntity>>(emptyList()) }
-    var isLoading by remember { mutableStateOf(false) }
-    var isError by remember { mutableStateOf(false) }
+    var showLoading by remember { mutableStateOf(false) }
+    var showErrorModal by remember { mutableStateOf(false) }
     val onClickActionMenu = remember { getActionMenuClick(navigator) }
     val requestStoragePermissionLauncher = rememberLauncherForActivityResult(RequestMultiplePermissions()) { perms ->
         val allGranted = getStoragePermission.all { perms[it] == true }
-        if (allGranted) getApiDownloader(urlSocialMediaState)
-        else getStoragePermission.forEach { permission ->
+
+        if (allGranted) getNetworkStatus(
+            isNetworkAvailable = isNetworkAvailable.value,
+            onNetworkAvailable = { getApiDownloader(urlSocialMediaState) },
+            onNetworkUnavailable = { showErrorModal = true }
+        ) else getStoragePermission.forEach { permission ->
             onPermissionResult(permission, isGranted = perms[permission] == true)
         }
     }
@@ -102,26 +117,43 @@ internal fun HomeLandingScreen(
 
         LaunchedEffect(videoState) {
             videoState.handleUiState(
-                onLoading = { isLoading = true },
+                onLoading = { showLoading = true },
                 onSuccess = {
-                    isLoading = false
+                    showLoading = false
                     listVideo = it
                 },
                 onFailed = {
-                    isLoading = false
-                    isError = true
+                    showLoading = false
+                    showErrorModal = true
                 }
             )
         }
 
-        HandleDialogError(
-            showDialog = isError,
-            onRetry = {
-                getApiDownloader(urlSocialMediaState)
-                isError = false
-            },
-            onDismiss = { isError = false }
-        )
+        if (isNetworkAvailable.value == Available) Triple(
+            first = "Something Went Wrong!",
+            second = R.drawable.ic_error_response,
+            third = "Your request cannot be processed at the moment. Please try again later."
+        ) else Triple(
+            first = "Ups! You're Offline",
+            second = R.drawable.ic_no_connection,
+            third = "Please check your internet connection and try again."
+        ).let { (errorTitle, errorImage, errorDescription) ->
+            HandlerDialogError(
+                showDialog = showErrorModal,
+                errorTitle = errorTitle,
+                errorImage = errorImage,
+                errorDescription = errorDescription,
+                onRetry = {
+                    showErrorModal = false
+                    getNetworkStatus(
+                        isNetworkAvailable = isNetworkAvailable.value,
+                        onNetworkAvailable = { getApiDownloader(urlSocialMediaState) },
+                        onNetworkUnavailable = { showErrorModal = true }
+                    )
+                },
+                onDismiss = { showErrorModal = false }
+            )
+        }
 
         HandleDialogPermission(
             activity = activity,
@@ -158,28 +190,41 @@ internal fun HomeLandingScreen(
 
         HomeScreenContent(
             homeLandingViewModel = this,
-            isLoading = isLoading
+            isLoading = showLoading
         ) { requestStoragePermissionLauncher.launch(getStoragePermission) }
     }
 }
 
+
 @Composable
-private fun HandleDialogError(
+private fun HandlerDialogError(
     showDialog: Boolean,
+    errorTitle: String,
+    errorImage: Int,
+    errorDescription: String,
     onRetry: () -> Unit,
     onDismiss: () -> Unit
 ) {
     MeverDialog(
         showDialog = showDialog,
         meverDialogArgs = MeverDialogArgs(
-            title = "Ups, something went wrong!",
-            actionText = "Retry",
-            onActionClick = onRetry,
-            onDismissClick = onDismiss
+            title = errorTitle,
+            primaryButtonText = "Try Again",
+            onPrimaryButtonClick = onRetry,
+            onSecondaryButtonClick = onDismiss
         )
     ) {
+        Image(
+            modifier = Modifier
+                .size(Dp200)
+                .align(CenterHorizontally),
+            painter = painterResource(errorImage),
+            contentScale = Crop,
+            contentDescription = "Error Image"
+        )
         Text(
-            text = "Please press the button below to try again",
+            text = errorDescription,
+            textAlign = Center,
             style = typography.body1,
             color = colorScheme.onPrimary
         )
@@ -200,14 +245,15 @@ private fun HandleDialogPermission(
         MeverDialog(
             showDialog = true,
             meverDialogArgs = MeverDialogArgs(
-                title = "Permission required",
-                actionText = if (isPermissionsDeclined) "Go to setting" else "Allow",
-                onActionClick = if (isPermissionsDeclined) onGoToSetting else onAllow,
-                onDismissClick = onDismiss
+                title = "Permission Required",
+                primaryButtonText = if (isPermissionsDeclined) "Go to setting" else "Allow",
+                onPrimaryButtonClick = if (isPermissionsDeclined) onGoToSetting else onAllow,
+                onSecondaryButtonClick = onDismiss
             )
         ) {
             Text(
                 text = getDescriptionPermission(permission),
+                textAlign = Center,
                 style = typography.body1,
                 color = colorScheme.onPrimary
             )
@@ -227,10 +273,10 @@ private fun HandleDialogDownload(
     MeverDialog(
         showDialog = showDialog,
         meverDialogArgs = MeverDialogArgs(
-            title = "The video is ready to download",
-            actionText = "Download",
-            onActionClick = { onDownloadClick(chooseQuality ?: get(0).url) },
-            onDismissClick = onDismiss
+            title = "Content's Found",
+            primaryButtonText = "Download",
+            onPrimaryButtonClick = { onDownloadClick(chooseQuality ?: get(0).url) },
+            onSecondaryButtonClick = onDismiss
         )
     ) {
         MeverThumbnail(

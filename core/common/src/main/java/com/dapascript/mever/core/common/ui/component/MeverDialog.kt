@@ -63,7 +63,7 @@ fun MeverDialog(
     LaunchedEffect(showDialog) { if (showDialog) showAnimatedDialog = true }
 
     if (showAnimatedDialog) {
-        Dialog(onDismissRequest = { onDismissClick?.invoke() }) {
+        Dialog(onDismissRequest = onSecondaryButtonClick) {
             Box(
                 modifier = modifier.fillMaxSize(),
                 contentAlignment = Center
@@ -91,10 +91,7 @@ fun MeverDialog(
                         contentAlignment = Center
                     ) {
                         DialogContent(
-                            titleTextDialog = title,
-                            actionTextDialog = actionText,
-                            onActionClick = onActionClick,
-                            onDismissClick = onDismissClick,
+                            meverDialogArgs = this@with,
                             contentBody = contentBody
                         )
                     }
@@ -108,26 +105,23 @@ fun MeverDialog(
 
 @Composable
 private fun DialogContent(
-    titleTextDialog: String,
-    actionTextDialog: String?,
+    meverDialogArgs: MeverDialogArgs,
     modifier: Modifier = Modifier,
-    onActionClick: (() -> Unit)?,
-    onDismissClick: (() -> Unit)?,
     contentBody: @Composable ColumnScope.() -> Unit
-) = Column(
-    modifier = modifier
-        .background(colorScheme.background)
-        .padding(vertical = Dp8, horizontal = Dp16),
-    verticalArrangement = spacedBy(Dp12),
-    horizontalAlignment = CenterHorizontally
-) {
-    Text(
-        text = titleTextDialog,
-        style = typography.bodyBold1,
-        color = colorScheme.onPrimary
-    )
-    contentBody()
-    actionTextDialog?.let {
+) = with(meverDialogArgs) {
+    Column(
+        modifier = modifier
+            .background(colorScheme.background)
+            .padding(vertical = Dp8, horizontal = Dp16),
+        verticalArrangement = spacedBy(Dp12),
+        horizontalAlignment = CenterHorizontally
+    ) {
+        Text(
+            text = title,
+            style = typography.bodyBold1,
+            color = colorScheme.onPrimary
+        )
+        contentBody()
         Row(
             modifier = Modifier.height(Min),
             verticalAlignment = CenterVertically,
@@ -136,7 +130,7 @@ private fun DialogContent(
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(Dp14))
-                    .clickableSingle { onDismissClick?.invoke() }
+                    .clickableSingle { onSecondaryButtonClick() }
                     .weight(1f)
                     .padding(vertical = Dp16),
                 contentAlignment = Center
@@ -159,13 +153,13 @@ private fun DialogContent(
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(Dp14))
-                    .clickableSingle { onActionClick?.invoke() }
+                    .clickableSingle { onPrimaryButtonClick() }
                     .weight(1f)
                     .padding(vertical = Dp16),
                 contentAlignment = Center
             ) {
                 Text(
-                    text = it,
+                    text = primaryButtonText,
                     style = typography.bodyBold2,
                     color = colorScheme.primary
                 )

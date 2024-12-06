@@ -17,6 +17,8 @@ import com.dapascript.mever.core.common.util.Constant.PlatformType.FACEBOOK
 import com.dapascript.mever.core.common.util.Constant.PlatformType.INSTAGRAM
 import com.dapascript.mever.core.common.util.Constant.PlatformType.TWITTER
 import com.dapascript.mever.core.common.util.Constant.PlatformType.UNKNOWN
+import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.Status
+import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.Status.Available
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -119,19 +121,6 @@ fun shareContent(context: Context, authority: String, path: String) {
     }
 }
 
-//fun Long.formatMinSec(): String {
-//    return if (this == 0L) {
-//        "..."
-//    } else {
-//        String.format(
-//            getDefault(),
-//            "%02d : %02d",
-//            MILLISECONDS.toMinutes(this),
-//            MILLISECONDS.toSeconds(this) - MINUTES.toSeconds(MILLISECONDS.toMinutes(this))
-//        )
-//    }
-//}
-
 fun Long.toTimeFormat(): String {
     val seconds = this / 1000
     val minutes = seconds / 60
@@ -140,4 +129,13 @@ fun Long.toTimeFormat(): String {
         hours > 0 -> String.format(getDefault(), "%02d:%02d:%02d", hours, minutes % 60, seconds % 60)
         else -> String.format(getDefault(), "%02d:%02d", minutes, seconds % 60)
     }
+}
+
+fun getNetworkStatus(
+    isNetworkAvailable: Status,
+    onNetworkAvailable: () -> Unit,
+    onNetworkUnavailable: () -> Unit
+) = when (isNetworkAvailable) {
+    Available -> onNetworkAvailable()
+    else -> onNetworkUnavailable()
 }

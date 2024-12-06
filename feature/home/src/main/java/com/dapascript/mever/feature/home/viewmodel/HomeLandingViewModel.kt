@@ -10,6 +10,7 @@ import com.dapascript.mever.core.common.util.Constant.PlatformType.FACEBOOK
 import com.dapascript.mever.core.common.util.Constant.PlatformType.INSTAGRAM
 import com.dapascript.mever.core.common.util.Constant.PlatformType.TWITTER
 import com.dapascript.mever.core.common.util.Constant.PlatformType.UNKNOWN
+import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver
 import com.dapascript.mever.core.common.util.getMeverFolder
 import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.state.ApiState.Error
@@ -33,10 +34,9 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeLandingViewModel @Inject constructor(
     private val repository: MeverRepository,
-    ketch: Ketch
+    private val ketch: Ketch,
+    val connectivityObserver: ConnectivityObserver
 ) : BaseViewModel() {
-
-    private val ketch by lazy { ketch }
     private val meverFolder by lazy { getMeverFolder() }
     var urlSocialMediaState by mutableStateOf(TextFieldValue(""))
     var showBadge by mutableStateOf(false)
