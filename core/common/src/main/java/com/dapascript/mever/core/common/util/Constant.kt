@@ -26,6 +26,7 @@ object Constant {
         FACEBOOK(PlatformName.FACEBOOK),
         INSTAGRAM(PlatformName.INSTAGRAM),
         TWITTER(PlatformName.TWITTER),
+        TIKTOK(PlatformName.TIKTOK),
         UNKNOWN(PlatformName.UNKNOWN)
     }
 }

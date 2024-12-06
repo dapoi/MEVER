@@ -2,6 +2,7 @@ package com.dapascript.mever.core.data.source.remote
 
 import com.dapascript.mever.core.model.remote.FacebookDownloaderResponse
 import com.dapascript.mever.core.model.remote.InstagramDownloaderResponse
+import com.dapascript.mever.core.model.remote.TikTokDownloaderResponse
 import com.dapascript.mever.core.model.remote.TwitterDownloaderResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -22,4 +23,9 @@ interface ApiService {
     suspend fun getTwitterDownloader(
         @Query("url") url: String
     ): TwitterDownloaderResponse
+
+    @GET("api/downloader/v2/ttdl")
+    suspend fun getTikTokDownloader(
+        @Query("url") url: String
+    ): TikTokDownloaderResponse
 }

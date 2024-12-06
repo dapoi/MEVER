@@ -1,11 +1,15 @@
 package com.dapascript.mever.feature.gallery.screen
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.LocalOverscrollConfiguration
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,6 +35,7 @@ import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.feature.gallery.navigation.route.GalleryPlayerRoute
 import com.dapascript.mever.feature.gallery.viewmodel.GalleryLandingViewModel
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun GalleryLandingScreen(
     navigator: BaseNavigator,
@@ -48,45 +53,49 @@ internal fun GalleryLandingScreen(
     ) {
         LaunchedEffect(Unit) { getAllDownloads() }
 
-        if (downloadList.isNotEmpty()) LazyColumn {
-            items(
-                items = downloadList,
-                key = { it.id }
-            ) {
-                MeverCard(
-                    modifier = Modifier
-                        .padding(vertical = Dp12)
-                        .animateItem(),
-                    meverCardArgs = MeverCardArgs(
-                        image = it.url,
-                        fileName = it.fileName,
-                        status = it.status,
-                        progress = it.progress,
-                        total = it.total,
-                        path = it.path,
-                        type = DOWNLOADED,
-                        onPlayClick = {
-                            navigator.navigate(
-                                GalleryPlayerRoute(
-                                    sourceVideo = getMeverFiles()?.find { file ->
-                                        file.name == it.fileName
-                                    }?.path.orEmpty(),
-                                    fileName = it.fileName
-                                )
+        if (downloadList.isNotEmpty())
+            CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    items(
+                        items = downloadList,
+                        key = { it.id }
+                    ) {
+                        MeverCard(
+                            modifier = Modifier
+                                .padding(vertical = Dp12)
+                                .animateItem(),
+                            meverCardArgs = MeverCardArgs(
+                                image = it.url,
+                                tag = it.tag,
+                                fileName = it.fileName,
+                                status = it.status,
+                                progress = it.progress,
+                                total = it.total,
+                                path = it.path,
+                                type = DOWNLOADED,
+                                onPlayClick = {
+                                    navigator.navigate(
+                                        GalleryPlayerRoute(
+                                            sourceVideo = getMeverFiles()?.find { file ->
+                                                file.name == it.fileName
+                                            }?.path.orEmpty(),
+                                            fileName = it.fileName
+                                        )
+                                    )
+                                },
+                                onShareContentClick = {
+                                    shareContent(
+                                        context = context,
+                                        authority = context.packageName + ".provider",
+                                        path = getMeverFiles()?.find { file -> file.name == it.fileName }?.path.orEmpty()
+                                    )
+                                },
+                                onDeleteContentClick = { showDeleteDialog = it.id }
                             )
-                        },
-                        onShareContentClick = {
-                            shareContent(
-                                context = context,
-                                authority = context.packageName + ".provider",
-                                path = getMeverFiles()?.find { file -> file.name == it.fileName }?.path.orEmpty()
-                            )
-                        },
-                        onDeleteContentClick = { showDeleteDialog = it.id }
-                    )
-                )
-            }
-        } else MeverEmptyItem("You haven't downloaded any files yet")
+                        )
+                    }
+                }
+            } else MeverEmptyItem("You haven't downloaded any files yet")
     }
 
     showDeleteDialog?.let { id ->

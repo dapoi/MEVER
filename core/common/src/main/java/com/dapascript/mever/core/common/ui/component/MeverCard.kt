@@ -59,7 +59,6 @@ import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.calculateDownloadPercentage
 import com.dapascript.mever.core.common.util.calculateDownloadedMegabytes
 import com.dapascript.mever.core.common.util.clickableSingle
-import com.dapascript.mever.core.common.util.getContentType
 import com.dapascript.mever.core.common.util.getMeverFiles
 import com.dapascript.mever.core.common.util.getTwoDecimals
 import com.ketch.Status.PAUSED
@@ -121,18 +120,18 @@ private fun MeverCardDownloading(
                     horizontalArrangement = spacedBy(Dp10)
                 ) {
                     MeverPlatformIcon(
-                        platform = fileName,
+                        platform = tag,
                         modifier = Modifier.size(Dp24)
                     )
                     Text(
                         text = fileName,
-                        style = typography.bodyBold3,
-                        maxLines = 2,
+                        style = typography.bodyBold2,
+                        maxLines = 1,
                         overflow = Ellipsis
                     )
                 }
                 Text(
-                    text = "Type: ${getContentType(path)}",
+                    text = "Category: $tag",
                     style = typography.label2,
                     color = MeverGray
                 )
@@ -146,7 +145,7 @@ private fun MeverCardDownloading(
                             downloadedBytes = (progress / 100.0 * total).toLong(),
                             totalBytes = total
                         ),
-                        style = typography.label3,
+                        style = typography.label2,
                         color = colorScheme.primary
                     )
                     Text(
@@ -156,7 +155,7 @@ private fun MeverCardDownloading(
                                 totalBytes = total
                             )
                         } MB/${getTwoDecimals(total / (1024.0 * 1024.0))} MB",
-                        style = typography.label3,
+                        style = typography.label2,
                         color = MeverLightGray
                     )
                 }
@@ -220,10 +219,11 @@ private fun MeverCardDownloaded(
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = spacedBy(Dp12)
+            horizontalArrangement = spacedBy(Dp12),
+            verticalAlignment = CenterVertically
         ) {
             MeverPlatformIcon(
-                platform = fileName,
+                platform = tag,
                 modifier = Modifier.size(Dp40)
             )
             Column(
@@ -232,11 +232,11 @@ private fun MeverCardDownloaded(
             ) {
                 Text(
                     text = fileName,
-                    style = typography.bodyBold3,
+                    style = typography.bodyBold2,
                 )
                 Text(
-                    text = "Type: ${getContentType(path)}",
-                    style = typography.label3,
+                    text = "Category: $tag",
+                    style = typography.label2,
                     color = MeverGray
                 )
             }

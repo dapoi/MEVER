@@ -1,7 +1,6 @@
 package com.dapascript.mever.core.common.ui.component
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
 import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT
 import androidx.activity.compose.BackHandler
@@ -64,10 +63,13 @@ import androidx.core.view.WindowCompat.getInsetsController
 import androidx.core.view.WindowInsetsCompat.Type.systemBars
 import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
 import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Lifecycle.Event.ON_CREATE
+import androidx.lifecycle.Lifecycle.Event.ON_START
+import androidx.lifecycle.Lifecycle.Event.ON_STOP
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaItem.fromUri
 import androidx.media3.common.Player
 import androidx.media3.common.Player.STATE_ENDED
 import androidx.media3.common.util.UnstableApi
@@ -100,6 +102,9 @@ fun MeverVideoPlayer(
     fileName: String,
     onClickBack: () -> Unit
 ) {
+    val context = LocalContext.current
+    val activity = LocalActivity.current
+    val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
     var player by remember { mutableStateOf<Player?>(null) }
     var isFullScreen by remember { mutableStateOf(false) }
     var isVideoPlaying by remember { mutableStateOf(player?.isPlaying) }
@@ -108,9 +113,6 @@ fun MeverVideoPlayer(
     var videoTimer by remember { mutableLongStateOf(0L) }
     var totalDuration by remember { mutableLongStateOf(0L) }
     var showController by remember { mutableStateOf(false) }
-    val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
-    val context = LocalContext.current
-    val activity = LocalActivity.current
 
     val enterFullScreen = {
         isFullScreen = true
@@ -137,7 +139,7 @@ fun MeverVideoPlayer(
         }
     }
 
-    DisposableEffect(true) {
+    DisposableEffect(lifecycleOwner) {
         val listener = object : Player.Listener {
             override fun onEvents(player: Player, events: Player.Events) {
                 super.onEvents(player, events)
@@ -152,39 +154,43 @@ fun MeverVideoPlayer(
                 title = mediaItem?.mediaMetadata?.displayTitle.toString()
             }
         }
-        player = initPlayer(context, sourceVideo).apply { addListener(listener) }
-        onDispose { player?.removeListener(listener) }
-    }
-
-    DisposableEffect(lifecycleOwner) {
         val window = activity.window
         val insetsController = getInsetsController(window, window.decorView)
-        val observer = object : DefaultLifecycleObserver {
-            override fun onStart(owner: LifecycleOwner) {
-                super.onStart(owner)
-                if (player?.isPlaying?.not() == true) player?.play()
-            }
-
-            override fun onResume(owner: LifecycleOwner) {
-                super.onResume(owner)
-                insetsController.apply {
-                    hide(systemBars())
-                    systemBarsBehavior = BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                ON_CREATE -> {
+                    player = Builder(context).build().apply {
+                        setMediaItem(fromUri(sourceVideo))
+                        prepare()
+                    }
+                    player?.addListener(listener)
                 }
-            }
 
-            override fun onStop(owner: LifecycleOwner) {
-                player?.pause()
-                insetsController.apply {
-                    show(systemBars())
-                    systemBarsBehavior = BEHAVIOR_DEFAULT
+                ON_START -> {
+                    insetsController.apply {
+                        hide(systemBars())
+                        systemBarsBehavior = BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                    }
+                    if (player?.isPlaying == false) player?.play()
                 }
-                super.onStop(owner)
+
+                ON_STOP -> {
+                    insetsController.apply {
+                        show(systemBars())
+                        systemBarsBehavior = BEHAVIOR_DEFAULT
+                    }
+                    player?.pause()
+                }
+
+                else -> Unit
             }
         }
+
         lifecycleOwner.value.lifecycle.addObserver(observer)
+
         onDispose {
             lifecycleOwner.value.lifecycle.removeObserver(observer)
+            player?.removeListener(listener)
             player?.release()
         }
     }
@@ -468,10 +474,4 @@ private fun VideoBottomControlSection(
             )
         }
     }
-}
-
-private fun initPlayer(context: Context, sourceVideo: String) = Builder(context).build().apply {
-    setMediaItem(MediaItem.fromUri(sourceVideo))
-    prepare()
-    playWhenReady = true
 }

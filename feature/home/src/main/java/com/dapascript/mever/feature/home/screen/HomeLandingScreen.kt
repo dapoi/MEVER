@@ -64,7 +64,6 @@ import com.dapascript.mever.core.common.util.Constant.ScreenName.NOTIFICATION
 import com.dapascript.mever.core.common.util.Constant.ScreenName.SETTING
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.clickableSingle
-import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.Status.Available
 import com.dapascript.mever.core.common.util.getDescriptionPermission
 import com.dapascript.mever.core.common.util.getNetworkStatus
 import com.dapascript.mever.core.common.util.getPlatformType
@@ -87,7 +86,8 @@ internal fun HomeLandingScreen(
     val dialogQueue = showDialogPermission
     var listVideo by remember { mutableStateOf<List<VideoGeneralEntity>>(emptyList()) }
     var showLoading by remember { mutableStateOf(false) }
-    var showErrorModal by remember { mutableStateOf(false) }
+    var showErrorNetworkModal by remember { mutableStateOf(false) }
+    var showErrorResponseModal by remember { mutableStateOf<Throwable?>(null) }
     val onClickActionMenu = remember { getActionMenuClick(navigator) }
     val requestStoragePermissionLauncher = rememberLauncherForActivityResult(RequestMultiplePermissions()) { perms ->
         val allGranted = getStoragePermission.all { perms[it] == true }
@@ -95,7 +95,7 @@ internal fun HomeLandingScreen(
         if (allGranted) getNetworkStatus(
             isNetworkAvailable = isNetworkAvailable.value,
             onNetworkAvailable = { getApiDownloader(urlSocialMediaState) },
-            onNetworkUnavailable = { showErrorModal = true }
+            onNetworkUnavailable = { showErrorNetworkModal = true }
         ) else getStoragePermission.forEach { permission ->
             onPermissionResult(permission, isGranted = perms[permission] == true)
         }
@@ -124,36 +124,42 @@ internal fun HomeLandingScreen(
                 },
                 onFailed = {
                     showLoading = false
-                    showErrorModal = true
+                    showErrorResponseModal = it
                 }
             )
         }
 
-        if (isNetworkAvailable.value == Available) Triple(
-            first = "Something Went Wrong!",
-            second = R.drawable.ic_error_response,
-            third = "Your request cannot be processed at the moment. Please try again later."
-        ) else Triple(
-            first = "Ups! You're Offline",
-            second = R.drawable.ic_no_connection,
-            third = "Please check your internet connection and try again."
-        ).let { (errorTitle, errorImage, errorDescription) ->
-            HandlerDialogError(
-                showDialog = showErrorModal,
-                errorTitle = errorTitle,
-                errorImage = errorImage,
-                errorDescription = errorDescription,
-                onRetry = {
-                    showErrorModal = false
-                    getNetworkStatus(
-                        isNetworkAvailable = isNetworkAvailable.value,
-                        onNetworkAvailable = { getApiDownloader(urlSocialMediaState) },
-                        onNetworkUnavailable = { showErrorModal = true }
-                    )
-                },
-                onDismiss = { showErrorModal = false }
-            )
-        }
+        HandlerDialogError(
+            showDialog = showErrorNetworkModal,
+            errorTitle = "Ups, You're Offline",
+            errorImage = R.drawable.ic_no_connection,
+            errorDescription = "Please check your internet connection and try again.",
+            onRetry = {
+                showErrorNetworkModal = false
+                getNetworkStatus(
+                    isNetworkAvailable = isNetworkAvailable.value,
+                    onNetworkAvailable = { getApiDownloader(urlSocialMediaState) },
+                    onNetworkUnavailable = { showErrorNetworkModal = true }
+                )
+            },
+            onDismiss = { showErrorNetworkModal = false }
+        )
+
+        HandlerDialogError(
+            showDialog = showErrorResponseModal != null,
+            errorTitle = "Something Went Wrong!",
+            errorImage = R.drawable.ic_error_response,
+            errorDescription = "Your request cannot be processed at this time. Please try again later.",
+            onRetry = {
+                showErrorResponseModal = null
+                getNetworkStatus(
+                    isNetworkAvailable = isNetworkAvailable.value,
+                    onNetworkAvailable = { getApiDownloader(urlSocialMediaState) },
+                    onNetworkUnavailable = { showErrorNetworkModal = true }
+                )
+            },
+            onDismiss = { showErrorResponseModal = null }
+        )
 
         HandleDialogPermission(
             activity = activity,

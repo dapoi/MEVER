@@ -6,6 +6,7 @@ import com.ketch.Status
 object MeverCardAttr {
     data class MeverCardArgs(
         val image: String,
+        val tag: String,
         val fileName: String,
         val status: Status,
         val progress: Int,

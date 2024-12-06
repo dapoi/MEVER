@@ -15,6 +15,7 @@ import androidx.core.content.FileProvider.getUriForFile
 import com.dapascript.mever.core.common.util.Constant.PlatformType
 import com.dapascript.mever.core.common.util.Constant.PlatformType.FACEBOOK
 import com.dapascript.mever.core.common.util.Constant.PlatformType.INSTAGRAM
+import com.dapascript.mever.core.common.util.Constant.PlatformType.TIKTOK
 import com.dapascript.mever.core.common.util.Constant.PlatformType.TWITTER
 import com.dapascript.mever.core.common.util.Constant.PlatformType.UNKNOWN
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.Status
@@ -28,14 +29,16 @@ import java.util.Locale.ROOT
 import java.util.Locale.getDefault
 
 fun String.getPlatformType(): PlatformType {
-    val listFbUrl = listOf("facebook.com", "fb.com", "m.facebook.com", "facebook", "fb")
-    val listInstagramUrl = listOf("instagram.com", "instagr.am", "ig.com", "instagram", "ig")
-    val listTwitterUrl = listOf("x.com", "twitter.com", "t.co", "twitter")
+    val listFbUrl = listOf("facebook.com", "fb.com", "m.facebook.com")
+    val listInstagramUrl = listOf("instagram.com", "instagr.am", "ig.com")
+    val listTwitterUrl = listOf("x.com", "twitter.com", "t.co", "mobile.twitter.com")
+    val listTiktokUrl = listOf("tiktok.com", "tiktokv.com", "tiktokcdn.com")
 
     return when {
-        listFbUrl.any { contains(it) } -> FACEBOOK
+        listFbUrl.any { contains(it) } && contains("photo").not() -> FACEBOOK
         listInstagramUrl.any { contains(it) } -> INSTAGRAM
         listTwitterUrl.any { contains(it) } -> TWITTER
+        listTiktokUrl.any { contains(it) } -> TIKTOK
         else -> UNKNOWN
     }
 }

@@ -8,4 +8,5 @@ interface MeverRepository {
     fun getFacebookDownloader(url: String): Flow<ApiState<List<VideoGeneralEntity>>>
     fun getInstagramDownloader(url: String): Flow<ApiState<List<VideoGeneralEntity>>>
     fun getTwitterDownloader(url: String): Flow<ApiState<List<VideoGeneralEntity>>>
+    fun getTikTokDownloader(url: String): Flow<ApiState<List<VideoGeneralEntity>>>
 }

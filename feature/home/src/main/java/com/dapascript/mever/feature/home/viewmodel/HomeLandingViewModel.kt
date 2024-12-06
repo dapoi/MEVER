@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.util.Constant.PlatformType.FACEBOOK
 import com.dapascript.mever.core.common.util.Constant.PlatformType.INSTAGRAM
+import com.dapascript.mever.core.common.util.Constant.PlatformType.TIKTOK
 import com.dapascript.mever.core.common.util.Constant.PlatformType.TWITTER
 import com.dapascript.mever.core.common.util.Constant.PlatformType.UNKNOWN
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver
@@ -57,7 +58,8 @@ class HomeLandingViewModel @Inject constructor(
         ketch.download(
             url = url,
             path = meverFolder.path,
-            fileName = "$platformName - ${currentTimeMillis().toCurrentDate()}.mp4"
+            fileName = "${currentTimeMillis().toCurrentDate()}.mp4",
+            tag = platformName
         )
     }
 
@@ -71,6 +73,7 @@ class HomeLandingViewModel @Inject constructor(
         FACEBOOK -> getFacebookDownloader(typeUrl)
         INSTAGRAM -> getInstagramDownloader(typeUrl)
         TWITTER -> getTwitterDownloader(typeUrl)
+        TIKTOK -> getTikTokDownloader(typeUrl)
         UNKNOWN -> flowOf(Error(Throwable("Unknown platform")))
     }
 }
