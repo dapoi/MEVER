@@ -30,6 +30,7 @@ android {
 }
 
 dependencies {
+    implementation(projects.feature.startup)
     implementation(projects.feature.home)
     implementation(projects.feature.notification)
     implementation(projects.feature.setting)

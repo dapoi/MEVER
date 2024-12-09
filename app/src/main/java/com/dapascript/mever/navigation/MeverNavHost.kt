@@ -7,14 +7,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.dapascript.mever.core.common.navigation.MeverNavGraphs
 import com.dapascript.mever.core.common.navigation.base.BaseNavigator
-import com.dapascript.mever.core.common.navigation.graph.HomeNavGraphRoute
+import com.dapascript.mever.core.common.navigation.graph.StartupNavGraphRoute
 import kotlin.reflect.KClass
 
 @Composable
 fun MeverNavHost(
     meverNavGraphs: MeverNavGraphs,
     modifier: Modifier = Modifier,
-    startDestination: KClass<*> = HomeNavGraphRoute::class
+    startDestination: KClass<*> = StartupNavGraphRoute::class
 ) {
     val navController = rememberNavController()
     val navGraphs = remember { meverNavGraphs.getNavGraphs() }

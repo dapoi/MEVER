@@ -41,9 +41,11 @@ object Dimens {
     val Dp50 = 50.dp
     val Dp52 = 52.dp
     val Dp54 = 54.dp
+    val Dp72 = 72.dp
     val Dp80 = 80.dp
     val Dp88 = 88.dp
     val Dp150 = 150.dp
+    val Dp189 = 189.dp
     val Dp200 = 200.dp
     val Dp600 = 600.dp
 }
