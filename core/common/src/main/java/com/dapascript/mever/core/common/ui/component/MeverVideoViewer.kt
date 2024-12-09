@@ -97,9 +97,10 @@ import kotlinx.coroutines.delay
 @SuppressLint("SourceLockedOrientationActivity")
 @OptIn(UnstableApi::class)
 @Composable
-fun MeverVideoPlayer(
-    sourceVideo: String,
+fun MeverVideoViewer(
+    video: String,
     fileName: String,
+    modifier: Modifier = Modifier,
     onClickBack: () -> Unit
 ) {
     val context = LocalContext.current
@@ -160,7 +161,7 @@ fun MeverVideoPlayer(
             when (event) {
                 ON_CREATE -> {
                     player = Builder(context).build().apply {
-                        setMediaItem(fromUri(sourceVideo))
+                        setMediaItem(fromUri(video))
                         prepare()
                     }
                     player?.addListener(listener)
@@ -196,7 +197,7 @@ fun MeverVideoPlayer(
     }
 
     VideoPlayerContent(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         player = player ?: return,
         title = fileName,
         iconPlayOrPause = if (isVideoPlaying == true) R.drawable.ic_pause else R.drawable.ic_play,

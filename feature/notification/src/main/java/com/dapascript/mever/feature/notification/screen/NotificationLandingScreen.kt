@@ -52,6 +52,7 @@ internal fun NotificationLandingScreen(
                         meverCardArgs = MeverCardArgs(
                             image = it.url,
                             tag = it.tag,
+                            metaData = it.metaData,
                             fileName = it.fileName,
                             status = it.status,
                             progress = it.progress,

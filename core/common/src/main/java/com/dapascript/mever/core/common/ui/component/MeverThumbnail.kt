@@ -27,6 +27,8 @@ import androidx.compose.ui.graphics.Brush.Companion.linearGradient
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale.Companion.Crop
 import com.dapascript.mever.core.common.ui.theme.MeverDarkGray
+import com.dapascript.mever.core.common.util.getUrlContentType
+import com.dapascript.mever.core.common.util.getUrlPhotoThumbnail
 import com.dapascript.mever.core.common.util.getVideoThumbnail
 import kotlinx.coroutines.delay
 
@@ -35,21 +37,22 @@ fun MeverThumbnail(
     source: String,
     modifier: Modifier = Modifier
 ) {
-    val videoThumbnail = rememberSaveable(source) { mutableStateOf<Bitmap?>(null) }
+    val thumbnail = rememberSaveable(source) { mutableStateOf<Bitmap?>(null) }
 
-    LaunchedEffect(source) {
-        while (videoThumbnail.value == null) {
+    LaunchedEffect(thumbnail) {
+        while (thumbnail.value == null) {
             try {
-                videoThumbnail.value = getVideoThumbnail(source)
+                thumbnail.value = if (getUrlContentType(source) == ".jpg") getUrlPhotoThumbnail(source)
+                else getVideoThumbnail(source)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-            if (videoThumbnail.value == null) delay(1000)
+            if (thumbnail.value == null) delay(1000)
         }
     }
 
     AnimatedContent(
-        targetState = videoThumbnail.value,
+        targetState = thumbnail.value,
         transitionSpec = { (fadeIn() togetherWith fadeOut()).using(SizeTransform(clip = false)) },
         label = "Video Thumbnail Anim"
     ) { bitmap ->

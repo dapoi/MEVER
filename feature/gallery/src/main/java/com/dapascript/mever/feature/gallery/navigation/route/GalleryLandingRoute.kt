@@ -6,4 +6,4 @@ import kotlinx.serialization.Serializable
 object GalleryLandingRoute
 
 @Serializable
-data class GalleryPlayerRoute(val sourceVideo: String, val fileName: String)
+data class GalleryContentViewerRoute(val sourceFile: String, val fileName: String)

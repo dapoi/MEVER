@@ -32,8 +32,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter.Companion.tint
 import androidx.compose.ui.graphics.StrokeCap.Companion.Round
+import androidx.compose.ui.layout.ContentScale.Companion.Crop
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow.Companion.Ellipsis
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.video.VideoFrameDecoder
+import coil3.video.videoFrameMillis
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardArgs
 import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardType.DOWNLOADED
@@ -202,15 +208,23 @@ private fun MeverCardDownloaded(
                 .clickableSingle { onPlayClick?.invoke() },
             contentAlignment = Center
         ) {
-            MeverThumbnail(
+            val context = LocalContext.current
+            val filePath = getMeverFiles()?.find { it.name == fileName }?.path.orEmpty()
+            AsyncImage(
                 modifier = Modifier.fillMaxSize(),
-                source = getMeverFiles()?.find { it.name == fileName }?.path.orEmpty()
+                model = if (fileName.contains(".jpg")) filePath else ImageRequest.Builder(context)
+                    .data(filePath)
+                    .videoFrameMillis(1000)
+                    .decoderFactory { result, options, _ -> VideoFrameDecoder(result.source, options) }
+                    .build(),
+                contentDescription = "Thumbnail",
+                contentScale = Crop
             )
             Surface(
                 modifier = Modifier.fillMaxSize(),
                 color = MeverBlack.copy(alpha = 0.3f)
             ) {}
-            Image(
+            if (fileName.contains(".mp4")) Image(
                 painter = painterResource(R.drawable.ic_play_video),
                 colorFilter = tint(MeverWhite.copy(alpha = 0.7f)),
                 contentDescription = "Play",

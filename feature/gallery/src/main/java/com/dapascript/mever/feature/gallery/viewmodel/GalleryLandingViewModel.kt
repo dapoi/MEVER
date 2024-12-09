@@ -2,6 +2,7 @@ package com.dapascript.mever.feature.gallery.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
+import com.dapascript.mever.core.common.util.deleteAllMeverFolder
 import com.dapascript.mever.core.common.util.getMeverFiles
 import com.ketch.DownloadModel
 import com.ketch.Ketch
@@ -22,7 +23,8 @@ class GalleryLandingViewModel @Inject constructor(
 
     fun getAllDownloads() = viewModelScope.launch {
         ketch.observeDownloads().collect { downloads ->
-            _downloadList.value = downloads.filter {
+            if (downloads.isEmpty()) deleteAllMeverFolder()
+            else _downloadList.value = downloads.filter {
                 getMeverFiles()?.map { file -> file.name }?.contains(it.fileName) == true && it.status == SUCCESS
             }
         }

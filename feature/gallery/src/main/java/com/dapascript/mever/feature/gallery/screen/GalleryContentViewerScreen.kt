@@ -15,13 +15,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.base.attr.BaseScreenAttr.BaseScreenArgs
 import com.dapascript.mever.core.common.navigation.base.BaseNavigator
-import com.dapascript.mever.core.common.ui.component.MeverVideoPlayer
+import com.dapascript.mever.core.common.ui.component.MeverPhotoViewer
+import com.dapascript.mever.core.common.ui.component.MeverVideoViewer
 import com.dapascript.mever.core.common.ui.theme.MeverBlack
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.feature.gallery.viewmodel.GalleryPlayerViewModel
 
 @Composable
-internal fun GalleryPlayerScreen(
+internal fun GalleryContentViewerScreen(
     navigator: BaseNavigator,
     viewModel: GalleryPlayerViewModel = hiltViewModel()
 ) = with(viewModel) {
@@ -47,11 +48,16 @@ internal fun GalleryPlayerScreen(
             snapshotFlow { configuration.orientation }.collect { orientation = it }
         }
 
-        with(galleryPlayerRoute) {
-            MeverVideoPlayer(
-                sourceVideo = sourceVideo,
-                fileName = fileName
-            ) { navigator.popBackStack() }
+        with(galleryContentViewerRoute) {
+            if (fileName.endsWith(".mp4")) MeverVideoViewer(
+                video = sourceFile,
+                fileName = fileName,
+                onClickBack = { navigator.popBackStack() }
+            ) else MeverPhotoViewer(
+                image = sourceFile,
+                fileName = fileName,
+                onClickBack = { navigator.popBackStack() }
+            )
         }
     }
 }

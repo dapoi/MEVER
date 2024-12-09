@@ -14,6 +14,7 @@ import com.dapascript.mever.core.common.util.Constant.PlatformType.UNKNOWN
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver
 import com.dapascript.mever.core.common.util.getMeverFolder
 import com.dapascript.mever.core.common.util.getPlatformType
+import com.dapascript.mever.core.common.util.getUrlContentType
 import com.dapascript.mever.core.common.util.state.ApiState.Error
 import com.dapascript.mever.core.common.util.state.UiState
 import com.dapascript.mever.core.common.util.state.UiState.StateInitial
@@ -55,12 +56,14 @@ class HomeLandingViewModel @Inject constructor(
         platformName: String
     ) {
         if (meverFolder.exists().not()) meverFolder.mkdirs()
-        ketch.download(
-            url = url,
-            path = meverFolder.path,
-            fileName = "${currentTimeMillis().toCurrentDate()}.mp4",
-            tag = platformName
-        )
+        viewModelScope.launch {
+            ketch.download(
+                url = url,
+                path = meverFolder.path,
+                fileName = currentTimeMillis().toCurrentDate() + getUrlContentType(url),
+                tag = platformName
+            )
+        }
     }
 
     fun getObservableKetch() = viewModelScope.launch {
