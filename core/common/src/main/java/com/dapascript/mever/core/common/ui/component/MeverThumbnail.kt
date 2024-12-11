@@ -12,7 +12,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
@@ -24,8 +23,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Offset.Companion.Zero
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Brush.Companion.linearGradient
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale.Companion.Crop
+import coil3.compose.AsyncImage
 import com.dapascript.mever.core.common.ui.theme.MeverDarkGray
 import com.dapascript.mever.core.common.util.getPhotoThumbnail
 import com.dapascript.mever.core.common.util.getUrlContentType
@@ -57,8 +56,8 @@ fun MeverThumbnail(
         label = "Video Thumbnail Anim"
     ) { bitmap ->
         bitmap?.let {
-            Image(
-                bitmap = it.asImageBitmap(),
+            AsyncImage(
+                model = it,
                 contentDescription = null,
                 contentScale = Crop,
                 modifier = modifier

@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory.decodeStream
 import android.media.MediaMetadataRetriever
 import android.os.Environment.DIRECTORY_DOWNLOADS
 import android.os.Environment.getExternalStoragePublicDirectory
+import android.util.Log
 import android.util.Patterns.WEB_URL
 import androidx.core.app.ShareCompat.IntentBuilder
 import androidx.core.content.FileProvider.getUriForFile
@@ -95,7 +96,8 @@ suspend fun getUrlContentType(url: String) = withContext(IO) {
 
     try {
         val type = client.newCall(request).execute().use { response -> response.header("Content-Type") }
-        if (type == "application/octet-stream") ".mp4" else ".jpg"
+        Log.d("GeneralUtil", "getUrlContentType: $type")
+        if (type == "application/octet-stream" || type == "video/mp4") ".mp4" else ".jpg"
     } catch (e: Exception) {
         e.printStackTrace()
         null

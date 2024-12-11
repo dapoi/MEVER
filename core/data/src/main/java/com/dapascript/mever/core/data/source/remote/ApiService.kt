@@ -24,7 +24,7 @@ interface ApiService {
         @Query("url") url: String
     ): TwitterDownloaderResponse
 
-    @GET("api/downloader/v2/ttdl")
+    @GET("api/downloader/ttdl")
     suspend fun getTikTokDownloader(
         @Query("url") url: String
     ): TikTokDownloaderResponse
