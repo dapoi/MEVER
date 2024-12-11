@@ -3,7 +3,6 @@ package com.dapascript.mever.core.common.util
 import android.content.Context
 import android.graphics.BitmapFactory.decodeStream
 import android.media.MediaMetadataRetriever
-import android.media.MediaMetadataRetriever.OPTION_CLOSEST_SYNC
 import android.os.Environment.DIRECTORY_DOWNLOADS
 import android.os.Environment.getExternalStoragePublicDirectory
 import android.util.Patterns.WEB_URL
@@ -60,7 +59,7 @@ fun calculateDownloadPercentage(downloadedBytes: Long, totalBytes: Long): String
     return percentage.toInt().toString() + "%"
 }
 
-suspend fun getUrlPhotoThumbnail(url: String) = withContext(IO) {
+suspend fun getPhotoThumbnail(url: String) = withContext(IO) {
     try {
         decodeStream(URL(url).openStream())
     } catch (e: Exception) {
@@ -73,7 +72,7 @@ suspend fun getVideoThumbnail(source: String) = withContext(IO) {
     val retriever = MediaMetadataRetriever()
     try {
         retriever.dataSource(source)
-        synchronized(this) { retriever.getFrameAtTime(2000000, OPTION_CLOSEST_SYNC) }
+        retriever.frameAtTime
     } catch (e: Exception) {
         e.printStackTrace()
         null
@@ -82,7 +81,7 @@ suspend fun getVideoThumbnail(source: String) = withContext(IO) {
     }
 }
 
-fun MediaMetadataRetriever.dataSource(source: String) {
+private fun MediaMetadataRetriever.dataSource(source: String) {
     if (source.isValidUrl()) setDataSource(source, HashMap())
     else setDataSource(source)
 }
@@ -107,10 +106,12 @@ fun getLocalContentType(path: String) = if (path.endsWith(".jpg")) "image/*" els
 
 fun Long.toCurrentDate(): String {
     val calendar = getInstance()
-    val dateFormat = SimpleDateFormat("MMM dd, yyyy • HH:mm:ss", getDefault())
+    val dateFormat = SimpleDateFormat("MMM dd, yyyy • HH_mm_ss", getDefault())
     calendar.timeInMillis = this
     return dateFormat.format(calendar.time)
 }
+
+fun String.replaceTimeFormat() = replace("_", ":")
 
 fun getMeverFolder() = File(getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS), "MEVER")
 

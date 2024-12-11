@@ -37,7 +37,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow.Companion.Ellipsis
 import coil3.compose.AsyncImage
-import coil3.request.ImageRequest
+import coil3.request.ImageRequest.Builder
+import coil3.request.crossfade
 import coil3.video.VideoFrameDecoder
 import coil3.video.videoFrameMillis
 import com.dapascript.mever.core.common.R
@@ -67,6 +68,7 @@ import com.dapascript.mever.core.common.util.calculateDownloadedMegabytes
 import com.dapascript.mever.core.common.util.clickableSingle
 import com.dapascript.mever.core.common.util.getMeverFiles
 import com.dapascript.mever.core.common.util.getTwoDecimals
+import com.dapascript.mever.core.common.util.replaceTimeFormat
 import com.ketch.Status.PAUSED
 
 @Composable
@@ -130,7 +132,7 @@ private fun MeverCardDownloading(
                         modifier = Modifier.size(Dp24)
                     )
                     Text(
-                        text = fileName,
+                        text = fileName.replaceTimeFormat(),
                         style = typography.bodyBold2,
                         maxLines = 1,
                         overflow = Ellipsis
@@ -212,10 +214,10 @@ private fun MeverCardDownloaded(
             val filePath = getMeverFiles()?.find { it.name == fileName }?.path.orEmpty()
             AsyncImage(
                 modifier = Modifier.fillMaxSize(),
-                model = if (fileName.contains(".jpg")) filePath else ImageRequest.Builder(context)
+                model = Builder(context)
                     .data(filePath)
-                    .videoFrameMillis(1000)
-                    .decoderFactory { result, options, _ -> VideoFrameDecoder(result.source, options) }
+                    .isVideoContent(filePath.endsWith(".mp4"))
+                    .crossfade(true)
                     .build(),
                 contentDescription = "Thumbnail",
                 contentScale = Crop
@@ -245,7 +247,7 @@ private fun MeverCardDownloaded(
                 verticalArrangement = SpaceBetween
             ) {
                 Text(
-                    text = fileName,
+                    text = fileName.replaceTimeFormat(),
                     style = typography.bodyBold2,
                 )
                 Text(
@@ -257,5 +259,12 @@ private fun MeverCardDownloaded(
             MeverActionButton(R.drawable.ic_share) { onShareContentClick?.invoke() }
             MeverActionButton(R.drawable.ic_trash) { onDeleteContentClick?.invoke() }
         }
+    }
+}
+
+private fun Builder.isVideoContent(state: Boolean): Builder = apply {
+    if (state) {
+        videoFrameMillis(1000)
+        decoderFactory { result, options, _ -> VideoFrameDecoder(result.source, options) }
     }
 }

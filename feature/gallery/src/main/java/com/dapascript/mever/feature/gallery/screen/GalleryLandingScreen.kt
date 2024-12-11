@@ -18,6 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.base.attr.BaseScreenAttr.BaseScreenArgs
 import com.dapascript.mever.core.common.navigation.base.BaseNavigator
@@ -31,6 +32,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.util.Constant.ScreenName.GALLERY
 import com.dapascript.mever.core.common.util.getMeverFiles
+import com.dapascript.mever.core.common.util.replaceTimeFormat
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.feature.gallery.navigation.route.GalleryContentViewerRoute
 import com.dapascript.mever.feature.gallery.viewmodel.GalleryLandingViewModel
@@ -79,7 +81,7 @@ internal fun GalleryLandingScreen(
                                         sourceFile = getMeverFiles()?.find { file ->
                                             file.name == it.fileName
                                         }?.path.orEmpty(),
-                                        fileName = it.fileName
+                                        fileName = it.fileName.replaceTimeFormat()
                                     )
                                 )
                             },
@@ -95,7 +97,10 @@ internal fun GalleryLandingScreen(
                     )
                 }
             }
-        } else MeverEmptyItem("You haven't downloaded any files yet")
+        } else MeverEmptyItem(
+            image = R.drawable.ic_gallery_empty,
+            description = "You haven't downloaded any files yet"
+        )
     }
 
     showDeleteDialog?.let { id ->

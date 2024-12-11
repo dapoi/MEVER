@@ -18,7 +18,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Offset.Companion.Zero
@@ -27,8 +27,8 @@ import androidx.compose.ui.graphics.Brush.Companion.linearGradient
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale.Companion.Crop
 import com.dapascript.mever.core.common.ui.theme.MeverDarkGray
+import com.dapascript.mever.core.common.util.getPhotoThumbnail
 import com.dapascript.mever.core.common.util.getUrlContentType
-import com.dapascript.mever.core.common.util.getUrlPhotoThumbnail
 import com.dapascript.mever.core.common.util.getVideoThumbnail
 import kotlinx.coroutines.delay
 
@@ -37,17 +37,17 @@ fun MeverThumbnail(
     source: String,
     modifier: Modifier = Modifier
 ) {
-    val thumbnail = rememberSaveable(source) { mutableStateOf<Bitmap?>(null) }
+    val thumbnail = remember(source) { mutableStateOf<Bitmap?>(null) }
 
     LaunchedEffect(thumbnail) {
         while (thumbnail.value == null) {
             try {
-                thumbnail.value = if (getUrlContentType(source) == ".jpg") getUrlPhotoThumbnail(source)
+                thumbnail.value = if (getUrlContentType(source) == ".jpg") getPhotoThumbnail(source)
                 else getVideoThumbnail(source)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-            if (thumbnail.value == null) delay(1000)
+            if (thumbnail.value == null) delay(2000)
         }
     }
 

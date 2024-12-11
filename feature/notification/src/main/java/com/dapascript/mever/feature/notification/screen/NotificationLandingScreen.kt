@@ -11,6 +11,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.base.attr.BaseScreenAttr.BaseScreenArgs
 import com.dapascript.mever.core.common.navigation.base.BaseNavigator
@@ -38,8 +39,7 @@ internal fun NotificationLandingScreen(
     ) {
         LaunchedEffect(Unit) { getAllDownloads() }
 
-        if (downloadList.isEmpty()) MeverEmptyItem("There are no files being downloaded")
-        else CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
+        if (downloadList.isNotEmpty()) CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(
                     items = downloadList,
@@ -68,6 +68,9 @@ internal fun NotificationLandingScreen(
                     )
                 }
             }
-        }
+        } else MeverEmptyItem(
+            image = R.drawable.ic_notification_empty,
+            description = "There are no files being downloaded"
+        )
     }
 }

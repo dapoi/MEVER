@@ -407,11 +407,11 @@ private fun VideoBottomControlSection(
     onClickFullScreen: () -> Unit
 ) {
     val animatedValue by animateFloatAsState(
-        targetValue = videoTimer.toFloat(),
+        targetValue = videoTimer.toFloat().coerceIn(0f, totalDuration.toFloat()),
         animationSpec = spring(
             dampingRatio = DampingRatioLowBouncy
         ),
-        label = "animatedValue"
+        label = "animated value"
     )
     val interactionSource = remember { MutableInteractionSource() }
 
