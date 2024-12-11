@@ -15,13 +15,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme.colorScheme
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.RadioButtonDefaults.colors
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -48,15 +44,14 @@ import com.dapascript.mever.core.common.navigation.graph.SettingNavGraph
 import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
 import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverDownloadButton
+import com.dapascript.mever.core.common.ui.component.MeverRadioButton
 import com.dapascript.mever.core.common.ui.component.MeverTextField
 import com.dapascript.mever.core.common.ui.component.MeverThumbnail
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp0
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp200
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
-import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.util.Constant.PlatformType.UNKNOWN
 import com.dapascript.mever.core.common.util.Constant.ScreenName.GALLERY
@@ -306,14 +301,7 @@ private fun HandleDialogDownload(
                     style = typography.body1,
                     color = colorScheme.onPrimary
                 )
-                CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp0) {
-                    RadioButton(
-                        modifier = Modifier.padding(vertical = Dp4),
-                        colors = colors(selectedColor = MeverPurple, unselectedColor = colorScheme.onPrimary),
-                        selected = chooseQuality == url,
-                        onClick = null
-                    )
-                }
+                MeverRadioButton(isChecked = chooseQuality == url) { chooseQuality = url }
             }
         }
     }
