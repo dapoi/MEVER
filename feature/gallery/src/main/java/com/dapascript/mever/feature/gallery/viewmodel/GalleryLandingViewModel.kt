@@ -2,6 +2,8 @@ package com.dapascript.mever.feature.gallery.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
+import com.dapascript.mever.core.common.util.Constant.PlatformType
+import com.dapascript.mever.core.common.util.Constant.PlatformType.UNKNOWN
 import com.dapascript.mever.core.common.util.deleteAllMeverFolder
 import com.dapascript.mever.core.common.util.getMeverFiles
 import com.ketch.DownloadModel
@@ -21,17 +23,31 @@ class GalleryLandingViewModel @Inject constructor(
     private val _downloadList = MutableStateFlow<List<DownloadModel>>(emptyList())
     val downloadList = _downloadList.asStateFlow()
 
-    fun getAllDownloads() = viewModelScope.launch {
-        ketch.observeDownloads().collect { downloads ->
-            if (downloads.isEmpty()) deleteAllMeverFolder()
-            else _downloadList.value = downloads.filter {
-                getMeverFiles()?.map { file -> file.name }?.contains(it.fileName) == true && it.status == SUCCESS
-            }
-        }
-    }
+    private val _selectedFilter = MutableStateFlow(UNKNOWN)
+    val selectedFilter = _selectedFilter.asStateFlow()
 
     fun deleteDownload(id: Int) = viewModelScope.launch {
         ketch.clearDb(id)
         _downloadList.value = _downloadList.value.filter { it.id != id }
     }
+
+    fun deleteAllDownloads() = viewModelScope.launch {
+        ketch.clearAllDb()
+        _downloadList.value = emptyList()
+    }
+
+    fun getAllDownloads() = viewModelScope.launch {
+        val meverFiles = getMeverFiles()?.map { it.name } ?: emptyList()
+        ketch.observeDownloads().collect { downloads ->
+            if (downloads.isEmpty()) deleteAllMeverFolder()
+            _downloadList.value = downloads.filter { it.isAvailableOnLocal(meverFiles) }
+        }
+    }
+
+    fun setSelectedFilter(platformType: PlatformType) {
+        _selectedFilter.value = platformType
+    }
+
+    private fun DownloadModel.isAvailableOnLocal(listPath: List<String>) =
+        status == SUCCESS && listPath.contains(fileName)
 }

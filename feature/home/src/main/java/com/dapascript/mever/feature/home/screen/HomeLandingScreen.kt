@@ -127,7 +127,7 @@ internal fun HomeLandingScreen(
         HandlerDialogError(
             showDialog = showErrorNetworkModal,
             errorTitle = "Ups, You're Offline",
-            errorImage = R.drawable.ic_no_connection,
+            errorImage = R.drawable.ic_offline,
             errorDescription = "Please check your internet connection and try again.",
             onRetry = {
                 showErrorNetworkModal = false

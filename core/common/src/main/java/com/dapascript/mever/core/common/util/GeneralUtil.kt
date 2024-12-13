@@ -73,7 +73,7 @@ suspend fun getVideoThumbnail(source: String) = withContext(IO) {
     val retriever = MediaMetadataRetriever()
     try {
         retriever.dataSource(source)
-        retriever.frameAtTime
+        retriever.getFrameAtTime(100000)
     } catch (e: Exception) {
         e.printStackTrace()
         null

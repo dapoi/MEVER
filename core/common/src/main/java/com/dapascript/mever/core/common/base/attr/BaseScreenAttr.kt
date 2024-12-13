@@ -6,7 +6,7 @@ object BaseScreenAttr {
     data class ActionMenu(
         val icon: Int,
         val nameIcon: String,
-        val showBadge: Boolean,
+        val showBadge: Boolean = false,
         val onClickActionMenu: ((String) -> Unit)? = null
     )
 

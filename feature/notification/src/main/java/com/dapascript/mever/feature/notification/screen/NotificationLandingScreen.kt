@@ -70,7 +70,7 @@ internal fun NotificationLandingScreen(
             }
         } else MeverEmptyItem(
             image = R.drawable.ic_notification_empty,
-            description = "There are no files being downloaded"
+            description = "Nothing to track right now. Find something to download!"
         )
     }
 }
