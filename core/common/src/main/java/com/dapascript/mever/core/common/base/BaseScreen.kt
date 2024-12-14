@@ -41,9 +41,9 @@ import com.dapascript.mever.core.common.util.clickableSingle
 @SuppressLint("SourceLockedOrientationActivity")
 @Composable
 fun BaseScreen(
-    baseScreenArgs: BaseScreenArgs,
+    baseScreenArgs: BaseScreenArgs = BaseScreenArgs(),
     isUseSystemBarsPadding: Boolean = true,
-    overlappingTopBar: Boolean = false,
+    overlappingScreen: Boolean = false,
     hideTopBar: Boolean = false,
     isLockOrientation: Boolean = true,
     modifier: Modifier = Modifier,
@@ -73,7 +73,7 @@ fun BaseScreen(
         BaseScreenContent(
             baseScreenArgs = this@with,
             isUseSystemBarsPadding = isUseSystemBarsPadding,
-            overlappingTopBar = overlappingTopBar,
+            overlappingScreen = overlappingScreen,
             hideTopBar = hideTopBar,
             modifier = modifier,
             content = content
@@ -85,16 +85,14 @@ fun BaseScreen(
 private fun BaseScreenContent(
     baseScreenArgs: BaseScreenArgs,
     isUseSystemBarsPadding: Boolean,
-    overlappingTopBar: Boolean,
+    overlappingScreen: Boolean,
     hideTopBar: Boolean,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
-    if (overlappingTopBar) {
+    if (overlappingScreen) {
         Box(
-            modifier = modifier
-                .navigationBarsPadding()
-                .then(if (isUseSystemBarsPadding) Modifier.systemBarsPadding() else Modifier)
+            modifier = modifier.then(if (isUseSystemBarsPadding) Modifier.systemBarsPadding() else Modifier)
         ) {
             content()
             if (hideTopBar.not()) MeverTopBar(
@@ -125,7 +123,7 @@ private fun MeverTopBar(
         title = {
             Text(
                 text = screenName.orEmpty(),
-                style = typography.h7,
+                style = typography.body0,
                 color = colorScheme.onPrimary
             )
         },

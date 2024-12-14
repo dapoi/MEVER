@@ -114,7 +114,7 @@ private fun BoxScope.PhotoTitle(modifier: Modifier, onClickBack: () -> Unit, fil
         )
         Text(
             text = fileName,
-            style = typography.h7,
+            style = typography.body0,
             color = MeverWhite,
             maxLines = 1,
             overflow = Ellipsis

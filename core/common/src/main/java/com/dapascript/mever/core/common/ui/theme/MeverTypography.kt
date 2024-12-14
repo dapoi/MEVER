@@ -86,7 +86,7 @@ data class MeverTypography(
         lineHeight = Sp12 * HEADLINE_LINE_HEIGHT,
         lineHeightStyle = LineHeightStyle(alignment = Center, trim = None)
     ),
-    val h7: TextStyle = TextStyle(
+    val body0: TextStyle = TextStyle(
         fontFamily = interphases,
         fontWeight = FontWeight.Normal,
         fontSize = Sp18,

@@ -17,21 +17,23 @@ import com.dapascript.mever.core.common.ui.theme.MeverThemeColors.Light
 val LightColorScheme = lightColorScheme(
     primary = Light.primary,
     onPrimary = Light.onPrimary,
-    surface = Light.surface,
-    background = Light.background,
+    onPrimaryContainer = Light.onPrimaryContainer,
     secondary = Light.secondary,
     onSecondary = Light.onSecondary,
-    onSurfaceVariant = Light.onSurfaceVariant
+    surface = Light.surface,
+    onSurfaceVariant = Light.onSurfaceVariant,
+    background = Light.background
 )
 
 val DarkColorScheme = darkColorScheme(
     primary = Dark.primary,
     onPrimary = Dark.onPrimary,
-    surface = Dark.surface,
-    background = Dark.background,
+    onPrimaryContainer = Dark.onPrimaryContainer,
     secondary = Dark.secondary,
     onSecondary = Dark.onSecondary,
-    onSurfaceVariant = Dark.onSurfaceVariant
+    surface = Dark.surface,
+    onSurfaceVariant = Dark.onSurfaceVariant,
+    background = Dark.background
 )
 
 object MeverTheme {

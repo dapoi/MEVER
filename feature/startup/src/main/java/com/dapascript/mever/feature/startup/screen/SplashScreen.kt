@@ -21,13 +21,13 @@ import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.base.attr.BaseScreenAttr.BaseScreenArgs
 import com.dapascript.mever.core.common.navigation.base.BaseNavigator
-import com.dapascript.mever.core.common.navigation.graph.HomeNavGraph
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp189
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp72
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
+import com.dapascript.mever.feature.startup.navigation.route.OnboardRoute
 import com.dapascript.mever.feature.startup.navigation.route.SplashRoute
 import com.dapascript.mever.feature.startup.viewmodel.SplashScreenViewModel
 
@@ -42,7 +42,7 @@ internal fun SplashScreen(
         if (isSplashScreenFinished) {
             navigator.run {
                 navigate(
-                    route = getNavGraph<HomeNavGraph>().getHomeLandingRoute(),
+                    route = OnboardRoute,
                     popUpTo = SplashRoute,
                     inclusive = true
                 )
@@ -55,7 +55,7 @@ internal fun SplashScreen(
             statusBarColor = MeverPurple,
             navigationBarColor = MeverPurple
         ),
-        overlappingTopBar = true,
+        overlappingScreen = true,
         hideTopBar = true
     ) {
         Box(

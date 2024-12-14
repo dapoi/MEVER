@@ -26,7 +26,10 @@ class BaseNavigator(
 
     fun popBackStack() = navController.popBackStack()
 
-    inline fun <reified T> getCurrentRoute() = navController.currentBackStackEntry?.toRoute<T>()
+    /**
+     * Get the current route of the navigation controller
+     */
+//    inline fun <reified T> getCurrentRoute() = navController.currentBackStackEntry?.toRoute<T>()
 
     inline fun <reified NavGraph : BaseNavGraph> getNavGraph() = navGraphs.find { it is NavGraph } as NavGraph
 }

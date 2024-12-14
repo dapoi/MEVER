@@ -6,6 +6,4 @@ import kotlinx.serialization.Serializable
 @Serializable
 object StartupNavGraphRoute
 
-abstract class StartupNavGraph : BaseNavGraph() {
-    abstract fun getSplashRoute(): Any
-}
+abstract class StartupNavGraph : BaseNavGraph()

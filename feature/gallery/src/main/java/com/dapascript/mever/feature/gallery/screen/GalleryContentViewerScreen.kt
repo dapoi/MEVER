@@ -40,7 +40,7 @@ internal fun GalleryContentViewerScreen(
         ),
         isLockOrientation = false,
         isUseSystemBarsPadding = false,
-        overlappingTopBar = true,
+        overlappingScreen = true,
         hideTopBar = true,
         modifier = Modifier.background(MeverBlack)
     ) {
