@@ -91,26 +91,13 @@ internal fun OnboardScreen(
                 )
                 Text(
                     text = buildAnnotatedString {
-                        withStyle(
-                            style = SpanStyle(
-                                fontSize = typography.h2.copy(fontSize = Sp40).fontSize,
-                                fontFamily = typography.h2.fontFamily,
-                                fontWeight = typography.h2.fontWeight,
-                                color = MeverPurple
-                            )
-                        ) {
-                            append("Multiple ")
-                        }
-                        withStyle(
-                            style = SpanStyle(
-                                fontSize = typography.h2.copy(fontSize = Sp40).fontSize,
-                                fontFamily = typography.h2.fontFamily,
-                                fontWeight = typography.h2.fontWeight,
-                                color = colorScheme.onPrimary
-                            )
-                        ) {
-                            append("Source")
-                        }
+                        val baseStyle = SpanStyle(
+                            fontSize = typography.h2.copy(fontSize = Sp40).fontSize,
+                            fontFamily = typography.h2.fontFamily,
+                            fontWeight = typography.h2.fontWeight
+                        )
+                        withStyle(baseStyle.copy(color = MeverPurple)) { append("Multiple ") }
+                        withStyle(baseStyle.copy(color = colorScheme.onPrimary)) { append("Source") }
                     }
                 )
                 Text(
