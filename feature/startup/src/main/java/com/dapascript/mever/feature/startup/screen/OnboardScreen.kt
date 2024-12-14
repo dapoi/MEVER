@@ -42,7 +42,6 @@ import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.MeverYellow
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp40
 import com.dapascript.mever.feature.startup.R
-import com.dapascript.mever.feature.startup.navigation.route.OnboardRoute
 import com.dapascript.mever.feature.startup.viewmodel.OnboardViewModel
 
 @Composable
@@ -73,68 +72,69 @@ internal fun OnboardScreen(
                 ),
                 contentDescription = "Background Onboard"
             )
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(Dp24),
-                verticalArrangement = spacedBy(Dp8)
-            ) {
-                Text(
-                    text = "Easy to use and 100% free",
-                    style = typography.body2,
-                    color = colorScheme.secondary
-                )
-                Text(
-                    text = "Supports",
-                    style = typography.h2.copy(fontSize = Sp40),
-                    color = colorScheme.onPrimary
-                )
-                Text(
-                    text = buildAnnotatedString {
-                        val baseStyle = SpanStyle(
-                            fontSize = typography.h2.copy(fontSize = Sp40).fontSize,
-                            fontFamily = typography.h2.fontFamily,
-                            fontWeight = typography.h2.fontWeight
-                        )
-                        withStyle(baseStyle.copy(color = MeverPurple)) { append("Multiple ") }
-                        withStyle(baseStyle.copy(color = colorScheme.onPrimary)) { append("Source") }
-                    }
-                )
-                Text(
-                    text = "Download media from Social Media easily.",
-                    style = typography.body2,
-                    color = colorScheme.secondary
-                )
-            }
-            Button(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = Dp24),
-                colors = buttonColors(containerColor = MeverPurple),
-                shape = RoundedCornerShape(Dp48),
-                onClick = {
-                    navigator.run {
-                        navigate(
-                            route = getNavGraph<HomeNavGraph>().getHomeLandingRoute(),
-                            popUpTo = OnboardRoute,
-                            inclusive = true
-                        )
-                    }
-                },
-                content = {
-                    Text(
-                        text = "Let's Started",
-                        style = typography.body0,
-                        color = MeverWhite
-                    )
-                    Spacer(modifier = Modifier.size(Dp16))
-                    Icon(
-                        painter = painterResource(R.drawable.ic_arrow_started),
-                        tint = MeverYellow,
-                        contentDescription = "Arrow Right"
-                    )
-                }
-            )
+            DescriptionOnboardSection()
+            ButtonOnboardSection { navigator.run { navigate(getNavGraph<HomeNavGraph>().getHomeLandingRoute()) } }
         }
     }
+}
+
+@Composable
+private fun ButtonOnboardSection(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) = Button(
+    modifier = modifier
+        .fillMaxWidth()
+        .padding(horizontal = Dp24),
+    colors = buttonColors(containerColor = MeverPurple),
+    shape = RoundedCornerShape(Dp48),
+    onClick = onClick,
+    content = {
+        Text(
+            text = "Let's Started",
+            style = typography.body0,
+            color = MeverWhite
+        )
+        Spacer(modifier = Modifier.size(Dp16))
+        Icon(
+            painter = painterResource(R.drawable.ic_arrow_started),
+            tint = MeverYellow,
+            contentDescription = "Arrow Right"
+        )
+    }
+)
+
+@Composable
+private fun DescriptionOnboardSection(modifier: Modifier = Modifier) = Column(
+    modifier = modifier
+        .fillMaxWidth()
+        .padding(Dp24),
+    verticalArrangement = spacedBy(Dp8)
+) {
+    Text(
+        text = "Easy to use and 100% free",
+        style = typography.body2,
+        color = colorScheme.secondary
+    )
+    Text(
+        text = "Supports",
+        style = typography.h2.copy(fontSize = Sp40),
+        color = colorScheme.onPrimary
+    )
+    Text(
+        text = buildAnnotatedString {
+            val baseStyle = SpanStyle(
+                fontSize = typography.h2.copy(fontSize = Sp40).fontSize,
+                fontFamily = typography.h2.fontFamily,
+                fontWeight = typography.h2.fontWeight
+            )
+            withStyle(baseStyle.copy(color = MeverPurple)) { append("Multiple ") }
+            withStyle(baseStyle.copy(color = colorScheme.onPrimary)) { append("Source") }
+        }
+    )
+    Text(
+        text = "Download media from Social Media easily.",
+        style = typography.body2,
+        color = colorScheme.secondary
+    )
 }
