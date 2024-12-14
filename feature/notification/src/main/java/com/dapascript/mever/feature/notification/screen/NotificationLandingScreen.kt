@@ -35,7 +35,8 @@ internal fun NotificationLandingScreen(
         baseScreenArgs = BaseScreenArgs(
             screenName = NOTIFICATION,
             onClickBack = { navigator.popBackStack() }
-        )
+        ),
+        overlappingScreen = downloadList.isEmpty()
     ) {
         LaunchedEffect(Unit) { getAllDownloads() }
 

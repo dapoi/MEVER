@@ -1,5 +1,11 @@
 package com.dapascript.mever.feature.gallery.screen
 
+import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.background
@@ -7,6 +13,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -42,18 +49,16 @@ import com.dapascript.mever.core.common.ui.component.MeverCard
 import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
 import com.dapascript.mever.core.common.ui.component.MeverRadioButton
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp0
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp210
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.Constant.PlatformType
-import com.dapascript.mever.core.common.util.Constant.PlatformType.FACEBOOK
-import com.dapascript.mever.core.common.util.Constant.PlatformType.INSTAGRAM
-import com.dapascript.mever.core.common.util.Constant.PlatformType.TIKTOK
-import com.dapascript.mever.core.common.util.Constant.PlatformType.TWITTER
 import com.dapascript.mever.core.common.util.Constant.PlatformType.UNKNOWN
 import com.dapascript.mever.core.common.util.Constant.ScreenName.GALLERY
 import com.dapascript.mever.core.common.util.clickableSingle
@@ -78,11 +83,13 @@ internal fun GalleryLandingScreen(
     val context = LocalContext.current
     val downloadList = downloadList.collectAsStateValue()
     val selectedFilter = selectedFilter.collectAsStateValue()
-    var tempSelectedFilter by remember { mutableStateOf(selectedFilter) }
     var showDeleteDialog by remember { mutableStateOf<Int?>(null) }
     var showDeleteAllDialog by remember { mutableStateOf(false) }
     var showFilterDialog by remember { mutableStateOf(false) }
     var showDropDownMenu by remember { mutableStateOf(false) }
+    val matchingPlatforms = PlatformType.entries.filter { platformType ->
+        downloadList.any { it.tag == platformType.platformName }
+    }
 
     BaseScreen(
         baseScreenArgs = BaseScreenArgs(
@@ -93,11 +100,13 @@ internal fun GalleryLandingScreen(
             )) else emptyList(),
             screenName = GALLERY,
             onClickBack = { navigator.popBackStack() }
-        )
+        ),
+        overlappingScreen = downloadList.isEmpty()
     ) {
         LaunchedEffect(Unit) { getAllDownloads() }
 
         PopUpDropdownMenu(
+            matchingPlatforms = matchingPlatforms,
             showDropDownMenu = showDropDownMenu,
             onShowDeleteAllDialog = { showDeleteAllDialog = it },
             onShowFilterDialog = { showFilterDialog = it },
@@ -108,10 +117,7 @@ internal fun GalleryLandingScreen(
             downloadList = if (selectedFilter == UNKNOWN) downloadList
             else downloadList.filter { it.tag == selectedFilter.platformName },
             selectedFilter = selectedFilter,
-            onClearFilterClick = {
-                tempSelectedFilter = UNKNOWN
-                setSelectedFilter(tempSelectedFilter)
-            },
+            onClearFilterClick = { setSelectedFilter(UNKNOWN) },
             onContentClick = { fileName ->
                 navigator.navigate(
                     GalleryContentViewerRoute(
@@ -137,11 +143,11 @@ internal fun GalleryLandingScreen(
             meverDialogArgs = MeverDialogArgs(
                 title = "Delete all files?",
                 primaryButtonText = "Delete",
-                onPrimaryButtonClick = {
+                onActionClick = {
                     deleteAllDownloads()
                     showDeleteAllDialog = false
                 },
-                onSecondaryButtonClick = { showDeleteAllDialog = false }
+                onDimissClick = { showDeleteAllDialog = false }
             )
         ) {
             Text(
@@ -154,30 +160,30 @@ internal fun GalleryLandingScreen(
         MeverDialog(
             showDialog = showFilterDialog,
             meverDialogArgs = MeverDialogArgs(
-                title = "Filter",
+                title = "Categories",
                 primaryButtonText = "Apply",
-                onPrimaryButtonClick = {
-                    setSelectedFilter(tempSelectedFilter)
-                    showFilterDialog = false
-                },
-                onSecondaryButtonClick = {
-                    tempSelectedFilter = selectedFilter
-                    showFilterDialog = false
-                }
-            )
+                onDimissClick = { showFilterDialog = false }
+            ),
+            hideInteractionButton = true
         ) {
-            listOf(FACEBOOK, INSTAGRAM, TWITTER, TIKTOK).map { type ->
+            matchingPlatforms.map { type ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(Dp4)
-                        .clickable { tempSelectedFilter = type },
+                        .clickable {
+                            setSelectedFilter(type)
+                            showFilterDialog = false
+                        },
                     horizontalArrangement = spacedBy(Dp8),
                     verticalAlignment = CenterVertically
                 ) {
                     MeverRadioButton(
-                        isChecked = tempSelectedFilter == type,
-                        onCheckedChange = { tempSelectedFilter = type }
+                        isChecked = selectedFilter == type,
+                        onCheckedChange = {
+                            setSelectedFilter(type)
+                            showFilterDialog = false
+                        }
                     )
                     Text(
                         text = type.platformName,
@@ -194,11 +200,11 @@ internal fun GalleryLandingScreen(
                 meverDialogArgs = MeverDialogArgs(
                     title = "Delete this file?",
                     primaryButtonText = "Delete",
-                    onPrimaryButtonClick = {
+                    onActionClick = {
                         deleteDownload(id)
                         showDeleteDialog = null
                     },
-                    onSecondaryButtonClick = { showDeleteDialog = null }
+                    onDimissClick = { showDeleteDialog = null }
                 )
             ) {
                 Text(
@@ -222,47 +228,59 @@ private fun GalleryContentSection(
     onDeleteClick: (Int) -> Unit
 ) {
     if (downloadList.isNotEmpty()) CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            item {
-                if (selectedFilter != UNKNOWN) InfoFilterLabel(
+        Box(modifier = Modifier.fillMaxSize()) {
+            LazyColumn(
+                contentPadding = PaddingValues(
+                    top = if (selectedFilter != UNKNOWN) Dp48 else Dp0,
+                    bottom = Dp48
+                )
+            ) {
+                items(
+                    items = downloadList,
+                    key = { it.id }
+                ) {
+                    MeverCard(
+                        modifier = Modifier
+                            .padding(vertical = Dp12)
+                            .animateItem(),
+                        meverCardArgs = MeverCardArgs(
+                            image = it.url,
+                            tag = it.tag,
+                            metaData = it.metaData,
+                            fileName = it.fileName,
+                            status = it.status,
+                            progress = it.progress,
+                            total = it.total,
+                            path = it.path,
+                            type = DOWNLOADED,
+                            onPlayClick = { onContentClick(it.fileName) },
+                            onShareContentClick = { onShareClick(it.fileName) },
+                            onDeleteContentClick = { onDeleteClick(it.id) }
+                        )
+                    )
+                }
+            }
+            AnimatedVisibility(
+                visible = selectedFilter != UNKNOWN,
+                enter = fadeIn() + slideInVertically(),
+                exit = slideOutVertically() + fadeOut()
+            ) {
+                InfoFilterLabel(
                     platformName = selectedFilter.platformName,
                     onClearFilterClick = onClearFilterClick
-                )
-            }
-            items(
-                items = downloadList,
-                key = { it.id }
-            ) {
-                MeverCard(
-                    modifier = Modifier
-                        .padding(vertical = Dp12)
-                        .animateItem(),
-                    meverCardArgs = MeverCardArgs(
-                        image = it.url,
-                        tag = it.tag,
-                        metaData = it.metaData,
-                        fileName = it.fileName,
-                        status = it.status,
-                        progress = it.progress,
-                        total = it.total,
-                        path = it.path,
-                        type = DOWNLOADED,
-                        onPlayClick = { onContentClick(it.fileName) },
-                        onShareContentClick = { onShareClick(it.fileName) },
-                        onDeleteContentClick = { onDeleteClick(it.id) }
-                    )
                 )
             }
         }
     } else MeverEmptyItem(
         image = RCommon.drawable.ic_gallery_empty,
         size = Dp210,
-        description = "Looks like there’s nothing here... Download something to get started!"
+        description = "Looks like there’s nothing here... Download something to get content!"
     )
 }
 
 @Composable
 private fun PopUpDropdownMenu(
+    matchingPlatforms: List<PlatformType>,
     showDropDownMenu: Boolean,
     onShowDeleteAllDialog: (Boolean) -> Unit,
     onShowFilterDialog: (Boolean) -> Unit,
@@ -278,7 +296,10 @@ private fun PopUpDropdownMenu(
             containerColor = colorScheme.background,
             onDismissRequest = { onDismissDropDownMenu(false) }
         ) {
-            listDropDown.map { item ->
+            Log.d("GalleryLandingScreen", "PopUpDropdownMenu: $matchingPlatforms")
+            ((if (matchingPlatforms.size == 1) listDropDown.filter {
+                it != FILTER_BY_CATEGORIES
+            } else listDropDown)).map { item ->
                 DropdownMenuItem(
                     text = {
                         Text(
@@ -314,18 +335,18 @@ private fun InfoFilterLabel(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(Dp8),
+                .padding(Dp12),
             horizontalArrangement = SpaceBetween
         ) {
             Text(
-                text = "$platformName files",
-                style = typography.body2,
+                text = "Filter by $platformName",
+                style = typography.label1,
                 color = MeverWhite
             )
             Text(
                 modifier = Modifier.clickableSingle { onClearFilterClick() },
                 text = "Clear",
-                style = typography.bodyBold2,
+                style = typography.labelBold1,
                 color = MeverWhite
             )
         }

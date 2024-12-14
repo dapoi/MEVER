@@ -211,8 +211,8 @@ private fun HandlerDialogError(
         meverDialogArgs = MeverDialogArgs(
             title = errorTitle,
             primaryButtonText = "Try Again",
-            onPrimaryButtonClick = onRetry,
-            onSecondaryButtonClick = onDismiss
+            onActionClick = onRetry,
+            onDimissClick = onDismiss
         )
     ) {
         Image(
@@ -248,8 +248,8 @@ private fun HandleDialogPermission(
             meverDialogArgs = MeverDialogArgs(
                 title = "Permission Required",
                 primaryButtonText = if (isPermissionsDeclined) "Go to setting" else "Allow",
-                onPrimaryButtonClick = if (isPermissionsDeclined) onGoToSetting else onAllow,
-                onSecondaryButtonClick = onDismiss
+                onActionClick = if (isPermissionsDeclined) onGoToSetting else onAllow,
+                onDimissClick = onDismiss
             )
         ) {
             Text(
@@ -276,8 +276,8 @@ private fun HandleDialogDownload(
         meverDialogArgs = MeverDialogArgs(
             title = "Content's Found",
             primaryButtonText = "Download",
-            onPrimaryButtonClick = { onDownloadClick(chooseQuality ?: get(0).url) },
-            onSecondaryButtonClick = onDismiss
+            onActionClick = { onDownloadClick(chooseQuality ?: get(0).url) },
+            onDimissClick = onDismiss
         )
     ) {
         MeverThumbnail(
@@ -322,7 +322,8 @@ private fun HomeScreenContent(
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = spacedBy(Dp16)
+            horizontalArrangement = spacedBy(Dp16),
+            verticalAlignment = CenterVertically
         ) {
             MeverTextField(
                 modifier = Modifier.weight(1f),

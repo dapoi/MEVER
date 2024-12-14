@@ -55,6 +55,7 @@ import com.dapascript.mever.core.common.util.clickableSingle
 fun MeverDialog(
     showDialog: Boolean,
     meverDialogArgs: MeverDialogArgs,
+    hideInteractionButton: Boolean = false,
     modifier: Modifier = Modifier,
     contentBody: @Composable ColumnScope.() -> Unit
 ) = with(meverDialogArgs) {
@@ -63,9 +64,11 @@ fun MeverDialog(
     LaunchedEffect(showDialog) { if (showDialog) showAnimatedDialog = true }
 
     if (showAnimatedDialog) {
-        Dialog(onDismissRequest = onSecondaryButtonClick) {
+        Dialog(onDismissRequest = onDimissClick) {
             Box(
-                modifier = modifier.fillMaxSize(),
+                modifier = modifier
+                    .fillMaxSize()
+                    .pointerInput(Unit) { detectTapGestures { if (hideInteractionButton) onDimissClick() } },
                 contentAlignment = Center
             ) {
                 var animateIn by remember { mutableStateOf(false) }
@@ -92,6 +95,7 @@ fun MeverDialog(
                     ) {
                         DialogContent(
                             meverDialogArgs = this@with,
+                            hideInteractionButton = hideInteractionButton,
                             contentBody = contentBody
                         )
                     }
@@ -106,6 +110,7 @@ fun MeverDialog(
 @Composable
 private fun DialogContent(
     meverDialogArgs: MeverDialogArgs,
+    hideInteractionButton: Boolean,
     modifier: Modifier = Modifier,
     contentBody: @Composable ColumnScope.() -> Unit
 ) = with(meverDialogArgs) {
@@ -122,7 +127,7 @@ private fun DialogContent(
             color = colorScheme.onPrimary
         )
         contentBody()
-        Row(
+        if (hideInteractionButton.not()) Row(
             modifier = Modifier.height(Min),
             verticalAlignment = CenterVertically,
             horizontalArrangement = SpaceBetween
@@ -130,7 +135,7 @@ private fun DialogContent(
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(Dp14))
-                    .clickableSingle { onSecondaryButtonClick() }
+                    .clickableSingle { onDimissClick() }
                     .weight(1f)
                     .padding(vertical = Dp16),
                 contentAlignment = Center
@@ -153,7 +158,7 @@ private fun DialogContent(
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(Dp14))
-                    .clickableSingle { onPrimaryButtonClick() }
+                    .clickableSingle { onActionClick() }
                     .weight(1f)
                     .padding(vertical = Dp16),
                 contentAlignment = Center

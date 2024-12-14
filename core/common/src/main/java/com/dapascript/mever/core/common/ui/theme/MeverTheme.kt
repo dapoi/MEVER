@@ -21,7 +21,7 @@ val LightColorScheme = lightColorScheme(
     secondary = Light.secondary,
     onSecondary = Light.onSecondary,
     surface = Light.surface,
-    onSurfaceVariant = Light.onSurfaceVariant,
+    onSurface = Light.onSurface,
     background = Light.background
 )
 
@@ -32,7 +32,7 @@ val DarkColorScheme = darkColorScheme(
     secondary = Dark.secondary,
     onSecondary = Dark.onSecondary,
     surface = Dark.surface,
-    onSurfaceVariant = Dark.onSurfaceVariant,
+    onSurface = Dark.onSurface,
     background = Dark.background
 )
 
