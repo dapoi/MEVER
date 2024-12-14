@@ -42,6 +42,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.MeverYellow
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp40
 import com.dapascript.mever.feature.startup.R
+import com.dapascript.mever.feature.startup.navigation.route.OnboardRoute
 import com.dapascript.mever.feature.startup.viewmodel.OnboardViewModel
 
 @Composable
@@ -73,7 +74,16 @@ internal fun OnboardScreen(
                 contentDescription = "Background Onboard"
             )
             DescriptionOnboardSection()
-            ButtonOnboardSection { navigator.run { navigate(getNavGraph<HomeNavGraph>().getHomeLandingRoute()) } }
+            ButtonOnboardSection {
+                setIsOnboarded(true)
+                navigator.run {
+                    navigate(
+                        route = getNavGraph<HomeNavGraph>().getHomeLandingRoute(),
+                        popUpTo = OnboardRoute,
+                        inclusive = true
+                    )
+                }
+            }
         }
     }
 }

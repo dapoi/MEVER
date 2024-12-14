@@ -18,6 +18,7 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.hilt.compiler)
     implementation(libs.ketch)
+    implementation(libs.dataStorePreferences)
     debugImplementation(libs.chucker.debug)
     releaseImplementation(libs.chucker.release)
 }

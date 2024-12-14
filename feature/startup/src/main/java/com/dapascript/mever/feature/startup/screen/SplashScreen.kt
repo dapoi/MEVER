@@ -21,6 +21,7 @@ import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.base.attr.BaseScreenAttr.BaseScreenArgs
 import com.dapascript.mever.core.common.navigation.base.BaseNavigator
+import com.dapascript.mever.core.common.navigation.graph.HomeNavGraph
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp189
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp72
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
@@ -37,12 +38,13 @@ internal fun SplashScreen(
     viewModel: SplashScreenViewModel = hiltViewModel()
 ) = with(viewModel) {
     val isSplashScreenFinished = isSplashScreenFinished.collectAsStateValue()
+    val isOnboarded = isOnboarded.collectAsStateValue()
 
     LaunchedEffect(isSplashScreenFinished) {
         if (isSplashScreenFinished) {
             navigator.run {
                 navigate(
-                    route = OnboardRoute,
+                    route = if (isOnboarded) getNavGraph<HomeNavGraph>().getHomeLandingRoute() else OnboardRoute,
                     popUpTo = SplashRoute,
                     inclusive = true
                 )
