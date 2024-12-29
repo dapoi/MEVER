@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -58,7 +59,7 @@ fun MeverPhotoViewer(
 ) {
     val activity = LocalActivity.current
     val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
-    var isPhotoTouched by remember { mutableStateOf(false) }
+    val isPhotoTouched = remember { mutableStateOf(false) }
 
     DisposableEffect(lifecycleOwner) {
         val window = activity.window
@@ -78,9 +79,9 @@ fun MeverPhotoViewer(
     }
 
     Box(modifier = modifier.fillMaxSize()) {
-        PhotoInteractable(image) { isPhotoTouched = it }
+        PhotoInteractable(image, isPhotoTouched)
         AnimatedVisibility(
-            visible = isPhotoTouched.not(),
+            visible = isPhotoTouched.value.not(),
             enter = fadeIn(),
             exit = fadeOut()
         ) {
@@ -125,8 +126,8 @@ private fun BoxScope.PhotoTitle(modifier: Modifier, onClickBack: () -> Unit, fil
 @Composable
 private fun PhotoInteractable(
     image: String,
-    modifier: Modifier = Modifier,
-    onTouchPhoto: (Boolean) -> Unit
+    isPhotoTouched: MutableState<Boolean>,
+    modifier: Modifier = Modifier
 ) {
     // Mutable state variables to hold scale and offset values
     var scale by remember { mutableFloatStateOf(1f) }
@@ -189,6 +190,10 @@ private fun PhotoInteractable(
                         } else {
                             scale = 2f
                         }
+                    },
+                    onPress = {
+                        isPhotoTouched.value = isPhotoTouched.value.not()
+                        tryAwaitRelease()
                     }
                 )
             }
