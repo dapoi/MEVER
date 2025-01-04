@@ -3,8 +3,6 @@ androidGradlePlugin = "8.6.1"
 androidTools = "31.7.2"
 androidxActivity = "1.9.3"
 androidxComposeBom = "2024.11.00"
-androidxComposeCompiler = "1.5.12"  # Compose VC
-androidxLifecycle = "2.8.7"
 androidxNavigation = "2.8.4"
 baseJunit = "4.13.2"
 coreKtxVersion = "1.13.1"
@@ -20,111 +18,86 @@ room = "2.6.1"
 retrofit = "2.9.0"
 interceptor = "4.11.0"
 ketch = "2.0.2"
-appcompat = "1.7.0"
-material = "1.12.0"
 coil = "3.0.2"
 chucker = "4.0.0"
 lottie = "6.6.0"
 media3 = "1.5.0"
 
 [libraries]
-# Compose
+# AndroidX & Testing
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtxVersion" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidxActivity" }
-androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation" }
-androidx-compose-foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout" }
-
-## Compose that used in configureAndroidCompose
-androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "androidxComposeBom" }
-androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
-androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
-androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
-## End
-
-androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "androidxNavigation" }
-androidx-compose-ui-util = { group = "androidx.compose.ui", name = "ui-util" }
-androidx-lifecycle-runtimeCompose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidxLifecycle" }
-androidx-lifecycle-viewModelCompose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "androidxLifecycle" }
-# End
-
-# Testing
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junit" }
-# End
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+junit = { group = "junit", name = "junit", version.ref = "baseJunit" }
 
 # Hilt
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
 hilt-navigation = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigation" }
-# End
 
 # Kotlin
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
-# End
 
 # Networking
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 retrofit-converter = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
 okhttp-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "interceptor" }
-# End
 
 # Ketch
 ketch = { group = "com.github.khushpanchal", name = "Ketch", version.ref = "ketch" }
-# End
 
 # Chucker
 chucker-debug = { group = "com.github.chuckerteam.chucker", name = "library", version.ref = "chucker" }
 chucker-release = { group = "com.github.chuckerteam.chucker", name = "library-no-op", version.ref = "chucker" }
-# End
 
-# DotLottie
+# Lottie
 lottie = { group = "com.airbnb.android", name = "lottie-compose", version.ref = "lottie" }
-# End
 
 # Persistence
 room = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 dataStorePreferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "dataStorePreferences" }
-# End
 
 # Coil
 coil = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
 coil-video = { group = "io.coil-kt.coil3", name = "coil-video", version.ref = "coil" }
 coil-network = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
-# End
 
 # Media3
 media3-exoplayer = { group = "androidx.media3", name = "media3-exoplayer", version.ref = "media3" }
 media3-ui = { group = "androidx.media3", name = "media3-ui", version.ref = "media3" }
 media3-session = { group = "androidx.media3", name = "media3-session", version.ref = "media3" }
-# End
 
 # Dependencies of the included build-logic
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }
+android-tools-common = { group = "com.android.tools", name = "common", version.ref = "androidTools" }
 kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 ksp-gradlePlugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
-androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtxVersion" }
-android-tools-common = { group = "com.android.tools", name = "common", version.ref = "androidTools" }
-junit = { group = "junit", name = "junit", version.ref = "baseJunit" }
-androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
-androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
-# End
+
+## Compose that used in build-logic
+androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "androidxComposeBom" }
+androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-compose-ui-util = { group = "androidx.compose.ui", name = "ui-util" }
+androidx-compose-ui-tooling-debug = { group = "androidx.compose.ui", name = "ui-tooling" }
+androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 
 [plugins]
+# Project plugins
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
 android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
+jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+jetbrains-kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 
-# Plugins defined by this project
-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-jetbrains-compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-mever-android-application = { id = "mever.android.application", version = "unspecified" }
-mever-android-application-compose = { id = "mever.android.application.compose", version = "unspecified" }
-mever-android-library = { id = "mever.android.library", version = "unspecified" }
-mever-android-library-compose = { id = "mever.android.library.compose", version = "unspecified" }
-mever-android-feature = { id = "mever.android.feature", version = "unspecified" }
-mever-android-hilt = { id = "mever.android.hilt", version = "unspecified" }
-# End
+# Custom plugins
+mever-application = { id = "mever.application", version = "unspecified" }
+mever-application-compose = { id = "mever.application.compose", version = "unspecified" }
+mever-library = { id = "mever.library", version = "unspecified" }
+mever-library-compose = { id = "mever.library.compose", version = "unspecified" }
+mever-feature = { id = "mever.feature", version = "unspecified" }
+mever-hilt = { id = "mever.hilt", version = "unspecified" }

@@ -1,9 +1,9 @@
 import com.dapascript.mever.build_logic.convention.implementation
 
 plugins {
-    alias(libs.plugins.mever.android.application)
-    alias(libs.plugins.mever.android.application.compose)
-    alias(libs.plugins.mever.android.hilt)
+    alias(libs.plugins.mever.application)
+    alias(libs.plugins.mever.application.compose)
+    alias(libs.plugins.mever.hilt)
 }
 
 android {
@@ -26,7 +26,6 @@ android {
             isShrinkResources = true
         }
     }
-
 }
 
 dependencies {
@@ -39,9 +38,10 @@ dependencies {
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.ketch)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    implementation(libs.androidx.navigation.compose)
-    implementation(libs.ketch)
 }

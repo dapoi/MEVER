@@ -1,15 +1,9 @@
 plugins {
-    alias(libs.plugins.mever.android.feature)
-    alias(libs.plugins.mever.android.library.compose)
-    alias(libs.plugins.mever.android.hilt)
+    alias(libs.plugins.mever.feature)
+    alias(libs.plugins.mever.library.compose)
+    alias(libs.plugins.mever.hilt)
 }
 
 android {
     namespace = "com.dapascript.mever.feature.setting"
-}
-
-dependencies {
-    implementation(libs.hilt.android)
-    implementation(libs.hilt.compiler)
-    implementation(libs.hilt.navigation)
 }

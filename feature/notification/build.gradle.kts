@@ -1,8 +1,7 @@
 plugins {
-    alias(libs.plugins.mever.android.feature)
-    alias(libs.plugins.mever.android.library.compose)
-    alias(libs.plugins.mever.android.hilt)
-    id("kotlin-parcelize")
+    alias(libs.plugins.mever.feature)
+    alias(libs.plugins.mever.library.compose)
+    alias(libs.plugins.mever.hilt)
 }
 
 android {
@@ -10,9 +9,6 @@ android {
 }
 
 dependencies {
-    implementation(libs.hilt.android)
-    implementation(libs.hilt.compiler)
-    implementation(libs.hilt.navigation)
     implementation(libs.ketch)
     implementation(libs.coil)
     implementation(libs.coil.video)

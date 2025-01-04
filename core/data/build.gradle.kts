@@ -1,8 +1,8 @@
 import com.dapascript.mever.build_logic.convention.debugImplementation
 
 plugins {
-    alias(libs.plugins.mever.android.library)
-    alias(libs.plugins.mever.android.hilt)
+    alias(libs.plugins.mever.library)
+    alias(libs.plugins.mever.hilt)
 }
 
 android {
@@ -15,8 +15,6 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter)
     implementation(libs.okhttp.interceptor)
-    implementation(libs.hilt.android)
-    implementation(libs.hilt.compiler)
     implementation(libs.ketch)
     implementation(libs.dataStorePreferences)
     debugImplementation(libs.chucker.debug)

@@ -1,6 +1,6 @@
 plugins {
-    alias(libs.plugins.mever.android.library)
-    alias(libs.plugins.mever.android.library.compose)
+    alias(libs.plugins.mever.library)
+    alias(libs.plugins.mever.library.compose)
     id("kotlin-parcelize")
 }
 

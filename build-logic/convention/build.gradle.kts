@@ -1,3 +1,5 @@
+import org.gradle.initialization.DependenciesAccessors
+import org.gradle.kotlin.dsl.support.serviceOf
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -22,6 +24,9 @@ dependencies {
     compileOnly(libs.android.tools.common)
     compileOnly(libs.kotlin.gradlePlugin)
     compileOnly(libs.ksp.gradlePlugin)
+    gradle.serviceOf<DependenciesAccessors>().classes.asFiles.forEach {
+        compileOnly(files(it.absolutePath))
+    }
 }
 
 tasks {
@@ -34,28 +39,28 @@ tasks {
 gradlePlugin {
     plugins {
         register("androidApplicationCompose") {
-            id = "mever.android.application.compose"
-            implementationClass = "AndroidApplicationComposeConventionPlugin"
+            id = "mever.application.compose"
+            implementationClass = "AppComposePlugin"
         }
         register("androidApplication") {
-            id = "mever.android.application"
-            implementationClass = "AndroidApplicationConventionPlugin"
+            id = "mever.application"
+            implementationClass = "AppPlugin"
         }
         register("androidLibraryCompose") {
-            id = "mever.android.library.compose"
-            implementationClass = "AndroidLibraryComposeConventionPlugin"
+            id = "mever.library.compose"
+            implementationClass = "LibComposePlugin"
         }
         register("androidLibrary") {
-            id = "mever.android.library"
-            implementationClass = "AndroidLibraryConventionPlugin"
+            id = "mever.library"
+            implementationClass = "LibPlugin"
         }
         register("androidFeature") {
-            id = "mever.android.feature"
-            implementationClass = "AndroidFeatureConventionPlugin"
+            id = "mever.feature"
+            implementationClass = "FeaturePlugin"
         }
         register("androidHilt") {
-            id = "mever.android.hilt"
-            implementationClass = "AndroidHiltConventionPlugin"
+            id = "mever.hilt"
+            implementationClass = "HiltPlugin"
         }
     }
 }
