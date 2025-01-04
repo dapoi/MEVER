@@ -37,6 +37,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow.Companion.Ellipsis
 import coil3.compose.AsyncImage
+import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest.Builder
 import coil3.request.crossfade
 import coil3.video.VideoFrameDecoder
@@ -87,6 +88,7 @@ private fun MeverCardDownloading(
     meverCardArgs: MeverCardArgs,
     modifier: Modifier = Modifier
 ) = with(meverCardArgs) {
+    val imagePainter = rememberAsyncImagePainter(if (status == PAUSED) R.drawable.ic_play else R.drawable.ic_pause)
     val animatedProgress by animateFloatAsState(
         targetValue = progress / 100f,
         animationSpec = ProgressAnimationSpec,
@@ -185,7 +187,7 @@ private fun MeverCardDownloading(
                     .padding(start = Dp8)
                     .size(Dp24)
                     .align(Bottom),
-                painter = painterResource(if (status == PAUSED) R.drawable.ic_play else R.drawable.ic_pause),
+                painter = imagePainter,
                 colorFilter = tint(colorScheme.onPrimary),
                 contentDescription = "Play/Pause"
             )

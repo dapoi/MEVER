@@ -1,9 +1,9 @@
 package com.dapascript.mever.feature.startup.navigation
 
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.dapascript.mever.core.common.navigation.base.BaseNavigator
+import com.dapascript.mever.core.common.navigation.extension.composableScreen
 import com.dapascript.mever.core.common.navigation.graph.StartupNavGraph
 import com.dapascript.mever.core.common.navigation.graph.StartupNavGraphRoute
 import com.dapascript.mever.feature.startup.navigation.route.OnboardRoute
@@ -18,8 +18,8 @@ class StartupNavGraphImpl @Inject constructor() : StartupNavGraph() {
         navGraphBuilder: NavGraphBuilder
     ) {
         navGraphBuilder.navigation<StartupNavGraphRoute>(startDestination = SplashRoute) {
-            composable<SplashRoute> { SplashScreen(navigator) }
-            composable<OnboardRoute> { OnboardScreen(navigator) }
+            composableScreen<SplashRoute> { SplashScreen(navigator) }
+            composableScreen<OnboardRoute> { OnboardScreen(navigator) }
         }
     }
 }

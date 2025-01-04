@@ -1,6 +1,5 @@
 package com.dapascript.mever.feature.gallery.screen
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -81,14 +80,12 @@ internal fun GalleryLandingScreen(
     viewModel: GalleryLandingViewModel = hiltViewModel()
 ) = with(viewModel) {
     val context = LocalContext.current
-    val downloadList = downloadList.collectAsStateValue()
-    val selectedFilter = selectedFilter.collectAsStateValue()
     var showDeleteDialog by remember { mutableStateOf<Int?>(null) }
     var showDeleteAllDialog by remember { mutableStateOf(false) }
     var showFilterDialog by remember { mutableStateOf(false) }
     var showDropDownMenu by remember { mutableStateOf(false) }
-    val matchingPlatforms = PlatformType.entries.filter { platformType ->
-        downloadList.any { it.tag == platformType.platformName }
+    val matchingPlatforms = PlatformType.entries.filter { platType ->
+        downloadList.any { it.tag == platType.platformName }
     }
 
     BaseScreen(
@@ -106,7 +103,7 @@ internal fun GalleryLandingScreen(
         LaunchedEffect(Unit) { getAllDownloads() }
 
         PopUpDropdownMenu(
-            matchingPlatforms = matchingPlatforms,
+            listDropDown = if (matchingPlatforms.size == 1) listDropDown.dropLast(1) else listDropDown,
             showDropDownMenu = showDropDownMenu,
             onShowDeleteAllDialog = { showDeleteAllDialog = it },
             onShowFilterDialog = { showFilterDialog = it },
@@ -114,10 +111,9 @@ internal fun GalleryLandingScreen(
         )
 
         GalleryContentSection(
-            downloadList = if (selectedFilter == UNKNOWN) downloadList
-            else downloadList.filter { it.tag == selectedFilter.platformName },
+            downloadList = downloadList.filter { selectedFilter == UNKNOWN || it.tag == selectedFilter.platformName },
             selectedFilter = selectedFilter,
-            onClearFilterClick = { setSelectedFilter(UNKNOWN) },
+            onClearFilterClick = { selectedFilter = UNKNOWN },
             onContentClick = { fileName ->
                 navigator.navigate(
                     GalleryContentViewerRoute(
@@ -172,7 +168,7 @@ internal fun GalleryLandingScreen(
                         .fillMaxWidth()
                         .padding(Dp4)
                         .clickable {
-                            setSelectedFilter(type)
+                            selectedFilter = type
                             showFilterDialog = false
                         },
                     horizontalArrangement = spacedBy(Dp8),
@@ -181,7 +177,7 @@ internal fun GalleryLandingScreen(
                     MeverRadioButton(
                         isChecked = selectedFilter == type,
                         onCheckedChange = {
-                            setSelectedFilter(type)
+                            selectedFilter = type
                             showFilterDialog = false
                         }
                     )
@@ -203,6 +199,7 @@ internal fun GalleryLandingScreen(
                     onActionClick = {
                         deleteDownload(id)
                         showDeleteDialog = null
+                        if (downloadList.all { it.tag != selectedFilter.name }) selectedFilter = UNKNOWN
                     },
                     onDimissClick = { showDeleteDialog = null }
                 )
@@ -280,7 +277,7 @@ private fun GalleryContentSection(
 
 @Composable
 private fun PopUpDropdownMenu(
-    matchingPlatforms: List<PlatformType>,
+    listDropDown: List<String>,
     showDropDownMenu: Boolean,
     onShowDeleteAllDialog: (Boolean) -> Unit,
     onShowFilterDialog: (Boolean) -> Unit,
@@ -296,10 +293,7 @@ private fun PopUpDropdownMenu(
             containerColor = colorScheme.background,
             onDismissRequest = { onDismissDropDownMenu(false) }
         ) {
-            Log.d("GalleryLandingScreen", "PopUpDropdownMenu: $matchingPlatforms")
-            ((if (matchingPlatforms.size == 1) listDropDown.filter {
-                it != FILTER_BY_CATEGORIES
-            } else listDropDown)).map { item ->
+            listDropDown.map { item ->
                 DropdownMenuItem(
                     text = {
                         Text(

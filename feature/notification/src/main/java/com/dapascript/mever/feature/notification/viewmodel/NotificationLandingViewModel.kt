@@ -1,6 +1,5 @@
 package com.dapascript.mever.feature.notification.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.ketch.DownloadModel
@@ -9,6 +8,7 @@ import com.ketch.Status.CANCELLED
 import com.ketch.Status.FAILED
 import com.ketch.Status.PAUSED
 import com.ketch.Status.PROGRESS
+import com.ketch.Status.QUEUED
 import com.ketch.Status.STARTED
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,9 +26,8 @@ class NotificationLandingViewModel @Inject constructor(
 
     fun getAllDownloads() = viewModelScope.launch {
         ketch.observeDownloads().collect { downloads ->
-            Log.d("NotificationLandingViewModel", "getAllDownloads: $downloads")
-            _downloadList.value = downloads.filter { it.status in listOf(STARTED,PAUSED, PROGRESS) }
             ketch.clearDb(downloads.find { it.status in listOf(CANCELLED, FAILED) }?.id ?: 0)
+            _downloadList.value = downloads.filter { it.status in listOf(QUEUED, STARTED, PAUSED, PROGRESS) }
         }
     }
 

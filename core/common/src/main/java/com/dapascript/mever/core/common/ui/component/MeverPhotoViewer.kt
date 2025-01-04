@@ -185,8 +185,9 @@ private fun PhotoInteractable(
                         // Reset scale and offset on double tap
                         if (scale != 1f) {
                             scale = 1f
-                            offsetX = initialOffset.x
-                            offsetY = initialOffset.y
+                            offsetX = 0f
+                            offsetY = 0f
+                            isPhotoTouched.value = false
                         } else {
                             scale = 2f
                         }

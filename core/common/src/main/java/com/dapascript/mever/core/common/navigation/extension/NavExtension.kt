@@ -19,7 +19,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 inline fun <reified T : Any> NavGraphBuilder.composableScreen(
-    noinline content: @Composable() (AnimatedContentScope.(NavBackStackEntry) -> Unit)
+    noinline content: @Composable (AnimatedContentScope.(NavBackStackEntry) -> Unit)
 ) {
     composable<T>(
         enterTransition = {

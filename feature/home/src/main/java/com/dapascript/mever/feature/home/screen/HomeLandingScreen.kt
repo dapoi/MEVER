@@ -76,7 +76,6 @@ internal fun HomeLandingScreen(
     viewModel: HomeLandingViewModel = hiltViewModel()
 ) = with(viewModel) {
     val isNetworkAvailable = connectivityObserver.observe().collectAsState(connectivityObserver.isConnected())
-    val videoState = videoState.collectAsStateValue()
     val activity = LocalActivity.current
     val dialogQueue = showDialogPermission
     var listVideo by remember { mutableStateOf<List<VideoGeneralEntity>>(emptyList()) }
@@ -109,7 +108,6 @@ internal fun HomeLandingScreen(
         )
     ) {
         LaunchedEffect(Unit) { getObservableKetch() }
-
         LaunchedEffect(videoState) {
             videoState.handleUiState(
                 onLoading = { showLoading = true },

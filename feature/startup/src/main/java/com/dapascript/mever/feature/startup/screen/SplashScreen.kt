@@ -11,6 +11,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
@@ -31,14 +35,20 @@ import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.feature.startup.navigation.route.OnboardRoute
 import com.dapascript.mever.feature.startup.navigation.route.SplashRoute
 import com.dapascript.mever.feature.startup.viewmodel.SplashScreenViewModel
+import kotlinx.coroutines.delay
 
 @Composable
 internal fun SplashScreen(
     navigator: BaseNavigator,
     viewModel: SplashScreenViewModel = hiltViewModel()
 ) = with(viewModel) {
-    val isSplashScreenFinished = isSplashScreenFinished.collectAsStateValue()
     val isOnboarded = isOnboarded.collectAsStateValue()
+    var isSplashScreenFinished by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        delay(2000)
+        isSplashScreenFinished = true
+    }
 
     LaunchedEffect(isSplashScreenFinished) {
         if (isSplashScreenFinished) {

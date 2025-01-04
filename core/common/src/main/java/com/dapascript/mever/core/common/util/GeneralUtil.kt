@@ -96,7 +96,6 @@ suspend fun getUrlContentType(url: String) = withContext(IO) {
 
     try {
         val type = client.newCall(request).execute().use { response -> response.header("Content-Type") }
-        Log.d("GeneralUtil", "getUrlContentType: $type")
         if (type == "application/octet-stream" || type == "video/mp4") ".mp4" else ".jpg"
     } catch (e: Exception) {
         e.printStackTrace()

@@ -75,7 +75,6 @@ internal fun OnboardScreen(
             )
             DescriptionOnboardSection()
             ButtonOnboardSection {
-                setIsOnboarded(true)
                 navigator.run {
                     navigate(
                         route = getNavGraph<HomeNavGraph>().getHomeLandingRoute(),
@@ -83,6 +82,7 @@ internal fun OnboardScreen(
                         inclusive = true
                     )
                 }
+                setIsOnboarded(true)
             }
         }
     }

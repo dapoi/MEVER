@@ -26,8 +26,6 @@ import com.ketch.Status.PAUSED
 import com.ketch.Status.PROGRESS
 import com.ketch.Status.STARTED
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import java.lang.System.currentTimeMillis
@@ -42,13 +40,12 @@ class HomeLandingViewModel @Inject constructor(
     private val meverFolder by lazy { getMeverFolder() }
     var urlSocialMediaState by mutableStateOf(TextFieldValue(""))
     var showBadge by mutableStateOf(false)
-
-    private val _videoState = MutableStateFlow<UiState<List<VideoGeneralEntity>>>(StateInitial)
-    val videoState = _videoState.asStateFlow()
+    var videoState by mutableStateOf<UiState<List<VideoGeneralEntity>>>(StateInitial)
+        internal set
 
     fun getApiDownloader(urlSocialMedia: TextFieldValue) = collectApiAsUiState(
         response = repository.getApiDownloader(urlSocialMedia.text),
-        updateState = { _videoState.value = it }
+        updateState = { videoState = it }
     )
 
     fun downloadFile(
