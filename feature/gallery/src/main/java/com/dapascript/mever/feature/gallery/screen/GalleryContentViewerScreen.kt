@@ -13,12 +13,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dapascript.mever.core.common.base.BaseScreen
-import com.dapascript.mever.core.common.base.attr.BaseScreenAttr.BaseScreenArgs
 import com.dapascript.mever.core.common.navigation.base.BaseNavigator
 import com.dapascript.mever.core.common.ui.component.MeverPhotoViewer
 import com.dapascript.mever.core.common.ui.component.MeverVideoViewer
 import com.dapascript.mever.core.common.ui.theme.MeverBlack
-import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.feature.gallery.viewmodel.GalleryPlayerViewModel
 
 @Composable
@@ -30,18 +28,12 @@ internal fun GalleryContentViewerScreen(
     val configuration = LocalConfiguration.current
 
     BaseScreen(
-        baseScreenArgs = BaseScreenArgs(
-            screenName = "",
-            statusBarColor = MeverBlack,
-            navigationBarColor = MeverBlack,
-            colorBackIcon = MeverWhite,
-            topBarColor = MeverBlack,
-            onClickBack = { navigator.popBackStack() }
-        ),
-        isLockOrientation = false,
-        isUseSystemBarsPadding = false,
-        overlappingScreen = true,
         hideTopBar = true,
+        lockOrientation = false,
+        useSystemBarsPadding = false,
+        allowScreenOverlap = true,
+        statusBarColor = MeverBlack,
+        navigationBarColor = MeverBlack,
         modifier = Modifier.background(MeverBlack)
     ) {
         LaunchedEffect(configuration) {

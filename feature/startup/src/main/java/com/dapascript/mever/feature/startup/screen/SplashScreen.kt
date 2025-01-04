@@ -23,7 +23,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
-import com.dapascript.mever.core.common.base.attr.BaseScreenAttr.BaseScreenArgs
 import com.dapascript.mever.core.common.navigation.base.BaseNavigator
 import com.dapascript.mever.core.common.navigation.graph.HomeNavGraph
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp189
@@ -63,11 +62,9 @@ internal fun SplashScreen(
     }
 
     BaseScreen(
-        baseScreenArgs = BaseScreenArgs(
-            statusBarColor = MeverPurple,
-            navigationBarColor = MeverPurple
-        ),
-        overlappingScreen = true,
+        statusBarColor = MeverPurple,
+        navigationBarColor = MeverPurple,
+        allowScreenOverlap = true,
         hideTopBar = true
     ) {
         Box(

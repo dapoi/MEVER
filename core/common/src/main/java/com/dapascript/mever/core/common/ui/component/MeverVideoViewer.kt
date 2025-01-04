@@ -28,7 +28,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
@@ -50,14 +49,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterVertically
-import androidx.compose.ui.Alignment.Companion.TopStart
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.ColorFilter.Companion.tint
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextOverflow.Companion.Ellipsis
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.WindowCompat.getInsetsController
 import androidx.core.view.WindowInsetsCompat.Type.systemBars
@@ -76,11 +73,11 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer.Builder
 import androidx.media3.ui.PlayerView
 import com.dapascript.mever.core.common.R
+import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp0
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp10
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp20
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
@@ -272,19 +269,21 @@ private fun VideoPlayerContent(
         )
     }
     AnimatedVisibility(
-        modifier = modifier,
         visible = isControllerVisible,
         enter = fadeIn(),
         exit = fadeOut()
     ) {
-        Box(modifier = Modifier.background(MeverBlack.copy(alpha = 0.7f))) {
-            VideoTitleSection(
-                modifier = Modifier
-                    .padding(vertical = Dp20, horizontal = Dp24)
-                    .statusBarsPadding()
-                    .align(TopStart),
-                title = title,
-                onClickBack = onClickBack
+        Box(modifier = modifier.background(MeverBlack.copy(alpha = 0.7f))) {
+            MeverTopBar(
+                modifier = Modifier.padding(horizontal = Dp24),
+                topBarArgs = TopBarArgs(
+                    screenName = title,
+                    topBarColor = MeverBlack,
+                    titleColor = MeverWhite,
+                    iconBackColor = MeverWhite,
+                    onClickBack = onClickBack
+                ),
+                useCenterTopBar = false
             )
             VideoCenterControlSection(
                 modifier = Modifier.align(Center),
@@ -306,33 +305,6 @@ private fun VideoPlayerContent(
             )
         }
     }
-}
-
-@Composable
-private fun VideoTitleSection(
-    title: String,
-    modifier: Modifier = Modifier,
-    onClickBack: () -> Unit
-) = Row(
-    modifier = modifier.fillMaxWidth(),
-    horizontalArrangement = spacedBy(Dp16),
-    verticalAlignment = CenterVertically
-) {
-    Image(
-        painter = painterResource(R.drawable.ic_back),
-        colorFilter = tint(MeverWhite),
-        contentDescription = "Back",
-        modifier = Modifier
-            .clip(CircleShape)
-            .clickable { onClickBack() }
-    )
-    Text(
-        text = title,
-        style = typography.body0,
-        color = MeverWhite,
-        maxLines = 1,
-        overflow = Ellipsis
-    )
 }
 
 @Composable

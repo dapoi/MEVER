@@ -3,19 +3,11 @@ package com.dapascript.mever.core.common.ui.component
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
-import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
@@ -25,30 +17,21 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment.Companion.CenterVertically
-import androidx.compose.ui.Alignment.Companion.TopStart
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.ColorFilter.Companion.tint
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextOverflow.Companion.Ellipsis
 import androidx.core.view.WindowCompat.getInsetsController
 import androidx.core.view.WindowInsetsCompat.Type.systemBars
 import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
 import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import coil3.compose.AsyncImage
-import com.dapascript.mever.core.common.R
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp20
+import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
-import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
+import com.dapascript.mever.core.common.ui.theme.MeverBlack
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.LocalActivity
-import com.dapascript.mever.core.common.util.clickableSingle
 
 @Composable
 fun MeverPhotoViewer(
@@ -85,41 +68,18 @@ fun MeverPhotoViewer(
             enter = fadeIn(),
             exit = fadeOut()
         ) {
-            PhotoTitle(
-                modifier,
-                onClickBack,
-                fileName
+            MeverTopBar(
+                modifier = Modifier.padding(horizontal = Dp24),
+                topBarArgs = TopBarArgs(
+                    screenName = fileName,
+                    topBarColor = MeverBlack,
+                    titleColor = MeverWhite,
+                    iconBackColor = MeverWhite,
+                    onClickBack = onClickBack
+                ),
+                useCenterTopBar = false
             )
         }
-    }
-}
-
-@Composable
-private fun BoxScope.PhotoTitle(modifier: Modifier, onClickBack: () -> Unit, fileName: String) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(vertical = Dp20, horizontal = Dp24)
-            .statusBarsPadding()
-            .align(TopStart),
-        horizontalArrangement = spacedBy(Dp16),
-        verticalAlignment = CenterVertically
-    ) {
-        Image(
-            painter = painterResource(R.drawable.ic_back),
-            colorFilter = tint(MeverWhite),
-            contentDescription = "Back",
-            modifier = Modifier
-                .clip(CircleShape)
-                .clickableSingle { onClickBack() }
-        )
-        Text(
-            text = fileName,
-            style = typography.body0,
-            color = MeverWhite,
-            maxLines = 1,
-            overflow = Ellipsis
-        )
     }
 }
 

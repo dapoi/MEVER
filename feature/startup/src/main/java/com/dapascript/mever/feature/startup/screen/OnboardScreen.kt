@@ -51,8 +51,8 @@ internal fun OnboardScreen(
     viewModel: OnboardViewModel = hiltViewModel()
 ) = with(viewModel) {
     BaseScreen(
-        isUseSystemBarsPadding = false,
-        overlappingScreen = true,
+        useSystemBarsPadding = false,
+        allowScreenOverlap = true,
         hideTopBar = true,
         modifier = Modifier.background(colorScheme.onPrimaryContainer)
     ) {

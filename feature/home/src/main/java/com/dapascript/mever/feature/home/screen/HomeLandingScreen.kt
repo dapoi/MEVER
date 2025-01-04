@@ -35,13 +35,13 @@ import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
-import com.dapascript.mever.core.common.base.attr.BaseScreenAttr.ActionMenu
-import com.dapascript.mever.core.common.base.attr.BaseScreenAttr.BaseScreenArgs
 import com.dapascript.mever.core.common.navigation.base.BaseNavigator
 import com.dapascript.mever.core.common.navigation.graph.GalleryNavGraph
 import com.dapascript.mever.core.common.navigation.graph.NotificationNavGraph
 import com.dapascript.mever.core.common.navigation.graph.SettingNavGraph
 import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
+import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.ActionMenu
+import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverDownloadButton
 import com.dapascript.mever.core.common.ui.component.MeverRadioButton
@@ -96,7 +96,7 @@ internal fun HomeLandingScreen(
     }
 
     BaseScreen(
-        baseScreenArgs = BaseScreenArgs(
+        topBarArgs = TopBarArgs(
             screenName = null,
             actionMenus = listOfActionMenu.map { (name, resource) ->
                 ActionMenu(
@@ -338,12 +338,12 @@ private fun HomeScreenContent(
 
 private fun getActionMenuClick(navigator: BaseNavigator) = { name: String ->
     when (name) {
-        NOTIFICATION -> navigator.navigateToNotif()
+        NOTIFICATION -> navigator.navigateToNotificationScreen()
         GALLERY -> navigator.run { navigate(getNavGraph<GalleryNavGraph>().getGalleryLandingRoute()) }
         SETTING -> navigator.run { navigate(getNavGraph<SettingNavGraph>().getSettingLandingRoute()) }
         else -> Unit
     }
 }
 
-private fun BaseNavigator.navigateToNotif() =
+private fun BaseNavigator.navigateToNotificationScreen() =
     navigate(getNavGraph<NotificationNavGraph>().getNotificationLandingRoute())

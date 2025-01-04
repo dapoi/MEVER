@@ -13,9 +13,9 @@ import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
-import com.dapascript.mever.core.common.base.attr.BaseScreenAttr.BaseScreenArgs
 import com.dapascript.mever.core.common.navigation.base.BaseNavigator
 import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardArgs
+import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverCard
 import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
@@ -32,11 +32,11 @@ internal fun NotificationLandingScreen(
     val downloadList = downloadList.collectAsStateValue()
 
     BaseScreen(
-        baseScreenArgs = BaseScreenArgs(
+        topBarArgs = TopBarArgs(
             screenName = NOTIFICATION,
             onClickBack = { navigator.popBackStack() }
         ),
-        overlappingScreen = downloadList.isEmpty()
+        allowScreenOverlap = downloadList.isEmpty()
     ) {
         LaunchedEffect(Unit) { getAllDownloads() }
 

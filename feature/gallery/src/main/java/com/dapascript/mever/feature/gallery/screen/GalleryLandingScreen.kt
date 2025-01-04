@@ -38,12 +38,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dapascript.mever.core.common.base.BaseScreen
-import com.dapascript.mever.core.common.base.attr.BaseScreenAttr.ActionMenu
-import com.dapascript.mever.core.common.base.attr.BaseScreenAttr.BaseScreenArgs
 import com.dapascript.mever.core.common.navigation.base.BaseNavigator
 import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardArgs
 import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardType.DOWNLOADED
 import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
+import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.ActionMenu
+import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverCard
 import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
@@ -89,7 +89,7 @@ internal fun GalleryLandingScreen(
     }
 
     BaseScreen(
-        baseScreenArgs = BaseScreenArgs(
+        topBarArgs = TopBarArgs(
             actionMenus = if (downloadList.isNotEmpty()) listOf(ActionMenu(
                 icon = R.drawable.ic_more,
                 nameIcon = MORE,
@@ -98,7 +98,7 @@ internal fun GalleryLandingScreen(
             screenName = GALLERY,
             onClickBack = { navigator.popBackStack() }
         ),
-        overlappingScreen = downloadList.isEmpty()
+        allowScreenOverlap = downloadList.isEmpty()
     ) {
         LaunchedEffect(Unit) { getAllDownloads() }
 
