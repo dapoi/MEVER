@@ -82,7 +82,7 @@ internal fun HomeLandingScreen(
     var showLoading by remember { mutableStateOf(false) }
     var showErrorNetworkModal by remember { mutableStateOf(false) }
     var showErrorResponseModal by remember { mutableStateOf<Throwable?>(null) }
-    val onClickActionMenu = remember { getActionMenuClick(navigator) }
+    val onClickActionMenu = remember { handleClickActionMenu(navigator) }
     val requestStoragePermissionLauncher = rememberLauncherForActivityResult(RequestMultiplePermissions()) { perms ->
         val allGranted = getStoragePermission.all { perms[it] == true }
 
@@ -176,7 +176,7 @@ internal fun HomeLandingScreen(
                 )
             },
             showDialog = listVideo.isNotEmpty(),
-            onDownloadClick = { url ->
+            onClickDownload = { url ->
                 downloadFile(
                     url = url,
                     platformName = urlSocialMediaState.text.getPlatformType().platformName
@@ -209,8 +209,8 @@ private fun HandlerDialogError(
         meverDialogArgs = MeverDialogArgs(
             title = errorTitle,
             primaryButtonText = "Try Again",
-            onActionClick = onRetry,
-            onDimissClick = onDismiss
+            onClickAction = onRetry,
+            onDismiss = onDismiss
         )
     ) {
         Image(
@@ -246,8 +246,8 @@ private fun HandleDialogPermission(
             meverDialogArgs = MeverDialogArgs(
                 title = "Permission Required",
                 primaryButtonText = if (isPermissionsDeclined) "Go to setting" else "Allow",
-                onActionClick = if (isPermissionsDeclined) onGoToSetting else onAllow,
-                onDimissClick = onDismiss
+                onClickAction = if (isPermissionsDeclined) onGoToSetting else onAllow,
+                onDismiss = onDismiss
             )
         ) {
             Text(
@@ -264,7 +264,7 @@ private fun HandleDialogPermission(
 private fun HandleDialogDownload(
     downloadArgs: List<DownloaderArgs>,
     showDialog: Boolean,
-    onDownloadClick: (String) -> Unit,
+    onClickDownload: (String) -> Unit,
     onDismiss: () -> Unit
 ) = with(downloadArgs) {
     var chooseQuality by remember(this) { mutableStateOf(firstOrNull { it.quality.isNotEmpty() }?.url) }
@@ -274,8 +274,8 @@ private fun HandleDialogDownload(
         meverDialogArgs = MeverDialogArgs(
             title = "Content's Found",
             primaryButtonText = "Download",
-            onActionClick = { onDownloadClick(chooseQuality ?: get(0).url) },
-            onDimissClick = onDismiss
+            onClickAction = { onClickDownload(chooseQuality ?: get(0).url) },
+            onDismiss = onDismiss
         )
     ) {
         MeverThumbnail(
@@ -336,7 +336,7 @@ private fun HomeScreenContent(
     }
 }
 
-private fun getActionMenuClick(navigator: BaseNavigator) = { name: String ->
+private fun handleClickActionMenu(navigator: BaseNavigator) = { name: String ->
     when (name) {
         NOTIFICATION -> navigator.navigateToNotificationScreen()
         GALLERY -> navigator.run { navigate(getNavGraph<GalleryNavGraph>().getGalleryLandingRoute()) }

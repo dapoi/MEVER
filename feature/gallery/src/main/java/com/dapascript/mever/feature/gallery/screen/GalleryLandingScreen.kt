@@ -108,8 +108,16 @@ internal fun GalleryLandingScreen(
         GalleryContentSection(
             downloadList = downloadList.filter { selectedFilter == UNKNOWN || it.tag == selectedFilter.platformName },
             selectedFilter = selectedFilter,
-            onClearFilterClick = { selectedFilter = UNKNOWN },
-            onContentClick = { fileName ->
+            onClickClearFilter = { selectedFilter = UNKNOWN },
+            onClickShare = { fileName ->
+                shareContent(
+                    context = context,
+                    authority = context.packageName + ".provider",
+                    path = getMeverFiles()?.find { file -> file.name == fileName }?.path.orEmpty()
+                )
+            },
+            onClickDelete = { showDeleteDialog = it },
+            onClickContent = { fileName ->
                 navigator.navigate(
                     GalleryContentViewerRoute(
                         sourceFile = getMeverFiles()?.find { file ->
@@ -118,15 +126,7 @@ internal fun GalleryLandingScreen(
                         fileName = fileName.replaceTimeFormat()
                     )
                 )
-            },
-            onShareClick = { fileName ->
-                shareContent(
-                    context = context,
-                    authority = context.packageName + ".provider",
-                    path = getMeverFiles()?.find { file -> file.name == fileName }?.path.orEmpty()
-                )
-            },
-            onDeleteClick = { showDeleteDialog = it }
+            }
         )
 
         MeverDialog(
@@ -134,11 +134,11 @@ internal fun GalleryLandingScreen(
             meverDialogArgs = MeverDialogArgs(
                 title = "Delete all files?",
                 primaryButtonText = "Delete",
-                onActionClick = {
+                onClickAction = {
                     deleteAllDownloads()
                     showDeleteAllDialog = false
                 },
-                onDimissClick = { showDeleteAllDialog = false }
+                onDismiss = { showDeleteAllDialog = false }
             )
         ) {
             Text(
@@ -153,7 +153,7 @@ internal fun GalleryLandingScreen(
             meverDialogArgs = MeverDialogArgs(
                 title = "Categories",
                 primaryButtonText = "Apply",
-                onDimissClick = { showFilterDialog = false }
+                onDismiss = { showFilterDialog = false }
             ),
             hideInteractionButton = true
         ) {
@@ -191,12 +191,12 @@ internal fun GalleryLandingScreen(
                 meverDialogArgs = MeverDialogArgs(
                     title = "Delete this file?",
                     primaryButtonText = "Delete",
-                    onActionClick = {
+                    onClickAction = {
                         deleteDownload(id)
                         showDeleteDialog = null
                         if (downloadList.all { it.tag != selectedFilter.name }) selectedFilter = UNKNOWN
                     },
-                    onDimissClick = { showDeleteDialog = null }
+                    onDismiss = { showDeleteDialog = null }
                 )
             ) {
                 Text(
@@ -214,10 +214,10 @@ internal fun GalleryLandingScreen(
 private fun GalleryContentSection(
     downloadList: List<DownloadModel>,
     selectedFilter: PlatformType,
-    onClearFilterClick: () -> Unit,
-    onContentClick: (String) -> Unit,
-    onShareClick: (String) -> Unit,
-    onDeleteClick: (Int) -> Unit
+    onClickClearFilter: () -> Unit,
+    onClickDelete: (Int) -> Unit,
+    onClickShare: (String) -> Unit,
+    onClickContent: (String) -> Unit,
 ) {
     if (downloadList.isNotEmpty()) CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -245,9 +245,9 @@ private fun GalleryContentSection(
                             total = it.total,
                             path = it.path,
                             type = DOWNLOADED,
-                            onPlayClick = { onContentClick(it.fileName) },
-                            onShareContentClick = { onShareClick(it.fileName) },
-                            onDeleteContentClick = { onDeleteClick(it.id) }
+                            onClickPlay = { onClickContent(it.fileName) },
+                            onClickShare = { onClickShare(it.fileName) },
+                            onClickDelete = { onClickDelete(it.id) }
                         )
                     )
                 }
@@ -260,7 +260,7 @@ private fun GalleryContentSection(
                 MeverLabel(
                     message = "Filter by ${selectedFilter.platformName}",
                     actionMessage = "Clear",
-                    onActionLabelClick = onClearFilterClick
+                    onClickLabel = onClickClearFilter
                 )
             }
         }

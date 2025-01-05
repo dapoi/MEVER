@@ -4,7 +4,7 @@ object MeverDialogAttr {
     data class MeverDialogArgs(
         val title: String,
         val primaryButtonText: String,
-        val onActionClick: () -> Unit = {},
-        val onDimissClick: () -> Unit = {}
+        val onClickAction: () -> Unit = {},
+        val onDismiss: () -> Unit = {}
     )
 }

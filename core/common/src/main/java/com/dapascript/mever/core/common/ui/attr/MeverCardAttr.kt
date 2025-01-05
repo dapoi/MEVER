@@ -14,10 +14,10 @@ object MeverCardAttr {
         val total: Long,
         val path: String,
         val type: MeverCardType = DOWNLOADING,
-        val onPlayClick: (() -> Unit)? = null,
-        val onDownloadingClick: (() -> Unit)? = null,
-        val onShareContentClick: (() -> Unit)? = null,
-        val onDeleteContentClick: (() -> Unit)? = null
+        val onClickPlay: (() -> Unit)? = null,
+        val onClickDownloading: (() -> Unit)? = null,
+        val onClickShare: (() -> Unit)? = null,
+        val onClickDelete: (() -> Unit)? = null
     )
 
     enum class MeverCardType {

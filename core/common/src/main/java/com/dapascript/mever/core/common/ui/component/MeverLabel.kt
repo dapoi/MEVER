@@ -22,7 +22,7 @@ fun MeverLabel(
     message: String,
     actionMessage: String,
     modifier: Modifier = Modifier,
-    onActionLabelClick: () -> Unit
+    onClickLabel: () -> Unit
 ) {
     Box(
         modifier = modifier
@@ -41,7 +41,7 @@ fun MeverLabel(
                 color = MeverWhite
             )
             Text(
-                modifier = Modifier.clickableSingle { onActionLabelClick() },
+                modifier = Modifier.clickableSingle { onClickLabel() },
                 text = actionMessage,
                 style = typography.labelBold1,
                 color = MeverWhite

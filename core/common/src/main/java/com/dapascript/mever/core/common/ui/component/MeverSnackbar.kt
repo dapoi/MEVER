@@ -20,7 +20,7 @@ fun MeverSnackbar(
     alignment: Alignment = BottomCenter,
     modifier: Modifier = Modifier,
     onResetMessage: (String) -> Unit,
-    onActionSnackbarClick: () -> Unit
+    onClickSnackbar: () -> Unit
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -43,7 +43,7 @@ fun MeverSnackbar(
                 actionMessage = "View"
             ) {
                 onResetMessage("")
-                onActionSnackbarClick()
+                onClickSnackbar()
             }
         }
     }

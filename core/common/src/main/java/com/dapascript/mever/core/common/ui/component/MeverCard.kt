@@ -100,7 +100,7 @@ private fun MeverCardDownloading(
             .fillMaxWidth()
             .height(Max)
             .clip(RoundedCornerShape(Dp12))
-            .clickableSingle { onDownloadingClick?.invoke() },
+            .clickableSingle { onClickDownloading?.invoke() },
         shape = RoundedCornerShape(Dp12),
         colors = cardColors(colorScheme.background),
         elevation = cardElevation(Dp2)
@@ -209,7 +209,7 @@ private fun MeverCardDownloaded(
                 .fillMaxWidth()
                 .height(Dp150)
                 .clip(RoundedCornerShape(Dp16))
-                .clickableSingle { onPlayClick?.invoke() },
+                .clickableSingle { onClickPlay?.invoke() },
             contentAlignment = Center
         ) {
             val context = LocalContext.current
@@ -258,8 +258,8 @@ private fun MeverCardDownloaded(
                     color = MeverGray
                 )
             }
-            MeverActionButton(R.drawable.ic_share) { onShareContentClick?.invoke() }
-            MeverActionButton(R.drawable.ic_trash) { onDeleteContentClick?.invoke() }
+            MeverActionButton(R.drawable.ic_share) { onClickShare?.invoke() }
+            MeverActionButton(R.drawable.ic_trash) { onClickDelete?.invoke() }
         }
     }
 }

@@ -45,7 +45,7 @@ internal fun NotificationLandingScreen(
         MeverSnackbar(
             message = snackbarMessage,
             onResetMessage = { resetMessage -> snackbarMessage = resetMessage },
-            onActionSnackbarClick = {
+            onClickSnackbar = {
                 navigator.run {
                     navigate(
                         route = getNavGraph<GalleryNavGraph>().getGalleryLandingRoute(),
@@ -75,7 +75,7 @@ internal fun NotificationLandingScreen(
                             progress = it.progress,
                             total = it.total,
                             path = it.path,
-                            onDownloadingClick = {
+                            onClickDownloading = {
                                 stateResumeOrPauseDownload(
                                     isPause = it.status == PAUSED,
                                     id = it.id

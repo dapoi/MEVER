@@ -64,11 +64,11 @@ fun MeverDialog(
     LaunchedEffect(showDialog) { if (showDialog) showAnimatedDialog = true }
 
     if (showAnimatedDialog) {
-        Dialog(onDismissRequest = onDimissClick) {
+        Dialog(onDismissRequest = onDismiss) {
             Box(
                 modifier = modifier
                     .fillMaxSize()
-                    .pointerInput(Unit) { detectTapGestures { if (hideInteractionButton) onDimissClick() } },
+                    .pointerInput(Unit) { detectTapGestures { if (hideInteractionButton) onDismiss() } },
                 contentAlignment = Center
             ) {
                 var animateIn by remember { mutableStateOf(false) }
@@ -135,7 +135,7 @@ private fun DialogContent(
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(Dp14))
-                    .clickableSingle { onDimissClick() }
+                    .clickableSingle { onDismiss() }
                     .weight(1f)
                     .padding(vertical = Dp16),
                 contentAlignment = Center
@@ -158,7 +158,7 @@ private fun DialogContent(
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(Dp14))
-                    .clickableSingle { onActionClick() }
+                    .clickableSingle { onClickAction() }
                     .weight(1f)
                     .padding(vertical = Dp16),
                 contentAlignment = Center
