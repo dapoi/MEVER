@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory.decodeStream
 import android.media.MediaMetadataRetriever
 import android.os.Environment.DIRECTORY_DOWNLOADS
 import android.os.Environment.getExternalStoragePublicDirectory
-import android.util.Log
 import android.util.Patterns.WEB_URL
 import androidx.core.app.ShareCompat.IntentBuilder
 import androidx.core.content.FileProvider.getUriForFile
@@ -20,6 +19,7 @@ import com.dapascript.mever.core.common.util.Constant.PlatformType.INSTAGRAM
 import com.dapascript.mever.core.common.util.Constant.PlatformType.TIKTOK
 import com.dapascript.mever.core.common.util.Constant.PlatformType.TWITTER
 import com.dapascript.mever.core.common.util.Constant.PlatformType.UNKNOWN
+import com.dapascript.mever.core.common.util.Constant.PlatformType.YOUTUBE
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.Status
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.Status.Available
 import kotlinx.coroutines.Dispatchers.IO
@@ -40,12 +40,14 @@ fun String.getPlatformType(): PlatformType {
     val listInstagramUrl = listOf("instagram.com", "instagr.am", "ig.com")
     val listTwitterUrl = listOf("x.com", "twitter.com", "t.co", "mobile.twitter.com")
     val listTiktokUrl = listOf("tiktok.com", "tiktokv.com", "tiktokcdn.com")
+    val listYouTubeUrl = listOf("youtube.com", "youtu.be", "m.youtube.com", "yt.com")
 
     return when {
         listFbUrl.any { contains(it) } -> FACEBOOK
         listInstagramUrl.any { contains(it) } -> INSTAGRAM
         listTwitterUrl.any { contains(it) } -> TWITTER
         listTiktokUrl.any { contains(it) } -> TIKTOK
+        listYouTubeUrl.any { contains(it) } -> YOUTUBE
         else -> UNKNOWN
     }
 }

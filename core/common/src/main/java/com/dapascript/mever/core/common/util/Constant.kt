@@ -19,6 +19,7 @@ object Constant {
         const val INSTAGRAM = "Instagram"
         const val TWITTER = "Twitter"
         const val TIKTOK = "TikTok"
+        const val YOUTUBE = "YouTube"
         const val UNKNOWN = "Unknown"
     }
 
@@ -27,6 +28,7 @@ object Constant {
         INSTAGRAM(PlatformName.INSTAGRAM),
         TWITTER(PlatformName.TWITTER),
         TIKTOK(PlatformName.TIKTOK),
+        YOUTUBE(PlatformName.YOUTUBE),
         UNKNOWN(PlatformName.UNKNOWN)
     }
 }

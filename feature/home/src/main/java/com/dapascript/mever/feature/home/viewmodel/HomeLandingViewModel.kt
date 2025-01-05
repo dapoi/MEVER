@@ -11,6 +11,7 @@ import com.dapascript.mever.core.common.util.Constant.PlatformType.INSTAGRAM
 import com.dapascript.mever.core.common.util.Constant.PlatformType.TIKTOK
 import com.dapascript.mever.core.common.util.Constant.PlatformType.TWITTER
 import com.dapascript.mever.core.common.util.Constant.PlatformType.UNKNOWN
+import com.dapascript.mever.core.common.util.Constant.PlatformType.YOUTUBE
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver
 import com.dapascript.mever.core.common.util.getMeverFolder
 import com.dapascript.mever.core.common.util.getPlatformType
@@ -74,6 +75,7 @@ class HomeLandingViewModel @Inject constructor(
         INSTAGRAM -> getInstagramDownloader(typeUrl)
         TWITTER -> getTwitterDownloader(typeUrl)
         TIKTOK -> getTikTokDownloader(typeUrl)
+        YOUTUBE -> getTikTokDownloader(typeUrl) /** TODO it's temporary */
         UNKNOWN -> flowOf(Error(Throwable("Unknown platform")))
     }
 }
