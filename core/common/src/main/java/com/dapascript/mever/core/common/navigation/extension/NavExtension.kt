@@ -23,16 +23,16 @@ inline fun <reified T : Any> NavGraphBuilder.composableScreen(
 ) {
     composable<T>(
         enterTransition = {
-            slideIntoContainer(towards = Start, animationSpec = tween(400))
+            slideIntoContainer(towards = Start, animationSpec = tween(700))
         },
         exitTransition = {
-            fadeOut(animationSpec = tween(400))
+            fadeOut(animationSpec = tween(700))
         },
         popEnterTransition = {
-            fadeIn(animationSpec = tween(400))
+            fadeIn(animationSpec = tween(700))
         },
         popExitTransition = {
-            slideOutOfContainer(towards = End, animationSpec = tween(400))
+            slideOutOfContainer(towards = End, animationSpec = tween(700))
         },
         content = content
     )
