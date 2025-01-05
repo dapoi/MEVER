@@ -55,6 +55,7 @@ internal fun NotificationLandingScreen(
                 }
             }
         )
+
         if (downloadList.isNotEmpty()) CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(
