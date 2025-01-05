@@ -7,9 +7,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -20,7 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -47,6 +44,7 @@ import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverCard
 import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
+import com.dapascript.mever.core.common.ui.component.MeverLabel
 import com.dapascript.mever.core.common.ui.component.MeverRadioButton
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp0
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
@@ -54,13 +52,10 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp210
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
-import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
-import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.Constant.PlatformType
 import com.dapascript.mever.core.common.util.Constant.PlatformType.UNKNOWN
 import com.dapascript.mever.core.common.util.Constant.ScreenName.GALLERY
-import com.dapascript.mever.core.common.util.clickableSingle
 import com.dapascript.mever.core.common.util.getMeverFiles
 import com.dapascript.mever.core.common.util.replaceTimeFormat
 import com.dapascript.mever.core.common.util.shareContent
@@ -262,9 +257,10 @@ private fun GalleryContentSection(
                 enter = fadeIn() + slideInVertically(),
                 exit = slideOutVertically() + fadeOut()
             ) {
-                InfoFilterLabel(
-                    platformName = selectedFilter.platformName,
-                    onClearFilterClick = onClearFilterClick
+                MeverLabel(
+                    message = "Filter by ${selectedFilter.platformName}",
+                    actionMessage = "Clear",
+                    onActionLabelClick = onClearFilterClick
                 )
             }
         }
@@ -311,38 +307,6 @@ private fun PopUpDropdownMenu(
                     }
                 )
             }
-        }
-    }
-}
-
-@Composable
-private fun InfoFilterLabel(
-    platformName: String,
-    modifier: Modifier = Modifier,
-    onClearFilterClick: () -> Unit
-) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(color = MeverPurple, shape = RoundedCornerShape(Dp8))
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(Dp12),
-            horizontalArrangement = SpaceBetween
-        ) {
-            Text(
-                text = "Filter by $platformName",
-                style = typography.label1,
-                color = MeverWhite
-            )
-            Text(
-                modifier = Modifier.clickableSingle { onClearFilterClick() },
-                text = "Clear",
-                style = typography.labelBold1,
-                color = MeverWhite
-            )
         }
     }
 }

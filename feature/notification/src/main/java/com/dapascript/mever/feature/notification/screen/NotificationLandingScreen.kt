@@ -14,12 +14,15 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.navigation.base.BaseNavigator
+import com.dapascript.mever.core.common.navigation.graph.GalleryNavGraph
 import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardArgs
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverCard
 import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
+import com.dapascript.mever.core.common.ui.component.MeverSnackbar
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.util.Constant.ScreenName.NOTIFICATION
+import com.dapascript.mever.feature.notification.navigation.route.NotificationLandingRoute
 import com.dapascript.mever.feature.notification.viewmodel.NotificationLandingViewModel
 import com.ketch.Status.PAUSED
 
@@ -29,7 +32,6 @@ internal fun NotificationLandingScreen(
     navigator: BaseNavigator,
     viewModel: NotificationLandingViewModel = hiltViewModel()
 ) = with(viewModel) {
-    val downloadList = downloadList.collectAsStateValue()
 
     BaseScreen(
         topBarArgs = TopBarArgs(
@@ -40,6 +42,19 @@ internal fun NotificationLandingScreen(
     ) {
         LaunchedEffect(Unit) { getAllDownloads() }
 
+        MeverSnackbar(
+            message = snackbarMessage,
+            onResetMessage = { resetMessage -> snackbarMessage = resetMessage },
+            onActionSnackbarClick = {
+                navigator.run {
+                    navigate(
+                        route = getNavGraph<GalleryNavGraph>().getGalleryLandingRoute(),
+                        popUpTo = NotificationLandingRoute,
+                        inclusive = true
+                    )
+                }
+            }
+        )
         if (downloadList.isNotEmpty()) CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(
