@@ -40,7 +40,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp14
@@ -64,7 +66,10 @@ fun MeverDialog(
     LaunchedEffect(showDialog) { if (showDialog) showAnimatedDialog = true }
 
     if (showAnimatedDialog) {
-        Dialog(onDismissRequest = onDismiss) {
+        Dialog(
+            properties = DialogProperties(),
+            onDismissRequest = onDismiss
+        ) {
             Box(
                 modifier = modifier
                     .fillMaxSize()
@@ -100,7 +105,7 @@ fun MeverDialog(
                         )
                     }
 
-                    DisposableEffect(Unit) { onDispose { showAnimatedDialog = false } }
+                    DisposableEffect(LocalView.current.parent) { onDispose { showAnimatedDialog = false } }
                 }
             }
         }
@@ -116,7 +121,7 @@ private fun DialogContent(
 ) = with(meverDialogArgs) {
     Column(
         modifier = modifier
-            .background(colorScheme.background)
+            .background(backgroundColor ?: colorScheme.background)
             .padding(vertical = Dp8, horizontal = Dp16),
         verticalArrangement = spacedBy(Dp12),
         horizontalAlignment = CenterHorizontally
@@ -143,7 +148,7 @@ private fun DialogContent(
                 Text(
                     text = "Cancel",
                     style = typography.bodyBold2,
-                    color = colorScheme.onPrimary
+                    color = dismissColor ?: colorScheme.onPrimary
                 )
             }
             Box(

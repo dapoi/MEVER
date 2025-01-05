@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
@@ -56,11 +57,8 @@ import androidx.compose.ui.graphics.ColorFilter.Companion.tint
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.view.WindowCompat.getInsetsController
-import androidx.core.view.WindowInsetsCompat.Type.systemBars
-import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
-import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 import androidx.lifecycle.Lifecycle.Event.ON_CREATE
+import androidx.lifecycle.Lifecycle.Event.ON_RESUME
 import androidx.lifecycle.Lifecycle.Event.ON_START
 import androidx.lifecycle.Lifecycle.Event.ON_STOP
 import androidx.lifecycle.LifecycleEventObserver
@@ -73,6 +71,8 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer.Builder
 import androidx.media3.ui.PlayerView
 import com.dapascript.mever.core.common.R
+import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
+import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.ActionMenu
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp0
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp10
@@ -82,12 +82,15 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp6
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.MeverBlack
+import com.dapascript.mever.core.common.ui.theme.MeverDarkMode
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.clickableSingle
+import com.dapascript.mever.core.common.util.hideStatusBar
 import com.dapascript.mever.core.common.util.toTimeFormat
 import kotlinx.coroutines.delay
 
@@ -95,9 +98,11 @@ import kotlinx.coroutines.delay
 @OptIn(UnstableApi::class)
 @Composable
 fun MeverVideoViewer(
-    video: String,
+    source: String,
     fileName: String,
     modifier: Modifier = Modifier,
+    onClickDelete: () -> Unit,
+    onClickShare: () -> Unit,
     onClickBack: () -> Unit
 ) {
     val context = LocalContext.current
@@ -111,6 +116,8 @@ fun MeverVideoViewer(
     var videoTimer by remember { mutableLongStateOf(0L) }
     var totalDuration by remember { mutableLongStateOf(0L) }
     var showController by remember { mutableStateOf(false) }
+    var showDropDownMenu by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     val enterFullScreen = {
         isFullScreen = true
@@ -124,7 +131,7 @@ fun MeverVideoViewer(
     BackHandler(isFullScreen) { exitFullScreen() }
 
     LaunchedEffect(showController) {
-        if (showController) {
+        if (showController && showDropDownMenu.not()) {
             delay(3000)
             showController = false
         }
@@ -152,31 +159,20 @@ fun MeverVideoViewer(
                 title = mediaItem?.mediaMetadata?.displayTitle.toString()
             }
         }
-        val window = activity.window
-        val insetsController = getInsetsController(window, window.decorView)
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
                 ON_CREATE -> {
                     player = Builder(context).build().apply {
-                        setMediaItem(fromUri(video))
+                        setMediaItem(fromUri(source))
                         prepare()
                     }
                     player?.addListener(listener)
                 }
 
-                ON_START -> {
-                    insetsController.apply {
-                        hide(systemBars())
-                        systemBarsBehavior = BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-                    }
-                    if (player?.isPlaying == false) player?.play()
-                }
-
+                ON_START -> if (player?.isPlaying == false) player?.play()
+                ON_RESUME -> activity.hideStatusBar(true)
                 ON_STOP -> {
-                    insetsController.apply {
-                        show(systemBars())
-                        systemBarsBehavior = BEHAVIOR_DEFAULT
-                    }
+                    activity.hideStatusBar(false)
                     player?.pause()
                 }
 
@@ -224,12 +220,56 @@ fun MeverVideoViewer(
             showController = true
         },
         onClickFullScreen = { if (isFullScreen) exitFullScreen() else enterFullScreen() },
-        onSeekChange = { position ->
+        onClickActionMenu = { showDropDownMenu = showDropDownMenu.not() },
+        onClickBack = if (isFullScreen) exitFullScreen else onClickBack,
+        onChangeSeekbar = { position ->
             player?.seekTo(position.toLong())
             showController = true
-        },
-        onClickBack = if (isFullScreen) exitFullScreen else onClickBack
+        }
     )
+
+    MeverPopupDropDownMenu(
+        modifier = Modifier
+            .padding(top = Dp64, end = Dp24)
+            .then(Modifier.statusBarsPadding()),
+        listDropDown = listOf("Delete", "Share"),
+        showDropDownMenu = showDropDownMenu,
+        backgroundColor = MeverDarkMode,
+        textColor = MeverWhite,
+        onDismissDropDownMenu = { showDropDownMenu = false },
+        onClick = { item ->
+            when (item) {
+                "Delete" -> showDeleteDialog = true
+                "Share" -> onClickShare()
+            }
+        }
+    )
+
+    MeverDialog(
+        meverDialogArgs = MeverDialogArgs(
+            title = "Delete this file?",
+            primaryButtonText = "Delete",
+            titleColor = MeverWhite,
+            backgroundColor = MeverDarkMode,
+            dismissColor = MeverWhite,
+            onClickAction = {
+                onClickDelete()
+                onClickBack()
+                showDeleteDialog = false
+            },
+            onDismiss = {
+                activity.hideStatusBar(true)
+                showDeleteDialog = false
+            }
+        ),
+        showDialog = showDeleteDialog
+    ) {
+        Text(
+            text = "File that has been deleted cannot be recovered",
+            style = typography.body1,
+            color = MeverWhite
+        )
+    }
 }
 
 @Composable
@@ -247,8 +287,9 @@ private fun VideoPlayerContent(
     onClickPlayOrPause: () -> Unit,
     onClickForward: () -> Unit,
     onClickFullScreen: () -> Unit,
+    onClickActionMenu: (String) -> Unit,
     onClickBack: () -> Unit,
-    onSeekChange: (Float) -> Unit,
+    onChangeSeekbar: (Float) -> Unit
 ) {
     val context = LocalContext.current
 
@@ -277,10 +318,18 @@ private fun VideoPlayerContent(
             MeverTopBar(
                 modifier = Modifier.padding(horizontal = Dp24),
                 topBarArgs = TopBarArgs(
+                    actionMenus = listOf(
+                        ActionMenu(
+                            icon = R.drawable.ic_more,
+                            nameIcon = "More",
+                            onClickActionMenu = onClickActionMenu
+                        )
+                    ),
                     screenName = title,
                     topBarColor = MeverBlack,
                     titleColor = MeverWhite,
                     iconBackColor = MeverWhite,
+                    actionMenusColor = MeverWhite,
                     onClickBack = onClickBack
                 ),
                 useCenterTopBar = false
@@ -300,7 +349,7 @@ private fun VideoPlayerContent(
                 videoTimer = videoTimer,
                 totalDuration = totalDuration,
                 isFullScreen = isFullScreen,
-                onSeekChange = onSeekChange,
+                onChangeSeekbar = onChangeSeekbar,
                 onClickFullScreen = onClickFullScreen
             )
         }
@@ -375,7 +424,7 @@ private fun VideoBottomControlSection(
     totalDuration: Long,
     isFullScreen: Boolean,
     modifier: Modifier = Modifier,
-    onSeekChange: (Float) -> Unit,
+    onChangeSeekbar: (Float) -> Unit,
     onClickFullScreen: () -> Unit
 ) {
     val animatedValue by animateFloatAsState(
@@ -397,7 +446,7 @@ private fun VideoBottomControlSection(
                 value = animatedValue,
                 interactionSource = interactionSource,
                 valueRange = 0f..totalDuration.toFloat(),
-                onValueChange = { onSeekChange(it) },
+                onValueChange = { onChangeSeekbar(it) },
                 track = { sliderState ->
                     Track(
                         modifier = Modifier.height(Dp6),

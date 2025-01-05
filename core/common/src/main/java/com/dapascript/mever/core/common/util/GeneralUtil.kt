@@ -1,5 +1,6 @@
 package com.dapascript.mever.core.common.util
 
+import android.app.Activity
 import android.content.Context
 import android.graphics.BitmapFactory.decodeStream
 import android.media.MediaMetadataRetriever
@@ -9,6 +10,10 @@ import android.util.Log
 import android.util.Patterns.WEB_URL
 import androidx.core.app.ShareCompat.IntentBuilder
 import androidx.core.content.FileProvider.getUriForFile
+import androidx.core.view.WindowCompat.getInsetsController
+import androidx.core.view.WindowInsetsCompat.Type.systemBars
+import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
+import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 import com.dapascript.mever.core.common.util.Constant.PlatformType
 import com.dapascript.mever.core.common.util.Constant.PlatformType.FACEBOOK
 import com.dapascript.mever.core.common.util.Constant.PlatformType.INSTAGRAM
@@ -130,7 +135,7 @@ fun deleteAllMeverFolder() = getMeverFolder().apply { if (exists()) toPath().del
 
 fun shareContent(context: Context, authority: String, path: String) {
     try {
-        val uri = getUriForFile(context, authority, File(path))
+        val uri = getUriForFile(context, "$authority.provider", File(path))
         IntentBuilder(context)
             .setType(getLocalContentType(path))
             .setSubject("MEVER Shared Content")
@@ -159,4 +164,15 @@ fun getNetworkStatus(
 ) = when (isNetworkAvailable) {
     Available -> onNetworkAvailable()
     else -> onNetworkUnavailable()
+}
+
+fun Activity.hideStatusBar(value: Boolean) {
+    val insetsController = getInsetsController(window, window.decorView)
+    if (value) {
+        insetsController.hide(systemBars())
+        insetsController.systemBarsBehavior = BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+    } else {
+        insetsController.show(systemBars())
+        insetsController.systemBarsBehavior = BEHAVIOR_DEFAULT
+    }
 }

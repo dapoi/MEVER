@@ -112,14 +112,15 @@ internal fun GalleryLandingScreen(
             onClickShare = { fileName ->
                 shareContent(
                     context = context,
-                    authority = context.packageName + ".provider",
+                    authority = context.packageName,
                     path = getMeverFiles()?.find { file -> file.name == fileName }?.path.orEmpty()
                 )
             },
             onClickDelete = { showDeleteDialog = it },
-            onClickContent = { fileName ->
+            onClickContent = { id, fileName ->
                 navigator.navigate(
                     GalleryContentViewerRoute(
+                        id = id,
                         sourceFile = getMeverFiles()?.find { file ->
                             file.name == fileName
                         }?.path.orEmpty(),
@@ -217,7 +218,7 @@ private fun GalleryContentSection(
     onClickClearFilter: () -> Unit,
     onClickDelete: (Int) -> Unit,
     onClickShare: (String) -> Unit,
-    onClickContent: (String) -> Unit,
+    onClickContent: (Int, String) -> Unit,
 ) {
     if (downloadList.isNotEmpty()) CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -245,7 +246,7 @@ private fun GalleryContentSection(
                             total = it.total,
                             path = it.path,
                             type = DOWNLOADED,
-                            onClickPlay = { onClickContent(it.fileName) },
+                            onClickPlay = { onClickContent(it.id, it.fileName) },
                             onClickShare = { onClickShare(it.fileName) },
                             onClickDelete = { onClickDelete(it.id) }
                         )

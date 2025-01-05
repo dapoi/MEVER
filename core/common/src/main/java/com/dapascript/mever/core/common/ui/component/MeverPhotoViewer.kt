@@ -8,9 +8,10 @@ import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -27,22 +28,33 @@ import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
 import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import coil3.compose.AsyncImage
+import com.dapascript.mever.core.common.R
+import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
+import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.ActionMenu
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.MeverBlack
+import com.dapascript.mever.core.common.ui.theme.MeverDarkMode
+import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.LocalActivity
+import com.dapascript.mever.core.common.util.hideStatusBar
 
 @Composable
 fun MeverPhotoViewer(
-    image: String,
+    source: String,
     fileName: String,
     modifier: Modifier = Modifier,
+    onClickDelete: () -> Unit,
+    onClickShare: () -> Unit,
     onClickBack: () -> Unit
 ) {
     val activity = LocalActivity.current
     val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
-    val isPhotoTouched = remember { mutableStateOf(false) }
+    var isPhotoTouched by remember { mutableStateOf(false) }
+    var showDropDownMenu by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     DisposableEffect(lifecycleOwner) {
         val window = activity.window
@@ -62,15 +74,22 @@ fun MeverPhotoViewer(
     }
 
     Box(modifier = modifier.fillMaxSize()) {
-        PhotoInteractable(image, isPhotoTouched)
+        PhotoInteractable(source, isPhotoTouched) { isPhotoTouched = it }
         AnimatedVisibility(
-            visible = isPhotoTouched.value.not(),
+            visible = isPhotoTouched.not(),
             enter = fadeIn(),
             exit = fadeOut()
         ) {
             MeverTopBar(
                 modifier = Modifier.padding(horizontal = Dp24),
                 topBarArgs = TopBarArgs(
+                    actionMenus = listOf(
+                        ActionMenu(
+                            icon = R.drawable.ic_more,
+                            nameIcon = "More",
+                            onClickActionMenu = { showDropDownMenu = showDropDownMenu.not() }
+                        )
+                    ),
                     screenName = fileName,
                     topBarColor = MeverBlack,
                     titleColor = MeverWhite,
@@ -81,13 +100,57 @@ fun MeverPhotoViewer(
             )
         }
     }
+
+    MeverPopupDropDownMenu(
+        modifier = Modifier
+            .padding(top = Dp64, end = Dp24)
+            .then(Modifier.statusBarsPadding()),
+        listDropDown = listOf("Delete", "Share"),
+        showDropDownMenu = showDropDownMenu,
+        backgroundColor = MeverDarkMode,
+        textColor = MeverWhite,
+        onDismissDropDownMenu = { showDropDownMenu = false },
+        onClick = { item ->
+            when (item) {
+                "Delete" -> showDeleteDialog = true
+                "Share" -> onClickShare()
+            }
+        }
+    )
+
+    MeverDialog(
+        meverDialogArgs = MeverDialogArgs(
+            title = "Delete this file?",
+            primaryButtonText = "Delete",
+            titleColor = MeverWhite,
+            backgroundColor = MeverDarkMode,
+            dismissColor = MeverWhite,
+            onClickAction = {
+                onClickDelete()
+                onClickBack()
+                showDeleteDialog = false
+            },
+            onDismiss = {
+                activity.hideStatusBar(true)
+                showDeleteDialog = false
+            }
+        ),
+        showDialog = showDeleteDialog
+    ) {
+        Text(
+            text = "File that has been deleted cannot be recovered",
+            style = typography.body1,
+            color = MeverWhite
+        )
+    }
 }
 
 @Composable
 private fun PhotoInteractable(
     image: String,
-    isPhotoTouched: MutableState<Boolean>,
-    modifier: Modifier = Modifier
+    isPhotoTouched: Boolean,
+    modifier: Modifier = Modifier,
+    onPhotoTouched: (Boolean) -> Unit
 ) {
     // Mutable state variables to hold scale and offset values
     var scale by remember { mutableFloatStateOf(1f) }
@@ -147,13 +210,13 @@ private fun PhotoInteractable(
                             scale = 1f
                             offsetX = 0f
                             offsetY = 0f
-                            isPhotoTouched.value = false
+                            onPhotoTouched(false)
                         } else {
                             scale = 2f
                         }
                     },
                     onPress = {
-                        isPhotoTouched.value = isPhotoTouched.value.not()
+                        onPhotoTouched(isPhotoTouched.not())
                         tryAwaitRelease()
                     }
                 )
