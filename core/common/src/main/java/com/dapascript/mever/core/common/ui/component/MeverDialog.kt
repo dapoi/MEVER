@@ -129,7 +129,7 @@ private fun DialogContent(
         Text(
             text = title,
             style = typography.bodyBold1,
-            color = colorScheme.onPrimary
+            color = titleColor ?: colorScheme.onPrimary
         )
         contentBody()
         if (hideInteractionButton.not()) Row(

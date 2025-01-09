@@ -22,6 +22,7 @@ import com.dapascript.mever.core.common.util.Constant.PlatformType.UNKNOWN
 import com.dapascript.mever.core.common.util.Constant.PlatformType.YOUTUBE
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.Status
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.Status.Available
+import com.ketch.DownloadModel
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -178,3 +179,5 @@ fun Activity.hideStatusBar(value: Boolean) {
         insetsController.systemBarsBehavior = BEHAVIOR_DEFAULT
     }
 }
+
+fun DownloadModel.isAvailableOnLocal() = getMeverFiles()?.map { it.name }.orEmpty().contains(fileName)

@@ -8,4 +8,9 @@ object GalleryNavGraphRoute
 
 abstract class GalleryNavGraph : BaseNavGraph() {
     abstract fun getGalleryLandingRoute(): Any
+    abstract fun getGalleryContentViewerRoute(
+        id: Int,
+        sourceFile: String,
+        fileName: String
+    ): Any
 }

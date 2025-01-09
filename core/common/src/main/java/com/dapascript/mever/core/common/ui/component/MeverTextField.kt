@@ -31,7 +31,7 @@ import androidx.compose.ui.text.input.ImeAction.Companion.Done
 import androidx.compose.ui.text.input.KeyboardType.Companion.Uri
 import androidx.compose.ui.text.input.TextFieldValue
 import com.dapascript.mever.core.common.R
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp14
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp3
@@ -62,7 +62,7 @@ fun MeverTextField(
     ) {
         Box(
             modifier = Modifier
-                .padding(horizontal = Dp16, vertical = Dp14)
+                .padding(horizontal = Dp16, vertical = Dp12)
                 .clip(CircleShape)
                 .background(color = Transparent, shape = CircleShape)
                 .size(Dp24)
@@ -100,7 +100,7 @@ fun MeverTextField(
         if (webDomainValue.text.isNotEmpty()) {
             Box(
                 modifier = Modifier
-                    .padding(horizontal = Dp16, vertical = Dp14)
+                    .padding(horizontal = Dp16, vertical = Dp12)
                     .clip(CircleShape)
                     .size(Dp24)
                     .clickable { onValueChange(TextFieldValue()) }

@@ -16,16 +16,19 @@ import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver
 import com.dapascript.mever.core.common.util.getMeverFolder
 import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.getUrlContentType
+import com.dapascript.mever.core.common.util.isAvailableOnLocal
 import com.dapascript.mever.core.common.util.state.ApiState.Error
 import com.dapascript.mever.core.common.util.state.UiState
 import com.dapascript.mever.core.common.util.state.UiState.StateInitial
 import com.dapascript.mever.core.common.util.toCurrentDate
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.model.local.VideoGeneralEntity
+import com.ketch.DownloadModel
 import com.ketch.Ketch
 import com.ketch.Status.PAUSED
 import com.ketch.Status.PROGRESS
 import com.ketch.Status.STARTED
+import com.ketch.Status.SUCCESS
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
@@ -35,12 +38,15 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeLandingViewModel @Inject constructor(
     private val repository: MeverRepository,
-    private val ketch: Ketch,
+    val ketch: Ketch,
     val connectivityObserver: ConnectivityObserver
 ) : BaseViewModel() {
     private val meverFolder by lazy { getMeverFolder() }
+    val tabItems by lazy { listOf("Video", "Image") }
     var urlSocialMediaState by mutableStateOf(TextFieldValue(""))
     var showBadge by mutableStateOf(false)
+    var downloadList by mutableStateOf<List<DownloadModel>>(emptyList())
+        private set
     var videoState by mutableStateOf<UiState<List<VideoGeneralEntity>>>(StateInitial)
         internal set
 
@@ -65,8 +71,9 @@ class HomeLandingViewModel @Inject constructor(
     }
 
     fun getObservableKetch() = viewModelScope.launch {
-        ketch.observeDownloads().collect { models ->
-            showBadge = models.any { it.status in listOf(STARTED, PAUSED, PROGRESS) }
+        ketch.observeDownloads().collect { downloads ->
+            showBadge = downloads.any { it.status in listOf(STARTED, PAUSED, PROGRESS) }
+            downloadList = downloads.filter { it.status == SUCCESS && it.isAvailableOnLocal() }
         }
     }
 
@@ -75,7 +82,8 @@ class HomeLandingViewModel @Inject constructor(
         INSTAGRAM -> getInstagramDownloader(typeUrl)
         TWITTER -> getTwitterDownloader(typeUrl)
         TIKTOK -> getTikTokDownloader(typeUrl)
-        YOUTUBE -> getTikTokDownloader(typeUrl) /** TODO it's temporary */
+        YOUTUBE -> getTikTokDownloader(typeUrl)
+        /** TODO it's temporary */
         UNKNOWN -> flowOf(Error(Throwable("Unknown platform")))
     }
 }

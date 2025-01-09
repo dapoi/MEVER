@@ -35,7 +35,7 @@ import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.MeverBlack
-import com.dapascript.mever.core.common.ui.theme.MeverDarkMode
+import com.dapascript.mever.core.common.ui.theme.MeverDark
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.LocalActivity
@@ -107,7 +107,7 @@ fun MeverPhotoViewer(
             .then(Modifier.statusBarsPadding()),
         listDropDown = listOf("Delete", "Share"),
         showDropDownMenu = showDropDownMenu,
-        backgroundColor = MeverDarkMode,
+        backgroundColor = MeverDark,
         textColor = MeverWhite,
         onDismissDropDownMenu = { showDropDownMenu = false },
         onClick = { item ->
@@ -123,7 +123,7 @@ fun MeverPhotoViewer(
             title = "Delete this file?",
             primaryButtonText = "Delete",
             titleColor = MeverWhite,
-            backgroundColor = MeverDarkMode,
+            backgroundColor = MeverDark,
             dismissColor = MeverWhite,
             onClickAction = {
                 onClickDelete()

@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.util.Constant.PlatformType.UNKNOWN
-import com.dapascript.mever.core.common.util.getMeverFiles
+import com.dapascript.mever.core.common.util.isAvailableOnLocal
 import com.ketch.DownloadModel
 import com.ketch.Ketch
 import com.ketch.Status.SUCCESS
@@ -35,10 +35,7 @@ class GalleryLandingViewModel @Inject constructor(
 
     fun getAllDownloads() = viewModelScope.launch {
         ketch.observeDownloads().collect { downloads ->
-            downloadList = downloads.filter { it.isAvailableOnLocal() }
+            downloadList = downloads.filter { it.status == SUCCESS && it.isAvailableOnLocal() }
         }
     }
-
-    private fun DownloadModel.isAvailableOnLocal() =
-        status == SUCCESS && getMeverFiles()?.map { it.name }.orEmpty().contains(fileName)
 }

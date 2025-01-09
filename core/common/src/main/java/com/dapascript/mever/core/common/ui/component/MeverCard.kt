@@ -54,7 +54,6 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp5
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
@@ -131,7 +130,8 @@ private fun MeverCardDownloading(
                 ) {
                     MeverPlatformIcon(
                         platform = tag,
-                        modifier = Modifier.size(Dp24)
+                        iconSize = iconSize,
+                        iconPadding = iconPadding
                     )
                     Text(
                         text = fileName.replaceTimeFormat(),
@@ -242,7 +242,8 @@ private fun MeverCardDownloaded(
         ) {
             MeverPlatformIcon(
                 platform = tag,
-                modifier = Modifier.size(Dp40)
+                iconSize = iconSize,
+                iconPadding = iconPadding
             )
             Column(
                 modifier = Modifier.weight(1f),
