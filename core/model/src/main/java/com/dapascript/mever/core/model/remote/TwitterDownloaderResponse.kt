@@ -1,6 +1,6 @@
 package com.dapascript.mever.core.model.remote
 
-import com.dapascript.mever.core.model.local.VideoGeneralEntity
+import com.dapascript.mever.core.model.local.ContentEntity
 import com.google.gson.annotations.SerializedName
 
 data class TwitterDownloaderResponse(
@@ -13,12 +13,12 @@ data class TwitterDownloaderResponse(
 
     fun mapToEntity() = media.mapNotNull {
         when (it) {
-            is DataVideo -> VideoGeneralEntity(
+            is DataVideo -> ContentEntity(
                 url = it.url.orEmpty(),
                 quality = it.quality.orEmpty()
             )
 
-            is String -> VideoGeneralEntity(
+            is String -> ContentEntity(
                 url = it,
                 quality = ""
             )

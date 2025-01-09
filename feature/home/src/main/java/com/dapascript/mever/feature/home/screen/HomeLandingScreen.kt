@@ -102,7 +102,7 @@ import com.dapascript.mever.core.common.util.goToSetting
 import com.dapascript.mever.core.common.util.isValidUrl
 import com.dapascript.mever.core.common.util.replaceTimeFormat
 import com.dapascript.mever.core.common.util.shareContent
-import com.dapascript.mever.core.model.local.VideoGeneralEntity
+import com.dapascript.mever.core.model.local.ContentEntity
 import com.dapascript.mever.feature.home.screen.attr.HomeScreenAttr.DownloaderArgs
 import com.dapascript.mever.feature.home.screen.attr.HomeScreenAttr.listOfActionMenu
 import com.dapascript.mever.feature.home.viewmodel.HomeLandingViewModel
@@ -118,7 +118,7 @@ internal fun HomeLandingScreen(
     val isNetworkAvailable = connectivityObserver.observe().collectAsState(connectivityObserver.isConnected())
     val activity = LocalActivity.current
     val dialogQueue = showDialogPermission
-    var listVideo by remember { mutableStateOf<List<VideoGeneralEntity>>(emptyList()) }
+    var listContent by remember { mutableStateOf<List<ContentEntity>>(emptyList()) }
     var showLoading by remember { mutableStateOf(false) }
     var showErrorNetworkModal by remember { mutableStateOf(false) }
     var showErrorResponseModal by remember { mutableStateOf<Throwable?>(null) }
@@ -148,12 +148,12 @@ internal fun HomeLandingScreen(
         )
     ) {
         LaunchedEffect(Unit) { getObservableKetch() }
-        LaunchedEffect(videoState) {
-            videoState.handleUiState(
+        LaunchedEffect(contentState) {
+            contentState.handleUiState(
                 onLoading = { showLoading = true },
                 onSuccess = {
                     showLoading = false
-                    listVideo = it
+                    listContent = it
                 },
                 onFailed = {
                     showLoading = false
@@ -209,22 +209,22 @@ internal fun HomeLandingScreen(
         )
 
         HandleDialogDownload(
-            downloadArgs = listVideo.map {
+            downloadArgs = listContent.map {
                 DownloaderArgs(
                     url = it.url,
                     quality = it.quality
                 )
             },
-            showDialog = listVideo.isNotEmpty(),
+            showDialog = listContent.isNotEmpty(),
             onClickDownload = { url ->
                 downloadFile(
                     url = url,
                     platformName = urlSocialMediaState.text.getPlatformType().platformName
                 )
-                listVideo = emptyList()
+                listContent = emptyList()
                 urlSocialMediaState = urlSocialMediaState.copy(text = "")
             },
-            onDismiss = { listVideo = emptyList() }
+            onDismiss = { listContent = emptyList() }
         )
 
         HomeScreenContent(

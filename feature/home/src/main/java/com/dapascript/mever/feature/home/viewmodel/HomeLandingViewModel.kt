@@ -22,7 +22,7 @@ import com.dapascript.mever.core.common.util.state.UiState
 import com.dapascript.mever.core.common.util.state.UiState.StateInitial
 import com.dapascript.mever.core.common.util.toCurrentDate
 import com.dapascript.mever.core.data.repository.MeverRepository
-import com.dapascript.mever.core.model.local.VideoGeneralEntity
+import com.dapascript.mever.core.model.local.ContentEntity
 import com.ketch.DownloadModel
 import com.ketch.Ketch
 import com.ketch.Status.PAUSED
@@ -47,12 +47,12 @@ class HomeLandingViewModel @Inject constructor(
     var showBadge by mutableStateOf(false)
     var downloadList by mutableStateOf<List<DownloadModel>>(emptyList())
         private set
-    var videoState by mutableStateOf<UiState<List<VideoGeneralEntity>>>(StateInitial)
+    var contentState by mutableStateOf<UiState<List<ContentEntity>>>(StateInitial)
         internal set
 
     fun getApiDownloader(urlSocialMedia: TextFieldValue) = collectApiAsUiState(
         response = repository.getApiDownloader(urlSocialMedia.text),
-        updateState = { videoState = it }
+        updateState = { contentState = it }
     )
 
     fun downloadFile(

@@ -1,6 +1,6 @@
 package com.dapascript.mever.core.model.remote
 
-import com.dapascript.mever.core.model.local.VideoGeneralEntity
+import com.dapascript.mever.core.model.local.ContentEntity
 import com.google.gson.annotations.SerializedName
 
 data class TikTokDownloaderResponse(
@@ -15,7 +15,7 @@ data class TikTokDownloaderResponse(
     }
 
     fun mapToEntity() = listOf(
-        VideoGeneralEntity(
+        ContentEntity(
             url = data.subData.player,
             quality = ""
         )

@@ -1,6 +1,6 @@
 package com.dapascript.mever.core.model.remote
 
-import com.dapascript.mever.core.model.local.VideoGeneralEntity
+import com.dapascript.mever.core.model.local.ContentEntity
 import com.google.gson.annotations.SerializedName
 
 data class InstagramDownloaderResponse(
@@ -11,7 +11,7 @@ data class InstagramDownloaderResponse(
     )
 
     fun mapToEntity() = data.map {
-        VideoGeneralEntity(
+        ContentEntity(
             url = it.url.orEmpty(),
             quality = ""
         )
