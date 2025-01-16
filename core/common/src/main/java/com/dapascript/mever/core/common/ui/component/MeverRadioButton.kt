@@ -1,12 +1,14 @@
 package com.dapascript.mever.core.common.ui.component
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import com.dapascript.mever.core.common.R
+import com.dapascript.mever.core.common.util.clickableSingle
 
 @Composable
 fun MeverRadioButton(
@@ -14,10 +16,9 @@ fun MeverRadioButton(
     modifier: Modifier = Modifier,
     onCheckedChange: () -> Unit
 ) {
-    IconToggleButton(
-        modifier = modifier,
-        checked = isChecked,
-        onCheckedChange = { onCheckedChange() }
+    Box(
+        modifier = modifier.clickableSingle { onCheckedChange() },
+        contentAlignment = Center
     ) {
         Icon(
             painter = painterResource(

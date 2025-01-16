@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.Slider
@@ -66,6 +67,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaItem.fromUri
 import androidx.media3.common.Player
+import androidx.media3.common.Player.STATE_BUFFERING
 import androidx.media3.common.Player.STATE_ENDED
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer.Builder
@@ -118,6 +120,7 @@ fun MeverVideoViewer(
     var showController by remember { mutableStateOf(false) }
     var showDropDownMenu by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var isVideoBuffering by remember { mutableStateOf(false) }
 
     val enterFullScreen = {
         isFullScreen = true
@@ -139,7 +142,7 @@ fun MeverVideoViewer(
 
     LaunchedEffect(videoTimer) {
         while (videoTimer < totalDuration) {
-            delay(1000)
+            delay(100)
             videoTimer = player?.currentPosition ?: 0
         }
     }
@@ -149,14 +152,19 @@ fun MeverVideoViewer(
             override fun onEvents(player: Player, events: Player.Events) {
                 super.onEvents(player, events)
                 isVideoPlaying = player.isPlaying
-                playbackState = player.playbackState
                 videoTimer = player.currentPosition
                 totalDuration = player.duration
+                playbackState = player.playbackState
             }
 
             override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
                 super.onMediaItemTransition(mediaItem, reason)
                 title = mediaItem?.mediaMetadata?.displayTitle.toString()
+            }
+
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                super.onPlaybackStateChanged(playbackState)
+                isVideoBuffering = playbackState == STATE_BUFFERING
             }
         }
         val observer = LifecycleEventObserver { _, event ->
@@ -192,6 +200,7 @@ fun MeverVideoViewer(
     VideoPlayerContent(
         modifier = modifier.fillMaxSize(),
         player = player ?: return,
+        isVideoBuffering = isVideoBuffering,
         title = fileName,
         iconPlayOrPause = if (isVideoPlaying == true) R.drawable.ic_pause else R.drawable.ic_play,
         isControllerVisible = showController,
@@ -275,6 +284,7 @@ fun MeverVideoViewer(
 @Composable
 private fun VideoPlayerContent(
     player: Player,
+    isVideoBuffering: Boolean,
     title: String,
     iconPlayOrPause: Int,
     isControllerVisible: Boolean,
@@ -336,6 +346,7 @@ private fun VideoPlayerContent(
             )
             VideoCenterControlSection(
                 modifier = Modifier.align(Center),
+                isVideoBuffering = isVideoBuffering,
                 iconPlayOrPause = iconPlayOrPause,
                 onClickRewind = onClickRewind,
                 onClickPlay = onClickPlayOrPause,
@@ -358,6 +369,7 @@ private fun VideoPlayerContent(
 
 @Composable
 private fun VideoCenterControlSection(
+    isVideoBuffering: Boolean,
     iconPlayOrPause: Int,
     modifier: Modifier = Modifier,
     onClickRewind: () -> Unit,
@@ -393,7 +405,10 @@ private fun VideoCenterControlSection(
                 isRewindRotated = true
             }
     )
-    Image(
+    if (isVideoBuffering) CircularProgressIndicator(
+        modifier = Modifier.size(Dp48),
+        color = MeverWhite
+    ) else Image(
         painter = painterResource(iconPlayOrPause),
         colorFilter = tint(color = MeverWhite),
         contentDescription = "Play/Pause",

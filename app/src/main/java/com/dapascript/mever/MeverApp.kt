@@ -8,6 +8,7 @@ import com.ketch.DownloadConfig
 import com.ketch.Ketch
 import com.ketch.NotificationConfig
 import dagger.hilt.android.HiltAndroidApp
+import timber.log.Timber
 
 @HiltAndroidApp
 open class MeverApp : Application() {
@@ -20,6 +21,8 @@ open class MeverApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+
+        if (BuildConfig.DEBUG) Timber.plant(Timber.DebugTree())
 
         ketch = Ketch.builder()
             .setNotificationConfig(

@@ -1,21 +1,16 @@
 package com.dapascript.mever.feature.home.screen
 
-import android.app.Activity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
-import androidx.compose.foundation.layout.Arrangement.spacedBy
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -48,66 +43,61 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.layout.ContentScale.Companion.Crop
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextAlign.Companion.Center
-import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.navigation.base.BaseNavigator
 import com.dapascript.mever.core.common.navigation.graph.GalleryNavGraph
-import com.dapascript.mever.core.common.navigation.graph.NotificationNavGraph
 import com.dapascript.mever.core.common.navigation.graph.SettingNavGraph
 import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardArgs
-import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardType.DOWNLOADED
+import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.getCardType
 import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.ActionMenu
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverButton
 import com.dapascript.mever.core.common.ui.component.MeverCard
 import com.dapascript.mever.core.common.ui.component.MeverDialog
+import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
 import com.dapascript.mever.core.common.ui.component.MeverPlatformIcon
-import com.dapascript.mever.core.common.ui.component.MeverRadioButton
 import com.dapascript.mever.core.common.ui.component.MeverTabs
 import com.dapascript.mever.core.common.ui.component.MeverTextField
-import com.dapascript.mever.core.common.ui.component.MeverThumbnail
+import com.dapascript.mever.core.common.ui.component.MeverTopBar
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp10
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp18
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp200
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp210
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp5
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp22
 import com.dapascript.mever.core.common.util.Constant.PlatformName.UNKNOWN
 import com.dapascript.mever.core.common.util.Constant.PlatformType
 import com.dapascript.mever.core.common.util.Constant.ScreenName.GALLERY
-import com.dapascript.mever.core.common.util.Constant.ScreenName.NOTIFICATION
 import com.dapascript.mever.core.common.util.Constant.ScreenName.SETTING
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.clickableSingle
-import com.dapascript.mever.core.common.util.getDescriptionPermission
 import com.dapascript.mever.core.common.util.getMeverFiles
 import com.dapascript.mever.core.common.util.getNetworkStatus
 import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.getStoragePermission
 import com.dapascript.mever.core.common.util.goToSetting
-import com.dapascript.mever.core.common.util.isValidUrl
 import com.dapascript.mever.core.common.util.replaceTimeFormat
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.model.local.ContentEntity
-import com.dapascript.mever.feature.home.screen.attr.HomeScreenAttr.DownloaderArgs
 import com.dapascript.mever.feature.home.screen.attr.HomeScreenAttr.listOfActionMenu
+import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetDownload
+import com.dapascript.mever.feature.home.screen.component.HandleDialogError
+import com.dapascript.mever.feature.home.screen.component.HandleDialogPermission
 import com.dapascript.mever.feature.home.viewmodel.HomeLandingViewModel
 import com.ketch.DownloadModel
 import com.ketch.Status.PAUSED
+import com.ketch.Status.SUCCESS
 import kotlinx.coroutines.launch
 
 @Composable
@@ -115,14 +105,14 @@ internal fun HomeLandingScreen(
     navigator: BaseNavigator,
     viewModel: HomeLandingViewModel = hiltViewModel()
 ) = with(viewModel) {
+    val contentState = contentState.collectAsStateValue()
     val isNetworkAvailable = connectivityObserver.observe().collectAsState(connectivityObserver.isConnected())
     val activity = LocalActivity.current
     val dialogQueue = showDialogPermission
-    var listContent by remember { mutableStateOf<List<ContentEntity>>(emptyList()) }
+    var contents by remember { mutableStateOf<List<ContentEntity>>(emptyList()) }
     var showLoading by remember { mutableStateOf(false) }
     var showErrorNetworkModal by remember { mutableStateOf(false) }
     var showErrorResponseModal by remember { mutableStateOf<Throwable?>(null) }
-    val onClickActionMenu = remember { handleClickActionMenu(navigator) }
     val requestStoragePermissionLauncher = rememberLauncherForActivityResult(RequestMultiplePermissions()) { perms ->
         val allGranted = getStoragePermission.all { perms[it] == true }
 
@@ -136,24 +126,19 @@ internal fun HomeLandingScreen(
     }
 
     BaseScreen(
-        topBarArgs = TopBarArgs(
-            screenName = null,
-            actionMenus = listOfActionMenu.map { (name, resource) ->
-                ActionMenu(
-                    icon = resource,
-                    nameIcon = name,
-                    showBadge = showBadge && name == NOTIFICATION,
-                ) { onClickActionMenu(name) }
-            }
-        )
+        hideTopBar = true,
+        allowScreenOverlap = true,
+        statusBarColor = colorScheme.background,
+        navigationBarColor = colorScheme.background
     ) {
         LaunchedEffect(Unit) { getObservableKetch() }
+
         LaunchedEffect(contentState) {
             contentState.handleUiState(
                 onLoading = { showLoading = true },
-                onSuccess = {
+                onSuccess = { result ->
                     showLoading = false
-                    listContent = it
+                    contents = result
                 },
                 onFailed = {
                     showLoading = false
@@ -162,11 +147,25 @@ internal fun HomeLandingScreen(
             )
         }
 
-        HandlerDialogError(
+        HandleBottomSheetDownload(
+            listContent = contents,
+            showBottomSheet = contents.isNotEmpty(),
+            onClickDownload = { url ->
+                contents = emptyList()
+                downloadFile(
+                    url = url,
+                    platformName = urlSocialMediaState.text.getPlatformType().platformName
+                )
+                urlSocialMediaState = urlSocialMediaState.copy(text = "")
+            },
+            onClickDismiss = { contents = emptyList() }
+        )
+
+        HandleDialogError(
             showDialog = showErrorNetworkModal,
             errorTitle = "Ups, You're Offline",
-            errorImage = R.drawable.ic_offline,
             errorDescription = "Please check your internet connection and try again.",
+            errorImage = R.drawable.ic_offline,
             onRetry = {
                 showErrorNetworkModal = false
                 getNetworkStatus(
@@ -178,10 +177,9 @@ internal fun HomeLandingScreen(
             onDismiss = { showErrorNetworkModal = false }
         )
 
-        HandlerDialogError(
+        HandleDialogError(
             showDialog = showErrorResponseModal != null,
             errorTitle = "Something Went Wrong!",
-            errorImage = R.drawable.ic_error_response,
             errorDescription = "Your request cannot be processed at this time. Please try again later.",
             onRetry = {
                 showErrorResponseModal = null
@@ -208,213 +206,73 @@ internal fun HomeLandingScreen(
             onDismiss = ::dismissDialog
         )
 
-        HandleDialogDownload(
-            downloadArgs = listContent.map {
-                DownloaderArgs(
-                    url = it.url,
-                    quality = it.quality
-                )
-            },
-            showDialog = listContent.isNotEmpty(),
-            onClickDownload = { url ->
-                downloadFile(
-                    url = url,
-                    platformName = urlSocialMediaState.text.getPlatformType().platformName
-                )
-                listContent = emptyList()
-                urlSocialMediaState = urlSocialMediaState.copy(text = "")
-            },
-            onDismiss = { listContent = emptyList() }
-        )
-
         HomeScreenContent(
-            homeLandingViewModel = this,
+            viewModel = this,
             navigator = navigator,
             isLoading = showLoading
         ) { requestStoragePermissionLauncher.launch(getStoragePermission) }
     }
 }
 
-
-@Composable
-private fun HandlerDialogError(
-    showDialog: Boolean,
-    errorTitle: String,
-    errorImage: Int,
-    errorDescription: String,
-    onRetry: () -> Unit,
-    onDismiss: () -> Unit
-) {
-    MeverDialog(
-        showDialog = showDialog,
-        meverDialogArgs = MeverDialogArgs(
-            title = errorTitle,
-            primaryButtonText = "Try Again",
-            onClickAction = onRetry,
-            onDismiss = onDismiss
-        )
-    ) {
-        Image(
-            modifier = Modifier
-                .size(Dp200)
-                .align(CenterHorizontally),
-            painter = painterResource(errorImage),
-            contentScale = Crop,
-            contentDescription = "Error Image"
-        )
-        Text(
-            text = errorDescription,
-            textAlign = Center,
-            style = typography.body1,
-            color = colorScheme.onPrimary
-        )
-    }
-}
-
-@Composable
-private fun HandleDialogPermission(
-    activity: Activity,
-    dialogQueue: List<String>,
-    onGoToSetting: () -> Unit,
-    onAllow: () -> Unit,
-    onDismiss: () -> Unit
-) {
-    dialogQueue.reversed().forEach { permission ->
-        val isPermissionsDeclined = shouldShowRequestPermissionRationale(activity, permission).not()
-
-        MeverDialog(
-            showDialog = true,
-            meverDialogArgs = MeverDialogArgs(
-                title = "Permission Required",
-                primaryButtonText = if (isPermissionsDeclined) "Go to setting" else "Allow",
-                onClickAction = if (isPermissionsDeclined) onGoToSetting else onAllow,
-                onDismiss = onDismiss
-            )
-        ) {
-            Text(
-                text = getDescriptionPermission(permission),
-                textAlign = Center,
-                style = typography.body1,
-                color = colorScheme.onPrimary
-            )
-        }
-    }
-}
-
-@Composable
-private fun HandleDialogDownload(
-    downloadArgs: List<DownloaderArgs>,
-    showDialog: Boolean,
-    onClickDownload: (String) -> Unit,
-    onDismiss: () -> Unit
-) = with(downloadArgs) {
-    var chooseQuality by remember(this) { mutableStateOf(firstOrNull { it.quality.isNotEmpty() }?.url) }
-
-    MeverDialog(
-        showDialog = showDialog,
-        meverDialogArgs = MeverDialogArgs(
-            title = "Content's Found",
-            primaryButtonText = "Download",
-            onClickAction = { onClickDownload(chooseQuality ?: get(0).url) },
-            onDismiss = onDismiss
-        )
-    ) {
-        MeverThumbnail(
-            source = size.takeIf { it > 0 }?.let { get(0).url } ?: "",
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(16f / 9f)
-                .clip(RoundedCornerShape(Dp8))
-        )
-        filter { it.quality.isNotEmpty() && it.url.isValidUrl() }.map { (url, quality) ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(Dp4))
-                    .clickableSingle { chooseQuality = url },
-                horizontalArrangement = SpaceBetween,
-                verticalAlignment = CenterVertically
-            ) {
-                Text(
-                    text = quality,
-                    style = typography.body1,
-                    color = colorScheme.onPrimary
-                )
-                MeverRadioButton(isChecked = chooseQuality == url) { chooseQuality = url }
-            }
-        }
-    }
-}
-
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun HomeScreenContent(
-    homeLandingViewModel: HomeLandingViewModel,
+    viewModel: HomeLandingViewModel,
     navigator: BaseNavigator,
     isLoading: Boolean,
     modifier: Modifier = Modifier,
     requestStoragePermissionLauncher: () -> Unit
-) = with(homeLandingViewModel) {
-    val pagerState = rememberPagerState(pageCount = { tabItems.size })
-    val scope = rememberCoroutineScope()
-    var showDeleteDialog by remember { mutableStateOf<Int?>(null) }
+) = with(viewModel) {
+    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+        val context = LocalContext.current
+        val pagerState = rememberPagerState(pageCount = { tabItems.size })
+        val scrollState = rememberScrollState()
+        val scope = rememberCoroutineScope()
+        var showDeleteDialog by remember { mutableStateOf<Int?>(null) }
 
-    showDeleteDialog?.let { id ->
-        MeverDialog(
-            showDialog = true,
-            meverDialogArgs = MeverDialogArgs(
-                title = "Delete this file?",
-                primaryButtonText = "Delete",
-                onClickAction = {
-                    ketch.clearDb(id)
-                    showDeleteDialog = null
-                },
-                onDismiss = { showDeleteDialog = null }
-            )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState),
+            horizontalAlignment = CenterHorizontally
         ) {
-            Text(
-                text = "File that has been deleted cannot be recovered",
-                style = typography.body1,
-                color = colorScheme.onPrimary
-            )
-        }
-    }
-
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(top = Dp18)
-    ) {
-        BoxWithConstraints {
-            val screenHeight = maxHeight
-            val context = LocalContext.current
-            val scrollState = rememberScrollState()
-
-            Column(
+            MeverTopBar(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(scrollState),
-                horizontalAlignment = CenterHorizontally,
-                verticalArrangement = spacedBy(Dp24)
+                    .fillMaxWidth()
+                    .padding(horizontal = Dp24),
+                topBarArgs = TopBarArgs(
+                    screenName = null,
+                    actionMenus = listOfActionMenu.map { (name, resource) ->
+                        ActionMenu(
+                            icon = resource,
+                            nameIcon = name,
+                            showBadge = showBadge && name == GALLERY,
+                        ) { handleClickActionMenu(navigator)(name) }
+                    }
+                )
+            )
+            Column(
+                modifier = Modifier.height(this@BoxWithConstraints.maxHeight),
+                horizontalAlignment = CenterHorizontally
             ) {
-                Column(
-                    modifier = Modifier.height(screenHeight),
-                    horizontalAlignment = CenterHorizontally
-                ) {
-                    MeverTabs(
-                        items = tabItems,
-                        pagerState = pagerState
-                    ) { scope.launch { pagerState.animateScrollToPage(it) } }
-                    Spacer(modifier = Modifier.size(Dp24))
+                Spacer(modifier = Modifier.size(Dp16))
+                MeverTabs(
+                    items = tabItems,
+                    pagerState = pagerState
+                ) { scope.launch { pagerState.animateScrollToPage(it) } }
+                Spacer(modifier = Modifier.size(Dp24))
+                CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
                     HorizontalPager(
                         state = pagerState,
                         modifier = Modifier
                             .fillMaxHeight()
                             .nestedScroll(remember {
                                 object : NestedScrollConnection {
-                                    override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                                        return if (available.y > 0) Offset.Zero
-                                        else Offset(x = 0f, y = -scrollState.dispatchRawDelta(-available.y))
-                                    }
+                                    override fun onPreScroll(
+                                        available: Offset,
+                                        source: NestedScrollSource
+                                    ) = if (available.y > 0) Offset.Zero
+                                    else Offset(x = 0f, y = -scrollState.dispatchRawDelta(-available.y))
                                 }
                             })
                     ) { index ->
@@ -423,7 +281,9 @@ private fun HomeScreenContent(
                                 downloadList = downloadList,
                                 isLoading = isLoading,
                                 urlSocialMediaState = urlSocialMediaState,
-                                onClickDownloading = { if (it.status == PAUSED) ketch.resume(it.id) else ketch.pause(it.id) },
+                                onClickDownloading = {
+                                    if (it.status == PAUSED) ketch.resume(it.id) else ketch.pause(it.id)
+                                },
                                 onClickDelete = { showDeleteDialog = it.id },
                                 onClickShare = {
                                     shareContent(
@@ -460,6 +320,27 @@ private fun HomeScreenContent(
                 }
             }
         }
+
+        showDeleteDialog?.let { id ->
+            MeverDialog(
+                showDialog = true,
+                meverDialogArgs = MeverDialogArgs(
+                    title = "Delete this file?",
+                    primaryButtonText = "Delete",
+                    onClickAction = {
+                        ketch.clearDb(id)
+                        showDeleteDialog = null
+                    },
+                    onDismiss = { showDeleteDialog = null }
+                )
+            ) {
+                Text(
+                    text = "File that has been deleted cannot be recovered",
+                    style = typography.body1,
+                    color = colorScheme.onPrimary
+                )
+            }
+        }
     }
 }
 
@@ -481,11 +362,11 @@ private fun HomeVideoSection(
     CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
         LazyColumn(
             modifier = modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = Dp48)
+            contentPadding = PaddingValues(bottom = Dp48, start = Dp24, end = Dp24)
         ) {
             item {
                 Text(
-                    text = "Video Saver",
+                    text = "Media Saver",
                     style = typography.h2.copy(fontSize = Sp22),
                     color = colorScheme.onPrimary
                 )
@@ -493,7 +374,7 @@ private fun HomeVideoSection(
             item {
                 Spacer(modifier = Modifier.size(Dp16))
                 Text(
-                    text = "Easiest way to download your favorite video content from the biggest social media platforms like Facebook, Instagram, TikTok, Twitter, and YouTube.",
+                    text = "Easiest way to download your favorite content from the biggest social media platforms like Facebook, Instagram, TikTok, Twitter (X), and YouTube.",
                     style = typography.body2,
                     color = colorScheme.secondary
                 )
@@ -528,7 +409,7 @@ private fun HomeVideoSection(
                 ) { onClickDownload() }
                 Spacer(modifier = Modifier.size(Dp24))
             }
-            if (downloadList.isNotEmpty()) stickyHeader {
+            stickyHeader {
                 Row(
                     modifier = Modifier
                         .background(color = colorScheme.background)
@@ -542,7 +423,7 @@ private fun HomeVideoSection(
                         style = typography.bodyBold1,
                         color = colorScheme.onPrimary
                     )
-                    Text(
+                    if (downloadList.isNotEmpty()) Text(
                         text = "View All",
                         style = typography.body2,
                         color = colorScheme.primary,
@@ -553,7 +434,7 @@ private fun HomeVideoSection(
                     )
                 }
             }
-            items(
+            if (downloadList.isNotEmpty()) items(
                 items = downloadList.take(5),
                 key = { it.id }
             ) {
@@ -570,14 +451,20 @@ private fun HomeVideoSection(
                         progress = it.progress,
                         total = it.total,
                         path = it.path,
-                        type = DOWNLOADED,
-                        iconSize = Dp40,
-                        iconPadding = Dp8,
+                        type = getCardType(it.status),
+                        iconSize = if (it.status == SUCCESS) Dp40 else Dp24,
+                        iconPadding = if (it.status == SUCCESS) Dp8 else Dp5,
                         onClickDownloading = { onClickDownloading(it) },
                         onClickDelete = { onClickDelete(it) },
                         onClickShare = { onClickShare(it) },
                         onClickPlay = { onClickPlay(it) }
                     )
+                )
+            } else item {
+                MeverEmptyItem(
+                    image = R.drawable.ic_gallery_empty,
+                    size = Dp210,
+                    description = "Looks like there’s nothing here... Download something to get content!"
                 )
             }
         }
@@ -586,15 +473,12 @@ private fun HomeVideoSection(
 
 private fun handleClickActionMenu(navigator: BaseNavigator) = { name: String ->
     when (name) {
-        NOTIFICATION -> navigator.navigateToNotificationScreen()
         GALLERY -> navigator.navigateToGalleryScreen()
-        SETTING -> navigator.run { navigate(getNavGraph<SettingNavGraph>().getSettingLandingRoute()) }
+        SETTING -> navigator.navigateToSettingScreen()
         else -> Unit
     }
 }
 
-private fun BaseNavigator.navigateToNotificationScreen() =
-    navigate(getNavGraph<NotificationNavGraph>().getNotificationLandingRoute())
+private fun BaseNavigator.navigateToGalleryScreen() = navigate(getNavGraph<GalleryNavGraph>().getGalleryLandingRoute())
 
-private fun BaseNavigator.navigateToGalleryScreen() =
-    navigate(getNavGraph<GalleryNavGraph>().getGalleryLandingRoute())
+private fun BaseNavigator.navigateToSettingScreen() = navigate(getNavGraph<SettingNavGraph>().getSettingLandingRoute())

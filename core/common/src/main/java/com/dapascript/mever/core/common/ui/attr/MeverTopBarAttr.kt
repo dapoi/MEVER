@@ -1,5 +1,8 @@
 package com.dapascript.mever.core.common.ui.attr
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -73,9 +76,15 @@ object MeverTopBarAttr {
 
     @Composable
     fun title(screenName: String?): @Composable () -> Unit = {
-        Text(
-            text = screenName.orEmpty(),
-            style = typography.body0
-        )
+        AnimatedVisibility(
+            visible = screenName.isNullOrEmpty().not(),
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
+            Text(
+                text = screenName.orEmpty(),
+                style = typography.body0
+            )
+        }
     }
 }

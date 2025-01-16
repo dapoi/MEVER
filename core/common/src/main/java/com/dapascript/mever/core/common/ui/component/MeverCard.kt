@@ -2,6 +2,7 @@ package com.dapascript.mever.core.common.ui.component
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
@@ -21,11 +22,11 @@ import androidx.compose.material3.CardDefaults.cardElevation
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.ProgressIndicatorDefaults.ProgressAnimationSpec
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment.Companion.Bottom
+import androidx.compose.ui.Alignment.Companion.BottomEnd
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
@@ -46,14 +47,17 @@ import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardArgs
 import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardType.DOWNLOADED
 import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardType.DOWNLOADING
+import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardType.UNKNOWN
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp10
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp120
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp15
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp150
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp22
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp5
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
@@ -66,8 +70,12 @@ import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.calculateDownloadPercentage
 import com.dapascript.mever.core.common.util.calculateDownloadedMegabytes
 import com.dapascript.mever.core.common.util.clickableSingle
+import com.dapascript.mever.core.common.util.getLocalContentType
 import com.dapascript.mever.core.common.util.getMeverFiles
+import com.dapascript.mever.core.common.util.getTotalVideoDuration
 import com.dapascript.mever.core.common.util.getTwoDecimals
+import com.dapascript.mever.core.common.util.isVideo
+import com.dapascript.mever.core.common.util.removeExtension
 import com.dapascript.mever.core.common.util.replaceTimeFormat
 import com.ketch.Status.PAUSED
 
@@ -79,6 +87,7 @@ fun MeverCard(
     when (type) {
         DOWNLOADING -> MeverCardDownloading(this@with, modifier)
         DOWNLOADED -> MeverCardDownloaded(this@with, modifier)
+        UNKNOWN -> {}
     }
 }
 
@@ -204,36 +213,65 @@ private fun MeverCardDownloaded(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = spacedBy(Dp16)
     ) {
+        val context = LocalContext.current
+        val filePath = getMeverFiles()?.find { it.name == fileName }?.path.orEmpty()
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(Dp150)
+                .height(Dp120)
                 .clip(RoundedCornerShape(Dp16))
-                .clickableSingle { onClickPlay?.invoke() },
-            contentAlignment = Center
+                .clickableSingle { onClickPlay?.invoke() }
         ) {
-            val context = LocalContext.current
-            val filePath = getMeverFiles()?.find { it.name == fileName }?.path.orEmpty()
             AsyncImage(
                 modifier = Modifier.fillMaxSize(),
                 model = Builder(context)
                     .data(filePath)
-                    .isVideoContent(filePath.endsWith(".mp4"))
+                    .isVideoContent(filePath.isVideo())
                     .crossfade(true)
                     .build(),
                 contentDescription = "Thumbnail",
                 contentScale = Crop
             )
-            Surface(
-                modifier = Modifier.fillMaxSize(),
-                color = MeverBlack.copy(alpha = 0.3f)
-            ) {}
-            if (fileName.contains(".mp4")) Image(
-                painter = painterResource(R.drawable.ic_play_video),
-                colorFilter = tint(MeverWhite.copy(alpha = 0.7f)),
-                contentDescription = "Play",
-                modifier = Modifier.size(Dp80)
-            )
+            if (fileName.isVideo()) {
+                Image(
+                    painter = painterResource(R.drawable.ic_play_video),
+                    colorFilter = tint(MeverBlack.copy(alpha = 0.6f)),
+                    contentDescription = "Play",
+                    modifier = Modifier
+                        .size(Dp40)
+                        .align(Center)
+                )
+                Box(
+                    modifier = Modifier
+                        .padding(end = Dp12, bottom = Dp12)
+                        .background(color = MeverBlack.copy(alpha = 0.6f), shape = RoundedCornerShape(Dp4))
+                        .width(Dp40)
+                        .height(Dp22)
+                        .align(BottomEnd),
+                    contentAlignment = Center
+                ) {
+                    Text(
+                        text = getTotalVideoDuration(filePath).orEmpty(),
+                        style = typography.label3,
+                        color = MeverWhite
+                    )
+                }
+            } else Box(
+                modifier = Modifier
+                    .padding(end = Dp12, bottom = Dp12)
+                    .background(color = MeverBlack.copy(alpha = 0.6f), shape = RoundedCornerShape(Dp4))
+                    .size(Dp24)
+                    .align(BottomEnd),
+                contentAlignment = Center
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.ic_image),
+                    colorFilter = tint(MeverWhite),
+                    contentDescription = "Image",
+                    modifier = Modifier.size(Dp12)
+                )
+            }
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -250,11 +288,11 @@ private fun MeverCardDownloaded(
                 verticalArrangement = SpaceBetween
             ) {
                 Text(
-                    text = fileName.replaceTimeFormat(),
+                    text = "$tag - ${fileName.replaceTimeFormat().removeExtension()}",
                     style = typography.bodyBold2,
                 )
                 Text(
-                    text = "Category: $tag",
+                    text = "Type: ${getLocalContentType(filePath)}",
                     style = typography.label2,
                     color = MeverGray
                 )

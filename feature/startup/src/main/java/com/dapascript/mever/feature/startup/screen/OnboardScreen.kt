@@ -1,5 +1,7 @@
 package com.dapascript.mever.feature.startup.screen
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -41,6 +43,8 @@ import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.MeverYellow
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp40
+import com.dapascript.mever.core.common.util.getNotificationPermission
+import com.dapascript.mever.core.common.util.isAndroidTiramisuAbove
 import com.dapascript.mever.feature.startup.R
 import com.dapascript.mever.feature.startup.navigation.route.OnboardRoute
 import com.dapascript.mever.feature.startup.viewmodel.OnboardViewModel
@@ -57,6 +61,10 @@ internal fun OnboardScreen(
         modifier = Modifier.background(colorScheme.onPrimaryContainer)
     ) {
         val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+        val requestNotifPermissionLauncher = rememberLauncherForActivityResult(RequestPermission()) {
+            navigator.navigateToHome()
+        }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -75,14 +83,9 @@ internal fun OnboardScreen(
             )
             DescriptionOnboardSection()
             ButtonOnboardSection {
-                navigator.run {
-                    navigate(
-                        route = getNavGraph<HomeNavGraph>().getHomeLandingRoute(),
-                        popUpTo = OnboardRoute,
-                        inclusive = true
-                    )
-                }
                 setIsOnboarded(true)
+                if (isAndroidTiramisuAbove()) requestNotifPermissionLauncher.launch(getNotificationPermission)
+                else navigator.navigateToHome()
             }
         }
     }
@@ -146,5 +149,13 @@ private fun DescriptionOnboardSection(modifier: Modifier = Modifier) = Column(
         text = "Download media from Social Media easily.",
         style = typography.body2,
         color = colorScheme.secondary
+    )
+}
+
+private fun BaseNavigator.navigateToHome() {
+    navigate(
+        route = getNavGraph<HomeNavGraph>().getHomeLandingRoute(),
+        popUpTo = OnboardRoute,
+        inclusive = true
     )
 }

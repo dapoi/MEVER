@@ -2,6 +2,7 @@ import com.android.build.gradle.LibraryExtension
 import com.dapascript.mever.build_logic.convention.ConstantLibs.MAX_SDK_VERSION
 import com.dapascript.mever.build_logic.convention.alias
 import com.dapascript.mever.build_logic.convention.configureAndroidKotlin
+import com.dapascript.mever.build_logic.convention.implementation
 import com.dapascript.mever.build_logic.convention.libs
 import com.dapascript.mever.build_logic.convention.testImplementation
 import org.gradle.api.Plugin
@@ -25,6 +26,7 @@ class LibPlugin : Plugin<Project> {
             }
 
             dependencies {
+                implementation(libs.timber)
                 testImplementation(kotlin("test"))
             }
         }

@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.graphics.BitmapFactory.decodeStream
 import android.media.MediaMetadataRetriever
+import android.media.MediaMetadataRetriever.METADATA_KEY_DURATION
 import android.os.Environment.DIRECTORY_DOWNLOADS
 import android.os.Environment.getExternalStoragePublicDirectory
 import android.util.Patterns.WEB_URL
@@ -36,25 +37,6 @@ import java.util.Locale.getDefault
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.deleteRecursively
 
-fun String.getPlatformType(): PlatformType {
-    val listFbUrl = listOf("facebook.com", "fb.com", "m.facebook.com")
-    val listInstagramUrl = listOf("instagram.com", "instagr.am", "ig.com")
-    val listTwitterUrl = listOf("x.com", "twitter.com", "t.co", "mobile.twitter.com")
-    val listTiktokUrl = listOf("tiktok.com", "tiktokv.com", "tiktokcdn.com")
-    val listYouTubeUrl = listOf("youtube.com", "youtu.be", "m.youtube.com", "yt.com")
-
-    return when {
-        listFbUrl.any { contains(it) } -> FACEBOOK
-        listInstagramUrl.any { contains(it) } -> INSTAGRAM
-        listTwitterUrl.any { contains(it) } -> TWITTER
-        listTiktokUrl.any { contains(it) } -> TIKTOK
-        listYouTubeUrl.any { contains(it) } -> YOUTUBE
-        else -> UNKNOWN
-    }
-}
-
-fun String.isValidUrl() = WEB_URL.matcher(this).matches()
-
 fun calculateDownloadedMegabytes(progress: Int, totalBytes: Long): String {
     val downloadedBytes = progress / 100.0 * totalBytes
     return getTwoDecimals(value = downloadedBytes / (1024.0 * 1024.0))
@@ -80,19 +62,16 @@ suspend fun getPhotoThumbnail(url: String) = withContext(IO) {
 suspend fun getVideoThumbnail(source: String) = withContext(IO) {
     val retriever = MediaMetadataRetriever()
     try {
-        retriever.dataSource(source)
-        retriever.getFrameAtTime(100000)
+        with(retriever) {
+            if (source.isValidUrl()) setDataSource(source, HashMap()) else setDataSource(source)
+            getFrameAtTime(100000)
+        }
     } catch (e: Exception) {
         e.printStackTrace()
         null
     } finally {
         retriever.release()
     }
-}
-
-private fun MediaMetadataRetriever.dataSource(source: String) {
-    if (source.isValidUrl()) setDataSource(source, HashMap())
-    else setDataSource(source)
 }
 
 suspend fun getUrlContentType(url: String) = withContext(IO) {
@@ -111,16 +90,28 @@ suspend fun getUrlContentType(url: String) = withContext(IO) {
     }
 }
 
-fun getLocalContentType(path: String) = if (path.endsWith(".jpg")) "image/*" else "video/*"
+fun getTotalVideoDuration(file: String): String? {
+    val retriever = MediaMetadataRetriever()
+    return try {
+        with(retriever) {
+            setDataSource(file)
+            val duration = extractMetadata(METADATA_KEY_DURATION)?.toLong() ?: 0
+            val hours = duration / 1000 / 3600
+            val minutes = (duration / 1000 % 3600) / 60
+            val seconds = duration / 1000 % 60
 
-fun Long.toCurrentDate(): String {
-    val calendar = getInstance()
-    val dateFormat = SimpleDateFormat("MMM dd, yyyy • HH_mm_ss", getDefault())
-    calendar.timeInMillis = this
-    return dateFormat.format(calendar.time)
+            if (hours > 0) String.format(getDefault(), "%02d:%02d:%02d", hours, minutes, seconds)
+            else String.format(getDefault(), "%02d:%02d", minutes, seconds)
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    } finally {
+        retriever.release()
+    }
 }
 
-fun String.replaceTimeFormat() = replace("_", ":")
+fun getLocalContentType(path: String) = if (path.isVideo()) "video/mp4" else "image/jpg"
 
 fun getMeverFolder() = File(getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS), "MEVER")
 
@@ -150,6 +141,15 @@ fun shareContent(context: Context, authority: String, path: String) {
     }
 }
 
+fun getNetworkStatus(
+    isNetworkAvailable: Status,
+    onNetworkAvailable: () -> Unit,
+    onNetworkUnavailable: () -> Unit
+) = when (isNetworkAvailable) {
+    Available -> onNetworkAvailable()
+    else -> onNetworkUnavailable()
+}
+
 fun Long.toTimeFormat(): String {
     val seconds = this / 1000
     val minutes = seconds / 60
@@ -160,14 +160,37 @@ fun Long.toTimeFormat(): String {
     }
 }
 
-fun getNetworkStatus(
-    isNetworkAvailable: Status,
-    onNetworkAvailable: () -> Unit,
-    onNetworkUnavailable: () -> Unit
-) = when (isNetworkAvailable) {
-    Available -> onNetworkAvailable()
-    else -> onNetworkUnavailable()
+fun String.getPlatformType(): PlatformType {
+    val listFbUrl = listOf("facebook.com", "fb.com", "m.facebook.com", "fb.watch")
+    val listInstagramUrl = listOf("instagram.com", "instagr.am", "ig.com")
+    val listTwitterUrl = listOf("x.com", "twitter.com", "t.co", "mobile.twitter.com")
+    val listTiktokUrl = listOf("tiktok.com", "tiktokv.com", "tiktokcdn.com")
+    val listYouTubeUrl = listOf("youtube.com", "youtu.be", "m.youtube.com", "yt.com")
+
+    return when {
+        listFbUrl.any { contains(it) } -> FACEBOOK
+        listInstagramUrl.any { contains(it) } -> INSTAGRAM
+        listTwitterUrl.any { contains(it) } -> TWITTER
+        listTiktokUrl.any { contains(it) } -> TIKTOK
+        listYouTubeUrl.any { contains(it) } -> YOUTUBE
+        else -> UNKNOWN
+    }
 }
+
+fun String.isValidUrl() = WEB_URL.matcher(this).matches()
+
+fun String.isVideo() = endsWith(".mp4")
+
+fun Long.toCurrentDate(): String {
+    val calendar = getInstance()
+    val dateFormat = SimpleDateFormat("yyyy.MM.dd - HH_mm", getDefault())
+    calendar.timeInMillis = this
+    return dateFormat.format(calendar.time)
+}
+
+fun String.replaceTimeFormat() = replace("_", ".")
+
+fun String.removeExtension() = substringBeforeLast(".")
 
 fun Activity.hideStatusBar(value: Boolean) {
     val insetsController = getInsetsController(window, window.decorView)

@@ -18,6 +18,7 @@ import com.dapascript.mever.core.common.navigation.base.BaseNavigator
 import com.dapascript.mever.core.common.ui.component.MeverPhotoViewer
 import com.dapascript.mever.core.common.ui.component.MeverVideoViewer
 import com.dapascript.mever.core.common.ui.theme.MeverBlack
+import com.dapascript.mever.core.common.util.isVideo
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.feature.gallery.viewmodel.GalleryPlayerViewModel
 
@@ -44,7 +45,7 @@ internal fun GalleryContentViewerScreen(
         }
 
         with(galleryContentViewerRoute) {
-            if (fileName.endsWith(".mp4")) MeverVideoViewer(
+            if (fileName.isVideo()) MeverVideoViewer(
                 source = sourceFile,
                 fileName = fileName,
                 onClickDelete = { deleteContent(id) },

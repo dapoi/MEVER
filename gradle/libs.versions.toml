@@ -7,6 +7,7 @@ androidxNavigation = "2.8.5"
 baseJunit = "4.13.2"
 coreKtxVersion = "1.15.0"
 espressoCore = "3.6.1"
+timber = "5.0.1"
 hilt = "2.53.1"
 hiltNavigation = "1.2.0"
 junit = "1.2.1"
@@ -31,6 +32,9 @@ androidx-navigation-compose = { group = "androidx.navigation", name = "navigatio
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junit" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 junit = { group = "junit", name = "junit", version.ref = "baseJunit" }
+
+# Timber
+timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
 
 # Hilt
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }

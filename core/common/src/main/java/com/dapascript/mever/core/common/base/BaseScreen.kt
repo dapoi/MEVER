@@ -94,7 +94,7 @@ private fun BaseScreenContent(
                 .padding(horizontal = Dp24)
                 .then(if (useSystemBarsPadding) Modifier.systemBarsPadding() else Modifier)
         ) {
-            MeverTopBar(
+            if (hideTopBar.not()) MeverTopBar(
                 topBarArgs = topBarArgs,
                 useCenterTopBar = useCenterTopBar
             )

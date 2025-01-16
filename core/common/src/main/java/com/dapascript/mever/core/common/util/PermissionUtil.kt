@@ -36,5 +36,8 @@ fun isAndroidUpSideDownCake() = SDK_INT >= UPSIDE_DOWN_CAKE
 fun getDescriptionPermission(permission: String) = when (permission) {
     READ_MEDIA_IMAGES -> "We need to access your images to download the file"
     READ_MEDIA_VIDEO -> "We need to access your videos to download the file"
+    READ_MEDIA_VISUAL_USER_SELECTED -> "We need to access your visual user selected to download the file"
+    READ_EXTERNAL_STORAGE -> "We need to access your storage to read the file"
+    POST_NOTIFICATIONS -> "We need to access your notification to download the file"
     else -> "We need to access your storage to download the file"
 }

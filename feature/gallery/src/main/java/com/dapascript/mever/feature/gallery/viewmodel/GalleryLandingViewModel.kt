@@ -35,7 +35,9 @@ class GalleryLandingViewModel @Inject constructor(
 
     fun getAllDownloads() = viewModelScope.launch {
         ketch.observeDownloads().collect { downloads ->
-            downloadList = downloads.filter { it.status == SUCCESS && it.isAvailableOnLocal() }
+            downloadList = downloads.filter {
+                it.status == SUCCESS && it.isAvailableOnLocal()
+            }.sortedByDescending { it.lastModified }
         }
     }
 }

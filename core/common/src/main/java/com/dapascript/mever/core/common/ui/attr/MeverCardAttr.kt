@@ -1,10 +1,13 @@
 package com.dapascript.mever.core.common.ui.attr
 
 import androidx.compose.ui.unit.Dp
+import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardType.DOWNLOADED
 import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardType.DOWNLOADING
+import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardType.UNKNOWN
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp10
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
 import com.ketch.Status
+import com.ketch.Status.*
 
 object MeverCardAttr {
     data class MeverCardArgs(
@@ -27,6 +30,15 @@ object MeverCardAttr {
 
     enum class MeverCardType {
         DOWNLOADING,
-        DOWNLOADED
+        DOWNLOADED,
+        UNKNOWN
+    }
+
+    fun getCardType(status: Status) = when (status) {
+        QUEUED, STARTED, PAUSED, PROGRESS -> DOWNLOADING
+        SUCCESS -> DOWNLOADED
+        CANCELLED -> UNKNOWN
+        FAILED -> UNKNOWN
+        DEFAULT -> UNKNOWN
     }
 }
