@@ -207,6 +207,7 @@ fun MeverVideoViewer(
         isFullScreen = isFullScreen,
         videoTimer = videoTimer,
         totalDuration = totalDuration,
+        bufferProgress = player?.bufferedPosition?.toFloat() ?: 0f,
         onClickAny = { showController = showController.not() },
         onClickRewind = {
             player?.seekTo(player?.currentPosition?.minus(5000) ?: 0)
@@ -291,6 +292,7 @@ private fun VideoPlayerContent(
     isFullScreen: Boolean,
     videoTimer: Long,
     totalDuration: Long,
+    bufferProgress: Float,
     modifier: Modifier = Modifier,
     onClickAny: () -> Unit,
     onClickRewind: () -> Unit,
@@ -360,6 +362,7 @@ private fun VideoPlayerContent(
                 videoTimer = videoTimer,
                 totalDuration = totalDuration,
                 isFullScreen = isFullScreen,
+                bufferProgress = bufferProgress,
                 onChangeSeekbar = onChangeSeekbar,
                 onClickFullScreen = onClickFullScreen
             )
@@ -438,6 +441,7 @@ private fun VideoBottomControlSection(
     videoTimer: Long,
     totalDuration: Long,
     isFullScreen: Boolean,
+    bufferProgress: Float,
     modifier: Modifier = Modifier,
     onChangeSeekbar: (Float) -> Unit,
     onClickFullScreen: () -> Unit
@@ -463,6 +467,12 @@ private fun VideoBottomControlSection(
                 valueRange = 0f..totalDuration.toFloat(),
                 onValueChange = { onChangeSeekbar(it) },
                 track = { sliderState ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth((bufferProgress / totalDuration.toFloat()).coerceIn(0f, 1f))
+                            .height(Dp6)
+                            .background(color = MeverWhite.copy(alpha = 0.7f), shape = CircleShape)
+                    )
                     Track(
                         modifier = Modifier.height(Dp6),
                         sliderState = sliderState,
@@ -471,7 +481,7 @@ private fun VideoBottomControlSection(
                         trackInsideCornerSize = Dp0,
                         colors = colors(
                             activeTrackColor = MeverPurple,
-                            inactiveTrackColor = MeverWhite.copy(alpha = 0.5f)
+                            inactiveTrackColor = MeverWhite.copy(alpha = 0.3f)
                         )
                     )
                 },
