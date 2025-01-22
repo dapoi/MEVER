@@ -17,6 +17,7 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,7 +42,9 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp20
 import com.dapascript.mever.core.common.util.clickableSingle
+import com.dapascript.mever.core.common.util.getUrlContentType
 import com.dapascript.mever.core.common.util.isValidUrl
+import com.dapascript.mever.core.common.util.isVideo
 import com.dapascript.mever.core.model.local.ContentEntity
 
 @Composable
@@ -71,30 +74,30 @@ internal fun HandleBottomSheetDownload(
                     .padding(bottom = Dp32)
                     .clip(RoundedCornerShape(Dp12))
             )
-            if (size > 1) Text(
+            Text(
                 text = "Choose your file type",
                 style = typography.bodyBold1.copy(fontSize = Sp20),
                 color = colorScheme.onPrimary
             )
-            filter { it.url.isValidUrl() && it.quality.isNotEmpty() }.map { (url, quality) ->
-                CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = Dp16)
-                            .clip(RoundedCornerShape(Dp8))
-                            .clickableSingle { chooseQuality = url },
-                        verticalAlignment = CenterVertically,
-                        horizontalArrangement = spacedBy(Dp16)
-                    ) {
-                        MeverRadioButton(isChecked = chooseQuality == url) { chooseQuality = url }
-                        Text(
-                            text = quality,
-                            style = typography.body1,
-                            color = colorScheme.onPrimary
-                        )
+            takeIf { (all { it.quality.isEmpty() }) }?.let {
+                var contentType by remember(this) { mutableStateOf("") }
+                LaunchedEffect(Unit) {
+                    contentType = getUrlContentType(get(0).url).orEmpty().isVideo().let { isVideo ->
+                        if (isVideo) "Video" else "Image"
                     }
                 }
+                RadioButtonSection(
+                    url = get(0).url,
+                    quality = contentType,
+                    chooseQuality = chooseQuality ?: get(0).url
+                ) { chooseQuality = it }
+            }
+            filter { it.url.isValidUrl() && it.quality.isNotEmpty() }.forEach { (url, quality) ->
+                RadioButtonSection(
+                    url = url,
+                    quality = quality,
+                    chooseQuality = chooseQuality ?: get(0).url
+                ) { chooseQuality = it }
             }
             Row(
                 modifier = Modifier.height(Min),
@@ -140,5 +143,30 @@ internal fun HandleBottomSheetDownload(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun RadioButtonSection(
+    url: String,
+    quality: String,
+    chooseQuality: String,
+    onChooseQuality: (String) -> Unit
+) = CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = Dp16)
+            .clip(RoundedCornerShape(Dp8))
+            .clickableSingle { onChooseQuality(url) },
+        verticalAlignment = CenterVertically,
+        horizontalArrangement = spacedBy(Dp16)
+    ) {
+        MeverRadioButton(isChecked = chooseQuality == url) { onChooseQuality(url) }
+        Text(
+            text = quality,
+            style = typography.body1,
+            color = colorScheme.onPrimary
+        )
     }
 }
