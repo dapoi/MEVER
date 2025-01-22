@@ -51,8 +51,8 @@ import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.navigation.base.BaseNavigator
 import com.dapascript.mever.core.common.navigation.graph.GalleryNavGraph
 import com.dapascript.mever.core.common.navigation.graph.SettingNavGraph
+import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.FILLED
 import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardArgs
-import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.getCardType
 import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.ActionMenu
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
@@ -65,14 +65,12 @@ import com.dapascript.mever.core.common.ui.component.MeverTabs
 import com.dapascript.mever.core.common.ui.component.MeverTextField
 import com.dapascript.mever.core.common.ui.component.MeverTopBar
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp10
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp210
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp5
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp22
@@ -96,8 +94,8 @@ import com.dapascript.mever.feature.home.screen.component.HandleDialogError
 import com.dapascript.mever.feature.home.screen.component.HandleDialogPermission
 import com.dapascript.mever.feature.home.viewmodel.HomeLandingViewModel
 import com.ketch.DownloadModel
+import com.ketch.Status.FAILED
 import com.ketch.Status.PAUSED
-import com.ketch.Status.SUCCESS
 import kotlinx.coroutines.launch
 
 @Composable
@@ -126,10 +124,8 @@ internal fun HomeLandingScreen(
     }
 
     BaseScreen(
-        hideTopBar = true,
-        allowScreenOverlap = true,
-        statusBarColor = colorScheme.background,
-        navigationBarColor = colorScheme.background
+        hideDefaultTopBar = true,
+        allowScreenOverlap = true
     ) {
         LaunchedEffect(Unit) { getObservableKetch() }
 
@@ -281,22 +277,13 @@ private fun HomeScreenContent(
                                 downloadList = downloadList,
                                 isLoading = isLoading,
                                 urlSocialMediaState = urlSocialMediaState,
-                                onClickDownloading = {
-                                    if (it.status == PAUSED) ketch.resume(it.id) else ketch.pause(it.id)
-                                },
-                                onClickDelete = { showDeleteDialog = it.id },
-                                onClickShare = {
-                                    shareContent(
-                                        context = context,
-                                        authority = context.packageName,
-                                        path = getMeverFiles()?.find { file ->
-                                            file.name == it.fileName
-                                        }?.path.orEmpty()
-                                    )
-                                },
-                                onClickPlay = {
-                                    with(it) {
-                                        navigator.run {
+                                onClickCard = { model ->
+                                    with(model) {
+                                        if (progress < 100) when (status) {
+                                            FAILED -> ketch.retry(id)
+                                            PAUSED -> ketch.resume(id)
+                                            else -> ketch.pause(id)
+                                        } else navigator.run {
                                             navigate(
                                                 getNavGraph<GalleryNavGraph>().getGalleryContentViewerRoute(
                                                     id = id,
@@ -308,6 +295,16 @@ private fun HomeScreenContent(
                                             )
                                         }
                                     }
+                                },
+                                onClickDelete = { showDeleteDialog = it.id },
+                                onClickShare = {
+                                    shareContent(
+                                        context = context,
+                                        authority = context.packageName,
+                                        path = getMeverFiles()?.find { file ->
+                                            file.name == it.fileName
+                                        }?.path.orEmpty()
+                                    )
                                 },
                                 onValueChange = { urlSocialMediaState = it },
                                 onClickDownload = { if (isLoading.not()) requestStoragePermissionLauncher() },
@@ -351,10 +348,9 @@ private fun HomeVideoSection(
     isLoading: Boolean,
     urlSocialMediaState: TextFieldValue,
     modifier: Modifier = Modifier,
-    onClickDownloading: (DownloadModel) -> Unit,
+    onClickCard: (DownloadModel) -> Unit,
     onClickDelete: (DownloadModel) -> Unit,
     onClickShare: (DownloadModel) -> Unit,
-    onClickPlay: (DownloadModel) -> Unit,
     onValueChange: (TextFieldValue) -> Unit,
     onClickDownload: () -> Unit,
     onClickViewAll: () -> Unit
@@ -404,7 +400,12 @@ private fun HomeVideoSection(
             item {
                 Spacer(modifier = Modifier.size(Dp10))
                 MeverButton(
-                    enabled = urlSocialMediaState.text.trim().getPlatformType() != PlatformType.UNKNOWN,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(Dp40),
+                    title = "Download",
+                    buttonType = FILLED,
+                    isEnabled = urlSocialMediaState.text.trim().getPlatformType() != PlatformType.UNKNOWN,
                     isLoading = isLoading
                 ) { onClickDownload() }
                 Spacer(modifier = Modifier.size(Dp24))
@@ -439,10 +440,8 @@ private fun HomeVideoSection(
                 key = { it.id }
             ) {
                 MeverCard(
-                    modifier = Modifier
-                        .padding(vertical = Dp12)
-                        .animateItem(),
-                    meverCardArgs = MeverCardArgs(
+                    modifier = Modifier.animateItem(),
+                    cardArgs = MeverCardArgs(
                         image = it.url,
                         tag = it.tag,
                         metaData = it.metaData,
@@ -450,15 +449,11 @@ private fun HomeVideoSection(
                         status = it.status,
                         progress = it.progress,
                         total = it.total,
-                        path = it.path,
-                        type = getCardType(it.status),
-                        iconSize = if (it.status == SUCCESS) Dp40 else Dp24,
-                        iconPadding = if (it.status == SUCCESS) Dp8 else Dp5,
-                        onClickDownloading = { onClickDownloading(it) },
-                        onClickDelete = { onClickDelete(it) },
-                        onClickShare = { onClickShare(it) },
-                        onClickPlay = { onClickPlay(it) }
-                    )
+                        path = it.path
+                    ),
+                    onClickCard = { onClickCard(it) },
+                    onClickShare = { onClickShare(it) },
+                    onClickDelete = { onClickDelete(it) }
                 )
             } else item {
                 MeverEmptyItem(

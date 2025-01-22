@@ -2,6 +2,7 @@ package com.dapascript.mever.core.common.util
 
 import android.app.Activity
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory.decodeStream
 import android.media.MediaMetadataRetriever
 import android.media.MediaMetadataRetriever.METADATA_KEY_DURATION
@@ -59,7 +60,7 @@ suspend fun getPhotoThumbnail(url: String) = withContext(IO) {
     }
 }
 
-suspend fun getVideoThumbnail(source: String) = withContext(IO) {
+suspend fun getVideoThumbnail(source: String): Bitmap? = withContext(IO) {
     val retriever = MediaMetadataRetriever()
     try {
         with(retriever) {

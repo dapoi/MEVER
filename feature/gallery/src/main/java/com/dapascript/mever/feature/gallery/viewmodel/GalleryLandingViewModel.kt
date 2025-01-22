@@ -16,14 +16,15 @@ import javax.inject.Inject
 
 @HiltViewModel
 class GalleryLandingViewModel @Inject constructor(
-    private val ketch: Ketch
+    val ketch: Ketch
 ) : BaseViewModel() {
-
-    var downloadList by mutableStateOf(listOf<DownloadModel>())
-        internal set
 
     var selectedFilter by mutableStateOf(UNKNOWN)
         internal set
+    var platformTypes by mutableStateOf(listOf(UNKNOWN))
+        internal set
+    var downloadList by mutableStateOf<List<DownloadModel>?>(null)
+        private set
 
     fun deleteDownload(id: Int) = viewModelScope.launch {
         ketch.clearDb(id)
@@ -35,9 +36,9 @@ class GalleryLandingViewModel @Inject constructor(
 
     fun getAllDownloads() = viewModelScope.launch {
         ketch.observeDownloads().collect { downloads ->
-            downloadList = downloads.filter {
-                it.status == SUCCESS && it.isAvailableOnLocal()
-            }.sortedByDescending { it.lastModified }
+            downloadList = downloads
+                .sortedByDescending { it.lastModified }
+                .onEach { if (it.status == SUCCESS && it.isAvailableOnLocal().not()) ketch.clearDb(it.id) }
         }
     }
 }

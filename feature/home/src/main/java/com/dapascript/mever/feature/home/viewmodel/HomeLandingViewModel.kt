@@ -16,6 +16,7 @@ import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver
 import com.dapascript.mever.core.common.util.getMeverFolder
 import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.getUrlContentType
+import com.dapascript.mever.core.common.util.isAvailableOnLocal
 import com.dapascript.mever.core.common.util.state.ApiState.Error
 import com.dapascript.mever.core.common.util.state.UiState
 import com.dapascript.mever.core.common.util.state.UiState.StateInitial
@@ -27,12 +28,12 @@ import com.ketch.Ketch
 import com.ketch.Status.PAUSED
 import com.ketch.Status.PROGRESS
 import com.ketch.Status.STARTED
+import com.ketch.Status.SUCCESS
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.lang.System.currentTimeMillis
 import javax.inject.Inject
 
@@ -77,9 +78,11 @@ class HomeLandingViewModel @Inject constructor(
 
     fun getObservableKetch() = viewModelScope.launch {
         ketch.observeDownloads().collect { downloads ->
-            Timber.tag("Ketch").d("Downloads: $downloads")
-            showBadge = downloads.any { it.status in listOf(STARTED, PAUSED, PROGRESS) }
-            downloadList = downloads.sortedByDescending { it.lastModified }
+            downloadList = downloads
+                .filter { it.isAvailableOnLocal() || it.status != SUCCESS }
+                .sortedByDescending { it.lastModified }
+                .also { showBadge = it.any { file -> file.status in listOf(STARTED, PAUSED, PROGRESS) } }
+                .onEach { if (it.status == SUCCESS && it.isAvailableOnLocal().not()) ketch.clearDb(it.id) }
         }
     }
 

@@ -62,27 +62,27 @@ internal fun NotificationLandingScreen(
                     items = downloadList,
                     key = { it.id }
                 ) {
-                    MeverCard(
-                        modifier = Modifier
-                            .padding(vertical = Dp12)
-                            .animateItem(),
-                        meverCardArgs = MeverCardArgs(
-                            image = it.url,
-                            tag = it.tag,
-                            metaData = it.metaData,
-                            fileName = it.fileName,
-                            status = it.status,
-                            progress = it.progress,
-                            total = it.total,
-                            path = it.path,
-                            onClickDownloading = {
-                                stateResumeOrPauseDownload(
-                                    isPause = it.status == PAUSED,
-                                    id = it.id
-                                )
-                            }
-                        )
-                    )
+//                    MeverCard(
+//                        modifier = Modifier
+//                            .padding(vertical = Dp12)
+//                            .animateItem(),
+//                        meverCardArgs = MeverCardArgs(
+//                            image = it.url,
+//                            tag = it.tag,
+//                            metaData = it.metaData,
+//                            fileName = it.fileName,
+//                            status = it.status,
+//                            progress = it.progress,
+//                            total = it.total,
+//                            path = it.path,
+//                            onClickDownloading = {
+//                                stateResumeOrPauseDownload(
+//                                    isPause = it.status == PAUSED,
+//                                    id = it.id
+//                                )
+//                            }
+//                        )
+//                    )
                 }
             }
         } else MeverEmptyItem(

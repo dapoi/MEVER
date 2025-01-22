@@ -109,7 +109,7 @@ fun MeverVideoViewer(
 ) {
     val context = LocalContext.current
     val activity = LocalActivity.current
-    val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
+    val lifecycleOwner by rememberUpdatedState(LocalLifecycleOwner.current)
     var player by remember { mutableStateOf<Player?>(null) }
     var isFullScreen by remember { mutableStateOf(false) }
     var isVideoPlaying by remember { mutableStateOf(player?.isPlaying) }
@@ -188,10 +188,10 @@ fun MeverVideoViewer(
             }
         }
 
-        lifecycleOwner.value.lifecycle.addObserver(observer)
+        lifecycleOwner.lifecycle.addObserver(observer)
 
         onDispose {
-            lifecycleOwner.value.lifecycle.removeObserver(observer)
+            lifecycleOwner.lifecycle.removeObserver(observer)
             player?.removeListener(listener)
             player?.release()
         }

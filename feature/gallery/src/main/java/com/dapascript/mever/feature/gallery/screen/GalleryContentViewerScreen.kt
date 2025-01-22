@@ -32,7 +32,7 @@ internal fun GalleryContentViewerScreen(
     val context = LocalContext.current
 
     BaseScreen(
-        hideTopBar = true,
+        hideDefaultTopBar = true,
         lockOrientation = false,
         useSystemBarsPadding = false,
         allowScreenOverlap = true,

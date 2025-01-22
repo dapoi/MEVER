@@ -1,10 +1,11 @@
 package com.dapascript.mever.core.common.ui.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,16 +18,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.StrokeCap.Companion.Round
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType
+import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.FILLED
+import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.OUTLINED
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp15
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp20
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp30
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp44
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.util.clickableSingle
 
 @Composable
 fun MeverButton(
-    enabled: Boolean,
+    title: String,
+    buttonType: MeverButtonType,
+    isEnabled: Boolean = true,
     isLoading: Boolean = false,
     shape: RoundedCornerShape = RoundedCornerShape(Dp30),
     modifier: Modifier = Modifier,
@@ -36,11 +44,10 @@ fun MeverButton(
 
     Box(
         modifier = modifier
-            .background(color = if (enabled) MeverPurple else colorScheme.onSurface, shape = shape)
-            .fillMaxWidth()
-            .height(Dp44)
+            .background(color = getButtonColor(isEnabled, buttonType), shape = shape)
+            .setBorder(isTypeOutlined = buttonType == OUTLINED, shape = shape)
             .clip(shape)
-            .clickableSingle(enabled = enabled) {
+            .clickableSingle(enabled = isEnabled) {
                 onClick()
                 keyboardController?.hide()
             },
@@ -59,9 +66,26 @@ fun MeverButton(
                 color = colorScheme.onSecondary
             )
         } else Text(
-            text = "Download",
+            text = title,
             style = typography.body2,
-            color = colorScheme.onSecondary
+            color = if (buttonType == FILLED) colorScheme.onSecondary else MeverPurple,
+            modifier = Modifier.padding(horizontal = Dp15, vertical = Dp4)
         )
     }
 }
+
+@Composable
+private fun getButtonColor(
+    isEnabled: Boolean,
+    buttonType: MeverButtonType
+) = when (buttonType) {
+    FILLED -> if (isEnabled) MeverPurple else colorScheme.onSurface
+    OUTLINED -> colorScheme.background
+}
+
+@Composable
+private fun Modifier.setBorder(
+    isTypeOutlined: Boolean,
+    shape: RoundedCornerShape
+) = if (isTypeOutlined) border(width = Dp1, color = MeverPurple, shape = shape)
+else this

@@ -29,7 +29,7 @@ fun BaseScreen(
     useCenterTopBar: Boolean = true,
     useSystemBarsPadding: Boolean = true,
     allowScreenOverlap: Boolean = false,
-    hideTopBar: Boolean = false,
+    hideDefaultTopBar: Boolean = false,
     lockOrientation: Boolean = true,
     modifier: Modifier = Modifier,
     statusBarColor: Color? = null,
@@ -62,7 +62,7 @@ fun BaseScreen(
             useCenterTopBar = useCenterTopBar,
             useSystemBarsPadding = useSystemBarsPadding,
             allowScreenOverlap = allowScreenOverlap,
-            hideTopBar = hideTopBar,
+            hideDefaultTopBar = hideDefaultTopBar,
             modifier = modifier,
             content = content
         )
@@ -75,14 +75,14 @@ private fun BaseScreenContent(
     useCenterTopBar: Boolean,
     useSystemBarsPadding: Boolean,
     allowScreenOverlap: Boolean,
-    hideTopBar: Boolean,
+    hideDefaultTopBar: Boolean,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
     if (allowScreenOverlap) {
         Box(modifier = modifier.then(if (useSystemBarsPadding) Modifier.systemBarsPadding() else Modifier)) {
             content()
-            if (hideTopBar.not()) MeverTopBar(
+            if (hideDefaultTopBar.not()) MeverTopBar(
                 topBarArgs = topBarArgs,
                 useCenterTopBar = useCenterTopBar,
                 modifier = Modifier.padding(horizontal = Dp24)
@@ -94,7 +94,7 @@ private fun BaseScreenContent(
                 .padding(horizontal = Dp24)
                 .then(if (useSystemBarsPadding) Modifier.systemBarsPadding() else Modifier)
         ) {
-            if (hideTopBar.not()) MeverTopBar(
+            if (hideDefaultTopBar.not()) MeverTopBar(
                 topBarArgs = topBarArgs,
                 useCenterTopBar = useCenterTopBar
             )

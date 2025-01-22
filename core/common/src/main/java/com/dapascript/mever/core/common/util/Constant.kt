@@ -20,7 +20,7 @@ object Constant {
         const val TWITTER = "Twitter"
         const val TIKTOK = "TikTok"
         const val YOUTUBE = "YouTube"
-        const val UNKNOWN = "Unknown"
+        const val UNKNOWN = "All"
     }
 
     enum class PlatformType(val platformName: String) {

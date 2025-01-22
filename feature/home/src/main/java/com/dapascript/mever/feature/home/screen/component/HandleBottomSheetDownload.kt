@@ -7,11 +7,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize.Min
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
@@ -70,20 +68,20 @@ internal fun HandleBottomSheetDownload(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(Dp130)
+                    .padding(bottom = Dp32)
                     .clip(RoundedCornerShape(Dp12))
             )
+            if (size > 1) Text(
+                text = "Choose your file type",
+                style = typography.bodyBold1.copy(fontSize = Sp20),
+                color = colorScheme.onPrimary
+            )
             filter { it.url.isValidUrl() && it.quality.isNotEmpty() }.map { (url, quality) ->
-                Spacer(modifier = Modifier.size(Dp32))
-                Text(
-                    text = "Choose your file type",
-                    style = typography.bodyBold1.copy(fontSize = Sp20),
-                    color = colorScheme.onPrimary
-                )
                 CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = Dp8)
+                            .padding(vertical = Dp16)
                             .clip(RoundedCornerShape(Dp8))
                             .clickableSingle { chooseQuality = url },
                         verticalAlignment = CenterVertically,
@@ -98,7 +96,6 @@ internal fun HandleBottomSheetDownload(
                     }
                 }
             }
-            Spacer(modifier = Modifier.size(Dp32))
             Row(
                 modifier = Modifier.height(Min),
                 verticalAlignment = CenterVertically,

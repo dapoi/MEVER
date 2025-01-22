@@ -57,7 +57,7 @@ internal fun OnboardScreen(
     BaseScreen(
         useSystemBarsPadding = false,
         allowScreenOverlap = true,
-        hideTopBar = true,
+        hideDefaultTopBar = true,
         modifier = Modifier.background(colorScheme.onPrimaryContainer)
     ) {
         val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
