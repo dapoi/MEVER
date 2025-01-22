@@ -50,7 +50,7 @@ class HomeLandingViewModel @Inject constructor(
         internal set
     var showBadge by mutableStateOf(false)
         private set
-    var downloadList by mutableStateOf<List<DownloadModel>>(emptyList())
+    var downloadList by mutableStateOf<List<DownloadModel>?>(null)
         private set
 
     private val _contentState = MutableStateFlow<UiState<List<ContentEntity>>>(StateInitial)

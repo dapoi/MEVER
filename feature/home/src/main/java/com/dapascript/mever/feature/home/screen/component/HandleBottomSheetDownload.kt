@@ -1,5 +1,6 @@
 package com.dapascript.mever.feature.home.screen.component
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Arrangement.spacedBy
@@ -79,7 +80,7 @@ internal fun HandleBottomSheetDownload(
                 style = typography.bodyBold1.copy(fontSize = Sp20),
                 color = colorScheme.onPrimary
             )
-            takeIf { (all { it.quality.isEmpty() }) }?.let {
+            AnimatedVisibility(takeIf { (all { it.quality.isEmpty() }) } != null) {
                 var contentType by remember(this) { mutableStateOf("") }
                 LaunchedEffect(Unit) {
                     contentType = getUrlContentType(get(0).url).orEmpty().isVideo().let { isVideo ->

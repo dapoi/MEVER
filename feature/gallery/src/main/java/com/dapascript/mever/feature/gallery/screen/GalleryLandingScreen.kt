@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -92,12 +93,6 @@ internal fun GalleryLandingScreen(
         allowScreenOverlap = true
     ) {
         LaunchedEffect(Unit) { getAllDownloads() }
-
-        LaunchedEffect(downloadList) {
-            platformTypes = PlatformType.entries.filter { type ->
-                downloadList?.any { it.tag == type.platformName } == true
-            }
-        }
 
         PopUpDropdownMenu(
             listDropDown = listDropDown,
@@ -197,27 +192,26 @@ private fun GalleryContentSection(
     onClickShare: (DownloadModel) -> Unit,
     onClickDelete: (DownloadModel) -> Unit,
     onChangeFilter: (PlatformType) -> Unit
+) = Column(
+    modifier = modifier
+        .fillMaxSize()
+        .padding(top = Dp64)
+        .then(Modifier.systemBarsPadding()),
+    horizontalAlignment = CenterHorizontally
 ) {
-
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(top = Dp64)
-            .then(Modifier.systemBarsPadding()),
-        horizontalAlignment = CenterHorizontally
-    ) {
+    downloadList?.let { files ->
         AnimatedContent(
-            targetState = downloadList.isNullOrEmpty(),
+            targetState = files.isNotEmpty(),
             label = "Contents"
-        ) { isEmpty ->
-            if (isEmpty.not()) {
+        ) { isNotEmpty ->
+            if (isNotEmpty) {
                 CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
                         contentPadding = PaddingValues(bottom = Dp48)
                     ) {
-                        item {
-                            if (platformTypes.size > 1) Row(
+                        if (platformTypes.size > 1) item {
+                            Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .horizontalScroll(rememberScrollState())
@@ -227,18 +221,20 @@ private fun GalleryContentSection(
                             ) {
                                 MeverButton(
                                     title = "All",
+                                    shape = RoundedCornerShape(Dp64),
                                     buttonType = if (selectedFilter == UNKNOWN) FILLED else OUTLINED,
                                 ) { onClickFilter(UNKNOWN) }
                                 platformTypes.map { type ->
                                     MeverButton(
                                         title = type.platformName,
+                                        shape = RoundedCornerShape(Dp64),
                                         buttonType = if (selectedFilter == type) FILLED else OUTLINED,
                                     ) { onClickFilter(type) }
                                 }
                             }
                         }
                         items(
-                            items = downloadList.orEmpty(),
+                            items = downloadList,
                             key = { it.id }
                         ) {
                             MeverCard(
@@ -268,11 +264,11 @@ private fun GalleryContentSection(
                 description = "Looks like there’s nothing here... Download something to get content!"
             )
         }
+    }
 
-        downloadList?.let {
-            LaunchedEffect(selectedFilter, downloadList.isEmpty()) {
-                if (selectedFilter != UNKNOWN && downloadList.isEmpty()) onChangeFilter(UNKNOWN)
-            }
+    downloadList?.let {
+        LaunchedEffect(selectedFilter, downloadList.isEmpty()) {
+            if (selectedFilter != UNKNOWN && downloadList.isEmpty()) onChangeFilter(UNKNOWN)
         }
     }
 }

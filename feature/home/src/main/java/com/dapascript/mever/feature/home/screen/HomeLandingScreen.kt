@@ -344,9 +344,9 @@ private fun HomeScreenContent(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun HomeVideoSection(
-    downloadList: List<DownloadModel>,
     isLoading: Boolean,
     urlSocialMediaState: TextFieldValue,
+    downloadList: List<DownloadModel>?,
     modifier: Modifier = Modifier,
     onClickCard: (DownloadModel) -> Unit,
     onClickDelete: (DownloadModel) -> Unit,
@@ -424,7 +424,7 @@ private fun HomeVideoSection(
                         style = typography.bodyBold1,
                         color = colorScheme.onPrimary
                     )
-                    if (downloadList.isNotEmpty()) Text(
+                    if (downloadList.isNullOrEmpty().not()) Text(
                         text = "View All",
                         style = typography.body2,
                         color = colorScheme.primary,
@@ -435,32 +435,34 @@ private fun HomeVideoSection(
                     )
                 }
             }
-            if (downloadList.isNotEmpty()) items(
-                items = downloadList.take(5),
-                key = { it.id }
-            ) {
-                MeverCard(
-                    modifier = Modifier.animateItem(),
-                    cardArgs = MeverCardArgs(
-                        image = it.url,
-                        tag = it.tag,
-                        metaData = it.metaData,
-                        fileName = it.fileName,
-                        status = it.status,
-                        progress = it.progress,
-                        total = it.total,
-                        path = it.path
-                    ),
-                    onClickCard = { onClickCard(it) },
-                    onClickShare = { onClickShare(it) },
-                    onClickDelete = { onClickDelete(it) }
-                )
-            } else item {
-                MeverEmptyItem(
-                    image = R.drawable.ic_gallery_empty,
-                    size = Dp210,
-                    description = "Looks like there’s nothing here... Download something to get content!"
-                )
+            downloadList?.let { files ->
+                if (files.isNotEmpty()) items(
+                    items = files.take(3),
+                    key = { it.id }
+                ) {
+                    MeverCard(
+                        modifier = Modifier.animateItem(),
+                        cardArgs = MeverCardArgs(
+                            image = it.url,
+                            tag = it.tag,
+                            metaData = it.metaData,
+                            fileName = it.fileName,
+                            status = it.status,
+                            progress = it.progress,
+                            total = it.total,
+                            path = it.path
+                        ),
+                        onClickCard = { onClickCard(it) },
+                        onClickShare = { onClickShare(it) },
+                        onClickDelete = { onClickDelete(it) }
+                    )
+                } else item {
+                    MeverEmptyItem(
+                        image = R.drawable.ic_gallery_empty,
+                        size = Dp210,
+                        description = "Looks like there’s nothing here... Download something to get content!"
+                    )
+                }
             }
         }
     }
