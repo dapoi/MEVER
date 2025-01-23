@@ -4,6 +4,7 @@ import com.dapascript.mever.core.model.remote.FacebookDownloaderResponse
 import com.dapascript.mever.core.model.remote.InstagramDownloaderResponse
 import com.dapascript.mever.core.model.remote.TikTokDownloaderResponse
 import com.dapascript.mever.core.model.remote.TwitterDownloaderResponse
+import com.dapascript.mever.core.model.remote.YouTubeDownloaderResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -28,4 +29,10 @@ interface ApiService {
     suspend fun getTikTokDownloader(
         @Query("url") url: String
     ): TikTokDownloaderResponse
+
+    @GET("api/downloader/ytmp4")
+    suspend fun getYoutubeDownloader(
+        @Query("url") url: String,
+        @Query("quality") quality: String = "480"
+    ): YouTubeDownloaderResponse
 }

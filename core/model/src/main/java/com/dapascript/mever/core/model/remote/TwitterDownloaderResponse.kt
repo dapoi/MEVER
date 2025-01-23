@@ -1,7 +1,13 @@
 package com.dapascript.mever.core.model.remote
 
 import com.dapascript.mever.core.model.local.ContentEntity
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonDeserializationContext
+import com.google.gson.JsonDeserializer
+import com.google.gson.JsonElement
 import com.google.gson.annotations.SerializedName
+import com.google.gson.reflect.TypeToken
+import java.lang.reflect.Type
 
 data class TwitterDownloaderResponse(
     @SerializedName("media") val media: List<Any>
@@ -11,19 +17,66 @@ data class TwitterDownloaderResponse(
         @SerializedName("url") val url: String? = null
     )
 
-    fun mapToEntity() = media.mapNotNull {
-        when (it) {
-            is DataVideo -> ContentEntity(
-                url = it.url.orEmpty(),
-                quality = it.quality.orEmpty()
+    fun mapToEntity(): List<ContentEntity> {
+        val gson = GsonBuilder()
+            .registerTypeAdapter(
+                object : TypeToken<List<Any>>() {}.type,
+                MediaDeserializer()
             )
+            .create()
+        val mediaList = gson.toJsonTree(media).asJsonArray
+        return mediaList.map { element ->
+            when {
+                element.isJsonObject -> {
+                    val dataVideo = gson.fromJson(element, DataVideo::class.java)
+                    ContentEntity(
+                        url = dataVideo.url.orEmpty(),
+                        quality = dataVideo.quality.orEmpty(),
+                        thumbnail = ""
+                    )
+                }
 
-            is String -> ContentEntity(
-                url = it,
-                quality = ""
-            )
+                element.isJsonPrimitive -> {
+                    ContentEntity(
+                        url = element.asString,
+                        quality = "",
+                        thumbnail = ""
+                    )
+                }
 
-            else -> null
+                else -> {
+                    ContentEntity(
+                        url = "",
+                        quality = "",
+                        thumbnail = ""
+                    )
+                }
+            }
         }
+    }
+}
+
+private class MediaDeserializer : JsonDeserializer<List<Any>> {
+    override fun deserialize(
+        json: JsonElement,
+        typeOfT: Type,
+        context: JsonDeserializationContext
+    ): List<Any> {
+        val mediaList = mutableListOf<Any>()
+        if (json.isJsonArray) {
+            json.asJsonArray.forEach { element ->
+                mediaList.add(
+                    if (element.isJsonObject) {
+                        context.deserialize<TwitterDownloaderResponse.DataVideo>(
+                            element,
+                            TwitterDownloaderResponse.DataVideo::class.java
+                        )
+                    } else {
+                        element.asString
+                    }
+                )
+            }
+        }
+        return mediaList
     }
 }

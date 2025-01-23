@@ -27,4 +27,9 @@ class MeverRepositoryImpl @Inject constructor(
         fetchApi = { apiService.getTikTokDownloader(url) },
         transformData = { it.mapToEntity() }
     )
+
+    override fun getYoutubeDownloader(url: String) = collectApiResult(
+        fetchApi = { apiService.getYoutubeDownloader(url) },
+        transformData = { it.mapToEntity() }
+    )
 }

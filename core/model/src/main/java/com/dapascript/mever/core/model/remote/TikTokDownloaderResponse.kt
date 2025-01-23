@@ -10,14 +10,16 @@ data class TikTokDownloaderResponse(
         @SerializedName("data") val subData: SubDataVideo
     ) {
         data class SubDataVideo(
-            @SerializedName("play") val player: String
+            @SerializedName("play") val player: String? = null,
+            @SerializedName("cover") val cover: String? = null
         )
     }
 
     fun mapToEntity() = listOf(
         ContentEntity(
-            url = data.subData.player,
-            quality = ""
+            url = data.subData.player.orEmpty(),
+            quality = "",
+            thumbnail = data.subData.cover.orEmpty()
         )
     )
 }
