@@ -12,9 +12,7 @@ import androidx.compose.ui.Modifier
 import com.dapascript.mever.core.common.navigation.MeverNavGraphs
 import com.dapascript.mever.core.common.ui.theme.MeverTheme
 import com.dapascript.mever.core.common.util.LocalActivity
-import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver
 import com.dapascript.mever.navigation.MeverNavHost
-import com.ketch.Ketch
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -23,12 +21,6 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var meverNavGraphs: MeverNavGraphs
-
-    @Inject
-    lateinit var connectivityObserver: ConnectivityObserver
-
-    @Inject
-    lateinit var ketch: Ketch
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
