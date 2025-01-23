@@ -68,7 +68,6 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp10
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp210
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
@@ -415,7 +414,7 @@ private fun HomeVideoSection(
                     modifier = Modifier
                         .background(color = colorScheme.background)
                         .fillMaxWidth()
-                        .padding(vertical = Dp16),
+                        .padding(top = Dp16),
                     verticalAlignment = CenterVertically,
                     horizontalArrangement = SpaceBetween
                 ) {
@@ -429,7 +428,7 @@ private fun HomeVideoSection(
                         style = typography.body2,
                         color = colorScheme.primary,
                         modifier = Modifier
-                            .padding(Dp4)
+                            .animateItem()
                             .clip(RoundedCornerShape(Dp8))
                             .clickableSingle { onClickViewAll() }
                     )
@@ -437,7 +436,7 @@ private fun HomeVideoSection(
             }
             downloadList?.let { files ->
                 if (files.isNotEmpty()) items(
-                    items = files.take(3),
+                    items = files.take(5),
                     key = { it.id }
                 ) {
                     MeverCard(

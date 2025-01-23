@@ -76,7 +76,7 @@ fun MeverCard(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = Dp16)
+            .padding(vertical = Dp24)
     ) {
         val context = LocalContext.current
         val animatedProgress by animateFloatAsState(
