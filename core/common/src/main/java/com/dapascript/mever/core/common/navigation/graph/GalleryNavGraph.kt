@@ -8,7 +8,7 @@ object GalleryNavGraphRoute
 
 abstract class GalleryNavGraph : BaseNavGraph() {
     abstract fun getGalleryLandingRoute(): Any
-    abstract fun getGalleryContentViewerRoute(
+    abstract fun getGalleryContentDetailRoute(
         id: Int,
         sourceFile: String,
         fileName: String

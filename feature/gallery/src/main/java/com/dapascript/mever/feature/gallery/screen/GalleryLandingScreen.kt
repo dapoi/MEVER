@@ -61,7 +61,7 @@ import com.dapascript.mever.core.common.util.isAvailableOnLocal
 import com.dapascript.mever.core.common.util.replaceTimeFormat
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.feature.gallery.R
-import com.dapascript.mever.feature.gallery.navigation.route.GalleryContentViewerRoute
+import com.dapascript.mever.feature.gallery.navigation.route.GalleryContentDetailRoute
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.DELETE_ALL
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.MORE
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.listDropDown
@@ -117,7 +117,7 @@ internal fun GalleryLandingScreen(
                         com.ketch.Status.PAUSED -> ketch.resume(id)
                         else -> ketch.pause(id)
                     } else navigator.navigate(
-                        GalleryContentViewerRoute(
+                        GalleryContentDetailRoute(
                             id = id,
                             sourceFile = getMeverFiles()?.find { file ->
                                 file.name == fileName
@@ -242,14 +242,14 @@ private fun GalleryContentSection(
                                     .padding(horizontal = Dp24)
                                     .animateItem(),
                                 cardArgs = MeverCardArgs(
-                                    image = it.url,
+                                    source = it.url,
                                     tag = it.tag,
-                                    metaData = it.metaData,
                                     fileName = it.fileName,
                                     status = it.status,
                                     progress = it.progress,
                                     total = it.total,
-                                    path = it.path
+                                    path = it.path,
+                                    urlThumbnail = it.metaData
                                 ),
                                 onClickCard = { onClickCard(it) },
                                 onClickShare = { onClickShare(it) },

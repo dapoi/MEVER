@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -89,6 +90,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverBlack
 import com.dapascript.mever.core.common.ui.theme.MeverDark
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
+import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.clickableSingle
@@ -99,7 +101,7 @@ import kotlinx.coroutines.delay
 @SuppressLint("SourceLockedOrientationActivity")
 @OptIn(UnstableApi::class)
 @Composable
-fun MeverVideoViewer(
+fun MeverVideoPlayer(
     source: String,
     fileName: String,
     modifier: Modifier = Modifier,
@@ -140,10 +142,10 @@ fun MeverVideoViewer(
         }
     }
 
-    LaunchedEffect(videoTimer) {
-        while (videoTimer < totalDuration) {
-            delay(100)
+    LaunchedEffect(player) {
+        while (true) {
             videoTimer = player?.currentPosition ?: 0
+            delay(200L)
         }
     }
 
@@ -152,7 +154,6 @@ fun MeverVideoViewer(
             override fun onEvents(player: Player, events: Player.Events) {
                 super.onEvents(player, events)
                 isVideoPlaying = player.isPlaying
-                videoTimer = player.currentPosition
                 totalDuration = player.duration
                 playbackState = player.playbackState
             }
@@ -197,7 +198,7 @@ fun MeverVideoViewer(
         }
     }
 
-    VideoPlayerContent(
+    VideoPlayer(
         modifier = modifier.fillMaxSize(),
         player = player ?: return,
         isVideoBuffering = isVideoBuffering,
@@ -283,7 +284,7 @@ fun MeverVideoViewer(
 }
 
 @Composable
-private fun VideoPlayerContent(
+private fun VideoPlayer(
     player: Player,
     isVideoBuffering: Boolean,
     title: String,
@@ -328,7 +329,9 @@ private fun VideoPlayerContent(
     ) {
         Box(modifier = modifier.background(MeverBlack.copy(alpha = 0.7f))) {
             MeverTopBar(
-                modifier = Modifier.padding(horizontal = Dp24),
+                modifier = Modifier
+                    .padding(horizontal = Dp24)
+                    .systemBarsPadding(),
                 topBarArgs = TopBarArgs(
                     actionMenus = listOf(
                         ActionMenu(
@@ -338,7 +341,7 @@ private fun VideoPlayerContent(
                         )
                     ),
                     screenName = title,
-                    topBarColor = MeverBlack,
+                    topBarColor = MeverTransparent,
                     titleColor = MeverWhite,
                     iconBackColor = MeverWhite,
                     actionMenusColor = MeverWhite,

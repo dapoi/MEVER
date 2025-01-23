@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -21,6 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.core.view.WindowCompat.getInsetsController
 import androidx.core.view.WindowInsetsCompat.Type.systemBars
@@ -34,9 +36,9 @@ import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.ActionMenu
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
-import com.dapascript.mever.core.common.ui.theme.MeverBlack
 import com.dapascript.mever.core.common.ui.theme.MeverDark
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
+import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.hideStatusBar
@@ -74,14 +76,16 @@ fun MeverPhotoViewer(
     }
 
     Box(modifier = modifier.fillMaxSize()) {
-        PhotoInteractable(source, isPhotoTouched) { isPhotoTouched = it }
+        PhotoViewer(source) { isPhotoTouched = it }
         AnimatedVisibility(
             visible = isPhotoTouched.not(),
             enter = fadeIn(),
             exit = fadeOut()
         ) {
             MeverTopBar(
-                modifier = Modifier.padding(horizontal = Dp24),
+                modifier = Modifier
+                    .padding(horizontal = Dp24)
+                    .systemBarsPadding(),
                 topBarArgs = TopBarArgs(
                     actionMenus = listOf(
                         ActionMenu(
@@ -91,9 +95,10 @@ fun MeverPhotoViewer(
                         )
                     ),
                     screenName = fileName,
-                    topBarColor = MeverBlack,
+                    topBarColor = MeverTransparent,
                     titleColor = MeverWhite,
                     iconBackColor = MeverWhite,
+                    actionMenusColor = MeverWhite,
                     onClickBack = onClickBack
                 ),
                 useCenterTopBar = false
@@ -146,9 +151,8 @@ fun MeverPhotoViewer(
 }
 
 @Composable
-private fun PhotoInteractable(
+private fun PhotoViewer(
     image: String,
-    isPhotoTouched: Boolean,
     modifier: Modifier = Modifier,
     onPhotoTouched: (Boolean) -> Unit
 ) {
@@ -205,21 +209,26 @@ private fun PhotoInteractable(
             .pointerInput(Unit) {
                 detectTapGestures(
                     onDoubleTap = {
-                        // Reset scale and offset on double tap
                         if (scale != 1f) {
                             scale = 1f
                             offsetX = 0f
                             offsetY = 0f
-                            onPhotoTouched(false)
-                        } else {
-                            scale = 2f
-                        }
-                    },
-                    onPress = {
-                        onPhotoTouched(isPhotoTouched.not())
-                        tryAwaitRelease()
+                        } else scale = 2f
                     }
                 )
+            }
+            .pointerInput(Unit) {
+                awaitPointerEventScope {
+                    while (true) {
+                        val event = awaitPointerEvent()
+                        event.changes.forEach { pointerInputChange ->
+                            when {
+                                pointerInputChange.pressed -> onPhotoTouched(true)
+                                pointerInputChange.changedToUp() -> onPhotoTouched(false)
+                            }
+                        }
+                    }
+                }
             }
             .graphicsLayer {
                 scaleX = scale
