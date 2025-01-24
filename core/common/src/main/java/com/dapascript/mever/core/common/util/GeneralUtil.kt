@@ -83,8 +83,11 @@ suspend fun getUrlContentType(url: String) = withContext(IO) {
         .build()
 
     try {
-        val type = client.newCall(request).execute().use { response -> response.header("Content-Type") }
-        if (type == "application/octet-stream" || type == "video/mp4") ".mp4" else ".jpg"
+        val type = client.newCall(request).execute()
+        val contentDisposition = type.header("content-disposition")
+        val contentType = type.header("content-type")
+        val videoTypes = listOf("application/octet-stream", "video/mp4")
+        if (contentDisposition.orEmpty().contains(".mp4") || contentType in videoTypes) ".mp4" else ".jpg"
     } catch (e: Exception) {
         e.printStackTrace()
         null

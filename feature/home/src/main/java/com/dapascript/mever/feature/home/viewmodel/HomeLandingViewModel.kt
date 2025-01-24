@@ -27,6 +27,7 @@ import com.ketch.DownloadModel
 import com.ketch.Ketch
 import com.ketch.Status.PAUSED
 import com.ketch.Status.PROGRESS
+import com.ketch.Status.QUEUED
 import com.ketch.Status.STARTED
 import com.ketch.Status.SUCCESS
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -63,7 +64,8 @@ class HomeLandingViewModel @Inject constructor(
 
     fun downloadFile(
         url: String,
-        platformName: String
+        platformName: String,
+        thumbnail: String
     ) {
         if (meverFolder.exists().not()) meverFolder.mkdirs()
         viewModelScope.launch {
@@ -71,7 +73,8 @@ class HomeLandingViewModel @Inject constructor(
                 url = url,
                 path = meverFolder.path,
                 fileName = currentTimeMillis().toCurrentDate() + getUrlContentType(url),
-                tag = platformName
+                tag = platformName,
+                metaData = thumbnail
             )
         }
     }
@@ -81,7 +84,7 @@ class HomeLandingViewModel @Inject constructor(
             downloadList = downloads
                 .filter { it.isAvailableOnLocal() || it.status != SUCCESS }
                 .sortedByDescending { it.lastModified }
-                .also { showBadge = it.any { file -> file.status in listOf(STARTED, PAUSED, PROGRESS) } }
+                .also { showBadge = it.any { file -> file.status in listOf(QUEUED, STARTED, PAUSED, PROGRESS) } }
                 .onEach { if (it.status == SUCCESS && it.isAvailableOnLocal().not()) ketch.clearDb(it.id) }
         }
     }
@@ -91,8 +94,7 @@ class HomeLandingViewModel @Inject constructor(
         INSTAGRAM -> getInstagramDownloader(typeUrl)
         TWITTER -> getTwitterDownloader(typeUrl)
         TIKTOK -> getTikTokDownloader(typeUrl)
-        YOUTUBE -> getTikTokDownloader(typeUrl)
-        /** TODO it's temporary */
+        YOUTUBE -> getYoutubeDownloader(typeUrl)
         UNKNOWN -> flowOf(Error(Throwable("Unknown platform")))
     }
 }

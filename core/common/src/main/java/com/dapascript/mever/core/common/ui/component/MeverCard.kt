@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -26,10 +25,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter.Companion.tint
 import androidx.compose.ui.graphics.StrokeCap.Companion.Round
-import androidx.compose.ui.layout.ContentScale.Companion.Crop
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow.Companion.Ellipsis
-import coil3.compose.AsyncImage
 import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest.Builder
 import coil3.request.crossfade
@@ -92,23 +89,18 @@ fun MeverCard(
                 .clip(RoundedCornerShape(Dp8))
                 .clickableSingle { onClickCard?.invoke() }
         ) {
-            if (progress < 100) MeverThumbnail(
-                source = image,
+            if (progress < 100 && urlThumbnail.isEmpty()) MeverUrlThumbnail(
+                source = source,
                 modifier = Modifier
-                    .width(Dp88)
-                    .height(Dp86)
+                    .size(width = Dp88, height = Dp86)
                     .clip(RoundedCornerShape(Dp8))
-            ) else AsyncImage(
-                model = Builder(context)
-                    .data(filePath)
-                    .isVideoContent(filePath.isVideo())
+            ) else MeverLocalThumbnail(
+                source = Builder(context)
+                    .setThumbnail(progress, filePath, urlThumbnail)
                     .crossfade(true)
                     .build(),
-                contentScale = Crop,
-                contentDescription = "Thumbnail",
                 modifier = Modifier
-                    .width(Dp88)
-                    .height(Dp86)
+                    .size(width = Dp88, height = Dp86)
                     .clip(RoundedCornerShape(Dp8))
             )
             Column(
@@ -235,8 +227,14 @@ private fun getImagePainter(status: Status) = rememberAsyncImagePainter(
 @Composable
 private fun getStatusDownloadColor(status: Status) = if (status == FAILED) MeverRed else colorScheme.primary
 
-private fun Builder.isVideoContent(state: Boolean): Builder = apply {
-    if (state) {
+private fun Builder.setThumbnail(
+    progress: Int,
+    localPath: String,
+    urlThumbnail: String
+): Builder = apply {
+    data(if (progress < 100) urlThumbnail else localPath).takeIf {
+        progress == 100 && localPath.isVideo()
+    }?.apply {
         videoFrameMillis(1000)
         decoderFactory { result, options, _ -> VideoFrameDecoder(result.source, options) }
     }

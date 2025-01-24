@@ -146,11 +146,12 @@ internal fun HomeLandingScreen(
             listContent = contents,
             showBottomSheet = contents.isNotEmpty(),
             onClickDownload = { url ->
-                contents = emptyList()
                 downloadFile(
                     url = url,
-                    platformName = urlSocialMediaState.text.getPlatformType().platformName
+                    platformName = urlSocialMediaState.text.getPlatformType().platformName,
+                    thumbnail = contents.firstOrNull()?.thumbnail.orEmpty()
                 )
+                contents = emptyList()
                 urlSocialMediaState = urlSocialMediaState.copy(text = "")
             },
             onClickDismiss = { contents = emptyList() }
@@ -224,6 +225,7 @@ private fun HomeScreenContent(
         val scrollState = rememberScrollState()
         val scope = rememberCoroutineScope()
         var showDeleteDialog by remember { mutableStateOf<Int?>(null) }
+        var showFailedDialog by remember { mutableStateOf<Int?>(null) }
 
         Column(
             modifier = Modifier
@@ -279,12 +281,12 @@ private fun HomeScreenContent(
                                 onClickCard = { model ->
                                     with(model) {
                                         if (progress < 100) when (status) {
-                                            FAILED -> ketch.retry(id)
+                                            FAILED -> showFailedDialog = id
                                             PAUSED -> ketch.resume(id)
                                             else -> ketch.pause(id)
                                         } else navigator.run {
                                             navigate(
-                                                getNavGraph<GalleryNavGraph>().getGalleryContentViewerRoute(
+                                                getNavGraph<GalleryNavGraph>().getGalleryContentDetailRoute(
                                                     id = id,
                                                     sourceFile = getMeverFiles()?.find { file ->
                                                         file.name == fileName
@@ -321,17 +323,42 @@ private fun HomeScreenContent(
             MeverDialog(
                 showDialog = true,
                 meverDialogArgs = MeverDialogArgs(
-                    title = "Delete this file?",
+                    title = "Delete File?",
                     primaryButtonText = "Delete",
-                    onClickAction = {
+                    onClickPrimaryButton = {
                         ketch.clearDb(id)
                         showDeleteDialog = null
                     },
-                    onDismiss = { showDeleteDialog = null }
+                    onClickSecondaryButton = { showDeleteDialog = null }
                 )
             ) {
                 Text(
                     text = "File that has been deleted cannot be recovered",
+                    style = typography.body1,
+                    color = colorScheme.onPrimary
+                )
+            }
+        }
+
+        showFailedDialog?.let { id ->
+            MeverDialog(
+                showDialog = true,
+                meverDialogArgs = MeverDialogArgs(
+                    title = "Download Failed",
+                    primaryButtonText = "Delete",
+                    secondaryButtonText = "Try Again",
+                    onClickPrimaryButton = {
+                        ketch.clearDb(id)
+                        showFailedDialog = null
+                    },
+                    onClickSecondaryButton = {
+                        ketch.retry(id)
+                        showFailedDialog = null
+                    }
+                )
+            ) {
+                Text(
+                    text = "Sorry, your download has failed. What would you like to do?",
                     style = typography.body1,
                     color = colorScheme.onPrimary
                 )
@@ -442,14 +469,14 @@ private fun HomeVideoSection(
                     MeverCard(
                         modifier = Modifier.animateItem(),
                         cardArgs = MeverCardArgs(
-                            image = it.url,
+                            source = it.url,
                             tag = it.tag,
-                            metaData = it.metaData,
                             fileName = it.fileName,
                             status = it.status,
                             progress = it.progress,
                             total = it.total,
-                            path = it.path
+                            path = it.path,
+                            urlThumbnail = it.metaData
                         ),
                         onClickCard = { onClickCard(it) },
                         onClickShare = { onClickShare(it) },

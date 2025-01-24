@@ -29,11 +29,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.Dp
 import com.dapascript.mever.core.common.ui.component.MeverBottomSheet
+import com.dapascript.mever.core.common.ui.component.MeverLocalThumbnail
 import com.dapascript.mever.core.common.ui.component.MeverRadioButton
-import com.dapascript.mever.core.common.ui.component.MeverThumbnail
+import com.dapascript.mever.core.common.ui.component.MeverUrlThumbnail
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp130
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp14
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp150
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp20
@@ -56,8 +57,6 @@ internal fun HandleBottomSheetDownload(
     onClickDownload: (String) -> Unit,
     onClickDismiss: () -> Unit
 ) = with(listContent) {
-    var chooseQuality by remember(this) { mutableStateOf(firstOrNull()?.url) }
-
     MeverBottomSheet(
         showBottomSheet = showBottomSheet,
         onClickDismiss = onClickDismiss
@@ -67,11 +66,20 @@ internal fun HandleBottomSheetDownload(
                 .fillMaxWidth()
                 .padding(horizontal = Dp24)
         ) {
-            MeverThumbnail(
+            var chooseQuality by remember(this) { mutableStateOf(firstOrNull()?.url) }
+
+            if (get(0).thumbnail.isEmpty()) MeverUrlThumbnail(
                 source = size.takeIf { it > 0 }?.let { get(0).url } ?: "",
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(Dp130)
+                    .height(Dp150)
+                    .padding(bottom = Dp32)
+                    .clip(RoundedCornerShape(Dp12))
+            ) else MeverLocalThumbnail(
+                source = get(0).thumbnail,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(Dp150)
                     .padding(bottom = Dp32)
                     .clip(RoundedCornerShape(Dp12))
             )
@@ -81,11 +89,11 @@ internal fun HandleBottomSheetDownload(
                 color = colorScheme.onPrimary
             )
             AnimatedVisibility(takeIf { (all { it.quality.isEmpty() }) } != null) {
-                var contentType by remember(this) { mutableStateOf("") }
-                LaunchedEffect(Unit) {
-                    contentType = getUrlContentType(get(0).url).orEmpty().isVideo().let { isVideo ->
-                        if (isVideo) "Video" else "Image"
-                    }
+                var contentType by remember(this) { mutableStateOf("Please wait...") }
+                LaunchedEffect(get(0).url) {
+                    contentType = getUrlContentType(get(0).url)?.let { type ->
+                        if (type.isVideo()) "Video" else "Image"
+                    }.orEmpty()
                 }
                 RadioButtonSection(
                     url = get(0).url,
@@ -96,7 +104,7 @@ internal fun HandleBottomSheetDownload(
             filter { it.url.isValidUrl() && it.quality.isNotEmpty() }.forEach { (url, quality) ->
                 RadioButtonSection(
                     url = url,
-                    quality = quality,
+                    quality = "Quality $quality",
                     chooseQuality = chooseQuality ?: get(0).url
                 ) { chooseQuality = it }
             }

@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -82,7 +83,11 @@ internal fun OnboardScreen(
                 contentDescription = "Background Onboard"
             )
             DescriptionOnboardSection()
-            ButtonOnboardSection {
+            ButtonOnboardSection(
+                modifier = Modifier
+                    .padding(bottom = Dp16)
+                    .systemBarsPadding()
+            ) {
                 setIsOnboarded(true)
                 if (isAndroidTiramisuAbove()) requestNotifPermissionLauncher.launch(getNotificationPermission)
                 else navigator.navigateToHome()

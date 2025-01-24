@@ -31,8 +31,8 @@ internal fun HandleDialogError(
         meverDialogArgs = MeverDialogArgs(
             title = errorTitle,
             primaryButtonText = primaryButtonText,
-            onClickAction = onRetry,
-            onDismiss = onDismiss
+            onClickPrimaryButton = onRetry,
+            onClickSecondaryButton = onDismiss
         )
     ) {
         Image(

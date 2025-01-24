@@ -262,13 +262,13 @@ fun MeverVideoPlayer(
             primaryButtonText = "Delete",
             titleColor = MeverWhite,
             backgroundColor = MeverDark,
-            dismissColor = MeverWhite,
-            onClickAction = {
+            secondaryButtonColor = MeverWhite,
+            onClickPrimaryButton = {
                 onClickDelete()
                 onClickBack()
                 showDeleteDialog = false
             },
-            onDismiss = {
+            onClickSecondaryButton = {
                 activity.hideStatusBar(true)
                 showDeleteDialog = false
             }

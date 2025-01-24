@@ -7,15 +7,15 @@ import com.ketch.Status
 
 object MeverCardAttr {
     data class MeverCardArgs(
-        val image: String,
+        val source: String,
         val tag: String,
-        val metaData: String,
         val fileName: String,
         val status: Status,
         val progress: Int,
         val total: Long,
         val path: String,
         val iconSize: Dp = Dp24,
-        val iconPadding: Dp = Dp5
+        val iconPadding: Dp = Dp5,
+        val urlThumbnail: String = ""
     )
 }

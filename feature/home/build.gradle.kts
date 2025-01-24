@@ -10,4 +10,7 @@ android {
 
 dependencies {
     implementation(libs.ketch)
+    implementation(libs.coil)
+    implementation(libs.coil.video)
+    implementation(libs.coil.network)
 }

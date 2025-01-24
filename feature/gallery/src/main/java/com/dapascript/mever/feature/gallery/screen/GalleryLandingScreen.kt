@@ -143,11 +143,11 @@ internal fun GalleryLandingScreen(
             meverDialogArgs = MeverDialogArgs(
                 title = "Delete all files?",
                 primaryButtonText = "Delete",
-                onClickAction = {
+                onClickPrimaryButton = {
                     deleteAllDownloads()
                     showDeleteAllDialog = false
                 },
-                onDismiss = { showDeleteAllDialog = false }
+                onClickSecondaryButton = { showDeleteAllDialog = false }
             )
         ) {
             Text(
@@ -163,11 +163,11 @@ internal fun GalleryLandingScreen(
                 meverDialogArgs = MeverDialogArgs(
                     title = "Delete this file?",
                     primaryButtonText = "Delete",
-                    onClickAction = {
+                    onClickPrimaryButton = {
                         deleteDownload(id)
                         showDeleteDialog = null
                     },
-                    onDismiss = { showDeleteDialog = null }
+                    onClickSecondaryButton = { showDeleteDialog = null }
                 )
             ) {
                 Text(

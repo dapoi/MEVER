@@ -68,12 +68,12 @@ fun MeverDialog(
     if (showAnimatedDialog) {
         Dialog(
             properties = DialogProperties(),
-            onDismissRequest = onDismiss
+            onDismissRequest = onClickSecondaryButton
         ) {
             Box(
                 modifier = modifier
                     .fillMaxSize()
-                    .pointerInput(Unit) { detectTapGestures { if (hideInteractionButton) onDismiss() } },
+                    .pointerInput(Unit) { detectTapGestures { if (hideInteractionButton) onClickSecondaryButton() } },
                 contentAlignment = Center
             ) {
                 var animateIn by remember { mutableStateOf(false) }
@@ -140,15 +140,15 @@ private fun DialogContent(
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(Dp14))
-                    .clickableSingle { onDismiss() }
+                    .clickableSingle { onClickSecondaryButton() }
                     .weight(1f)
                     .padding(vertical = Dp16),
                 contentAlignment = Center
             ) {
                 Text(
-                    text = "Cancel",
+                    text = secondaryButtonText ?: "Cancel",
                     style = typography.bodyBold2,
-                    color = dismissColor ?: colorScheme.onPrimary
+                    color = secondaryButtonColor ?: colorScheme.onPrimary
                 )
             }
             Box(
@@ -163,7 +163,7 @@ private fun DialogContent(
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(Dp14))
-                    .clickableSingle { onClickAction() }
+                    .clickableSingle { onClickPrimaryButton() }
                     .weight(1f)
                     .padding(vertical = Dp16),
                 contentAlignment = Center
@@ -171,7 +171,7 @@ private fun DialogContent(
                 Text(
                     text = primaryButtonText,
                     style = typography.bodyBold2,
-                    color = colorScheme.primary
+                    color = primaryButtonColor ?: colorScheme.primary
                 )
             }
         }

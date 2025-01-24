@@ -6,10 +6,12 @@ object MeverDialogAttr {
     data class MeverDialogArgs(
         val title: String,
         val primaryButtonText: String,
+        val secondaryButtonText: String? = null,
         val titleColor: Color? = null,
         val backgroundColor: Color? = null,
-        val dismissColor: Color? = null,
-        val onClickAction: () -> Unit = {},
-        val onDismiss: () -> Unit = {}
+        val primaryButtonColor: Color? = null,
+        val secondaryButtonColor: Color? = null,
+        val onClickPrimaryButton: () -> Unit = {},
+        val onClickSecondaryButton: () -> Unit = {}
     )
 }

@@ -27,8 +27,8 @@ internal fun HandleDialogPermission(
             meverDialogArgs = MeverDialogArgs(
                 title = "Permission Required",
                 primaryButtonText = if (isPermissionsDeclined) "Go to setting" else "Allow",
-                onClickAction = if (isPermissionsDeclined) onGoToSetting else onAllow,
-                onDismiss = onDismiss
+                onClickPrimaryButton = if (isPermissionsDeclined) onGoToSetting else onAllow,
+                onClickSecondaryButton = onDismiss
             )
         ) {
             Text(
