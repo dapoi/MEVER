@@ -43,6 +43,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.MeverYellow
+import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp40
 import com.dapascript.mever.core.common.util.getNotificationPermission
 import com.dapascript.mever.core.common.util.isAndroidTiramisuAbove
@@ -110,7 +111,7 @@ private fun ButtonOnboardSection(
     content = {
         Text(
             text = "Let's Started",
-            style = typography.body0,
+            style = typography.body1.copy(fontSize = Sp18),
             color = MeverWhite
         )
         Spacer(modifier = Modifier.size(Dp16))

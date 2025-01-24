@@ -18,7 +18,6 @@ import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp20
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp24
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp28
-import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp40
 
 private val interphases = FontFamily(
@@ -37,13 +36,6 @@ private const val AVATAR_LINE_HEIGHT = 1.2
 private const val UNDERLINE_LINE_HEIGHT = 1.2
 
 data class MeverTypography(
-    val h0: TextStyle = TextStyle(
-        fontFamily = interphases,
-        fontWeight = FontWeight.ExtraBold,
-        fontSize = Sp32,
-        lineHeight = Sp32 * HEADLINE_LINE_HEIGHT,
-        lineHeightStyle = LineHeightStyle(alignment = Center, trim = None)
-    ),
     val h1: TextStyle = TextStyle(
         fontFamily = interphases,
         fontWeight = FontWeight.ExtraBold,
@@ -84,13 +76,6 @@ data class MeverTypography(
         fontWeight = FontWeight.Bold,
         fontSize = Sp12,
         lineHeight = Sp12 * HEADLINE_LINE_HEIGHT,
-        lineHeightStyle = LineHeightStyle(alignment = Center, trim = None)
-    ),
-    val body0: TextStyle = TextStyle(
-        fontFamily = interphases,
-        fontWeight = FontWeight.Normal,
-        fontSize = Sp18,
-        lineHeight = Sp18 * HEADLINE_LINE_HEIGHT,
         lineHeightStyle = LineHeightStyle(alignment = Center, trim = None)
     ),
     val body1: TextStyle = TextStyle(

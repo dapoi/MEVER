@@ -4,8 +4,10 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -22,12 +24,14 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.text.font.FontWeight.Companion.SemiBold
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.navigation.base.BaseNavigator
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
+import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.util.Constant.ScreenName.SETTING
 import com.dapascript.mever.feature.setting.viewmodel.SettingLandingViewModel
 
@@ -38,7 +42,7 @@ internal fun SettingLandingScreen(
     viewModel: SettingLandingViewModel = hiltViewModel()
 ) = with(viewModel) {
     val scrollState = rememberScrollState()
-    val isExpanded by remember { derivedStateOf { scrollState.value == 0 } }
+    val isExpanded by remember { derivedStateOf { scrollState.value <= titleHeight } }
 
     BaseScreen(
         topBarArgs = TopBarArgs(
@@ -54,8 +58,11 @@ internal fun SettingLandingScreen(
             ) {
                 Text(
                     text = SETTING,
-                    style = typography.h2.copy(fontWeight = SemiBold),
-                    color = colorScheme.onPrimary
+                    style = typography.h2.copy(fontSize = Sp32),
+                    color = colorScheme.onPrimary,
+                    modifier = Modifier
+                        .padding(PaddingValues(top = Dp16))
+                        .onGloballyPositioned { titleHeight = it.size.height }
                 )
                 Column(
                     modifier = Modifier
@@ -72,7 +79,22 @@ internal fun SettingLandingScreen(
                 ) {
                     CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
                         LazyColumn(modifier = Modifier.fillMaxSize()) {
-                            items(settingMenus) { Text(it) }
+                            settingMenus.forEach { (title, menus) ->
+                                item {
+                                    Text(
+                                        text = title,
+                                        style = typography.h3,
+                                        color = colorScheme.onPrimary
+                                    )
+                                }
+                                items(menus) { menu ->
+                                    Text(
+                                        text = menu,
+                                        style = typography.body1,
+                                        color = colorScheme.onPrimary
+                                    )
+                                }
+                            }
                         }
                     }
                 }

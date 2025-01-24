@@ -17,6 +17,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.font.FontWeight.Companion.Medium
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.component.MeverActionButton
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
@@ -83,7 +84,7 @@ object MeverTopBarAttr {
         ) {
             Text(
                 text = screenName.orEmpty(),
-                style = typography.body0
+                style = typography.h3.copy(fontWeight = Medium)
             )
         }
     }
