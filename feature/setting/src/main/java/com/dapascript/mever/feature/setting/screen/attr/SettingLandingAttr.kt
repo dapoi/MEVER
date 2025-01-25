@@ -30,7 +30,7 @@ object SettingLandingAttr {
                     leadingTitle = "Language",
                     icon = R.drawable.ic_language,
                     iconBackgroundColor = MeverLightBlue,
-                    trailingTitle = "English"
+                    trailingTitle = ""
                 ),
                 SubMenu(
                     leadingTitle = "Notification",
@@ -41,7 +41,7 @@ object SettingLandingAttr {
                     leadingTitle = "Theme",
                     icon = R.drawable.ic_theme,
                     iconBackgroundColor = MeverViolet,
-                    trailingTitle = "System"
+                    trailingTitle = ""
                 )
             )
         ),

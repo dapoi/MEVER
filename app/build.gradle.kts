@@ -35,6 +35,7 @@ dependencies {
     implementation(projects.feature.setting)
     implementation(projects.feature.gallery)
     implementation(projects.core.common)
+    implementation(projects.core.data)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)

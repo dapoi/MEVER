@@ -38,6 +38,12 @@ val DarkColorScheme = darkColorScheme(
     background = Dark.background
 )
 
+enum class ThemeType {
+    System,
+    Light,
+    Dark
+}
+
 object MeverTheme {
     val typography: MeverTypography
         @Composable
