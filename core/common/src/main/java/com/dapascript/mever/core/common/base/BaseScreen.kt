@@ -5,6 +5,7 @@ import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
@@ -85,7 +86,7 @@ private fun BaseScreenContent(
             if (hideDefaultTopBar.not()) MeverTopBar(
                 topBarArgs = topBarArgs,
                 useCenterTopBar = useCenterTopBar,
-                modifier = Modifier.padding(horizontal = Dp24)
+                modifier = Modifier.padding(PaddingValues(horizontal = Dp24))
             )
         }
     } else {

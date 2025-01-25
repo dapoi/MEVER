@@ -54,13 +54,15 @@ import com.dapascript.mever.core.common.navigation.graph.SettingNavGraph
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.FILLED
 import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardArgs
 import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
+import com.dapascript.mever.core.common.ui.attr.MeverIconAttr.getPlatformIcon
+import com.dapascript.mever.core.common.ui.attr.MeverIconAttr.getPlatformIconBackgroundColor
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.ActionMenu
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverButton
 import com.dapascript.mever.core.common.ui.component.MeverCard
 import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
-import com.dapascript.mever.core.common.ui.component.MeverPlatformIcon
+import com.dapascript.mever.core.common.ui.component.MeverIcon
 import com.dapascript.mever.core.common.ui.component.MeverTabs
 import com.dapascript.mever.core.common.ui.component.MeverTextField
 import com.dapascript.mever.core.common.ui.component.MeverTopBar
@@ -70,6 +72,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp210
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp5
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp22
@@ -408,9 +411,11 @@ private fun HomeVideoSection(
                     horizontalArrangement = SpaceBetween
                 ) {
                     PlatformType.entries.filter { it.platformName != UNKNOWN }.map {
-                        MeverPlatformIcon(
-                            platform = it.platformName,
-                            iconSize = Dp48
+                        MeverIcon(
+                            icon = getPlatformIcon(it.platformName),
+                            iconBackgroundColor = getPlatformIconBackgroundColor(it.platformName),
+                            iconSize = Dp48,
+                            iconPadding = Dp10
                         )
                     }
                 }
@@ -476,7 +481,11 @@ private fun HomeVideoSection(
                             progress = it.progress,
                             total = it.total,
                             path = it.path,
-                            urlThumbnail = it.metaData
+                            urlThumbnail = it.metaData,
+                            icon = getPlatformIcon(it.tag),
+                            iconBackgroundColor = getPlatformIconBackgroundColor(it.tag),
+                            iconSize = Dp24,
+                            iconPadding = Dp5
                         ),
                         onClickCard = { onClickCard(it) },
                         onClickShare = { onClickShare(it) },

@@ -53,6 +53,8 @@ import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.OUTLINED
 import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardArgs
 import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
+import com.dapascript.mever.core.common.ui.attr.MeverIconAttr.getPlatformIcon
+import com.dapascript.mever.core.common.ui.attr.MeverIconAttr.getPlatformIconBackgroundColor
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.ActionMenu
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverButton
@@ -64,6 +66,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp210
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp5
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
@@ -297,7 +300,11 @@ private fun GalleryContentSection(
                                                 progress = it.progress,
                                                 total = it.total,
                                                 path = it.path,
-                                                urlThumbnail = it.metaData
+                                                urlThumbnail = it.metaData,
+                                                icon = getPlatformIcon(it.tag),
+                                                iconBackgroundColor = getPlatformIconBackgroundColor(it.tag),
+                                                iconSize = Dp24,
+                                                iconPadding = Dp5
                                             ),
                                             onClickCard = { onClickCard(it) },
                                             onClickShare = { onClickShare(it) },

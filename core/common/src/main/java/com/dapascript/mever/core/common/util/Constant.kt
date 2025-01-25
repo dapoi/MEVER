@@ -4,7 +4,7 @@ object Constant {
     object ScreenName {
         const val NOTIFICATION = "Notification"
         const val GALLERY = "Gallery"
-        const val SETTING = "Setting"
+        const val SETTING = "Settings"
     }
 
     object ConnectivityName {

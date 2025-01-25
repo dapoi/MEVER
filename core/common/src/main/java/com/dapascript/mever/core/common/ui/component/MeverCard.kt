@@ -89,14 +89,14 @@ fun MeverCard(
                 .clip(RoundedCornerShape(Dp8))
                 .clickableSingle { onClickCard?.invoke() }
         ) {
-            if (progress < 100 && urlThumbnail.isEmpty()) MeverUrlThumbnail(
+            if (progress < 100 && urlThumbnail.isNullOrEmpty()) MeverUrlThumbnail(
                 source = source,
                 modifier = Modifier
                     .size(width = Dp88, height = Dp86)
                     .clip(RoundedCornerShape(Dp8))
             ) else MeverLocalThumbnail(
                 source = Builder(context)
-                    .setThumbnail(progress, filePath, urlThumbnail)
+                    .setThumbnail(progress, filePath, urlThumbnail.orEmpty())
                     .crossfade(true)
                     .build(),
                 modifier = Modifier
@@ -116,11 +116,14 @@ fun MeverCard(
                     verticalAlignment = CenterVertically,
                     horizontalArrangement = spacedBy(Dp12)
                 ) {
-                    MeverPlatformIcon(
-                        platform = tag,
-                        iconSize = iconSize,
-                        iconPadding = iconPadding
-                    )
+                    icon?.let { icon ->
+                        MeverIcon(
+                            icon = icon,
+                            iconBackgroundColor = iconBackgroundColor ?: MeverGray,
+                            iconSize = Dp24,
+                            iconPadding = Dp5
+                        )
+                    }
                     Text(
                         text = "$tag - ${fileName.replaceTimeFormat()}",
                         style = typography.bodyBold2,

@@ -1,7 +1,5 @@
 package com.dapascript.mever.core.common.ui.attr
 
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.Dp
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.theme.MeverCreamSemiPink
 import com.dapascript.mever.core.common.ui.theme.MeverLightBlue
@@ -14,21 +12,23 @@ import com.dapascript.mever.core.common.util.Constant.PlatformName.INSTAGRAM
 import com.dapascript.mever.core.common.util.Constant.PlatformName.TIKTOK
 import com.dapascript.mever.core.common.util.Constant.PlatformName.TWITTER
 import com.dapascript.mever.core.common.util.Constant.PlatformName.YOUTUBE
-import com.ketch.Status
 
-object MeverCardAttr {
-    data class MeverCardArgs(
-        val source: String,
-        val tag: String,
-        val fileName: String,
-        val status: Status,
-        val progress: Int,
-        val total: Long,
-        val path: String,
-        val icon: Int? = null,
-        val iconBackgroundColor: Color? = null,
-        val iconSize: Dp? = null,
-        val iconPadding: Dp? = null,
-        val urlThumbnail: String? = null
-    )
+object MeverIconAttr {
+    fun getPlatformIcon(platform: String) = when {
+        platform.contains(INSTAGRAM) -> R.drawable.ic_instagram
+        platform.contains(FACEBOOK) -> R.drawable.ic_facebook
+        platform.contains(TWITTER) -> R.drawable.ic_twitter
+        platform.contains(YOUTUBE) -> R.drawable.ic_youtube
+        platform.contains(TIKTOK) -> R.drawable.ic_tiktok
+        else -> -1
+    }
+
+    fun getPlatformIconBackgroundColor(platform: String) = when {
+        platform.contains(INSTAGRAM) -> MeverCreamSemiPink
+        platform.contains(FACEBOOK) -> MeverLightBlue
+        platform.contains(TWITTER) -> MeverLightPurple
+        platform.contains(YOUTUBE) -> MeverPink
+        platform.contains(TIKTOK) -> MeverLightGreen
+        else -> MeverTransparent
+    }
 }
