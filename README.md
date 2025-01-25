@@ -44,16 +44,19 @@ This app is built using modern Android development tools and libraries:
 
 ## Installation
 
-### Prerequisites
-- Android device running **Android 8.0 (Oreo)** or higher.
-- Stable internet connection.
+You can download the app via **Play Store** or **GitHub Releases**.
 
-### Steps
-1. Download the latest APK from the [Releases](https://github.com/yourusername/your-repo-name/releases) section.
-2. Enable installation from unknown sources:
+### Option 1: Download from Play Store (Soon!)
+
+### Option 2: Download from GitHub Releases (Soon!)
+[![GitHub Release](https://img.shields.io/badge/GitHub_Release-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/dapoi/mever/releases)
+
+1. Go to the [Releases](https://github.com/dapoi/mever/releases) section.
+2. Download the latest APK file.
+3. Enable installation from unknown sources:
    - Go to **Settings > Security > Unknown Sources** and enable it.
-3. Install the APK on your device.
-4. Launch the app and start downloading!
+4. Install the APK on your device.
+5. Launch the app and start downloading!
 
 ---
 
