@@ -1,4 +1,4 @@
-# MEVER (Media Saver)
+# MEVER (Media Saver) Unfinished!!
 
 ![GitHub release](https://img.shields.io/github/v/release/dapoi/mever?style=flat-square)  
 ![Android API](https://img.shields.io/badge/API-35%2B-brightgreen?style=flat-square)  
