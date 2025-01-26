@@ -2,13 +2,18 @@ package com.dapascript.mever.core.common.util
 
 import android.app.Activity
 import android.content.Context
-import android.content.res.Configuration
+import android.content.Intent
+import android.content.Intent.ACTION_SENDTO
+import android.content.Intent.EXTRA_EMAIL
+import android.content.Intent.EXTRA_SUBJECT
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory.decodeStream
 import android.media.MediaMetadataRetriever
 import android.media.MediaMetadataRetriever.METADATA_KEY_DURATION
 import android.os.Environment.DIRECTORY_DOWNLOADS
 import android.os.Environment.getExternalStoragePublicDirectory
+import android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS
+import android.provider.Settings.EXTRA_APP_PACKAGE
 import android.util.Patterns.WEB_URL
 import androidx.core.app.ShareCompat.IntentBuilder
 import androidx.core.content.FileProvider.getUriForFile
@@ -34,7 +39,6 @@ import java.io.File
 import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.Calendar.getInstance
-import java.util.Locale
 import java.util.Locale.ROOT
 import java.util.Locale.getDefault
 import kotlin.io.path.ExperimentalPathApi
@@ -142,6 +146,27 @@ fun shareContent(context: Context, authority: String, path: String) {
             .addStream(uri)
             .setChooserTitle("Share with")
             .startChooser()
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+}
+
+fun navigateToNotificationSettings(context: Context) {
+    try {
+        context.startActivity(Intent(ACTION_APP_NOTIFICATION_SETTINGS).putExtra(EXTRA_APP_PACKAGE, context.packageName))
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+}
+
+fun navigateToGmail(context: Context) {
+    try {
+        val intent = Intent(ACTION_SENDTO).apply {
+            type = "text/plain"
+            putExtra(EXTRA_EMAIL, arrayOf("luthfidaffaprabowo@gmail.com"))
+            putExtra(EXTRA_SUBJECT, "MEVER Feedback")
+        }
+        context.startActivity(intent)
     } catch (e: Exception) {
         e.printStackTrace()
     }

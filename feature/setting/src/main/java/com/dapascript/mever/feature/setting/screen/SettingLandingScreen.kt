@@ -50,6 +50,8 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
+import com.dapascript.mever.core.common.util.navigateToGmail
+import com.dapascript.mever.core.common.util.navigateToNotificationSettings
 import com.dapascript.mever.feature.setting.navigation.route.SettingLanguageRoute
 import com.dapascript.mever.feature.setting.navigation.route.SettingThemeRoute
 import com.dapascript.mever.feature.setting.viewmodel.SettingLandingViewModel
@@ -142,6 +144,7 @@ internal fun SettingLandingScreen(
                                                         if (getLanguageCode == "en") "English"
                                                         else "Bahasa Indonesia"
                                                     }
+
                                                     stringResource(R.string.theme) -> stringResource(themeType.themeResId)
                                                     else -> it
                                                 }
@@ -163,7 +166,8 @@ internal fun SettingLandingScreen(
 private fun BaseNavigator.handleClickMenu(context: Context, title: String) = with(context) {
     when (title) {
         getString(R.string.language) -> navigate(SettingLanguageRoute)
-        getString(R.string.notification) -> {}
+        getString(R.string.notification) -> navigateToNotificationSettings(context)
         getString(R.string.theme) -> navigate(SettingThemeRoute)
+        getString(R.string.contact) -> navigateToGmail(context)
     }
 }
