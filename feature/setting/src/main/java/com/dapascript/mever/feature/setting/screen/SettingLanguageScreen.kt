@@ -32,6 +32,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dapascript.mever.core.common.R
@@ -50,23 +51,22 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
-import com.dapascript.mever.core.common.ui.theme.ThemeType
 import com.dapascript.mever.core.common.util.clickableSingle
-import com.dapascript.mever.feature.setting.viewmodel.SettingThemeViewModel
+import com.dapascript.mever.feature.setting.viewmodel.SettingLanguageViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-internal fun SettingThemeScreen(
+internal fun SettingLanguageScreen(
     navigator: BaseNavigator,
-    viewModel: SettingThemeViewModel = hiltViewModel()
+    viewModel: SettingLanguageViewModel = hiltViewModel()
 ) = with(viewModel) {
-    val themeType = themeType.collectAsStateValue()
+    val getLanguageCode = getLanguageCode.collectAsStateValue()
     val scrollState = rememberScrollState()
     val isExpanded by remember { derivedStateOf { scrollState.value <= titleHeight } }
 
     BaseScreen(
         topBarArgs = TopBarArgs(
-            screenName = if (isExpanded.not()) stringResource(R.string.theme) else "",
+            screenName = if (isExpanded.not()) stringResource(R.string.language) else "",
             onClickBack = { navigator.popBackStack() }
         ),
         allowScreenOverlap = true
@@ -94,7 +94,7 @@ internal fun SettingThemeScreen(
                 ) {
                     Spacer(modifier = Modifier.height(Dp16))
                     Text(
-                        text = stringResource(R.string.theme),
+                        text = stringResource(R.string.language),
                         style = typography.h2.copy(fontSize = Sp32),
                         color = colorScheme.onPrimary,
                         modifier = Modifier.onGloballyPositioned { titleHeight = it.size.height }
@@ -112,6 +112,8 @@ internal fun SettingThemeScreen(
                                 }
                             )
                     ) {
+                        val context = LocalContext.current
+
                         Spacer(modifier = Modifier.height(Dp40))
                         Text(
                             text = stringResource(R.string.choose_preferrence),
@@ -119,22 +121,22 @@ internal fun SettingThemeScreen(
                             color = colorScheme.onPrimary
                         )
                         Spacer(modifier = Modifier.height(Dp20))
-                        ThemeType.entries.forEach { type ->
+                        languages.forEach { (language, code) ->
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(vertical = Dp12)
                                     .clip(RoundedCornerShape(Dp8))
-                                    .clickableSingle { setThemeType(type) },
+                                    .clickableSingle { saveLanguageCode(context, code) },
                                 horizontalArrangement = spacedBy(Dp16),
                                 verticalAlignment = CenterVertically
                             ) {
                                 MeverRadioButton(
-                                    isChecked = themeType == type,
-                                    onCheckedChange = { setThemeType(type) }
+                                    isChecked = getLanguageCode == code,
+                                    onCheckedChange = { saveLanguageCode(context, code) }
                                 )
                                 Text(
-                                    text = stringResource(type.themeResId),
+                                    text = language,
                                     style = typography.bodyBold1,
                                     color = colorScheme.onPrimary
                                 )

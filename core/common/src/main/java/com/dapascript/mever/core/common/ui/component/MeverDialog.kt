@@ -41,8 +41,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp14
@@ -146,7 +148,7 @@ private fun DialogContent(
                 contentAlignment = Center
             ) {
                 Text(
-                    text = secondaryButtonText ?: "Cancel",
+                    text = secondaryButtonText ?: stringResource(R.string.cancel),
                     style = typography.bodyBold2,
                     color = secondaryButtonColor ?: colorScheme.onPrimary
                 )

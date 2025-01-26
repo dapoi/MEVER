@@ -4,25 +4,26 @@ androidTools = "31.8.0"
 androidxActivity = "1.10.0"
 androidxComposeBom = "2025.01.00"
 androidxNavigation = "2.8.5"
+appCompat = "1.7.0"
 baseJunit = "4.13.2"
+chucker = "4.0.0"
+coil = "3.0.2"
 coreKtxVersion = "1.15.0"
+dataStorePreferences = "1.1.2"
 espressoCore = "3.6.1"
-timber = "5.0.1"
 hilt = "2.53.1"
 hiltNavigation = "1.2.0"
+interceptor = "4.12.0"
 junit = "1.2.1"
+ketch = "2.0.2"
 kotlin = "2.1.0"
 kotlinxSerializationJson = "1.7.1"
 ksp = "2.1.0-1.0.29"
-dataStorePreferences = "1.1.2"
-room = "2.6.1"
-retrofit = "2.11.0"
-interceptor = "4.12.0"
-ketch = "2.0.2"
-coil = "3.0.2"
-chucker = "4.0.0"
 lottie = "6.6.0"
 media3 = "1.5.1"
+retrofit = "2.11.0"
+room = "2.6.1"
+timber = "5.0.1"
 
 [libraries]
 # AndroidX & Testing
@@ -41,7 +42,7 @@ hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref
 hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
 hilt-navigation = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigation" }
 
-# Kotlin
+# Serialization
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 
 # Networking
@@ -87,6 +88,7 @@ androidx-compose-material3 = { group = "androidx.compose.material3", name = "mat
 androidx-compose-ui-util = { group = "androidx.compose.ui", name = "ui-util" }
 androidx-compose-ui-tooling-debug = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appCompat" }
 
 [plugins]
 # Project plugins

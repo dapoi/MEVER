@@ -46,6 +46,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.navigation.base.BaseNavigator
@@ -73,7 +74,6 @@ import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.util.Constant.PlatformType
 import com.dapascript.mever.core.common.util.Constant.PlatformType.UNKNOWN
-import com.dapascript.mever.core.common.util.Constant.ScreenName.GALLERY
 import com.dapascript.mever.core.common.util.getMeverFiles
 import com.dapascript.mever.core.common.util.isAvailableOnLocal
 import com.dapascript.mever.core.common.util.replaceTimeFormat
@@ -107,7 +107,7 @@ internal fun GalleryLandingScreen(
                 nameIcon = MORE,
                 onClickActionMenu = { showDropDownMenu = true }
             )) else emptyList(),
-            screenName = if (isExpanded.not()) GALLERY else "",
+            screenName = if (isExpanded.not()) stringResource(RCommon.string.gallery) else "",
             onClickBack = { navigator.popBackStack() }
         ),
         allowScreenOverlap = true
@@ -231,7 +231,7 @@ private fun GalleryContentSection(
     ) {
         Spacer(modifier = Modifier.height(Dp16))
         Text(
-            text = GALLERY,
+            text = stringResource(RCommon.string.gallery),
             style = typography.h2.copy(fontSize = Sp32),
             color = colorScheme.onPrimary,
             modifier = Modifier
@@ -316,7 +316,7 @@ private fun GalleryContentSection(
                         } else MeverEmptyItem(
                             image = RCommon.drawable.ic_gallery_empty,
                             size = Dp210,
-                            description = "Looks like there’s nothing here... Download something to get content!"
+                            description = stringResource(RCommon.string.empty_list_desc)
                         )
                     }
                 }

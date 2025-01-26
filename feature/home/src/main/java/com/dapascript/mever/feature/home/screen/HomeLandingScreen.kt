@@ -1,5 +1,6 @@
 package com.dapascript.mever.feature.home.screen
 
+import android.content.Context
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -44,6 +45,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dapascript.mever.core.common.R
@@ -78,8 +80,6 @@ import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp22
 import com.dapascript.mever.core.common.util.Constant.PlatformName.UNKNOWN
 import com.dapascript.mever.core.common.util.Constant.PlatformType
-import com.dapascript.mever.core.common.util.Constant.ScreenName.GALLERY
-import com.dapascript.mever.core.common.util.Constant.ScreenName.SETTING
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.clickableSingle
 import com.dapascript.mever.core.common.util.getMeverFiles
@@ -90,7 +90,6 @@ import com.dapascript.mever.core.common.util.goToSetting
 import com.dapascript.mever.core.common.util.replaceTimeFormat
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.model.local.ContentEntity
-import com.dapascript.mever.feature.home.screen.attr.HomeScreenAttr.listOfActionMenu
 import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetDownload
 import com.dapascript.mever.feature.home.screen.component.HandleDialogError
 import com.dapascript.mever.feature.home.screen.component.HandleDialogPermission
@@ -162,8 +161,8 @@ internal fun HomeLandingScreen(
 
         HandleDialogError(
             showDialog = showErrorNetworkModal,
-            errorTitle = "Ups, You're Offline",
-            errorDescription = "Please check your internet connection and try again.",
+            errorTitle = stringResource(R.string.no_internet_title),
+            errorDescription = stringResource(R.string.no_internet_desc),
             errorImage = R.drawable.ic_offline,
             onRetry = {
                 showErrorNetworkModal = false
@@ -178,8 +177,8 @@ internal fun HomeLandingScreen(
 
         HandleDialogError(
             showDialog = showErrorResponseModal != null,
-            errorTitle = "Something Went Wrong!",
-            errorDescription = "Your request cannot be processed at this time. Please try again later.",
+            errorTitle = stringResource(R.string.unknown_error_title),
+            errorDescription = stringResource(R.string.unknown_error_desc),
             onRetry = {
                 showErrorResponseModal = null
                 getNetworkStatus(
@@ -224,6 +223,8 @@ private fun HomeScreenContent(
 ) = with(viewModel) {
     BoxWithConstraints(modifier = modifier.fillMaxSize()) {
         val context = LocalContext.current
+        val getListActionMenu = remember { getListActionMenu(context) }
+        val tabItems = remember { tabItems(context) }
         val pagerState = rememberPagerState(pageCount = { tabItems.size })
         val scrollState = rememberScrollState()
         val scope = rememberCoroutineScope()
@@ -242,12 +243,12 @@ private fun HomeScreenContent(
                     .padding(horizontal = Dp24),
                 topBarArgs = TopBarArgs(
                     screenName = null,
-                    actionMenus = listOfActionMenu.map { (name, resource) ->
+                    actionMenus = getListActionMenu.map { (name, resource) ->
                         ActionMenu(
                             icon = resource,
                             nameIcon = name,
-                            showBadge = showBadge && name == GALLERY,
-                        ) { handleClickActionMenu(navigator)(name) }
+                            showBadge = showBadge && name == stringResource(R.string.gallery),
+                        ) { handleClickActionMenu(context, navigator)(name) }
                     }
                 )
             )
@@ -326,8 +327,8 @@ private fun HomeScreenContent(
             MeverDialog(
                 showDialog = true,
                 meverDialogArgs = MeverDialogArgs(
-                    title = "Delete File?",
-                    primaryButtonText = "Delete",
+                    title = stringResource(R.string.delete_title),
+                    primaryButtonText = stringResource(R.string.delete_button),
                     onClickPrimaryButton = {
                         ketch.clearDb(id)
                         showDeleteDialog = null
@@ -336,7 +337,7 @@ private fun HomeScreenContent(
                 )
             ) {
                 Text(
-                    text = "File that has been deleted cannot be recovered",
+                    text = stringResource(R.string.delete_desc),
                     style = typography.body1,
                     color = colorScheme.onPrimary
                 )
@@ -347,9 +348,9 @@ private fun HomeScreenContent(
             MeverDialog(
                 showDialog = true,
                 meverDialogArgs = MeverDialogArgs(
-                    title = "Download Failed",
-                    primaryButtonText = "Delete",
-                    secondaryButtonText = "Try Again",
+                    title = stringResource(R.string.download_failed_title),
+                    primaryButtonText = stringResource(R.string.delete_button),
+                    secondaryButtonText = stringResource(R.string.retry),
                     onClickPrimaryButton = {
                         ketch.clearDb(id)
                         showFailedDialog = null
@@ -361,7 +362,7 @@ private fun HomeScreenContent(
                 )
             ) {
                 Text(
-                    text = "Sorry, your download has failed. What would you like to do?",
+                    text = stringResource(R.string.download_failed_desc),
                     style = typography.body1,
                     color = colorScheme.onPrimary
                 )
@@ -391,7 +392,7 @@ private fun HomeVideoSection(
         ) {
             item {
                 Text(
-                    text = "Media Saver",
+                    text = stringResource(R.string.downloader_title),
                     style = typography.h2.copy(fontSize = Sp22),
                     color = colorScheme.onPrimary
                 )
@@ -399,7 +400,7 @@ private fun HomeVideoSection(
             item {
                 Spacer(modifier = Modifier.size(Dp16))
                 Text(
-                    text = "Easiest way to download your favorite content from the biggest social media platforms like Facebook, Instagram, TikTok, Twitter (X), and YouTube.",
+                    text = stringResource(R.string.downloader_desc),
                     style = typography.body2,
                     color = colorScheme.secondary
                 )
@@ -434,7 +435,7 @@ private fun HomeVideoSection(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(Dp40),
-                    title = "Download",
+                    title = stringResource(R.string.download),
                     buttonType = FILLED,
                     isEnabled = urlSocialMediaState.text.trim().getPlatformType() != PlatformType.UNKNOWN,
                     isLoading = isLoading
@@ -451,12 +452,12 @@ private fun HomeVideoSection(
                     horizontalArrangement = SpaceBetween
                 ) {
                     Text(
-                        text = "Recently Downloaded",
+                        text = stringResource(R.string.recently_downloaded),
                         style = typography.bodyBold1,
                         color = colorScheme.onPrimary
                     )
                     if (downloadList.isNullOrEmpty().not()) Text(
-                        text = "View All",
+                        text = stringResource(R.string.view_all),
                         style = typography.body2,
                         color = colorScheme.primary,
                         modifier = Modifier
@@ -495,7 +496,7 @@ private fun HomeVideoSection(
                     MeverEmptyItem(
                         image = R.drawable.ic_gallery_empty,
                         size = Dp210,
-                        description = "Looks like there’s nothing here... Download something to get content!"
+                        description = stringResource(R.string.empty_list_desc),
                     )
                 }
             }
@@ -503,10 +504,20 @@ private fun HomeVideoSection(
     }
 }
 
-private fun handleClickActionMenu(navigator: BaseNavigator) = { name: String ->
+private fun getListActionMenu(context: Context) = listOf(
+    context.getString(R.string.gallery) to com.dapascript.mever.feature.home.R.drawable.ic_explore,
+    context.getString(R.string.settings) to com.dapascript.mever.feature.home.R.drawable.ic_setting
+)
+
+private fun tabItems(context: Context) = listOf(
+    context.getString(R.string.downloader_tab),
+    context.getString(R.string.ai_tab)
+)
+
+private fun handleClickActionMenu(context: Context, navigator: BaseNavigator) = { name: String ->
     when (name) {
-        GALLERY -> navigator.navigateToGalleryScreen()
-        SETTING -> navigator.navigateToSettingScreen()
+        context.getString(R.string.gallery) -> navigator.navigateToGalleryScreen()
+        context.getString(R.string.settings) -> navigator.navigateToSettingScreen()
         else -> Unit
     }
 }

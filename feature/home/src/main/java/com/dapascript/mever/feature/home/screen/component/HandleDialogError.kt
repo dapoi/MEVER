@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale.Companion.Crop
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign.Companion.Center
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
@@ -22,7 +23,7 @@ internal fun HandleDialogError(
     errorTitle: String,
     errorDescription: String,
     errorImage: Int = R.drawable.ic_error_response,
-    primaryButtonText: String = "Try Again",
+    primaryButtonText: String = stringResource(R.string.retry),
     onRetry: () -> Unit,
     onDismiss: () -> Unit
 ) {

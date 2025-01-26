@@ -11,6 +11,9 @@ import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE
 import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import com.dapascript.mever.core.common.R
 
 val getStoragePermission = when {
     isAndroidUpSideDownCake() -> {
@@ -33,11 +36,12 @@ fun isAndroidTiramisuAbove() = SDK_INT >= TIRAMISU
 @ChecksSdkIntAtLeast(api = UPSIDE_DOWN_CAKE)
 fun isAndroidUpSideDownCake() = SDK_INT >= UPSIDE_DOWN_CAKE
 
+@Composable
 fun getDescriptionPermission(permission: String) = when (permission) {
-    READ_MEDIA_IMAGES -> "We need to access your images to download the file"
-    READ_MEDIA_VIDEO -> "We need to access your videos to download the file"
-    READ_MEDIA_VISUAL_USER_SELECTED -> "We need to access your visual user selected to download the file"
-    READ_EXTERNAL_STORAGE -> "We need to access your storage to read the file"
-    POST_NOTIFICATIONS -> "We need to access your notification to download the file"
-    else -> "We need to access your storage to download the file"
+    READ_MEDIA_IMAGES -> stringResource(R.string.permission_request_read_media_image)
+    READ_MEDIA_VIDEO -> stringResource(R.string.permission_request_read_media_video)
+    READ_MEDIA_VISUAL_USER_SELECTED -> stringResource(R.string.permission_request_visual_selected)
+    READ_EXTERNAL_STORAGE -> stringResource(R.string.permission_request_read_external)
+    POST_NOTIFICATIONS -> stringResource(R.string.permission_request_notification)
+    else -> stringResource(R.string.permission_request_write_external)
 }

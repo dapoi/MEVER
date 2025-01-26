@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction.Companion.Done
 import androidx.compose.ui.text.input.KeyboardType.Companion.Uri
 import androidx.compose.ui.text.input.TextFieldValue
@@ -90,7 +91,7 @@ fun MeverTextField(
             keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
             decorationBox = { innerTextField ->
                 if (webDomainValue.text.isEmpty()) Text(
-                    text = "Paste link here...",
+                    text = stringResource(R.string.paste_url),
                     color = MeverLightGray,
                     style = typography.body2.copy(color = colorScheme.onPrimary)
                 )

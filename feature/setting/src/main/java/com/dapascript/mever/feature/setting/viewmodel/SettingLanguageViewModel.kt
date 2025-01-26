@@ -1,43 +1,42 @@
 package com.dapascript.mever.feature.setting.viewmodel
 
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
-import com.dapascript.mever.core.common.ui.theme.ThemeType.System
+import com.dapascript.mever.core.common.util.LanguageManager.setLanguage
 import com.dapascript.mever.core.data.source.local.MeverDataStore
-import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.getSettingMenus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SettingLandingViewModel @Inject constructor(
-    dataStore: MeverDataStore
+class SettingLanguageViewModel @Inject constructor(
+    private val dataStore: MeverDataStore
 ) : BaseViewModel() {
-    val settingMenus by lazy { getSettingMenus() }
+    val languages by lazy {
+        listOf(
+            "English" to "en",
+            "Bahasa Indonesia" to "in"
+        )
+    }
     var titleHeight by mutableIntStateOf(0)
 
     private val _getLanguageCode = MutableStateFlow("en")
     val getLanguageCode = _getLanguageCode.asStateFlow()
 
-    private val _themeType = MutableStateFlow(System)
-    val themeType = _themeType.asStateFlow()
-
     init {
         viewModelScope.launch {
-            combine(
-                dataStore.getLanguageCode,
-                dataStore.getTheme
-            ) { language, theme ->
-                _getLanguageCode.value = language
-                _themeType.value = theme
-            }.collect()
+            dataStore.getLanguageCode.collect { _getLanguageCode.value = it }
         }
+    }
+
+    fun saveLanguageCode(context: Context, language: String) = viewModelScope.launch {
+        setLanguage(context, language)
+        dataStore.saveLanguageCode(language)
     }
 }

@@ -26,6 +26,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter.Companion.tint
 import androidx.compose.ui.graphics.StrokeCap.Companion.Round
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow.Companion.Ellipsis
 import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest.Builder
@@ -154,7 +155,7 @@ fun MeverCard(
                             verticalAlignment = Bottom
                         ) {
                             if (status == FAILED) Text(
-                                text = "Failed",
+                                text = stringResource(R.string.failed),
                                 style = typography.label2,
                                 color = MeverRed
                             ) else Text(
@@ -205,11 +206,11 @@ fun MeverCard(
                     horizontalArrangement = spacedBy(Dp8)
                 ) {
                     MeverButton(
-                        title = "Share",
+                        title = stringResource(R.string.share),
                         buttonType = OUTLINED
                     ) { onClickShare?.invoke() }
                     MeverButton(
-                        title = "Delete",
+                        title = stringResource(R.string.delete_button),
                         buttonType = FILLED
                     ) { onClickDelete?.invoke() }
                 }

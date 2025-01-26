@@ -2,6 +2,7 @@ package com.dapascript.mever.core.common.util
 
 import android.app.Activity
 import android.content.Context
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory.decodeStream
 import android.media.MediaMetadataRetriever
@@ -33,23 +34,11 @@ import java.io.File
 import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.Calendar.getInstance
+import java.util.Locale
 import java.util.Locale.ROOT
 import java.util.Locale.getDefault
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.deleteRecursively
-
-fun calculateDownloadedMegabytes(progress: Int, totalBytes: Long): String {
-    val downloadedBytes = progress / 100.0 * totalBytes
-    return getTwoDecimals(value = downloadedBytes / (1024.0 * 1024.0))
-}
-
-fun getTwoDecimals(value: Double) = String.format(ROOT, "%.2f", value)
-
-fun calculateDownloadPercentage(downloadedBytes: Long, totalBytes: Long): String {
-    if (totalBytes == 0L) return "0%" // Prevent division by zero
-    val percentage = downloadedBytes / totalBytes.toDouble() * 100
-    return percentage.toInt().toString() + "%"
-}
 
 suspend fun getPhotoThumbnail(url: String) = withContext(IO) {
     try {
@@ -113,6 +102,19 @@ fun getTotalVideoDuration(file: String): String? {
     } finally {
         retriever.release()
     }
+}
+
+fun calculateDownloadedMegabytes(progress: Int, totalBytes: Long): String {
+    val downloadedBytes = progress / 100.0 * totalBytes
+    return getTwoDecimals(value = downloadedBytes / (1024.0 * 1024.0))
+}
+
+fun getTwoDecimals(value: Double) = String.format(ROOT, "%.2f", value)
+
+fun calculateDownloadPercentage(downloadedBytes: Long, totalBytes: Long): String {
+    if (totalBytes == 0L) return "0%" // Prevent division by zero
+    val percentage = downloadedBytes / totalBytes.toDouble() * 100
+    return percentage.toInt().toString() + "%"
 }
 
 fun getLocalContentType(path: String) = if (path.isVideo()) "video/mp4" else "image/jpg"

@@ -45,7 +45,6 @@ class HomeLandingViewModel @Inject constructor(
     val connectivityObserver: ConnectivityObserver
 ) : BaseViewModel() {
     private val meverFolder by lazy { getMeverFolder() }
-    val tabItems by lazy { listOf("Downloader", "AI Image") }
 
     var urlSocialMediaState by mutableStateOf(TextFieldValue(""))
         internal set

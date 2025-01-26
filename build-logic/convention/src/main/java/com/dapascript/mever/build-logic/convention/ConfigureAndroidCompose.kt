@@ -25,6 +25,7 @@ internal fun Project.configureAndroidCompose(
             debugImplementation(libs.androidx.compose.ui.tooling.debug.get())
             implementation(libs.androidx.compose.ui.tooling.preview.get())
             implementation(libs.androidx.compose.material3.get())
+            implementation(libs.androidx.appcompat.get())
         }
     }
 }

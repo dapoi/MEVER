@@ -26,6 +26,16 @@ class MeverDataStore @Inject constructor(context: Context) {
         preferences[KEY_IS_ONBOARDED] ?: false
     }
 
+    suspend fun saveLanguageCode(languageCode: String) {
+        dataStore.edit { preferences ->
+            preferences[KEY_LANGUAGE] = languageCode
+        }
+    }
+
+    val getLanguageCode = dataStore.data.map { preferences ->
+        preferences[KEY_LANGUAGE] ?: "en"
+    }
+
     suspend fun saveTheme(mode: ThemeType) {
         dataStore.edit { preferences ->
             preferences[KEY_THEME] = mode.name
@@ -42,6 +52,7 @@ class MeverDataStore @Inject constructor(context: Context) {
 
     companion object {
         private val KEY_IS_ONBOARDED = booleanPreferencesKey("is_onboarded")
+        private val KEY_LANGUAGE = stringPreferencesKey("language")
         private val KEY_THEME = stringPreferencesKey("theme")
     }
 }

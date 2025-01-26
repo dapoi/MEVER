@@ -3,7 +3,6 @@ package com.dapascript.mever.feature.notification.screen
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
@@ -15,16 +14,11 @@ import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.navigation.base.BaseNavigator
 import com.dapascript.mever.core.common.navigation.graph.GalleryNavGraph
-import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardArgs
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
-import com.dapascript.mever.core.common.ui.component.MeverCard
 import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
 import com.dapascript.mever.core.common.ui.component.MeverSnackbar
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
-import com.dapascript.mever.core.common.util.Constant.ScreenName.NOTIFICATION
 import com.dapascript.mever.feature.notification.navigation.route.NotificationLandingRoute
 import com.dapascript.mever.feature.notification.viewmodel.NotificationLandingViewModel
-import com.ketch.Status.PAUSED
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -35,7 +29,7 @@ internal fun NotificationLandingScreen(
 
     BaseScreen(
         topBarArgs = TopBarArgs(
-            screenName = NOTIFICATION,
+            screenName = "",
             onClickBack = { navigator.popBackStack() }
         ),
         allowScreenOverlap = downloadList.isEmpty()

@@ -11,6 +11,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.theme.MeverThemeColors.Dark
 import com.dapascript.mever.core.common.ui.theme.MeverThemeColors.Light
 
@@ -38,10 +40,10 @@ val DarkColorScheme = darkColorScheme(
     background = Dark.background
 )
 
-enum class ThemeType {
-    System,
-    Light,
-    Dark
+enum class ThemeType(val themeResId: Int) {
+    System(R.string.system_default),
+    Light(R.string.light),
+    Dark(R.string.dark)
 }
 
 object MeverTheme {

@@ -11,11 +11,11 @@ import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.Setti
 
 object SettingLandingAttr {
     data class SettingMenus(
-        val header: String,
+        val header: Int,
         val menus: List<SubMenu>
     ) {
         data class SubMenu(
-            val leadingTitle: String,
+            val leadingTitle: Int,
             val icon: Int,
             val iconBackgroundColor: Color,
             val trailingTitle: String? = null
@@ -24,21 +24,21 @@ object SettingLandingAttr {
 
     fun getSettingMenus() = listOf(
         SettingMenus(
-            header = "Application",
+            header = R.string.application,
             menus = listOf(
                 SubMenu(
-                    leadingTitle = "Language",
+                    leadingTitle = R.string.language,
                     icon = R.drawable.ic_language,
                     iconBackgroundColor = MeverLightBlue,
                     trailingTitle = ""
                 ),
                 SubMenu(
-                    leadingTitle = "Notification",
+                    leadingTitle = R.string.notification,
                     icon = R.drawable.ic_notif,
                     iconBackgroundColor = MeverCreamSemiPink
                 ),
                 SubMenu(
-                    leadingTitle = "Theme",
+                    leadingTitle = R.string.theme,
                     icon = R.drawable.ic_theme,
                     iconBackgroundColor = MeverViolet,
                     trailingTitle = ""
@@ -46,35 +46,35 @@ object SettingLandingAttr {
             )
         ),
         SettingMenus(
-            header = "Donation",
+            header = R.string.donation,
             menus = listOf(
                 SubMenu(
-                    leadingTitle = "Bitcoin",
+                    leadingTitle = R.string.bitcoin,
                     icon = R.drawable.ic_btc,
                     iconBackgroundColor = MeverCreamSemiPink
                 ),
                 SubMenu(
-                    leadingTitle = "Paypal",
+                    leadingTitle = R.string.paypal,
                     icon = R.drawable.ic_paypal,
                     iconBackgroundColor = MeverLightBlue
                 ),
                 SubMenu(
-                    leadingTitle = "QRIS",
+                    leadingTitle = R.string.qris,
                     icon = R.drawable.ic_qris,
                     iconBackgroundColor = MeverPink
                 )
             )
         ),
         SettingMenus(
-            header = "Support",
+            header = R.string.support,
             menus = listOf(
                 SubMenu(
-                    leadingTitle = "Contact Us",
+                    leadingTitle = R.string.contact,
                     icon = R.drawable.ic_cs,
                     iconBackgroundColor = MeverLightGray2
                 ),
                 SubMenu(
-                    leadingTitle = "About Application",
+                    leadingTitle = R.string.about,
                     icon = R.drawable.ic_about,
                     iconBackgroundColor = MeverViolet
                 )

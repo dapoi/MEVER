@@ -1,12 +1,6 @@
 package com.dapascript.mever.core.common.util
 
 object Constant {
-    object ScreenName {
-        const val NOTIFICATION = "Notification"
-        const val GALLERY = "Gallery"
-        const val SETTING = "Settings"
-    }
-
     object ConnectivityName {
         const val AVAILABLE = "You're online"
         const val UNAVAILABLE = "No internet connection"

@@ -1,5 +1,6 @@
 package com.dapascript.mever.feature.setting.screen
 
+import android.content.Context
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -29,7 +30,10 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.navigation.base.BaseNavigator
 import com.dapascript.mever.core.common.ui.attr.MeverMenuItemAttr.MenuItemArgs
@@ -46,7 +50,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
-import com.dapascript.mever.core.common.util.Constant.ScreenName.SETTING
+import com.dapascript.mever.feature.setting.navigation.route.SettingLanguageRoute
 import com.dapascript.mever.feature.setting.navigation.route.SettingThemeRoute
 import com.dapascript.mever.feature.setting.viewmodel.SettingLandingViewModel
 
@@ -56,13 +60,15 @@ internal fun SettingLandingScreen(
     navigator: BaseNavigator,
     viewModel: SettingLandingViewModel = hiltViewModel()
 ) = with(viewModel) {
+    val getLanguageCode = getLanguageCode.collectAsStateValue()
     val themeType = themeType.collectAsStateValue()
+    val context = LocalContext.current
     val scrollState = rememberScrollState()
     val isExpanded by remember { derivedStateOf { scrollState.value <= titleHeight } }
 
     BaseScreen(
         topBarArgs = TopBarArgs(
-            screenName = if (isExpanded.not()) SETTING else "",
+            screenName = if (isExpanded.not()) stringResource(R.string.settings) else "",
             onClickBack = { navigator.popBackStack() }
         ),
         allowScreenOverlap = true
@@ -89,7 +95,7 @@ internal fun SettingLandingScreen(
             ) {
                 Spacer(modifier = Modifier.height(Dp16))
                 Text(
-                    text = SETTING,
+                    text = stringResource(R.string.settings),
                     style = typography.h2.copy(fontSize = Sp32),
                     color = colorScheme.onPrimary,
                     modifier = Modifier.onGloballyPositioned { titleHeight = it.size.height }
@@ -113,7 +119,7 @@ internal fun SettingLandingScreen(
                             settingMenus.forEach { (title, menus) ->
                                 item {
                                     Text(
-                                        text = title,
+                                        text = stringResource(title),
                                         style = typography.h3,
                                         color = colorScheme.onPrimary
                                     )
@@ -127,19 +133,22 @@ internal fun SettingLandingScreen(
                                         menuArgs = MenuItemArgs(
                                             leadingIcon = menu.icon,
                                             leadingIconBackground = menu.iconBackgroundColor,
-                                            leadingTitle = menu.leadingTitle,
+                                            leadingTitle = stringResource(menu.leadingTitle),
                                             leadingIconSize = Dp40,
                                             leadingIconPadding = Dp8,
                                             trailingTitle = menu.trailingTitle?.let {
-                                                when (menu.leadingTitle) {
-                                                    "Language" -> "English"
-                                                    "Theme" -> themeType.name
+                                                when (stringResource(menu.leadingTitle)) {
+                                                    stringResource(R.string.language) -> {
+                                                        if (getLanguageCode == "en") "English"
+                                                        else "Bahasa Indonesia"
+                                                    }
+                                                    stringResource(R.string.theme) -> stringResource(themeType.themeResId)
                                                     else -> it
                                                 }
                                             }
                                         ),
                                         modifier = Modifier.animateItem()
-                                    ) { navigator.handleClickMenu(menu.leadingTitle) }
+                                    ) { navigator.handleClickMenu(context, context.getString(menu.leadingTitle)) }
                                 }
                                 item { Spacer(modifier = Modifier.height(Dp28)) }
                             }
@@ -151,16 +160,10 @@ internal fun SettingLandingScreen(
     }
 }
 
-private fun BaseNavigator.handleClickMenu(title: String) {
+private fun BaseNavigator.handleClickMenu(context: Context, title: String) = with(context) {
     when (title) {
-        "Language" -> {
-
-        }
-
-        "Notification" -> {
-
-        }
-
-        "Theme" -> navigate(SettingThemeRoute)
+        getString(R.string.language) -> navigate(SettingLanguageRoute)
+        getString(R.string.notification) -> {}
+        getString(R.string.theme) -> navigate(SettingThemeRoute)
     }
 }
