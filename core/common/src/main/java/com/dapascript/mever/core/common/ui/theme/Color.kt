@@ -3,12 +3,10 @@ package com.dapascript.mever.core.common.ui.theme
 import androidx.compose.ui.graphics.Color
 
 val MeverBlack = Color(0xFF121212)
-val MeverBlue = Color(0xFF667AF9)
-val MeverCreamSemiPink = Color(0xFFFBE5D6)
+val MeverCreamPink = Color(0xFFFBE5D6)
 val MeverDark = Color(0xFF292929)
 val MeverDarkGray = Color(0xFF535454)
 val MeverGray = Color(0xFF888888)
-val MeverGreen = Color(0xFFD6FBE5)
 val MeverLightBlue = Color(0xFFD6EEFB)
 val MeverLightGray = Color(0xFFBAC2CD)
 val MeverLightGray2 = Color(0xFFDCE0E6)

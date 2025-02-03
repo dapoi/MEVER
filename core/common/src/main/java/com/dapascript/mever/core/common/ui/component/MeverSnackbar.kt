@@ -3,7 +3,9 @@ package com.dapascript.mever.core.common.ui.component
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.SnackbarDuration.Long
+import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarDuration.Short
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -12,21 +14,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 
 @Composable
 fun MeverSnackbar(
     message: String,
+    actionMessage: String = "View",
     alignment: Alignment = BottomCenter,
+    duration: SnackbarDuration = Short,
+    snackbarColor: Color = colorScheme.primary,
+    snackbarContentColor: Color = colorScheme.onSecondary,
     modifier: Modifier = Modifier,
     onResetMessage: (String) -> Unit,
-    onClickSnackbar: () -> Unit
+    onClickSnackbar: (() -> Unit)? = null
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(message) {
         if (message.isNotEmpty()) {
-            snackbarHostState.showSnackbar(message = message, duration = Long)
+            snackbarHostState.showSnackbar(message = message, duration = duration)
             onResetMessage("")
         }
     }
@@ -40,10 +47,12 @@ fun MeverSnackbar(
         ) {
             MeverLabel(
                 message = message,
-                actionMessage = "View"
+                labelColor = snackbarColor,
+                labelContentColor = snackbarContentColor,
+                actionMessage = actionMessage
             ) {
                 onResetMessage("")
-                onClickSnackbar()
+                onClickSnackbar?.invoke()
             }
         }
     }

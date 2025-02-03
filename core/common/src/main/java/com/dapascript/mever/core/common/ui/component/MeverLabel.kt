@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
@@ -21,13 +22,15 @@ import com.dapascript.mever.core.common.util.clickableSingle
 fun MeverLabel(
     message: String,
     actionMessage: String,
+    labelColor: Color = MeverPurple,
+    labelContentColor: Color = MeverWhite,
     modifier: Modifier = Modifier,
     onClickLabel: () -> Unit
 ) {
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .background(color = MeverPurple, shape = RoundedCornerShape(Dp8))
+            .background(color = labelColor, shape = RoundedCornerShape(Dp8))
     ) {
         Row(
             modifier = Modifier
@@ -38,13 +41,13 @@ fun MeverLabel(
             Text(
                 text = message,
                 style = typography.label1,
-                color = MeverWhite
+                color = labelContentColor
             )
             Text(
                 modifier = Modifier.clickableSingle { onClickLabel() },
                 text = actionMessage,
                 style = typography.labelBold1,
-                color = MeverWhite
+                color = labelContentColor
             )
         }
     }

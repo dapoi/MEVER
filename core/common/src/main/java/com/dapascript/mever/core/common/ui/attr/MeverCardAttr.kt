@@ -2,18 +2,6 @@ package com.dapascript.mever.core.common.ui.attr
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
-import com.dapascript.mever.core.common.R
-import com.dapascript.mever.core.common.ui.theme.MeverCreamSemiPink
-import com.dapascript.mever.core.common.ui.theme.MeverLightBlue
-import com.dapascript.mever.core.common.ui.theme.MeverLightGreen
-import com.dapascript.mever.core.common.ui.theme.MeverLightPurple
-import com.dapascript.mever.core.common.ui.theme.MeverPink
-import com.dapascript.mever.core.common.ui.theme.MeverTransparent
-import com.dapascript.mever.core.common.util.Constant.PlatformName.FACEBOOK
-import com.dapascript.mever.core.common.util.Constant.PlatformName.INSTAGRAM
-import com.dapascript.mever.core.common.util.Constant.PlatformName.TIKTOK
-import com.dapascript.mever.core.common.util.Constant.PlatformName.TWITTER
-import com.dapascript.mever.core.common.util.Constant.PlatformName.YOUTUBE
 import com.ketch.Status
 
 object MeverCardAttr {

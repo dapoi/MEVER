@@ -2,7 +2,7 @@ package com.dapascript.mever.feature.setting.screen.attr
 
 import androidx.compose.ui.graphics.Color
 import com.dapascript.mever.core.common.R
-import com.dapascript.mever.core.common.ui.theme.MeverCreamSemiPink
+import com.dapascript.mever.core.common.ui.theme.MeverCreamPink
 import com.dapascript.mever.core.common.ui.theme.MeverLightBlue
 import com.dapascript.mever.core.common.ui.theme.MeverLightGray2
 import com.dapascript.mever.core.common.ui.theme.MeverPink
@@ -35,7 +35,7 @@ object SettingLandingAttr {
                 SubMenu(
                     leadingTitle = R.string.notification,
                     icon = R.drawable.ic_notif,
-                    iconBackgroundColor = MeverCreamSemiPink
+                    iconBackgroundColor = MeverCreamPink
                 ),
                 SubMenu(
                     leadingTitle = R.string.theme,
@@ -51,7 +51,7 @@ object SettingLandingAttr {
                 SubMenu(
                     leadingTitle = R.string.bitcoin,
                     icon = R.drawable.ic_btc,
-                    iconBackgroundColor = MeverCreamSemiPink
+                    iconBackgroundColor = MeverCreamPink
                 ),
                 SubMenu(
                     leadingTitle = R.string.paypal,

@@ -63,6 +63,7 @@ import com.dapascript.mever.core.common.ui.component.MeverButton
 import com.dapascript.mever.core.common.ui.component.MeverCard
 import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
+import com.dapascript.mever.core.common.ui.component.MeverSnackbar
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp210
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
@@ -98,6 +99,7 @@ internal fun GalleryLandingScreen(
     val context = LocalContext.current
     val scrollState = rememberScrollState()
     val isExpanded by remember { derivedStateOf { scrollState.value <= titleHeight } }
+    var snackbarMessage by remember { mutableStateOf("") }
     var showFailedDialog by remember { mutableStateOf<Int?>(null) }
     var showDeleteDialog by remember { mutableStateOf<Int?>(null) }
     var showDeleteAllDialog by remember { mutableStateOf(false) }
@@ -164,6 +166,11 @@ internal fun GalleryLandingScreen(
             onChangeTitleHeight = { titleHeight = it }
         )
 
+        MeverSnackbar(
+            message = snackbarMessage,
+            onResetMessage = { resetMessage -> snackbarMessage = resetMessage }
+        )
+
         MeverDialog(
             showDialog = showDeleteAllDialog,
             meverDialogArgs = MeverDialogArgs(
@@ -171,6 +178,7 @@ internal fun GalleryLandingScreen(
                 primaryButtonText = stringResource(R.string.delete_button),
                 onClickPrimaryButton = {
                     ketch.clearAllDb()
+                    snackbarMessage = context.getString(R.string.snackbar_delete)
                     showDeleteAllDialog = false
                 },
                 onClickSecondaryButton = { showDeleteAllDialog = false }

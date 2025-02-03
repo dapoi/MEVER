@@ -1,7 +1,7 @@
 package com.dapascript.mever.core.common.ui.attr
 
 import com.dapascript.mever.core.common.R
-import com.dapascript.mever.core.common.ui.theme.MeverCreamSemiPink
+import com.dapascript.mever.core.common.ui.theme.MeverCreamPink
 import com.dapascript.mever.core.common.ui.theme.MeverLightBlue
 import com.dapascript.mever.core.common.ui.theme.MeverLightGreen
 import com.dapascript.mever.core.common.ui.theme.MeverLightPurple
@@ -24,7 +24,7 @@ object MeverIconAttr {
     }
 
     fun getPlatformIconBackgroundColor(platform: String) = when {
-        platform.contains(INSTAGRAM) -> MeverCreamSemiPink
+        platform.contains(INSTAGRAM) -> MeverCreamPink
         platform.contains(FACEBOOK) -> MeverLightBlue
         platform.contains(TWITTER) -> MeverLightPurple
         platform.contains(YOUTUBE) -> MeverPink
