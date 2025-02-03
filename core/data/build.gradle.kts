@@ -15,7 +15,6 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter)
     implementation(libs.okhttp.interceptor)
-    implementation(libs.ketch)
     implementation(libs.dataStorePreferences)
     debugImplementation(libs.chucker.debug)
     releaseImplementation(libs.chucker.release)
