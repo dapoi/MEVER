@@ -50,10 +50,11 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
+import com.dapascript.mever.core.common.ui.theme.ThemeType
 import com.dapascript.mever.core.common.util.navigateToGmail
 import com.dapascript.mever.core.common.util.navigateToNotificationSettings
-import com.dapascript.mever.feature.setting.navigation.route.SettingLanguageRoute
-import com.dapascript.mever.feature.setting.navigation.route.SettingThemeRoute
+import com.dapascript.mever.feature.setting.navigation.route.SettingRoutes.SettingLanguageRoute
+import com.dapascript.mever.feature.setting.navigation.route.SettingRoutes.SettingThemeRoute
 import com.dapascript.mever.feature.setting.viewmodel.SettingLandingViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -151,7 +152,14 @@ internal fun SettingLandingScreen(
                                             }
                                         ),
                                         modifier = Modifier.animateItem()
-                                    ) { navigator.handleClickMenu(context, context.getString(menu.leadingTitle)) }
+                                    ) {
+                                        navigator.handleClickMenu(
+                                            context = context,
+                                            title = context.getString(menu.leadingTitle),
+                                            languageCode = getLanguageCode,
+                                            themeType = themeType
+                                        )
+                                    }
                                 }
                                 item { Spacer(modifier = Modifier.height(Dp28)) }
                             }
@@ -163,11 +171,16 @@ internal fun SettingLandingScreen(
     }
 }
 
-private fun BaseNavigator.handleClickMenu(context: Context, title: String) = with(context) {
+private fun BaseNavigator.handleClickMenu(
+    context: Context,
+    title: String,
+    languageCode: String,
+    themeType: ThemeType
+) = with(context) {
     when (title) {
-        getString(R.string.language) -> navigate(SettingLanguageRoute)
-        getString(R.string.notification) -> navigateToNotificationSettings(context)
-        getString(R.string.theme) -> navigate(SettingThemeRoute)
-        getString(R.string.contact) -> navigateToGmail(context)
+        getString(R.string.language) -> navigate(SettingLanguageRoute(languageCode))
+        getString(R.string.notification) -> navigateToNotificationSettings(this)
+        getString(R.string.theme) -> navigate(SettingThemeRoute(themeType))
+        getString(R.string.contact) -> navigateToGmail(this)
     }
 }

@@ -6,8 +6,8 @@ import com.dapascript.mever.core.common.navigation.base.BaseNavigator
 import com.dapascript.mever.core.common.navigation.extension.composableScreen
 import com.dapascript.mever.core.common.navigation.graph.GalleryNavGraph
 import com.dapascript.mever.core.common.navigation.graph.GalleryNavGraphRoute
-import com.dapascript.mever.feature.gallery.navigation.route.GalleryContentDetailRoute
-import com.dapascript.mever.feature.gallery.navigation.route.GalleryLandingRoute
+import com.dapascript.mever.feature.gallery.navigation.route.GalleryRoutes.GalleryContentDetailRoute
+import com.dapascript.mever.feature.gallery.navigation.route.GalleryRoutes.GalleryLandingRoute
 import com.dapascript.mever.feature.gallery.screen.GalleryContentDetailScreen
 import com.dapascript.mever.feature.gallery.screen.GalleryLandingScreen
 import javax.inject.Inject

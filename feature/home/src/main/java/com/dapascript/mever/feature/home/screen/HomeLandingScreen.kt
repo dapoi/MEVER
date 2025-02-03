@@ -98,6 +98,7 @@ import com.ketch.DownloadModel
 import com.ketch.Status.FAILED
 import com.ketch.Status.PAUSED
 import kotlinx.coroutines.launch
+import com.dapascript.mever.feature.home.R as FeatureHomeR
 
 @Composable
 internal fun HomeLandingScreen(
@@ -505,8 +506,8 @@ private fun HomeVideoSection(
 }
 
 private fun getListActionMenu(context: Context) = listOf(
-    context.getString(R.string.gallery) to com.dapascript.mever.feature.home.R.drawable.ic_explore,
-    context.getString(R.string.settings) to com.dapascript.mever.feature.home.R.drawable.ic_setting
+    context.getString(R.string.gallery) to FeatureHomeR.drawable.ic_explore,
+    context.getString(R.string.settings) to FeatureHomeR.drawable.ic_setting
 )
 
 private fun tabItems(context: Context) = listOf(

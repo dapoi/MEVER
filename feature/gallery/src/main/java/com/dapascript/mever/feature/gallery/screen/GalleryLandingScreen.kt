@@ -79,13 +79,13 @@ import com.dapascript.mever.core.common.util.isAvailableOnLocal
 import com.dapascript.mever.core.common.util.replaceTimeFormat
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.feature.gallery.R
-import com.dapascript.mever.feature.gallery.navigation.route.GalleryContentDetailRoute
+import com.dapascript.mever.feature.gallery.navigation.route.GalleryRoutes.GalleryContentDetailRoute
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.DELETE_ALL
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.MORE
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.listDropDown
 import com.dapascript.mever.feature.gallery.viewmodel.GalleryLandingViewModel
 import com.ketch.DownloadModel
-import com.ketch.Status.SUCCESS
+import com.ketch.Status.*
 import com.dapascript.mever.core.common.R as RCommon
 
 @Composable
@@ -135,8 +135,8 @@ internal fun GalleryLandingScreen(
             onClickCard = { model ->
                 with(model) {
                     if (progress < 100) when (status) {
-                        com.ketch.Status.FAILED -> ketch.retry(id)
-                        com.ketch.Status.PAUSED -> ketch.resume(id)
+                        FAILED -> ketch.retry(id)
+                        PAUSED -> ketch.resume(id)
                         else -> ketch.pause(id)
                     } else navigator.navigate(
                         GalleryContentDetailRoute(

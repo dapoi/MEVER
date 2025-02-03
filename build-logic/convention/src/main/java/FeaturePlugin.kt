@@ -12,6 +12,7 @@ class FeaturePlugin : Plugin<Project> {
             with(pluginManager) {
                 alias(libs.plugins.mever.library)
                 alias(libs.plugins.mever.hilt)
+                alias(libs.plugins.kotlin.parcelize)
                 alias(libs.plugins.kotlin.serialization)
             }
 

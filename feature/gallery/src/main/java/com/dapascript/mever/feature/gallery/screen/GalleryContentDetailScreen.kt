@@ -30,7 +30,7 @@ internal fun GalleryContentDetailScreen(
         navigationBarColor = MeverBlack,
         modifier = Modifier.background(MeverBlack)
     ) {
-        with(galleryContentDetailRoute) {
+        with(args) {
             if (fileName.isVideo()) MeverVideoPlayer(
                 source = sourceFile,
                 fileName = fileName,

@@ -22,7 +22,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -60,9 +62,9 @@ internal fun SettingLanguageScreen(
     navigator: BaseNavigator,
     viewModel: SettingLanguageViewModel = hiltViewModel()
 ) = with(viewModel) {
-    val getLanguageCode = getLanguageCode.collectAsStateValue()
     val scrollState = rememberScrollState()
     val isExpanded by remember { derivedStateOf { scrollState.value <= titleHeight } }
+    var languageCode by remember { mutableStateOf(args.languageCode) }
 
     BaseScreen(
         topBarArgs = TopBarArgs(
@@ -127,13 +129,19 @@ internal fun SettingLanguageScreen(
                                     .fillMaxWidth()
                                     .padding(vertical = Dp12)
                                     .clip(RoundedCornerShape(Dp8))
-                                    .clickableSingle { saveLanguageCode(context, code) },
+                                    .clickableSingle {
+                                        languageCode = code
+                                        saveLanguageCode(context, code)
+                                    },
                                 horizontalArrangement = spacedBy(Dp16),
                                 verticalAlignment = CenterVertically
                             ) {
                                 MeverRadioButton(
-                                    isChecked = getLanguageCode == code,
-                                    onCheckedChange = { saveLanguageCode(context, code) }
+                                    isChecked = languageCode == code,
+                                    onCheckedChange = {
+                                        languageCode = code
+                                        saveLanguageCode(context, code)
+                                    }
                                 )
                                 Text(
                                     text = language,
