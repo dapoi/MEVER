@@ -30,14 +30,6 @@ class GalleryLandingViewModel @Inject constructor(
     var downloadList by mutableStateOf<List<DownloadModel>?>(null)
         private set
 
-    fun deleteDownload(id: Int) = viewModelScope.launch {
-        ketch.clearDb(id)
-    }
-
-    fun deleteAllDownloads() = viewModelScope.launch {
-        ketch.clearAllDb()
-    }
-
     fun getAllDownloads() = viewModelScope.launch {
         ketch.observeDownloads().collect { downloads ->
             downloadList = downloads

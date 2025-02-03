@@ -29,7 +29,9 @@
     <string name="share">Share</string>
     <string name="delete_button">Delete</string>
     <string name="delete_title">Delete File?</string>
+    <string name="delete_all_title">Delete All Files?</string>
     <string name="delete_desc">File that has been deleted cannot be recovered.</string>
+    <string name="delete_all_desc">All files that have been deleted cannot be recovered.</string>
     <string name="download_failed_title">Download Failed</string>
     <string name="download_failed_desc">Sorry, your download has failed. What would you like to do?</string>
     <string name="retry">Try Again</string>

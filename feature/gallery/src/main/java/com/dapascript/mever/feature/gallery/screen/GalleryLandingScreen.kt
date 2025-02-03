@@ -48,6 +48,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.navigation.base.BaseNavigator
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.FILLED
@@ -78,14 +79,15 @@ import com.dapascript.mever.core.common.util.getMeverFiles
 import com.dapascript.mever.core.common.util.isAvailableOnLocal
 import com.dapascript.mever.core.common.util.replaceTimeFormat
 import com.dapascript.mever.core.common.util.shareContent
-import com.dapascript.mever.feature.gallery.R
 import com.dapascript.mever.feature.gallery.navigation.route.GalleryRoutes.GalleryContentDetailRoute
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.DELETE_ALL
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.MORE
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.listDropDown
 import com.dapascript.mever.feature.gallery.viewmodel.GalleryLandingViewModel
 import com.ketch.DownloadModel
-import com.ketch.Status.*
+import com.ketch.Status.FAILED
+import com.ketch.Status.PAUSED
+import com.ketch.Status.SUCCESS
 import com.dapascript.mever.core.common.R as RCommon
 
 @Composable
@@ -96,6 +98,7 @@ internal fun GalleryLandingScreen(
     val context = LocalContext.current
     val scrollState = rememberScrollState()
     val isExpanded by remember { derivedStateOf { scrollState.value <= titleHeight } }
+    var showFailedDialog by remember { mutableStateOf<Int?>(null) }
     var showDeleteDialog by remember { mutableStateOf<Int?>(null) }
     var showDeleteAllDialog by remember { mutableStateOf(false) }
     var showDropDownMenu by remember { mutableStateOf(false) }
@@ -135,7 +138,7 @@ internal fun GalleryLandingScreen(
             onClickCard = { model ->
                 with(model) {
                     if (progress < 100) when (status) {
-                        FAILED -> ketch.retry(id)
+                        FAILED -> showFailedDialog = id
                         PAUSED -> ketch.resume(id)
                         else -> ketch.pause(id)
                     } else navigator.navigate(
@@ -164,17 +167,17 @@ internal fun GalleryLandingScreen(
         MeverDialog(
             showDialog = showDeleteAllDialog,
             meverDialogArgs = MeverDialogArgs(
-                title = "Delete all files?",
-                primaryButtonText = "Delete",
+                title = stringResource(R.string.delete_all_title),
+                primaryButtonText = stringResource(R.string.delete_button),
                 onClickPrimaryButton = {
-                    deleteAllDownloads()
+                    ketch.clearAllDb()
                     showDeleteAllDialog = false
                 },
                 onClickSecondaryButton = { showDeleteAllDialog = false }
             )
         ) {
             Text(
-                text = "All files that have been deleted cannot be recovered",
+                text = stringResource(R.string.delete_all_desc),
                 style = typography.body1,
                 color = colorScheme.onPrimary
             )
@@ -184,17 +187,42 @@ internal fun GalleryLandingScreen(
             MeverDialog(
                 showDialog = true,
                 meverDialogArgs = MeverDialogArgs(
-                    title = "Delete this file?",
-                    primaryButtonText = "Delete",
+                    title = stringResource(R.string.delete_title),
+                    primaryButtonText = stringResource(R.string.delete_button),
                     onClickPrimaryButton = {
-                        deleteDownload(id)
+                        ketch.clearDb(id)
                         showDeleteDialog = null
                     },
                     onClickSecondaryButton = { showDeleteDialog = null }
                 )
             ) {
                 Text(
-                    text = "File that has been deleted cannot be recovered",
+                    text = stringResource(R.string.delete_desc),
+                    style = typography.body1,
+                    color = colorScheme.onPrimary
+                )
+            }
+        }
+
+        showFailedDialog?.let { id ->
+            MeverDialog(
+                showDialog = true,
+                meverDialogArgs = MeverDialogArgs(
+                    title = stringResource(R.string.download_failed_title),
+                    primaryButtonText = stringResource(R.string.delete_button),
+                    secondaryButtonText = stringResource(R.string.retry),
+                    onClickPrimaryButton = {
+                        ketch.clearDb(id)
+                        showFailedDialog = null
+                    },
+                    onClickSecondaryButton = {
+                        ketch.retry(id)
+                        showFailedDialog = null
+                    }
+                )
+            ) {
+                Text(
+                    text = stringResource(R.string.download_failed_desc),
                     style = typography.body1,
                     color = colorScheme.onPrimary
                 )

@@ -30,7 +30,9 @@
     <string name="share">Bagikan</string>
     <string name="delete_button">Hapus</string>
     <string name="delete_title">Hapus File?</string>
+    <string name="delete_all_title">Hapus Semua File?</string>
     <string name="delete_desc">File yang telah dihapus tidak dapat dipulihkan.</string>
+    <string name="delete_all_desc">Semua file yang telah dihapus tidak dapat dipulihkan.</string>
     <string name="download_failed_title">Unduhan Gagal</string>
     <string name="download_failed_desc">Maaf, unduhan Anda gagal. Apa yang ingin Anda lakukan?</string>
     <string name="retry">Coba Lagi</string>
