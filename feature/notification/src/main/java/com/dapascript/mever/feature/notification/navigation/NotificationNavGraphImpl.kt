@@ -11,7 +11,7 @@ import com.dapascript.mever.feature.notification.screen.NotificationLandingScree
 import javax.inject.Inject
 
 class NotificationNavGraphImpl @Inject constructor() : NotificationNavGraph() {
-    override fun buildGraph(
+    override fun createGraph(
         navigator: BaseNavigator,
         navGraphBuilder: NavGraphBuilder
     ) {

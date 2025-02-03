@@ -13,7 +13,7 @@ import com.dapascript.mever.feature.gallery.screen.GalleryLandingScreen
 import javax.inject.Inject
 
 class GalleryNavGraphImpl @Inject constructor() : GalleryNavGraph() {
-    override fun buildGraph(
+    override fun createGraph(
         navigator: BaseNavigator,
         navGraphBuilder: NavGraphBuilder
     ) {

@@ -11,7 +11,7 @@ import com.dapascript.mever.feature.home.screen.HomeLandingScreen
 import javax.inject.Inject
 
 class HomeNavGraphImpl @Inject constructor() : HomeNavGraph() {
-    override fun buildGraph(
+    override fun createGraph(
         navigator: BaseNavigator,
         navGraphBuilder: NavGraphBuilder
     ) {

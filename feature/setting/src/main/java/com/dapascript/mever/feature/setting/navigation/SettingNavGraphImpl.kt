@@ -15,7 +15,7 @@ import com.dapascript.mever.feature.setting.screen.SettingThemeScreen
 import javax.inject.Inject
 
 class SettingNavGraphImpl @Inject constructor() : SettingNavGraph() {
-    override fun buildGraph(
+    override fun createGraph(
         navigator: BaseNavigator,
         navGraphBuilder: NavGraphBuilder
     ) {

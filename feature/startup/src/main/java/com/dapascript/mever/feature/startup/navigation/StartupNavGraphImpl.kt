@@ -13,7 +13,7 @@ import com.dapascript.mever.feature.startup.screen.SplashScreen
 import javax.inject.Inject
 
 class StartupNavGraphImpl @Inject constructor() : StartupNavGraph() {
-    override fun buildGraph(
+    override fun createGraph(
         navigator: BaseNavigator,
         navGraphBuilder: NavGraphBuilder
     ) {
