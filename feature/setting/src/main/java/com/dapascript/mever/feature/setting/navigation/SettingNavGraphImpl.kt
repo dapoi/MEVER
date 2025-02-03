@@ -4,7 +4,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.navigation
 import com.dapascript.mever.core.common.navigation.base.BaseNavigator
 import com.dapascript.mever.core.common.navigation.extension.composableScreen
-import com.dapascript.mever.core.common.navigation.extension.generateNavType
+import com.dapascript.mever.core.common.navigation.extension.customNavType
 import com.dapascript.mever.core.common.navigation.graph.SettingNavGraph
 import com.dapascript.mever.core.common.navigation.graph.SettingNavGraphRoute
 import com.dapascript.mever.feature.setting.navigation.route.SettingRoutes.SettingLandingRoute
@@ -25,7 +25,7 @@ class SettingNavGraphImpl @Inject constructor() : SettingNavGraph() {
             composableScreen<SettingLandingRoute> { SettingLandingScreen(navigator) }
             composableScreen<SettingLanguageRoute> { SettingLanguageScreen(navigator) }
             composableScreen<SettingThemeRoute>(
-                typeMap = mapOf(typeOf<SettingThemeRoute>() to generateNavType<SettingThemeRoute>())
+                typeMap = mapOf(typeOf<SettingThemeRoute>() to customNavType<SettingThemeRoute>())
             ) { SettingThemeScreen(navigator) }
         }
     }

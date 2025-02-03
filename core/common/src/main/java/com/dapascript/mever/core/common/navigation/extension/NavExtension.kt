@@ -1,6 +1,7 @@
 package com.dapascript.mever.core.common.navigation.extension
 
-import android.os.Build
+import android.os.Build.VERSION.SDK_INT
+import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.Bundle
 import android.os.Parcelable
 import androidx.compose.animation.AnimatedContentScope
@@ -44,13 +45,12 @@ inline fun <reified T : Any> NavGraphBuilder.composableScreen(
     )
 }
 
-inline fun <reified T : Parcelable> generateNavType(
+inline fun <reified T : Parcelable> customNavType(
     isNullableAllowed: Boolean = false
 ) = object : NavType<T>(isNullableAllowed = isNullableAllowed) {
-    override fun get(bundle: Bundle, key: String) =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            bundle.getParcelable(key, T::class.java)
-        } else bundle.getParcelable(key)
+    override fun get(bundle: Bundle, key: String) = if (SDK_INT >= TIRAMISU) {
+        bundle.getParcelable(key, T::class.java)
+    } else bundle.getParcelable(key)
 
     override fun put(bundle: Bundle, key: String, value: T) = bundle.putParcelable(key, value)
 
