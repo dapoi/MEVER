@@ -274,28 +274,30 @@ private fun GalleryContentSection(
                 .padding(PaddingValues(start = Dp24))
                 .onGloballyPositioned { onChangeTitleHeight(it.size.height) }
         )
-        Spacer(modifier = Modifier.height(Dp32))
+        if (platformTypes.size > 1) Spacer(modifier = Modifier.height(Dp32))
         Column(modifier = Modifier.height(this@BoxWithConstraints.maxHeight)) {
-            if (platformTypes.size > 1) Row(
-                modifier = Modifier
-                    .background(colorScheme.background)
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState())
-                    .padding(PaddingValues(horizontal = Dp24)),
-                horizontalArrangement = spacedBy(Dp8),
-                verticalAlignment = CenterVertically
-            ) {
-                MeverButton(
-                    title = "All",
-                    shape = RoundedCornerShape(Dp64),
-                    buttonType = if (selectedFilter == UNKNOWN) FILLED else OUTLINED,
-                ) { onClickFilter(UNKNOWN) }
-                platformTypes.map { type ->
+            if (platformTypes.size > 1) {
+                Row(
+                    modifier = Modifier
+                        .background(colorScheme.background)
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState())
+                        .padding(PaddingValues(horizontal = Dp24)),
+                    horizontalArrangement = spacedBy(Dp8),
+                    verticalAlignment = CenterVertically
+                ) {
                     MeverButton(
-                        title = type.platformName,
+                        title = "All",
                         shape = RoundedCornerShape(Dp64),
-                        buttonType = if (selectedFilter == type) FILLED else OUTLINED,
-                    ) { onClickFilter(type) }
+                        buttonType = if (selectedFilter == UNKNOWN) FILLED else OUTLINED,
+                    ) { onClickFilter(UNKNOWN) }
+                    platformTypes.map { type ->
+                        MeverButton(
+                            title = type.platformName,
+                            shape = RoundedCornerShape(Dp64),
+                            buttonType = if (selectedFilter == type) FILLED else OUTLINED,
+                        ) { onClickFilter(type) }
+                    }
                 }
             }
             Column(

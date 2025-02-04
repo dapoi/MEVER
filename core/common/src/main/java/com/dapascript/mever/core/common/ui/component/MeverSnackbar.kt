@@ -20,12 +20,12 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 @Composable
 fun MeverSnackbar(
     message: String,
-    actionMessage: String = "View",
     alignment: Alignment = BottomCenter,
     duration: SnackbarDuration = Short,
     snackbarColor: Color = colorScheme.primary,
     snackbarContentColor: Color = colorScheme.onSecondary,
     modifier: Modifier = Modifier,
+    actionMessage: String? = null,
     onResetMessage: (String) -> Unit,
     onClickSnackbar: (() -> Unit)? = null
 ) {

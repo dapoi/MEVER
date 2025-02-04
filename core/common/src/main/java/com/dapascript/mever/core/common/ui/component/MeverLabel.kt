@@ -21,10 +21,10 @@ import com.dapascript.mever.core.common.util.clickableSingle
 @Composable
 fun MeverLabel(
     message: String,
-    actionMessage: String,
     labelColor: Color = MeverPurple,
     labelContentColor: Color = MeverWhite,
     modifier: Modifier = Modifier,
+    actionMessage: String? = null,
     onClickLabel: () -> Unit
 ) {
     Box(
@@ -43,12 +43,14 @@ fun MeverLabel(
                 style = typography.label1,
                 color = labelContentColor
             )
-            Text(
-                modifier = Modifier.clickableSingle { onClickLabel() },
-                text = actionMessage,
-                style = typography.labelBold1,
-                color = labelContentColor
-            )
+            actionMessage?.let {
+                Text(
+                    modifier = Modifier.clickableSingle { onClickLabel() },
+                    text = actionMessage,
+                    style = typography.labelBold1,
+                    color = labelContentColor
+                )
+            }
         }
     }
 }

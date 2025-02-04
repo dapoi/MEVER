@@ -19,16 +19,17 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navDeepLink
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlin.reflect.KType
+import kotlin.reflect.KClass
+import kotlin.reflect.typeOf
 
 inline fun <reified T : Any> NavGraphBuilder.composableScreen(
-    typeMap: Map<KType, NavType<out Any>> = emptyMap(),
-    deepLinks: List<NavDeepLink> = emptyList(),
+    customArgs: KClass<*>? = null,
+    deepLinks: List<NavDeepLink>? = null,
     noinline content: @Composable (AnimatedContentScope.(NavBackStackEntry) -> Unit)
 ) {
     composable<T>(
-        typeMap = typeMap,
-        deepLinks = deepLinks,
+        typeMap = customArgs?.let { mapOf(typeOf<T>() to customNavType<T>()) } ?: emptyMap(),
+        deepLinks = deepLinks ?: emptyList(),
         enterTransition = {
             slideIntoContainer(towards = Start, animationSpec = tween(350))
         },
@@ -45,14 +46,14 @@ inline fun <reified T : Any> NavGraphBuilder.composableScreen(
     )
 }
 
-inline fun <reified T : Parcelable> customNavType(
+inline fun <reified T : Any> customNavType(
     isNullableAllowed: Boolean = false
 ) = object : NavType<T>(isNullableAllowed = isNullableAllowed) {
     override fun get(bundle: Bundle, key: String) = if (SDK_INT >= TIRAMISU) {
         bundle.getParcelable(key, T::class.java)
     } else bundle.getParcelable(key)
 
-    override fun put(bundle: Bundle, key: String, value: T) = bundle.putParcelable(key, value)
+    override fun put(bundle: Bundle, key: String, value: T) = bundle.putParcelable(key, value as Parcelable)
 
     override fun parseValue(value: String) = Json.decodeFromString<T>(value)
 

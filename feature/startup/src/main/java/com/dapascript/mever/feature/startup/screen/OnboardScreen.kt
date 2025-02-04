@@ -48,7 +48,7 @@ import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp40
 import com.dapascript.mever.core.common.util.getNotificationPermission
 import com.dapascript.mever.core.common.util.isAndroidTiramisuAbove
 import com.dapascript.mever.feature.startup.R
-import com.dapascript.mever.feature.startup.navigation.route.OnboardRoute
+import com.dapascript.mever.feature.startup.navigation.route.StartupRoutes.OnboardRoute
 import com.dapascript.mever.feature.startup.viewmodel.OnboardViewModel
 
 @Composable
