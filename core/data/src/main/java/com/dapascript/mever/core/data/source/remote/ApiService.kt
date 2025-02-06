@@ -6,6 +6,7 @@ import com.dapascript.mever.core.model.remote.TikTokDownloaderResponse
 import com.dapascript.mever.core.model.remote.TwitterDownloaderResponse
 import com.dapascript.mever.core.model.remote.YouTubeDownloaderResponse
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.Query
 
 interface ApiService {
