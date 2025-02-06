@@ -1,13 +1,6 @@
 package com.dapascript.mever.core.common.util
 
 object Constant {
-    object ConnectivityName {
-        const val AVAILABLE = "You're online"
-        const val UNAVAILABLE = "No internet connection"
-        const val LOSING = "Internet connection lost"
-        const val LOST = "No internet connection"
-    }
-
     object PlatformName {
         const val FACEBOOK = "Facebook"
         const val INSTAGRAM = "Instagram"

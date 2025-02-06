@@ -82,6 +82,7 @@ import com.dapascript.mever.core.common.util.Constant.PlatformName.UNKNOWN
 import com.dapascript.mever.core.common.util.Constant.PlatformType
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.clickableSingle
+import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.NetworkStatus.Available
 import com.dapascript.mever.core.common.util.getMeverFiles
 import com.dapascript.mever.core.common.util.getNetworkStatus
 import com.dapascript.mever.core.common.util.getPlatformType
@@ -148,6 +149,7 @@ internal fun HomeLandingScreen(
         HandleBottomSheetDownload(
             listContent = contents,
             showBottomSheet = contents.isNotEmpty(),
+            isFailedFetchImage = isNetworkAvailable.value != Available,
             onClickDownload = { url ->
                 downloadFile(
                     url = url,

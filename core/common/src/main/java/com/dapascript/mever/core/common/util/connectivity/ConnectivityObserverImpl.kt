@@ -6,10 +6,10 @@ import android.content.Context.CONNECTIVITY_SERVICE
 import android.net.ConnectivityManager
 import android.net.ConnectivityManager.NetworkCallback
 import android.net.Network
-import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.Status.Available
-import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.Status.Losing
-import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.Status.Lost
-import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.Status.Unavailable
+import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.NetworkStatus.Available
+import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.NetworkStatus.Losing
+import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.NetworkStatus.Lost
+import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.NetworkStatus.Unavailable
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged

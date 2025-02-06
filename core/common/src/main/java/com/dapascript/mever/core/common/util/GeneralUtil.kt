@@ -28,8 +28,8 @@ import com.dapascript.mever.core.common.util.Constant.PlatformType.TIKTOK
 import com.dapascript.mever.core.common.util.Constant.PlatformType.TWITTER
 import com.dapascript.mever.core.common.util.Constant.PlatformType.UNKNOWN
 import com.dapascript.mever.core.common.util.Constant.PlatformType.YOUTUBE
-import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.Status
-import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.Status.Available
+import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.NetworkStatus
+import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.NetworkStatus.Available
 import com.ketch.DownloadModel
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
@@ -173,7 +173,7 @@ fun navigateToGmail(context: Context) {
 }
 
 fun getNetworkStatus(
-    isNetworkAvailable: Status,
+    isNetworkAvailable: NetworkStatus,
     onNetworkAvailable: () -> Unit,
     onNetworkUnavailable: () -> Unit
 ) = when (isNetworkAvailable) {

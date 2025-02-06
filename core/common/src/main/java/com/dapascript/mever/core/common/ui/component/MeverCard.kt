@@ -92,6 +92,7 @@ fun MeverCard(
         ) {
             if (progress < 100 && urlThumbnail.isNullOrEmpty()) MeverUrlThumbnail(
                 source = source,
+                isFailedFetchImage = status == FAILED,
                 modifier = Modifier
                     .size(width = Dp88, height = Dp86)
                     .clip(RoundedCornerShape(Dp8))

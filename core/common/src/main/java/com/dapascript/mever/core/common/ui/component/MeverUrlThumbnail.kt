@@ -6,15 +6,21 @@ import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale.Companion.Crop
+import androidx.compose.ui.res.painterResource
 import coil3.compose.AsyncImage
+import com.dapascript.mever.core.common.R
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
+import com.dapascript.mever.core.common.ui.theme.MeverGray
 import com.dapascript.mever.core.common.util.getPhotoThumbnail
 import com.dapascript.mever.core.common.util.getUrlContentType
 import com.dapascript.mever.core.common.util.getVideoThumbnail
@@ -23,6 +29,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun MeverUrlThumbnail(
     source: String,
+    isFailedFetchImage: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val thumbnail = remember(source) { mutableStateOf<Bitmap?>(null) }
@@ -51,6 +58,12 @@ fun MeverUrlThumbnail(
                 contentDescription = "Thumbnail",
                 modifier = modifier
             )
-        } ?: Box(modifier = modifier.background(meverShimmer()))
+        } ?: if (isFailedFetchImage) Box(modifier = modifier.background(MeverGray)) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_broken_image),
+                contentDescription = "Error",
+                modifier = Modifier.size(Dp24)
+            )
+        } else Box(modifier = modifier.background(meverShimmer()))
     }
 }

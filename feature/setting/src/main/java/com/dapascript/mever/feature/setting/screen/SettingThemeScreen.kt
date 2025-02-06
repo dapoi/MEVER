@@ -65,6 +65,7 @@ internal fun SettingThemeScreen(
     val scrollState = rememberScrollState()
     val isExpanded by remember { derivedStateOf { scrollState.value <= titleHeight } }
     var themeType by remember { mutableStateOf(args.themeType) }
+    args.themeType
 
     BaseScreen(
         topBarArgs = TopBarArgs(

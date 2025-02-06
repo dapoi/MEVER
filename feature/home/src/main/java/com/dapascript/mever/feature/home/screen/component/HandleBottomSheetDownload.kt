@@ -56,6 +56,7 @@ import com.dapascript.mever.core.model.local.ContentEntity
 internal fun HandleBottomSheetDownload(
     listContent: List<ContentEntity>,
     showBottomSheet: Boolean,
+    isFailedFetchImage: Boolean,
     modifier: Modifier = Modifier,
     onClickDownload: (String) -> Unit,
     onClickDismiss: () -> Unit
@@ -74,6 +75,7 @@ internal fun HandleBottomSheetDownload(
 
             if (get(0).thumbnail.isEmpty()) MeverUrlThumbnail(
                 source = size.takeIf { it > 0 }?.let { get(0).url } ?: "",
+                isFailedFetchImage = isFailedFetchImage,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(Dp150)
