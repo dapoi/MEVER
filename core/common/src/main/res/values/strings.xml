@@ -51,4 +51,9 @@
     <string name="support">Support</string>
     <string name="contact">Contact Us</string>
     <string name="about">About Application</string>
+    <string name="choose_file">Choose your file type</string>
+    <string name="wait">Please wait…</string>
+    <string name="video_text">Video</string>
+    <string name="image_text">Image</string>
+    <string name="quality">Quality: %1$s</string>
 </resources>

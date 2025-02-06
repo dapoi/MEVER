@@ -52,4 +52,9 @@
     <string name="support">Dukungan</string>
     <string name="contact">Hubungi Kami</string>
     <string name="about">Tentang Aplikasi</string>
+    <string name="choose_file">Pilih jenis file Anda</string>
+    <string name="wait">Harap tunggu…</string>
+    <string name="video_text">Video</string>
+    <string name="image_text">Gambar</string>
+    <string name="quality">Kualitas: %1$s</string>
 </resources>

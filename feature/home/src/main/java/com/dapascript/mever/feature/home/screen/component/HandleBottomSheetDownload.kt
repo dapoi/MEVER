@@ -27,7 +27,10 @@ import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
+import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.component.MeverBottomSheet
 import com.dapascript.mever.core.common.ui.component.MeverLocalThumbnail
 import com.dapascript.mever.core.common.ui.component.MeverRadioButton
@@ -66,6 +69,7 @@ internal fun HandleBottomSheetDownload(
                 .fillMaxWidth()
                 .padding(horizontal = Dp24)
         ) {
+            val context = LocalContext.current
             var chooseQuality by remember(this) { mutableStateOf(firstOrNull()?.url) }
 
             if (get(0).thumbnail.isEmpty()) MeverUrlThumbnail(
@@ -84,15 +88,16 @@ internal fun HandleBottomSheetDownload(
                     .clip(RoundedCornerShape(Dp12))
             )
             Text(
-                text = "Choose your file type",
+                text = stringResource(R.string.choose_file),
                 style = typography.bodyBold1.copy(fontSize = Sp20),
                 color = colorScheme.onPrimary
             )
             AnimatedVisibility(takeIf { (all { it.quality.isEmpty() }) } != null) {
-                var contentType by remember(this) { mutableStateOf("Please wait...") }
+                var contentType by remember(this) { mutableStateOf(context.getString(R.string.wait)) }
                 LaunchedEffect(get(0).url) {
                     contentType = getUrlContentType(get(0).url)?.let { type ->
-                        if (type.isVideo()) "Video" else "Image"
+                        if (type.isVideo()) context.getString(R.string.video_text)
+                        else context.getString(R.string.image_text)
                     }.orEmpty()
                 }
                 RadioButtonSection(
@@ -104,7 +109,7 @@ internal fun HandleBottomSheetDownload(
             filter { it.url.isValidUrl() && it.quality.isNotEmpty() }.forEach { (url, quality) ->
                 RadioButtonSection(
                     url = url,
-                    quality = "Quality $quality",
+                    quality = stringResource(R.string.quality, quality),
                     chooseQuality = chooseQuality ?: get(0).url
                 ) { chooseQuality = it }
             }
@@ -122,7 +127,7 @@ internal fun HandleBottomSheetDownload(
                     contentAlignment = Center
                 ) {
                     Text(
-                        text = "Cancel",
+                        text = stringResource(R.string.cancel),
                         style = typography.bodyBold1,
                         color = colorScheme.onPrimary
                     )
@@ -145,7 +150,7 @@ internal fun HandleBottomSheetDownload(
                     contentAlignment = Center
                 ) {
                     Text(
-                        text = "Download",
+                        text = stringResource(R.string.download),
                         style = typography.bodyBold1,
                         color = colorScheme.primary
                     )
