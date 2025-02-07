@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -28,6 +29,7 @@ import androidx.compose.ui.graphics.StrokeCap.Companion.Round
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow.Companion.Ellipsis
+import coil3.compose.LocalPlatformContext
 import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest.Builder
 import coil3.request.crossfade
@@ -134,14 +136,14 @@ fun MeverCard(
                     )
                 }
                 Text(
-                    text = "Type: ${getLocalContentType(filePath)}",
+                    text = stringResource(R.string.type, getLocalContentType(filePath)),
                     style = typography.label2,
                     color = MeverGray
                 )
                 if (progress < 100) Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = Dp16),
+                        .padding(top = Dp12),
                     horizontalArrangement = spacedBy(Dp8)
                 ) {
                     Column(
@@ -167,7 +169,7 @@ fun MeverCard(
                                 style = typography.label2,
                                 color = colorScheme.primary
                             )
-                            Text(
+                            if (status != FAILED) Text(
                                 text = "${
                                     calculateDownloadedMegabytes(
                                         progress = progress,
@@ -178,6 +180,7 @@ fun MeverCard(
                                 color = MeverLightGray
                             )
                         }
+                        Spacer(modifier = Modifier.height(Dp8))
                         LinearProgressIndicator(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -187,7 +190,7 @@ fun MeverCard(
                             trackColor = MeverLightGray,
                             gapSize = -Dp15,
                             strokeCap = Round,
-                            progress = { animatedProgress },
+                            progress = { if (status == FAILED) 100f else animatedProgress },
                             drawStopIndicator = {}
                         )
                     }
@@ -222,11 +225,13 @@ fun MeverCard(
 
 @Composable
 private fun getImagePainter(status: Status) = rememberAsyncImagePainter(
-    when (status) {
-        FAILED -> R.drawable.ic_refresh
-        PAUSED -> R.drawable.ic_play
-        else -> R.drawable.ic_pause
-    }
+    Builder(LocalPlatformContext.current).data(
+        when (status) {
+            FAILED -> R.drawable.ic_refresh
+            PAUSED -> R.drawable.ic_play
+            else -> R.drawable.ic_pause
+        }
+    ).build()
 )
 
 @Composable

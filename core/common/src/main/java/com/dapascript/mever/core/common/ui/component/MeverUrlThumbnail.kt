@@ -9,18 +9,23 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter.Companion.tint
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale.Companion.Crop
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.vectorResource
 import coil3.compose.AsyncImage
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.MeverGray
+import com.dapascript.mever.core.common.ui.theme.MeverLightGray2
 import com.dapascript.mever.core.common.util.getPhotoThumbnail
 import com.dapascript.mever.core.common.util.getUrlContentType
 import com.dapascript.mever.core.common.util.getVideoThumbnail
@@ -35,7 +40,7 @@ fun MeverUrlThumbnail(
     val thumbnail = remember(source) { mutableStateOf<Bitmap?>(null) }
 
     LaunchedEffect(thumbnail) {
-        while (thumbnail.value == null) {
+        while (thumbnail.value == null && isFailedFetchImage.not()) {
             try {
                 thumbnail.value = if (getUrlContentType(source) == ".jpg") getPhotoThumbnail(source)
                 else getVideoThumbnail(source)
@@ -58,11 +63,17 @@ fun MeverUrlThumbnail(
                 contentDescription = "Thumbnail",
                 modifier = modifier
             )
-        } ?: if (isFailedFetchImage) Box(modifier = modifier.background(MeverGray)) {
+        } ?: if (isFailedFetchImage) Box(
+            modifier = modifier.background(MeverLightGray2),
+            contentAlignment = Center
+        ) {
             Image(
-                painter = painterResource(id = R.drawable.ic_broken_image),
+                imageVector = ImageVector.vectorResource(R.drawable.ic_broken_image),
+                colorFilter = tint(MeverGray),
                 contentDescription = "Error",
-                modifier = Modifier.size(Dp24)
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(Dp24)
             )
         } else Box(modifier = modifier.background(meverShimmer()))
     }

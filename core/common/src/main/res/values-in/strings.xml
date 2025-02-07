@@ -57,4 +57,6 @@
     <string name="video_text">Video</string>
     <string name="image_text">Gambar</string>
     <string name="quality">Kualitas: %1$s</string>
+    <string name="type">Tipe: %1$s</string>
+    <string name="all">Semua</string>
 </resources>

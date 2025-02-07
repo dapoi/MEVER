@@ -287,7 +287,7 @@ private fun GalleryContentSection(
                     verticalAlignment = CenterVertically
                 ) {
                     MeverButton(
-                        title = "All",
+                        title = stringResource(RCommon.string.all),
                         shape = RoundedCornerShape(Dp64),
                         buttonType = if (selectedFilter == UNKNOWN) FILLED else OUTLINED,
                     ) { onClickFilter(UNKNOWN) }

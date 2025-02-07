@@ -56,4 +56,6 @@
     <string name="video_text">Video</string>
     <string name="image_text">Image</string>
     <string name="quality">Quality: %1$s</string>
+    <string name="type">Type: %1$s</string>
+    <string name="all">All</string>
 </resources>
