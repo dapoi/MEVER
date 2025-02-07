@@ -39,7 +39,7 @@ fun MeverUrlThumbnail(
 ) {
     val thumbnail = remember(source) { mutableStateOf<Bitmap?>(null) }
 
-    LaunchedEffect(thumbnail) {
+    LaunchedEffect(thumbnail, isFailedFetchImage) {
         while (thumbnail.value == null && isFailedFetchImage.not()) {
             try {
                 thumbnail.value = if (getUrlContentType(source) == ".jpg") getPhotoThumbnail(source)

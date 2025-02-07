@@ -5,7 +5,7 @@ import androidx.compose.ui.graphics.Color
 object MeverDialogAttr {
     data class MeverDialogArgs(
         val title: String,
-        val primaryButtonText: String,
+        val primaryButtonText: String? = null,
         val secondaryButtonText: String? = null,
         val titleColor: Color? = null,
         val backgroundColor: Color? = null,

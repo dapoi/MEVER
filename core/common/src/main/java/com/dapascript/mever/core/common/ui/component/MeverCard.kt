@@ -88,7 +88,7 @@ fun MeverCard(
 
         Row(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
                 .clip(RoundedCornerShape(Dp8))
                 .clickableSingle { onClickCard?.invoke() }
         ) {
@@ -98,6 +98,7 @@ fun MeverCard(
                 modifier = Modifier
                     .size(width = Dp88, height = Dp86)
                     .clip(RoundedCornerShape(Dp8))
+                    .align(CenterVertically)
             ) else MeverLocalThumbnail(
                 source = Builder(context)
                     .setThumbnail(progress, filePath, urlThumbnail.orEmpty())
@@ -106,6 +107,7 @@ fun MeverCard(
                 modifier = Modifier
                     .size(width = Dp88, height = Dp86)
                     .clip(RoundedCornerShape(Dp8))
+                    .align(CenterVertically)
             )
             Column(
                 modifier = Modifier
