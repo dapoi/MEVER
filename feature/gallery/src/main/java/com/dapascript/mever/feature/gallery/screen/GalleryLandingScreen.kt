@@ -97,6 +97,7 @@ internal fun GalleryLandingScreen(
     viewModel: GalleryLandingViewModel = hiltViewModel()
 ) = with(viewModel) {
     val context = LocalContext.current
+    val downloadList = downloadList.collectAsStateValue()
     val scrollState = rememberScrollState()
     val isExpanded by remember { derivedStateOf { scrollState.value <= titleHeight } }
     var snackbarMessage by remember { mutableStateOf("") }
@@ -117,7 +118,7 @@ internal fun GalleryLandingScreen(
         ),
         allowScreenOverlap = true
     ) {
-        LaunchedEffect(Unit) { getAllDownloads() }
+//        LaunchedEffect(Unit) { getAllDownloads() }
 
         PopUpDropdownMenu(
             listDropDown = listDropDown,

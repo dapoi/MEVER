@@ -130,7 +130,7 @@ internal fun HomeLandingScreen(
         hideDefaultTopBar = true,
         allowScreenOverlap = true
     ) {
-        LaunchedEffect(Unit) { getObservableKetch() }
+//        LaunchedEffect(Unit) { getObservableKetch() }
 
         LaunchedEffect(contentState) {
             contentState.handleUiState(
@@ -226,6 +226,7 @@ private fun HomeScreenContent(
 ) = with(viewModel) {
     BoxWithConstraints(modifier = modifier.fillMaxSize()) {
         val context = LocalContext.current
+        val downloadList = downloadList.collectAsStateValue()
         val getListActionMenu = remember { getListActionMenu(context) }
         val tabItems = remember { tabItems(context) }
         val pagerState = rememberPagerState(pageCount = { tabItems.size })

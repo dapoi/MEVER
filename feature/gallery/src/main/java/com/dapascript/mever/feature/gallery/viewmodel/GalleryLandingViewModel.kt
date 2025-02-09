@@ -9,11 +9,12 @@ import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.util.Constant.PlatformType
 import com.dapascript.mever.core.common.util.Constant.PlatformType.UNKNOWN
 import com.dapascript.mever.core.common.util.isAvailableOnLocal
-import com.ketch.DownloadModel
 import com.ketch.Ketch
 import com.ketch.Status.SUCCESS
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.SharingStarted.Companion.Lazily
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
@@ -27,15 +28,13 @@ class GalleryLandingViewModel @Inject constructor(
         internal set
     var platformTypes by mutableStateOf(listOf(UNKNOWN))
         internal set
-    var downloadList by mutableStateOf<List<DownloadModel>?>(null)
-        private set
-
-    fun getAllDownloads() = viewModelScope.launch {
-        ketch.observeDownloads().collect { downloads ->
-            downloadList = downloads
+    val downloadList = ketch.observeDownloads()
+        .map { downloads ->
+            downloads
+                .filter { it.isAvailableOnLocal() || it.status != SUCCESS }
                 .sortedByDescending { it.lastModified }
                 .also { platformTypes = PlatformType.entries.filter { type -> it.any { it.tag == type.platformName } } }
                 .onEach { if (it.status == SUCCESS && it.isAvailableOnLocal().not()) ketch.clearDb(it.id) }
         }
-    }
+        .stateIn(viewModelScope, Lazily, null)
 }
