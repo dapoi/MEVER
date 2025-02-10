@@ -7,6 +7,23 @@ plugins {
 
 android {
     namespace = "com.dapascript.mever.core.data"
+
+    defaultConfig {
+        val apiConfigFile = rootProject.file("./build-properties/env.properties")
+        (apiConfigFile.exists()).let {
+            apiConfigFile.forEachLine { line ->
+                val entry = line.split("=", limit = 2)
+                if (entry.size == 2) {
+                    rootProject.extra.set(entry[0].trim(), entry[1].trim())
+                }
+            }
+        }
+
+        val baseUrl = rootProject.extra.get("BASE_URL")?.toString()?.takeIf { it.isNotBlank() } ?: "\"\""
+        buildConfigField("String", "BASE_URL", baseUrl)
+    }
+
+    buildFeatures { buildConfig = true }
 }
 
 dependencies {

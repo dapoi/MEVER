@@ -7,4 +7,5 @@
 .externalNativeBuild
 .cxx
 local.properties
+/build-properties/env.properties
 .idea

@@ -3,6 +3,7 @@ package com.dapascript.mever.core.data.di
 import android.content.Context
 import com.chuckerteam.chucker.api.ChuckerCollector
 import com.chuckerteam.chucker.api.ChuckerInterceptor
+import com.dapascript.mever.core.data.BuildConfig.BASE_URL
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.repository.MeverRepositoryImpl
 import com.dapascript.mever.core.data.source.local.MeverDataStore
@@ -36,7 +37,7 @@ class DataModule {
         okHttpClient: OkHttpClient,
         gsonConverterFactory: GsonConverterFactory
     ): Retrofit = Retrofit.Builder()
-        .baseUrl("https://api.ryzendesu.vip/")
+        .baseUrl(BASE_URL)
         .addConverterFactory(gsonConverterFactory)
         .client(okHttpClient)
         .build()
