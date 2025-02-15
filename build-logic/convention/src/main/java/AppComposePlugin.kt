@@ -1,6 +1,6 @@
 import com.android.build.api.dsl.ApplicationExtension
 import com.dapascript.mever.build_logic.convention.alias
-import com.dapascript.mever.build_logic.convention.configureAndroidCompose
+import com.dapascript.mever.build_logic.convention.configCompose
 import com.dapascript.mever.build_logic.convention.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -11,7 +11,7 @@ class AppComposePlugin : Plugin<Project> {
         with(target) {
             pluginManager.alias(libs.plugins.android.application)
             val extension = extensions.getByType<ApplicationExtension>()
-            configureAndroidCompose(extension)
+            configCompose(extension)
         }
     }
 }

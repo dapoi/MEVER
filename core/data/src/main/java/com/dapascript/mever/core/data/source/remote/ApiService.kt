@@ -1,10 +1,10 @@
 package com.dapascript.mever.core.data.source.remote
 
-import com.dapascript.mever.core.model.remote.FacebookDownloaderResponse
-import com.dapascript.mever.core.model.remote.InstagramDownloaderResponse
-import com.dapascript.mever.core.model.remote.TikTokDownloaderResponse
-import com.dapascript.mever.core.model.remote.TwitterDownloaderResponse
-import com.dapascript.mever.core.model.remote.YouTubeDownloaderResponse
+import com.dapascript.mever.core.data.model.remote.FacebookDownloaderResponse
+import com.dapascript.mever.core.data.model.remote.InstagramDownloaderResponse
+import com.dapascript.mever.core.data.model.remote.TikTokDownloaderResponse
+import com.dapascript.mever.core.data.model.remote.TwitterDownloaderResponse
+import com.dapascript.mever.core.data.model.remote.YouTubeDownloaderResponse
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Query

@@ -1,7 +1,7 @@
 package com.dapascript.mever.core.data.repository
 
 import com.dapascript.mever.core.common.util.state.ApiState
-import com.dapascript.mever.core.model.local.ContentEntity
+import com.dapascript.mever.core.data.model.local.ContentEntity
 import kotlinx.coroutines.flow.Flow
 
 interface MeverRepository {

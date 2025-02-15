@@ -31,18 +31,9 @@ android {
 dependencies {
     implementation(projects.feature.startup)
     implementation(projects.feature.home)
-    implementation(projects.feature.notification)
     implementation(projects.feature.setting)
     implementation(projects.feature.gallery)
     implementation(projects.core.common)
     implementation(projects.core.data)
-
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.activity.compose)
-    implementation(libs.timber)
-    implementation(libs.ketch)
-
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
+    implementation(projects.core.navigation)
 }

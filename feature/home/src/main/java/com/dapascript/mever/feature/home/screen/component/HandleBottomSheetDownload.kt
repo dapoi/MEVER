@@ -50,7 +50,7 @@ import com.dapascript.mever.core.common.util.clickableSingle
 import com.dapascript.mever.core.common.util.getUrlContentType
 import com.dapascript.mever.core.common.util.isValidUrl
 import com.dapascript.mever.core.common.util.isVideo
-import com.dapascript.mever.core.model.local.ContentEntity
+import com.dapascript.mever.core.data.model.local.ContentEntity
 
 @Composable
 internal fun HandleBottomSheetDownload(

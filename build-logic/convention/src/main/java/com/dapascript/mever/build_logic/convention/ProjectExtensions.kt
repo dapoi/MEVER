@@ -10,12 +10,6 @@ import org.gradle.api.provider.ProviderConvertible
 import org.gradle.kotlin.dsl.accessors.runtime.extensionOf
 import org.gradle.plugin.use.PluginDependency
 
-fun DependencyHandler.testImplementation(dependencyNotation: Any): Dependency? =
-    add("testImplementation", dependencyNotation)
-
-fun DependencyHandler.testRuntimeOnly(dependencyNotation: Any): Dependency? =
-    add("testRuntimeOnly", dependencyNotation)
-
 fun DependencyHandler.implementation(dependencyNotation: Any): Dependency? =
     add("implementation", dependencyNotation)
 
@@ -24,6 +18,9 @@ fun DependencyHandler.androidTestImplementation(dependencyNotation: Any): Depend
 
 fun DependencyHandler.debugImplementation(dependencyNotation: Any): Dependency? =
     add("debugImplementation", dependencyNotation)
+
+fun DependencyHandler.releaseImplementation(dependencyNotation: Any): Dependency? =
+    add("releaseImplementation", dependencyNotation)
 
 fun PluginManager.alias(notation: Provider<PluginDependency>) {
     apply(notation.get().pluginId)

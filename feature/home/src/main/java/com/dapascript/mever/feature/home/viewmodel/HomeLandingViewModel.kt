@@ -23,7 +23,7 @@ import com.dapascript.mever.core.common.util.state.UiState
 import com.dapascript.mever.core.common.util.state.UiState.StateInitial
 import com.dapascript.mever.core.common.util.toCurrentDate
 import com.dapascript.mever.core.data.repository.MeverRepository
-import com.dapascript.mever.core.model.local.ContentEntity
+import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.ketch.Ketch
 import com.ketch.Status.PAUSED
 import com.ketch.Status.PROGRESS

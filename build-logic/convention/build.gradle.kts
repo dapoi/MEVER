@@ -38,21 +38,17 @@ tasks {
 
 gradlePlugin {
     plugins {
-        register("androidApplicationCompose") {
-            id = "mever.application.compose"
-            implementationClass = "AppComposePlugin"
-        }
         register("androidApplication") {
             id = "mever.application"
             implementationClass = "AppPlugin"
         }
-        register("androidLibraryCompose") {
-            id = "mever.library.compose"
-            implementationClass = "LibComposePlugin"
+        register("androidApplicationCompose") {
+            id = "mever.application.compose"
+            implementationClass = "AppComposePlugin"
         }
-        register("androidLibrary") {
-            id = "mever.library"
-            implementationClass = "LibPlugin"
+        register("androidData") {
+            id = "mever.data"
+            implementationClass = "DataPlugin"
         }
         register("androidFeature") {
             id = "mever.feature"
@@ -61,6 +57,18 @@ gradlePlugin {
         register("androidHilt") {
             id = "mever.hilt"
             implementationClass = "HiltPlugin"
+        }
+        register("androidLibrary") {
+            id = "mever.library"
+            implementationClass = "LibPlugin"
+        }
+        register("androidLibraryCompose") {
+            id = "mever.library.compose"
+            implementationClass = "LibComposePlugin"
+        }
+        register("androidNav") {
+            id = "mever.navigation"
+            implementationClass = "NavPlugin"
         }
     }
 }

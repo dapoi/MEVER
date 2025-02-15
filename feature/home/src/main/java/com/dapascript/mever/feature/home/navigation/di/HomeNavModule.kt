@@ -1,6 +1,6 @@
 package com.dapascript.mever.feature.home.navigation.di
 
-import com.dapascript.mever.core.common.navigation.graph.HomeNavGraph
+import com.dapascript.mever.core.navigation.graph.HomeNavGraph
 import com.dapascript.mever.feature.home.navigation.HomeNavGraphImpl
 import dagger.Module
 import dagger.Provides

@@ -2,10 +2,10 @@ package com.dapascript.mever.feature.home.navigation
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.navigation
-import com.dapascript.mever.core.common.navigation.base.BaseNavigator
-import com.dapascript.mever.core.common.navigation.extension.composableScreen
-import com.dapascript.mever.core.common.navigation.graph.HomeNavGraph
-import com.dapascript.mever.core.common.navigation.graph.route.GraphRoute.HomeNavGraphRoute
+import com.dapascript.mever.core.navigation.base.BaseNavigator
+import com.dapascript.mever.core.navigation.extension.composableScreen
+import com.dapascript.mever.core.navigation.graph.HomeNavGraph
+import com.dapascript.mever.core.navigation.graph.route.GraphRoute.HomeNavGraphRoute
 import com.dapascript.mever.feature.home.navigation.route.HomeLandingRoute
 import com.dapascript.mever.feature.home.screen.HomeLandingScreen
 import javax.inject.Inject

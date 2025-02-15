@@ -23,6 +23,7 @@ lottie = "6.6.0"
 media3 = "1.5.1"
 retrofit = "2.11.0"
 timber = "5.0.1"
+material = "1.12.0"
 
 [libraries]
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidxActivity" }
@@ -32,7 +33,7 @@ androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "j
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "androidxNavigation" }
 chucker-debug = { group = "com.github.chuckerteam.chucker", name = "library", version.ref = "chucker" }
 chucker-release = { group = "com.github.chuckerteam.chucker", name = "library-no-op", version.ref = "chucker" }
-coil = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
+coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
 coil-network = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
 coil-video = { group = "io.coil-kt.coil3", name = "coil-video", version.ref = "coil" }
 dataStorePreferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "dataStorePreferences" }
@@ -44,7 +45,7 @@ media3-exoplayer = { group = "androidx.media3", name = "media3-exoplayer", versi
 media3-session = { group = "androidx.media3", name = "media3-session", version.ref = "media3" }
 media3-ui = { group = "androidx.media3", name = "media3-ui", version.ref = "media3" }
 okhttp-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "interceptor" }
-retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+retrofit-lib = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 retrofit-converter = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
 
@@ -63,6 +64,7 @@ androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "u
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
 hilt-navigation = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigation" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 [plugins]
 
@@ -79,7 +81,9 @@ ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 # Custom plugins
 mever-application = { id = "mever.application", version = "unspecified" }
 mever-application-compose = { id = "mever.application.compose", version = "unspecified" }
-mever-library = { id = "mever.library", version = "unspecified" }
-mever-library-compose = { id = "mever.library.compose", version = "unspecified" }
+mever-data = { id = "mever.data", version = "unspecified" }
 mever-feature = { id = "mever.feature", version = "unspecified" }
 mever-hilt = { id = "mever.hilt", version = "unspecified" }
+mever-library = { id = "mever.library", version = "unspecified" }
+mever-library-compose = { id = "mever.library.compose", version = "unspecified" }
+mever-navigation = { id = "mever.navigation", version = "unspecified" }

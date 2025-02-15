@@ -12,16 +12,11 @@ class FeaturePlugin : Plugin<Project> {
             with(pluginManager) {
                 alias(libs.plugins.mever.library)
                 alias(libs.plugins.mever.hilt)
-                alias(libs.plugins.kotlin.parcelize)
-                alias(libs.plugins.kotlin.serialization)
+                alias(libs.plugins.mever.navigation)
             }
 
             dependencies {
                 coreModules.forEach { module -> implementation(project(module)) }
-
-                // Define common dependencies for feature modules
-                implementation(libs.androidx.navigation.compose.get())
-                implementation(libs.kotlinx.serialization.json.get())
             }
         }
     }

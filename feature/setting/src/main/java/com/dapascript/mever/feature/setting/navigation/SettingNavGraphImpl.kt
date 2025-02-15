@@ -2,10 +2,10 @@ package com.dapascript.mever.feature.setting.navigation
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.navigation
-import com.dapascript.mever.core.common.navigation.base.BaseNavigator
-import com.dapascript.mever.core.common.navigation.extension.composableScreen
-import com.dapascript.mever.core.common.navigation.graph.SettingNavGraph
-import com.dapascript.mever.core.common.navigation.graph.route.GraphRoute.SettingNavGraphRoute
+import com.dapascript.mever.core.navigation.base.BaseNavigator
+import com.dapascript.mever.core.navigation.extension.composableScreen
+import com.dapascript.mever.core.navigation.graph.SettingNavGraph
+import com.dapascript.mever.core.navigation.graph.route.GraphRoute.SettingNavGraphRoute
 import com.dapascript.mever.feature.setting.navigation.route.SettingRoutes.SettingLandingRoute
 import com.dapascript.mever.feature.setting.navigation.route.SettingRoutes.SettingLanguageRoute
 import com.dapascript.mever.feature.setting.navigation.route.SettingRoutes.SettingThemeRoute

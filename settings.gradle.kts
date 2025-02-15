@@ -1,5 +1,8 @@
 @file:Suppress("UnstableApiUsage")
 
+include(":core:navigation")
+
+
 rootProject.name = "MEVER"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
@@ -34,11 +37,9 @@ dependencyResolutionManagement {
 }
 
 include(":app")
-include(":core:model")
 include(":core:data")
 include(":core:common")
 include(":feature:startup")
 include(":feature:home")
-include(":feature:notification")
 include(":feature:setting")
 include(":feature:gallery")
