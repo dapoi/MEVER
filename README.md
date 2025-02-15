@@ -65,10 +65,14 @@ You can download the app via **Play Store** or **GitHub Releases**.
 Contributions are welcome! If you'd like to contribute to this project, please follow these steps:
 
 1. Fork the repository.
-2. Create a new branch (`git checkout -b feature/feature-name`).
-3. Commit your changes (`git commit -m 'Add some feature'`).
-4. Push to the branch (`git push origin feature/feature-name`).
-5. Open a pull request.
+2. If you encounter an error, change to the project and create the build-properties and env.properties folders inside it
+   > ![image](https://github.com/user-attachments/assets/1436563b-4391-460c-b299-5f11a05d2478)
+3. Put url below
+   > ![image](https://github.com/user-attachments/assets/99efe677-536a-465a-a93e-1ccf483147b8)
+4. Create a new branch (`git checkout -b feature/feature-name`).
+5. Commit your changes (`git commit -m 'Add some feature'`).
+6. Push to the branch (`git push origin feature/feature-name`).
+7. Open a pull request.
 
 Please ensure your code follows the project's coding standards and includes appropriate documentation.
 
