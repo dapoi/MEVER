@@ -25,7 +25,7 @@ import coil3.compose.AsyncImage
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.MeverGray
-import com.dapascript.mever.core.common.ui.theme.MeverLightGray2
+import com.dapascript.mever.core.common.ui.theme.MeverLightGray
 import com.dapascript.mever.core.common.util.getPhotoThumbnail
 import com.dapascript.mever.core.common.util.getUrlContentType
 import com.dapascript.mever.core.common.util.getVideoThumbnail
@@ -64,7 +64,7 @@ fun MeverUrlThumbnail(
                 modifier = modifier
             )
         } ?: if (isFailedFetchImage) Box(
-            modifier = modifier.background(MeverLightGray2),
+            modifier = modifier.background(MeverLightGray),
             contentAlignment = Center
         ) {
             Image(

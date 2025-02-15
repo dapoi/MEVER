@@ -33,8 +33,6 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dapascript.mever.core.common.base.BaseScreen
-import com.dapascript.mever.core.common.navigation.base.BaseNavigator
-import com.dapascript.mever.core.common.navigation.graph.HomeNavGraph
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
@@ -47,6 +45,8 @@ import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp40
 import com.dapascript.mever.core.common.util.getNotificationPermission
 import com.dapascript.mever.core.common.util.isAndroidTiramisuAbove
+import com.dapascript.mever.core.navigation.base.BaseNavigator
+import com.dapascript.mever.core.navigation.graph.HomeNavGraph
 import com.dapascript.mever.feature.startup.R
 import com.dapascript.mever.feature.startup.navigation.route.StartupRoutes.OnboardRoute
 import com.dapascript.mever.feature.startup.viewmodel.OnboardViewModel
@@ -60,7 +60,7 @@ internal fun OnboardScreen(
         useSystemBarsPadding = false,
         allowScreenOverlap = true,
         hideDefaultTopBar = true,
-        modifier = Modifier.background(colorScheme.onPrimaryContainer)
+        modifier = Modifier.background(colorScheme.background)
     ) {
         val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
         val requestNotifPermissionLauncher = rememberLauncherForActivityResult(RequestPermission()) {

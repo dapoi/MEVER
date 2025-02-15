@@ -50,9 +50,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
-import com.dapascript.mever.core.common.navigation.base.BaseNavigator
-import com.dapascript.mever.core.common.navigation.graph.GalleryNavGraph
-import com.dapascript.mever.core.common.navigation.graph.SettingNavGraph
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.FILLED
 import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardArgs
 import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
@@ -90,7 +87,10 @@ import com.dapascript.mever.core.common.util.getStoragePermission
 import com.dapascript.mever.core.common.util.goToSetting
 import com.dapascript.mever.core.common.util.replaceTimeFormat
 import com.dapascript.mever.core.common.util.shareContent
-import com.dapascript.mever.core.model.local.ContentEntity
+import com.dapascript.mever.core.data.model.local.ContentEntity
+import com.dapascript.mever.core.navigation.base.BaseNavigator
+import com.dapascript.mever.core.navigation.graph.GalleryNavGraph
+import com.dapascript.mever.core.navigation.graph.SettingNavGraph
 import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetDownload
 import com.dapascript.mever.feature.home.screen.component.HandleDialogError
 import com.dapascript.mever.feature.home.screen.component.HandleDialogPermission
@@ -130,8 +130,6 @@ internal fun HomeLandingScreen(
         hideDefaultTopBar = true,
         allowScreenOverlap = true
     ) {
-//        LaunchedEffect(Unit) { getObservableKetch() }
-
         LaunchedEffect(contentState) {
             contentState.handleUiState(
                 onLoading = { showLoading = true },

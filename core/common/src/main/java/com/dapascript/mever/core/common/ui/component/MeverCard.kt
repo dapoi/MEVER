@@ -179,7 +179,7 @@ fun MeverCard(
                                     )
                                 } MB/${getTwoDecimals(total / (1024.0 * 1024.0))} MB",
                                 style = typography.label2,
-                                color = MeverLightGray
+                                color = MeverGray
                             )
                         }
                         Spacer(modifier = Modifier.height(Dp8))

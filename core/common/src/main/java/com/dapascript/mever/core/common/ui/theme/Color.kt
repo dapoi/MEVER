@@ -8,8 +8,7 @@ val MeverDark = Color(0xFF292929)
 val MeverDarkGray = Color(0xFF535454)
 val MeverGray = Color(0xFF888888)
 val MeverLightBlue = Color(0xFFD6EEFB)
-val MeverLightGray = Color(0xFFBAC2CD)
-val MeverLightGray2 = Color(0xFFDCE0E6)
+val MeverLightGray = Color(0xFFDCE0E6)
 val MeverLightGreen = Color(0xFFD6FBE5)
 val MeverLightPurple = Color(0xFFE0D6FB)
 val MeverPink = Color(0xFFFBD6D6)
@@ -47,7 +46,7 @@ sealed class MeverThemeColors(
     data object Dark : MeverThemeColors(
         primary = MeverPurple,
         onPrimary = MeverWhite,
-        onPrimaryContainer = MeverDark,
+        onPrimaryContainer = MeverBlack,
         secondary = MeverLightGray,
         onSecondary = MeverWhite,
         onSecondaryContainer = MeverDarkGray,

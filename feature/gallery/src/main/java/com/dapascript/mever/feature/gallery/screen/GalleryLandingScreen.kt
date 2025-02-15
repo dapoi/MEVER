@@ -7,7 +7,6 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement.spacedBy
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -19,14 +18,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,7 +33,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -50,7 +45,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
-import com.dapascript.mever.core.common.navigation.base.BaseNavigator
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.FILLED
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.OUTLINED
 import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardArgs
@@ -63,6 +57,7 @@ import com.dapascript.mever.core.common.ui.component.MeverButton
 import com.dapascript.mever.core.common.ui.component.MeverCard
 import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
+import com.dapascript.mever.core.common.ui.component.MeverPopupDropDownMenu
 import com.dapascript.mever.core.common.ui.component.MeverSnackbar
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp210
@@ -80,6 +75,7 @@ import com.dapascript.mever.core.common.util.getMeverFiles
 import com.dapascript.mever.core.common.util.isAvailableOnLocal
 import com.dapascript.mever.core.common.util.replaceTimeFormat
 import com.dapascript.mever.core.common.util.shareContent
+import com.dapascript.mever.core.navigation.base.BaseNavigator
 import com.dapascript.mever.feature.gallery.navigation.route.GalleryRoutes.GalleryContentDetailRoute
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.DELETE_ALL
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.MORE
@@ -118,13 +114,16 @@ internal fun GalleryLandingScreen(
         ),
         allowScreenOverlap = true
     ) {
-//        LaunchedEffect(Unit) { getAllDownloads() }
-
-        PopUpDropdownMenu(
+        MeverPopupDropDownMenu(
+            modifier = Modifier.padding(top = Dp64, end = Dp24),
             listDropDown = listDropDown,
             showDropDownMenu = showDropDownMenu,
-            onShowDeleteAllDialog = { showDeleteAllDialog = it },
-            onDismissDropDownMenu = { showDropDownMenu = it }
+            onDismissDropDownMenu = { showDropDownMenu = it },
+            onClick = { item ->
+                when (item) {
+                    DELETE_ALL -> showDeleteAllDialog = true
+                }
+            }
         )
 
         GalleryContentSection(
@@ -365,44 +364,6 @@ private fun GalleryContentSection(
                 LaunchedEffect(selectedFilter, downloadList.isEmpty()) {
                     if (selectedFilter != UNKNOWN && downloadList.isEmpty()) onChangeFilter(UNKNOWN)
                 }
-            }
-        }
-    }
-}
-
-@Composable
-private fun PopUpDropdownMenu(
-    listDropDown: List<String>,
-    showDropDownMenu: Boolean,
-    onShowDeleteAllDialog: (Boolean) -> Unit,
-    onDismissDropDownMenu: (Boolean) -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentSize(Alignment.TopEnd)
-    ) {
-        DropdownMenu(
-            expanded = showDropDownMenu,
-            containerColor = colorScheme.background,
-            onDismissRequest = { onDismissDropDownMenu(false) }
-        ) {
-            listDropDown.map { item ->
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            text = item,
-                            style = typography.body1,
-                            color = colorScheme.onPrimary
-                        )
-                    },
-                    onClick = {
-                        when (item) {
-                            DELETE_ALL -> onShowDeleteAllDialog(true)
-                        }
-                        onDismissDropDownMenu(false)
-                    }
-                )
             }
         }
     }

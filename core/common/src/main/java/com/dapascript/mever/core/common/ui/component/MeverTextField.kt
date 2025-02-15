@@ -92,8 +92,7 @@ fun MeverTextField(
             decorationBox = { innerTextField ->
                 if (webDomainValue.text.isEmpty()) Text(
                     text = stringResource(R.string.paste_url),
-                    color = MeverLightGray,
-                    style = typography.body2.copy(color = colorScheme.onPrimary)
+                    style = typography.body2.copy(color = colorScheme.secondary)
                 )
                 innerTextField()
             }

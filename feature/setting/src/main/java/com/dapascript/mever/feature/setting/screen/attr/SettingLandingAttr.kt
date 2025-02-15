@@ -4,7 +4,7 @@ import androidx.compose.ui.graphics.Color
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.theme.MeverCreamPink
 import com.dapascript.mever.core.common.ui.theme.MeverLightBlue
-import com.dapascript.mever.core.common.ui.theme.MeverLightGray2
+import com.dapascript.mever.core.common.ui.theme.MeverLightGray
 import com.dapascript.mever.core.common.ui.theme.MeverPink
 import com.dapascript.mever.core.common.ui.theme.MeverViolet
 import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.SettingMenus.SubMenu
@@ -71,7 +71,7 @@ object SettingLandingAttr {
                 SubMenu(
                     leadingTitle = R.string.contact,
                     icon = R.drawable.ic_cs,
-                    iconBackgroundColor = MeverLightGray2
+                    iconBackgroundColor = MeverLightGray
                 ),
                 SubMenu(
                     leadingTitle = R.string.about,
