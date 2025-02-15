@@ -29,11 +29,11 @@ android {
 }
 
 dependencies {
-    implementation(projects.feature.startup)
-    implementation(projects.feature.home)
-    implementation(projects.feature.setting)
-    implementation(projects.feature.gallery)
     implementation(projects.core.common)
     implementation(projects.core.data)
     implementation(projects.core.navigation)
+    implementation(projects.feature.gallery)
+    implementation(projects.feature.home)
+    implementation(projects.feature.setting)
+    implementation(projects.feature.startup)
 }
