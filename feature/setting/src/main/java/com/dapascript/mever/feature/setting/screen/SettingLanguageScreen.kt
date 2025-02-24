@@ -39,7 +39,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
-import com.dapascript.mever.core.navigation.base.BaseNavigator
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverRadioButton
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
@@ -54,6 +53,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.util.clickableSingle
+import com.dapascript.mever.core.navigation.base.BaseNavigator
 import com.dapascript.mever.feature.setting.viewmodel.SettingLanguageViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -64,7 +64,7 @@ internal fun SettingLanguageScreen(
 ) = with(viewModel) {
     val scrollState = rememberScrollState()
     val isExpanded by remember { derivedStateOf { scrollState.value <= titleHeight } }
-    var languageCode by remember { mutableStateOf(args.languageCode) }
+    var languageCode by remember { mutableStateOf(args.languageData.languageCode) }
 
     BaseScreen(
         topBarArgs = TopBarArgs(

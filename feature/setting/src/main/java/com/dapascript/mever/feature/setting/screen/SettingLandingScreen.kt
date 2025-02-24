@@ -35,7 +35,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
-import com.dapascript.mever.core.navigation.base.BaseNavigator
 import com.dapascript.mever.core.common.ui.attr.MeverMenuItemAttr.MenuItemArgs
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverMenuItem
@@ -53,7 +52,9 @@ import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.ui.theme.ThemeType
 import com.dapascript.mever.core.common.util.navigateToGmail
 import com.dapascript.mever.core.common.util.navigateToNotificationSettings
+import com.dapascript.mever.core.navigation.base.BaseNavigator
 import com.dapascript.mever.feature.setting.navigation.route.SettingRoutes.SettingLanguageRoute
+import com.dapascript.mever.feature.setting.navigation.route.SettingRoutes.SettingLanguageRoute.LanguageData
 import com.dapascript.mever.feature.setting.navigation.route.SettingRoutes.SettingThemeRoute
 import com.dapascript.mever.feature.setting.viewmodel.SettingLandingViewModel
 
@@ -178,7 +179,7 @@ private fun BaseNavigator.handleClickMenu(
     themeType: ThemeType
 ) = with(context) {
     when (title) {
-        getString(R.string.language) -> navigate(SettingLanguageRoute(languageCode))
+        getString(R.string.language) -> navigate(SettingLanguageRoute(LanguageData(languageCode)))
         getString(R.string.notification) -> navigateToNotificationSettings(this)
         getString(R.string.theme) -> navigate(SettingThemeRoute(themeType))
         getString(R.string.contact) -> navigateToGmail(this)

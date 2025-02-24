@@ -1,9 +1,7 @@
 package com.dapascript.mever.core.navigation.extension
 
-import android.os.Build.VERSION.SDK_INT
-import android.os.Build.VERSION_CODES.TIRAMISU
+import android.net.Uri
 import android.os.Bundle
-import android.os.Parcelable
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.Companion.End
 import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.Companion.Start
@@ -18,16 +16,16 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navDeepLink
 import kotlinx.serialization.json.Json
-import kotlin.reflect.KClass
+import kotlin.reflect.KType
 import kotlin.reflect.typeOf
 
 inline fun <reified T : Any> NavGraphBuilder.composableScreen(
-    customArgs: KClass<*>? = null,
+    customArgs: Map<KType, NavType<*>>? = null,
     deepLinks: List<NavDeepLink>? = null,
     noinline content: @Composable (AnimatedContentScope.(NavBackStackEntry) -> Unit)
 ) {
     composable<T>(
-        typeMap = customArgs?.let { mapOf(typeOf<T>() to customNavType<T>()) } ?: emptyMap(),
+        typeMap = customArgs ?: emptyMap(),
         deepLinks = deepLinks ?: emptyList(),
         enterTransition = {
             slideIntoContainer(towards = Start, animationSpec = tween(350))
@@ -46,17 +44,20 @@ inline fun <reified T : Any> NavGraphBuilder.composableScreen(
 }
 
 inline fun <reified T : Any> customNavType(
-    isNullableAllowed: Boolean = false
+    isNullableAllowed: Boolean = false,
+    json: Json = Json
 ) = object : NavType<T>(isNullableAllowed = isNullableAllowed) {
-    override fun get(bundle: Bundle, key: String) = if (SDK_INT >= TIRAMISU) {
-        bundle.getParcelable(key, T::class.java)
-    } else bundle.getParcelable(key)
+    override fun get(bundle: Bundle, key: String) = bundle.getString(key)?.let<String, T>(json::decodeFromString)
 
-    override fun put(bundle: Bundle, key: String, value: T) = bundle.putParcelable(key, value as Parcelable)
+    override fun parseValue(value: String): T = json.decodeFromString(value)
 
-    override fun parseValue(value: String) = Json.decodeFromString<T>(value)
+    override fun serializeAsValue(value: T): String = Uri.encode(json.encodeToString(value))
 
-    override fun serializeAsValue(value: T) = Json.encodeToString(value)
+    override fun put(bundle: Bundle, key: String, value: T) {
+        bundle.putString(key, json.encodeToString(value))
+    }
 }
+
+inline fun <reified T : Any> generateCustomNavType() = typeOf<T>() to customNavType<T>()
 
 fun buildDeepLink(uri: String) = navDeepLink { uriPattern = uri }

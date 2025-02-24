@@ -1,9 +1,10 @@
 package com.dapascript.mever.core.navigation.base
 
 import androidx.navigation.NavHostController
+import kotlinx.serialization.json.Json
 
 class BaseNavigator(
-    private val navController: NavHostController,
+    val navController: NavHostController,
     val navGraphs: List<BaseNavGraph>
 ) {
     fun navigate(
@@ -24,6 +25,24 @@ class BaseNavigator(
     }
 
     fun popBackStack() = navController.popBackStack()
+
+    inline fun <reified T> setPopBackStackWithCustomArgs(
+        key: String,
+        value: T
+    ) = navController.previousBackStackEntry?.savedStateHandle?.set(key, Json.encodeToString(value))
+
+    inline fun <reified T> getPopBackStackWithCustomArgs(
+        key: String
+    ): T? = try {
+        navController.currentBackStackEntry?.savedStateHandle?.run {
+            val result = get<String>(key).orEmpty()
+            remove<String>(key)
+            Json.decodeFromString(result)
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
 
     inline fun <reified NavGraph : BaseNavGraph> getNavGraph() = navGraphs.find { it is NavGraph } as NavGraph
 }
