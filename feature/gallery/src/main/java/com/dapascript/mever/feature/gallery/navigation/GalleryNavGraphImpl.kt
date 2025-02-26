@@ -6,8 +6,8 @@ import androidx.navigation.navigation
 import com.dapascript.mever.core.navigation.base.BaseNavGraph
 import com.dapascript.mever.core.navigation.helper.composableScreen
 import com.dapascript.mever.core.navigation.graph.route.GraphRoute.GalleryNavGraphRoute
-import com.dapascript.mever.core.navigation.graph.screen.GalleryScreenRoute.GalleryContentDetailRoute
-import com.dapascript.mever.core.navigation.graph.screen.GalleryScreenRoute.GalleryLandingRoute
+import com.dapascript.mever.core.navigation.graph.route.screen.GalleryScreenRoute.GalleryContentDetailRoute
+import com.dapascript.mever.core.navigation.graph.route.screen.GalleryScreenRoute.GalleryLandingRoute
 import com.dapascript.mever.feature.gallery.screen.GalleryContentDetailScreen
 import com.dapascript.mever.feature.gallery.screen.GalleryLandingScreen
 import javax.inject.Inject

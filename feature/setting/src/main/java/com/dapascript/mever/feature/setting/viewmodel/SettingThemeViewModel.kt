@@ -9,7 +9,7 @@ import androidx.navigation.toRoute
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.ui.theme.ThemeType
 import com.dapascript.mever.core.data.source.local.MeverDataStore
-import com.dapascript.mever.core.navigation.graph.screen.SettingScreenRoute.SettingThemeRoute
+import com.dapascript.mever.core.navigation.graph.route.screen.SettingScreenRoute.SettingThemeRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject

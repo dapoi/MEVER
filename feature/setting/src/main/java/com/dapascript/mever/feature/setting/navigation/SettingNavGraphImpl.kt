@@ -7,10 +7,10 @@ import com.dapascript.mever.core.navigation.base.BaseNavGraph
 import com.dapascript.mever.core.navigation.helper.composableScreen
 import com.dapascript.mever.core.navigation.helper.generateCustomNavType
 import com.dapascript.mever.core.navigation.graph.route.GraphRoute.SettingNavGraphRoute
-import com.dapascript.mever.core.navigation.graph.screen.SettingScreenRoute.SettingLandingRoute
-import com.dapascript.mever.core.navigation.graph.screen.SettingScreenRoute.SettingLanguageRoute
-import com.dapascript.mever.core.navigation.graph.screen.SettingScreenRoute.SettingLanguageRoute.LanguageData
-import com.dapascript.mever.core.navigation.graph.screen.SettingScreenRoute.SettingThemeRoute
+import com.dapascript.mever.core.navigation.graph.route.screen.SettingScreenRoute.SettingLandingRoute
+import com.dapascript.mever.core.navigation.graph.route.screen.SettingScreenRoute.SettingLanguageRoute
+import com.dapascript.mever.core.navigation.graph.route.screen.SettingScreenRoute.SettingLanguageRoute.LanguageData
+import com.dapascript.mever.core.navigation.graph.route.screen.SettingScreenRoute.SettingThemeRoute
 import com.dapascript.mever.feature.setting.screen.SettingLandingScreen
 import com.dapascript.mever.feature.setting.screen.SettingLanguageScreen
 import com.dapascript.mever.feature.setting.screen.SettingThemeScreen

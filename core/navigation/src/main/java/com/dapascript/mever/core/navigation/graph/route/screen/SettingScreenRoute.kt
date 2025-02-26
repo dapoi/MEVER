@@ -1,4 +1,4 @@
-package com.dapascript.mever.core.navigation.graph.screen
+package com.dapascript.mever.core.navigation.graph.route.screen
 
 import com.dapascript.mever.core.common.ui.theme.ThemeType
 import kotlinx.serialization.Serializable
