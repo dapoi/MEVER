@@ -33,6 +33,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverMenuItemAttr.MenuItemArgs
@@ -52,16 +53,16 @@ import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.ui.theme.ThemeType
 import com.dapascript.mever.core.common.util.navigateToGmail
 import com.dapascript.mever.core.common.util.navigateToNotificationSettings
-import com.dapascript.mever.core.navigation.base.BaseNavigator
-import com.dapascript.mever.feature.setting.navigation.route.SettingRoutes.SettingLanguageRoute
-import com.dapascript.mever.feature.setting.navigation.route.SettingRoutes.SettingLanguageRoute.LanguageData
-import com.dapascript.mever.feature.setting.navigation.route.SettingRoutes.SettingThemeRoute
+import com.dapascript.mever.core.navigation.extension.navigateTo
+import com.dapascript.mever.core.navigation.graph.screen.SettingScreenRoute.SettingLanguageRoute
+import com.dapascript.mever.core.navigation.graph.screen.SettingScreenRoute.SettingLanguageRoute.LanguageData
+import com.dapascript.mever.core.navigation.graph.screen.SettingScreenRoute.SettingThemeRoute
 import com.dapascript.mever.feature.setting.viewmodel.SettingLandingViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun SettingLandingScreen(
-    navigator: BaseNavigator,
+    navController: NavController,
     viewModel: SettingLandingViewModel = hiltViewModel()
 ) = with(viewModel) {
     val getLanguageCode = getLanguageCode.collectAsStateValue()
@@ -73,7 +74,7 @@ internal fun SettingLandingScreen(
     BaseScreen(
         topBarArgs = TopBarArgs(
             screenName = if (isExpanded.not()) stringResource(R.string.settings) else "",
-            onClickBack = { navigator.popBackStack() }
+            onClickBack = { navController.popBackStack() }
         ),
         allowScreenOverlap = true
     ) {
@@ -154,7 +155,7 @@ internal fun SettingLandingScreen(
                                         ),
                                         modifier = Modifier.animateItem()
                                     ) {
-                                        navigator.handleClickMenu(
+                                        navController.handleClickMenu(
                                             context = context,
                                             title = context.getString(menu.leadingTitle),
                                             languageCode = getLanguageCode,
@@ -172,16 +173,16 @@ internal fun SettingLandingScreen(
     }
 }
 
-private fun BaseNavigator.handleClickMenu(
+private fun NavController.handleClickMenu(
     context: Context,
     title: String,
     languageCode: String,
     themeType: ThemeType
 ) = with(context) {
     when (title) {
-        getString(R.string.language) -> navigate(SettingLanguageRoute(LanguageData(languageCode)))
+        getString(R.string.language) -> navigateTo(SettingLanguageRoute(LanguageData(languageCode)))
         getString(R.string.notification) -> navigateToNotificationSettings(this)
-        getString(R.string.theme) -> navigate(SettingThemeRoute(themeType))
+        getString(R.string.theme) -> navigateTo(SettingThemeRoute(themeType))
         getString(R.string.contact) -> navigateToGmail(this)
     }
 }

@@ -26,10 +26,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle.Event.ON_STOP
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
-import com.dapascript.mever.core.navigation.base.BaseNavigator
-import com.dapascript.mever.core.navigation.graph.HomeNavGraph
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp189
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp72
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
@@ -38,14 +37,15 @@ import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.hideStatusBar
-import com.dapascript.mever.feature.startup.navigation.route.StartupRoutes.OnboardRoute
-import com.dapascript.mever.feature.startup.navigation.route.StartupRoutes.SplashRoute
+import com.dapascript.mever.core.navigation.extension.navigateClearBackStack
+import com.dapascript.mever.core.navigation.graph.screen.HomeScreenRoute.HomeLandingRoute
+import com.dapascript.mever.core.navigation.graph.screen.StartupScreenRoute.OnboardRoute
 import com.dapascript.mever.feature.startup.viewmodel.SplashScreenViewModel
 import kotlinx.coroutines.delay
 
 @Composable
 internal fun SplashScreen(
-    navigator: BaseNavigator,
+    navController: NavController,
     viewModel: SplashScreenViewModel = hiltViewModel()
 ) = with(viewModel) {
     val isOnboarded = isOnboarded.collectAsStateValue()
@@ -65,13 +65,7 @@ internal fun SplashScreen(
 
         LaunchedEffect(isSplashScreenFinished) {
             if (isSplashScreenFinished) {
-                navigator.run {
-                    navigate(
-                        route = if (isOnboarded) getNavGraph<HomeNavGraph>().getHomeLandingRoute() else OnboardRoute,
-                        popUpTo = SplashRoute,
-                        inclusive = true
-                    )
-                }
+                navController.navigateClearBackStack(if (isOnboarded) HomeLandingRoute else OnboardRoute)
             }
         }
 

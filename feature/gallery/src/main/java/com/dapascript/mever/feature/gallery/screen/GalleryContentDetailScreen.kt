@@ -5,8 +5,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.dapascript.mever.core.common.base.BaseScreen
-import com.dapascript.mever.core.navigation.base.BaseNavigator
 import com.dapascript.mever.core.common.ui.component.MeverPhotoViewer
 import com.dapascript.mever.core.common.ui.component.MeverVideoPlayer
 import com.dapascript.mever.core.common.ui.theme.MeverBlack
@@ -16,7 +16,7 @@ import com.dapascript.mever.feature.gallery.viewmodel.GalleryPlayerViewModel
 
 @Composable
 internal fun GalleryContentDetailScreen(
-    navigator: BaseNavigator,
+    navigator: NavController,
     viewModel: GalleryPlayerViewModel = hiltViewModel()
 ) = with(viewModel) {
     val context = LocalContext.current

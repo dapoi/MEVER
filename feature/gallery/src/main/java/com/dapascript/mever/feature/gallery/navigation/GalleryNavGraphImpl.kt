@@ -1,33 +1,25 @@
 package com.dapascript.mever.feature.gallery.navigation
 
+import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.navigation
-import com.dapascript.mever.core.navigation.base.BaseNavigator
+import com.dapascript.mever.core.navigation.base.BaseNavGraph
 import com.dapascript.mever.core.navigation.extension.composableScreen
-import com.dapascript.mever.core.navigation.graph.GalleryNavGraph
 import com.dapascript.mever.core.navigation.graph.route.GraphRoute.GalleryNavGraphRoute
-import com.dapascript.mever.feature.gallery.navigation.route.GalleryRoutes.GalleryContentDetailRoute
-import com.dapascript.mever.feature.gallery.navigation.route.GalleryRoutes.GalleryLandingRoute
+import com.dapascript.mever.core.navigation.graph.screen.GalleryScreenRoute.GalleryContentDetailRoute
+import com.dapascript.mever.core.navigation.graph.screen.GalleryScreenRoute.GalleryLandingRoute
 import com.dapascript.mever.feature.gallery.screen.GalleryContentDetailScreen
 import com.dapascript.mever.feature.gallery.screen.GalleryLandingScreen
 import javax.inject.Inject
 
-class GalleryNavGraphImpl @Inject constructor() : GalleryNavGraph() {
+class GalleryNavGraphImpl @Inject constructor() : BaseNavGraph() {
     override fun createGraph(
-        navigator: BaseNavigator,
+        navController: NavController,
         navGraphBuilder: NavGraphBuilder
     ) {
         navGraphBuilder.navigation<GalleryNavGraphRoute>(startDestination = GalleryLandingRoute) {
-            composableScreen<GalleryLandingRoute> { GalleryLandingScreen(navigator) }
-            composableScreen<GalleryContentDetailRoute> { GalleryContentDetailScreen(navigator) }
+            composableScreen<GalleryLandingRoute> { GalleryLandingScreen(navController) }
+            composableScreen<GalleryContentDetailRoute> { GalleryContentDetailScreen(navController) }
         }
     }
-
-    override fun getGalleryLandingRoute() = GalleryLandingRoute
-
-    override fun getGalleryContentDetailRoute(
-        id: Int,
-        sourceFile: String,
-        fileName: String
-    ) = GalleryContentDetailRoute(id, sourceFile, fileName)
 }

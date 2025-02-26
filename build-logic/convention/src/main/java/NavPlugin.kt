@@ -1,3 +1,4 @@
+import com.dapascript.mever.build_logic.convention.ConstantLibs.coreModules
 import com.dapascript.mever.build_logic.convention.alias
 import com.dapascript.mever.build_logic.convention.implementation
 import com.dapascript.mever.build_logic.convention.libs
@@ -14,6 +15,7 @@ class NavPlugin : Plugin<Project> {
             }
 
             dependencies {
+                implementation(project(coreModules[1]))
                 implementation(libs.androidx.navigation.compose.get())
                 implementation(libs.kotlinx.serialization.json.get())
             }

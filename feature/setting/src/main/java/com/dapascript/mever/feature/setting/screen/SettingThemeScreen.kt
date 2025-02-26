@@ -36,9 +36,9 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
-import com.dapascript.mever.core.navigation.base.BaseNavigator
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverRadioButton
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
@@ -59,7 +59,7 @@ import com.dapascript.mever.feature.setting.viewmodel.SettingThemeViewModel
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun SettingThemeScreen(
-    navigator: BaseNavigator,
+    navController: NavController,
     viewModel: SettingThemeViewModel = hiltViewModel()
 ) = with(viewModel) {
     val scrollState = rememberScrollState()
@@ -70,7 +70,7 @@ internal fun SettingThemeScreen(
     BaseScreen(
         topBarArgs = TopBarArgs(
             screenName = if (isExpanded.not()) stringResource(R.string.theme) else "",
-            onClickBack = { navigator.popBackStack() }
+            onClickBack = { navController.popBackStack() }
         ),
         allowScreenOverlap = true
     ) {

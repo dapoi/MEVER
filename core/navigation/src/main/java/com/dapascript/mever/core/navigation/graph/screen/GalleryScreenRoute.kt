@@ -1,16 +1,16 @@
-package com.dapascript.mever.feature.gallery.navigation.route
+package com.dapascript.mever.core.navigation.graph.screen
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-sealed class GalleryRoutes {
+sealed class GalleryScreenRoute {
     @Serializable
-    data object GalleryLandingRoute : GalleryRoutes()
+    data object GalleryLandingRoute : GalleryScreenRoute()
 
     @Serializable
     data class GalleryContentDetailRoute(
         val id: Int,
         val sourceFile: String,
         val fileName: String
-    ) : GalleryRoutes()
+    ) : GalleryScreenRoute()
 }

@@ -37,6 +37,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
@@ -53,13 +54,12 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.util.clickableSingle
-import com.dapascript.mever.core.navigation.base.BaseNavigator
 import com.dapascript.mever.feature.setting.viewmodel.SettingLanguageViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun SettingLanguageScreen(
-    navigator: BaseNavigator,
+    navController: NavController,
     viewModel: SettingLanguageViewModel = hiltViewModel()
 ) = with(viewModel) {
     val scrollState = rememberScrollState()
@@ -69,7 +69,7 @@ internal fun SettingLanguageScreen(
     BaseScreen(
         topBarArgs = TopBarArgs(
             screenName = if (isExpanded.not()) stringResource(R.string.language) else "",
-            onClickBack = { navigator.popBackStack() }
+            onClickBack = { navController.popBackStack() }
         ),
         allowScreenOverlap = true
     ) {

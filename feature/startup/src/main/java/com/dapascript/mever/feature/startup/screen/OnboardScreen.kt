@@ -32,6 +32,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
@@ -45,15 +46,14 @@ import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp40
 import com.dapascript.mever.core.common.util.getNotificationPermission
 import com.dapascript.mever.core.common.util.isAndroidTiramisuAbove
-import com.dapascript.mever.core.navigation.base.BaseNavigator
-import com.dapascript.mever.core.navigation.graph.HomeNavGraph
+import com.dapascript.mever.core.navigation.extension.navigateClearBackStack
+import com.dapascript.mever.core.navigation.graph.screen.HomeScreenRoute.HomeLandingRoute
 import com.dapascript.mever.feature.startup.R
-import com.dapascript.mever.feature.startup.navigation.route.StartupRoutes.OnboardRoute
 import com.dapascript.mever.feature.startup.viewmodel.OnboardViewModel
 
 @Composable
 internal fun OnboardScreen(
-    navigator: BaseNavigator,
+    navController: NavController,
     viewModel: OnboardViewModel = hiltViewModel()
 ) = with(viewModel) {
     BaseScreen(
@@ -64,7 +64,7 @@ internal fun OnboardScreen(
     ) {
         val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
         val requestNotifPermissionLauncher = rememberLauncherForActivityResult(RequestPermission()) {
-            navigator.navigateToHome()
+            navController.navigateClearBackStack(HomeLandingRoute)
         }
 
         Column(
@@ -91,7 +91,7 @@ internal fun OnboardScreen(
             ) {
                 setIsOnboarded(true)
                 if (isAndroidTiramisuAbove()) requestNotifPermissionLauncher.launch(getNotificationPermission)
-                else navigator.navigateToHome()
+                else navController.navigateClearBackStack(HomeLandingRoute)
             }
         }
     }
@@ -155,13 +155,5 @@ private fun DescriptionOnboardSection(modifier: Modifier = Modifier) = Column(
         text = "Download media from Social Media easily.",
         style = typography.body2,
         color = colorScheme.secondary
-    )
-}
-
-private fun BaseNavigator.navigateToHome() {
-    navigate(
-        route = getNavGraph<HomeNavGraph>().getHomeLandingRoute(),
-        popUpTo = OnboardRoute,
-        inclusive = true
     )
 }

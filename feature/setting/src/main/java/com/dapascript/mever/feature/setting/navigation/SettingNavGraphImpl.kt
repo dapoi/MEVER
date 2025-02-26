@@ -1,36 +1,32 @@
 package com.dapascript.mever.feature.setting.navigation
 
+import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.navigation
-import com.dapascript.mever.core.navigation.base.BaseNavigator
+import com.dapascript.mever.core.navigation.base.BaseNavGraph
 import com.dapascript.mever.core.navigation.extension.composableScreen
 import com.dapascript.mever.core.navigation.extension.generateCustomNavType
-import com.dapascript.mever.core.navigation.graph.SettingNavGraph
 import com.dapascript.mever.core.navigation.graph.route.GraphRoute.SettingNavGraphRoute
-import com.dapascript.mever.feature.setting.navigation.route.SettingRoutes.SettingLandingRoute
-import com.dapascript.mever.feature.setting.navigation.route.SettingRoutes.SettingLanguageRoute
-import com.dapascript.mever.feature.setting.navigation.route.SettingRoutes.SettingLanguageRoute.LanguageData
-import com.dapascript.mever.feature.setting.navigation.route.SettingRoutes.SettingThemeRoute
+import com.dapascript.mever.core.navigation.graph.screen.SettingScreenRoute.SettingLandingRoute
+import com.dapascript.mever.core.navigation.graph.screen.SettingScreenRoute.SettingLanguageRoute
+import com.dapascript.mever.core.navigation.graph.screen.SettingScreenRoute.SettingLanguageRoute.LanguageData
+import com.dapascript.mever.core.navigation.graph.screen.SettingScreenRoute.SettingThemeRoute
 import com.dapascript.mever.feature.setting.screen.SettingLandingScreen
 import com.dapascript.mever.feature.setting.screen.SettingLanguageScreen
 import com.dapascript.mever.feature.setting.screen.SettingThemeScreen
 import javax.inject.Inject
 
-class SettingNavGraphImpl @Inject constructor() : SettingNavGraph() {
+class SettingNavGraphImpl @Inject constructor() : BaseNavGraph() {
     override fun createGraph(
-        navigator: BaseNavigator,
+        navController: NavController,
         navGraphBuilder: NavGraphBuilder
     ) {
         navGraphBuilder.navigation<SettingNavGraphRoute>(startDestination = SettingLandingRoute) {
-            composableScreen<SettingLandingRoute> { SettingLandingScreen(navigator) }
-            composableScreen<SettingLanguageRoute>(
-                mapOf(generateCustomNavType<LanguageData>())
-            ) {
-                SettingLanguageScreen(navigator)
+            composableScreen<SettingLandingRoute> { SettingLandingScreen(navController) }
+            composableScreen<SettingLanguageRoute>(mapOf(generateCustomNavType<LanguageData>())) {
+                SettingLanguageScreen(navController)
             }
-            composableScreen<SettingThemeRoute> { SettingThemeScreen(navigator) }
+            composableScreen<SettingThemeRoute> { SettingThemeScreen(navController) }
         }
     }
-
-    override fun getSettingLandingRoute() = SettingLandingRoute
 }

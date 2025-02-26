@@ -48,6 +48,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.FILLED
@@ -88,9 +89,10 @@ import com.dapascript.mever.core.common.util.goToSetting
 import com.dapascript.mever.core.common.util.replaceTimeFormat
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.data.model.local.ContentEntity
-import com.dapascript.mever.core.navigation.base.BaseNavigator
-import com.dapascript.mever.core.navigation.graph.GalleryNavGraph
-import com.dapascript.mever.core.navigation.graph.SettingNavGraph
+import com.dapascript.mever.core.navigation.extension.navigateTo
+import com.dapascript.mever.core.navigation.graph.screen.GalleryScreenRoute.GalleryContentDetailRoute
+import com.dapascript.mever.core.navigation.graph.screen.GalleryScreenRoute.GalleryLandingRoute
+import com.dapascript.mever.core.navigation.graph.screen.SettingScreenRoute.SettingLandingRoute
 import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetDownload
 import com.dapascript.mever.feature.home.screen.component.HandleDialogError
 import com.dapascript.mever.feature.home.screen.component.HandleDialogPermission
@@ -103,7 +105,7 @@ import com.dapascript.mever.feature.home.R as FeatureHomeR
 
 @Composable
 internal fun HomeLandingScreen(
-    navigator: BaseNavigator,
+    navController: NavController,
     viewModel: HomeLandingViewModel = hiltViewModel()
 ) = with(viewModel) {
     val contentState = contentState.collectAsStateValue()
@@ -207,7 +209,7 @@ internal fun HomeLandingScreen(
 
         HomeScreenContent(
             viewModel = this,
-            navigator = navigator,
+            navController = navController,
             isLoading = showLoading
         ) { requestStoragePermissionLauncher.launch(getStoragePermission) }
     }
@@ -217,7 +219,7 @@ internal fun HomeLandingScreen(
 @Composable
 private fun HomeScreenContent(
     viewModel: HomeLandingViewModel,
-    navigator: BaseNavigator,
+    navController: NavController,
     isLoading: Boolean,
     modifier: Modifier = Modifier,
     requestStoragePermissionLauncher: () -> Unit
@@ -250,7 +252,7 @@ private fun HomeScreenContent(
                             icon = resource,
                             nameIcon = name,
                             showBadge = showBadge && name == stringResource(R.string.gallery),
-                        ) { handleClickActionMenu(context, navigator)(name) }
+                        ) { handleClickActionMenu(context, navController)(name) }
                     }
                 )
             )
@@ -290,17 +292,15 @@ private fun HomeScreenContent(
                                             FAILED -> showFailedDialog = id
                                             PAUSED -> ketch.resume(id)
                                             else -> ketch.pause(id)
-                                        } else navigator.run {
-                                            navigate(
-                                                getNavGraph<GalleryNavGraph>().getGalleryContentDetailRoute(
-                                                    id = id,
-                                                    sourceFile = getMeverFiles()?.find { file ->
-                                                        file.name == fileName
-                                                    }?.path.orEmpty(),
-                                                    fileName = fileName.replaceTimeFormat()
-                                                )
+                                        } else navController.navigateTo(
+                                            GalleryContentDetailRoute(
+                                                id = id,
+                                                sourceFile = getMeverFiles()?.find { file ->
+                                                    file.name == fileName
+                                                }?.path.orEmpty(),
+                                                fileName = fileName.replaceTimeFormat()
                                             )
-                                        }
+                                        )
                                     }
                                 },
                                 onClickDelete = { showDeleteDialog = it.id },
@@ -315,7 +315,7 @@ private fun HomeScreenContent(
                                 },
                                 onValueChange = { urlSocialMediaState = it },
                                 onClickDownload = { if (isLoading.not()) requestStoragePermissionLauncher() },
-                                onClickViewAll = { navigator.navigateToGalleryScreen() }
+                                onClickViewAll = { navController.navigateToGalleryScreen() }
                             )
 
                             1 -> {}
@@ -516,14 +516,14 @@ private fun tabItems(context: Context) = listOf(
     context.getString(R.string.ai_tab)
 )
 
-private fun handleClickActionMenu(context: Context, navigator: BaseNavigator) = { name: String ->
+private fun handleClickActionMenu(context: Context, navController: NavController) = { name: String ->
     when (name) {
-        context.getString(R.string.gallery) -> navigator.navigateToGalleryScreen()
-        context.getString(R.string.settings) -> navigator.navigateToSettingScreen()
+        context.getString(R.string.gallery) -> navController.navigateToGalleryScreen()
+        context.getString(R.string.settings) -> navController.navigateToSettingScreen()
         else -> Unit
     }
 }
 
-private fun BaseNavigator.navigateToGalleryScreen() = navigate(getNavGraph<GalleryNavGraph>().getGalleryLandingRoute())
+private fun NavController.navigateToGalleryScreen() = navigateTo(GalleryLandingRoute)
 
-private fun BaseNavigator.navigateToSettingScreen() = navigate(getNavGraph<SettingNavGraph>().getSettingLandingRoute())
+private fun NavController.navigateToSettingScreen() = navigateTo(SettingLandingRoute)

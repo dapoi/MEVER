@@ -4,7 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.dapascript.mever.core.common.base.BaseViewModel
-import com.dapascript.mever.feature.gallery.navigation.route.GalleryRoutes.GalleryContentDetailRoute
+import com.dapascript.mever.core.navigation.graph.screen.GalleryScreenRoute.GalleryContentDetailRoute
 import com.ketch.Ketch
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch

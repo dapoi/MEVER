@@ -1,6 +1,5 @@
 package com.dapascript.mever.feature.gallery.navigation.di
 
-import com.dapascript.mever.core.navigation.graph.GalleryNavGraph
 import com.dapascript.mever.feature.gallery.navigation.GalleryNavGraphImpl
 import dagger.Module
 import dagger.Provides
@@ -12,5 +11,5 @@ import dagger.hilt.components.SingletonComponent
 class GalleryNavModule {
 
     @Provides
-    fun provideGalleryNavGraphImpl(): GalleryNavGraph = GalleryNavGraphImpl()
+    fun provideGalleryNavGraphImpl() = GalleryNavGraphImpl()
 }

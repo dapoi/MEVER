@@ -10,6 +10,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavController
 import androidx.navigation.NavDeepLink
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
@@ -59,5 +60,48 @@ inline fun <reified T : Any> customNavType(
 }
 
 inline fun <reified T : Any> generateCustomNavType() = typeOf<T>() to customNavType<T>()
+
+fun NavController.navigateTo(
+    route: Any,
+    popUpTo: Any? = null,
+    inclusive: Boolean = false,
+    launchSingleTop: Boolean = false
+) {
+    navigate(route) {
+        popUpTo?.let {
+            popUpTo(it) { this.inclusive = inclusive }
+        }
+        this.launchSingleTop = launchSingleTop
+    }
+}
+
+fun NavController.navigateClearBackStack(route: Any) {
+    navigate(route) {
+        popUpTo(graph.id) {
+            inclusive = false
+            saveState = false
+        }
+        launchSingleTop = true
+        restoreState = false
+    }
+}
+
+inline fun <reified T> NavController.setPopBackStackWithCustomArgs(
+    key: String,
+    value: T
+) = previousBackStackEntry?.savedStateHandle?.set(key, Json.encodeToString(value))
+
+inline fun <reified T> NavController.getPopBackStackWithCustomArgs(
+    key: String
+): T? = try {
+    currentBackStackEntry?.savedStateHandle?.run {
+        val result = get<String>(key).orEmpty()
+        remove<String>(key)
+        Json.decodeFromString(result)
+    }
+} catch (e: Exception) {
+    e.printStackTrace()
+    null
+}
 
 fun buildDeepLink(uri: String) = navDeepLink { uriPattern = uri }
