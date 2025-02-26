@@ -1,4 +1,4 @@
-package com.dapascript.mever.core.navigation.extension
+package com.dapascript.mever.core.navigation.helper
 
 import android.net.Uri
 import android.os.Bundle

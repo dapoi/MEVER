@@ -46,7 +46,7 @@ import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp40
 import com.dapascript.mever.core.common.util.getNotificationPermission
 import com.dapascript.mever.core.common.util.isAndroidTiramisuAbove
-import com.dapascript.mever.core.navigation.extension.navigateClearBackStack
+import com.dapascript.mever.core.navigation.helper.navigateClearBackStack
 import com.dapascript.mever.core.navigation.graph.screen.HomeScreenRoute.HomeLandingRoute
 import com.dapascript.mever.feature.startup.R
 import com.dapascript.mever.feature.startup.viewmodel.OnboardViewModel

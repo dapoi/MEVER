@@ -10,7 +10,7 @@ import androidx.navigation.toRoute
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.util.LanguageManager.setLanguage
 import com.dapascript.mever.core.data.source.local.MeverDataStore
-import com.dapascript.mever.core.navigation.extension.generateCustomNavType
+import com.dapascript.mever.core.navigation.helper.generateCustomNavType
 import com.dapascript.mever.core.navigation.graph.screen.SettingScreenRoute.SettingLanguageRoute
 import com.dapascript.mever.core.navigation.graph.screen.SettingScreenRoute.SettingLanguageRoute.LanguageData
 import dagger.hilt.android.lifecycle.HiltViewModel

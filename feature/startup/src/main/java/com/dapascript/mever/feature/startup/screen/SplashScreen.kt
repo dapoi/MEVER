@@ -37,7 +37,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.hideStatusBar
-import com.dapascript.mever.core.navigation.extension.navigateClearBackStack
+import com.dapascript.mever.core.navigation.helper.navigateClearBackStack
 import com.dapascript.mever.core.navigation.graph.screen.HomeScreenRoute.HomeLandingRoute
 import com.dapascript.mever.core.navigation.graph.screen.StartupScreenRoute.OnboardRoute
 import com.dapascript.mever.feature.startup.viewmodel.SplashScreenViewModel

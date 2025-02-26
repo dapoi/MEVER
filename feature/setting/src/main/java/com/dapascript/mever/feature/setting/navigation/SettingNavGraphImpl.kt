@@ -4,8 +4,8 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.navigation
 import com.dapascript.mever.core.navigation.base.BaseNavGraph
-import com.dapascript.mever.core.navigation.extension.composableScreen
-import com.dapascript.mever.core.navigation.extension.generateCustomNavType
+import com.dapascript.mever.core.navigation.helper.composableScreen
+import com.dapascript.mever.core.navigation.helper.generateCustomNavType
 import com.dapascript.mever.core.navigation.graph.route.GraphRoute.SettingNavGraphRoute
 import com.dapascript.mever.core.navigation.graph.screen.SettingScreenRoute.SettingLandingRoute
 import com.dapascript.mever.core.navigation.graph.screen.SettingScreenRoute.SettingLanguageRoute

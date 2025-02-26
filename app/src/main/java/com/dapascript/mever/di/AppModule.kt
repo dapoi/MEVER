@@ -4,7 +4,7 @@ import android.app.Application
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserverImpl
-import com.dapascript.mever.core.navigation.MeverNavGraphs
+import com.dapascript.mever.core.navigation.graph.MeverNavGraphs
 import com.dapascript.mever.feature.gallery.navigation.GalleryNavGraphImpl
 import com.dapascript.mever.feature.home.navigation.HomeNavGraphImpl
 import com.dapascript.mever.feature.setting.navigation.SettingNavGraphImpl

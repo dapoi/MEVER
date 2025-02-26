@@ -5,7 +5,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
-import com.dapascript.mever.core.navigation.MeverNavGraphs
+import com.dapascript.mever.core.navigation.graph.MeverNavGraphs
 import com.dapascript.mever.core.navigation.graph.route.GraphRoute.StartupNavGraphRoute
 
 @Composable
