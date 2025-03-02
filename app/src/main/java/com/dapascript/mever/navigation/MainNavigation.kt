@@ -6,10 +6,10 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.dapascript.mever.core.navigation.graph.MeverNavGraphs
-import com.dapascript.mever.core.navigation.graph.route.GraphRoute.StartupNavGraphRoute
+import com.dapascript.mever.core.navigation.graph.route.StartupScreenRoute.SplashRoute
 
 @Composable
-internal fun MeverNavHost(
+internal fun MainNavigation(
     meverNavGraphs: MeverNavGraphs,
     modifier: Modifier = Modifier
 ) {
@@ -19,6 +19,6 @@ internal fun MeverNavHost(
     NavHost(
         modifier = modifier,
         navController = navController,
-        startDestination = StartupNavGraphRoute::class
+        startDestination = SplashRoute::class
     ) { navGraphs.forEach { navGraph -> navGraph.createGraph(navController, this) } }
 }

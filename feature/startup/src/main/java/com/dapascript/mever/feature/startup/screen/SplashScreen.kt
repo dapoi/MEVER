@@ -38,8 +38,8 @@ import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.hideStatusBar
 import com.dapascript.mever.core.navigation.helper.navigateClearBackStack
-import com.dapascript.mever.core.navigation.graph.route.screen.HomeScreenRoute.HomeLandingRoute
-import com.dapascript.mever.core.navigation.graph.route.screen.StartupScreenRoute.OnboardRoute
+import com.dapascript.mever.core.navigation.graph.route.HomeScreenRoute.HomeLandingRoute
+import com.dapascript.mever.core.navigation.graph.route.StartupScreenRoute.OnboardRoute
 import com.dapascript.mever.feature.startup.viewmodel.SplashScreenViewModel
 import kotlinx.coroutines.delay
 

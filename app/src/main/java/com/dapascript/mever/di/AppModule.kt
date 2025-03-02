@@ -30,10 +30,10 @@ class AppModule {
         startupNavGraphImpl: StartupNavGraphImpl
     ) = MeverNavGraphs(
         listOf(
-            startupNavGraphImpl,
             galleryNavGraphImpl,
             homeNavGraphImpl,
-            settingNavGraphImpl
+            settingNavGraphImpl,
+            startupNavGraphImpl
         )
     )
 

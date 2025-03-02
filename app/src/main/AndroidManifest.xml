@@ -23,7 +23,7 @@
         tools:node="replace" />
 
     <application
-        android:name=".MeverApp"
+        android:name=".MainApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -36,7 +36,7 @@
         android:localeConfig="@xml/locales_config"
         tools:targetApi="33">
         <activity
-            android:name=".MainActivity"
+            android:name=".screen.MainActivity"
             android:configChanges="locale|orientation|screenSize|layoutDirection|keyboardHidden"
             android:exported="true"
             android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"

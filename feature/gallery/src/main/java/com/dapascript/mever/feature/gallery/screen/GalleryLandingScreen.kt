@@ -77,7 +77,7 @@ import com.dapascript.mever.core.common.util.isAvailableOnLocal
 import com.dapascript.mever.core.common.util.replaceTimeFormat
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.navigation.helper.navigateTo
-import com.dapascript.mever.core.navigation.graph.route.screen.GalleryScreenRoute.GalleryContentDetailRoute
+import com.dapascript.mever.core.navigation.graph.route.GalleryScreenRoute.GalleryContentDetailRoute
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.DELETE_ALL
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.MORE
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.listDropDown

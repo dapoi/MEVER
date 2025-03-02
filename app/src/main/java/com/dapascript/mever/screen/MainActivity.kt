@@ -1,4 +1,4 @@
-package com.dapascript.mever
+package com.dapascript.mever.screen
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -13,13 +13,14 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
+import com.dapascript.mever.viewmodel.MainViewModel
 import com.dapascript.mever.core.navigation.graph.MeverNavGraphs
 import com.dapascript.mever.core.common.ui.theme.MeverTheme
 import com.dapascript.mever.core.common.ui.theme.ThemeType.Dark
 import com.dapascript.mever.core.common.ui.theme.ThemeType.Light
 import com.dapascript.mever.core.common.util.LanguageManager.setLanguage
 import com.dapascript.mever.core.common.util.LocalActivity
-import com.dapascript.mever.navigation.MeverNavHost
+import com.dapascript.mever.navigation.MainNavigation
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -48,7 +49,7 @@ class MainActivity : AppCompatActivity() {
             ) {
                 Surface(modifier = Modifier.fillMaxSize(), color = colorScheme.background) {
                     CompositionLocalProvider(LocalActivity provides this) {
-                        MeverNavHost(meverNavGraphs = meverNavGraphs)
+                        MainNavigation(meverNavGraphs = meverNavGraphs)
                     }
                 }
             }

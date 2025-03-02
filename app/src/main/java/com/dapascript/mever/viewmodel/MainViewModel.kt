@@ -1,4 +1,4 @@
-package com.dapascript.mever
+package com.dapascript.mever.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel

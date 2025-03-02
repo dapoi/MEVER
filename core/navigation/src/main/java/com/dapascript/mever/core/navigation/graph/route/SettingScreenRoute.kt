@@ -1,6 +1,9 @@
-package com.dapascript.mever.core.navigation.graph.route.screen
+package com.dapascript.mever.core.navigation.graph.route
 
+import androidx.lifecycle.SavedStateHandle
+import androidx.navigation.toRoute
 import com.dapascript.mever.core.common.ui.theme.ThemeType
+import com.dapascript.mever.core.navigation.helper.generateCustomNavType
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -12,6 +15,11 @@ sealed class SettingScreenRoute {
     data class SettingLanguageRoute(val languageData: LanguageData) : SettingScreenRoute() {
         @Serializable
         data class LanguageData(val languageCode: String) : SettingScreenRoute()
+
+        companion object {
+            val typeMap = mapOf(generateCustomNavType<LanguageData>())
+            fun getArgs(savedStateHandle: SavedStateHandle) = savedStateHandle.toRoute<SettingLanguageRoute>(typeMap)
+        }
     }
 
     @Serializable
