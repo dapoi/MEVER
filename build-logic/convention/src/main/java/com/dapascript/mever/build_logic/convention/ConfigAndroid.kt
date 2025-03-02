@@ -16,6 +16,7 @@ internal fun Project.configAndroid(
 ) {
     commonExtension.apply {
         compileSdk = MAX_SDK_VERSION
+        namespace = "${ConstantLibs.baseName}.${project.path.replace(":", ".").substring(1)}"
 
         defaultConfig {
             minSdk = MIN_SDK_VERSION

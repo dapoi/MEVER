@@ -1,6 +1,7 @@
 package com.dapascript.mever.build_logic.convention
 
 object ConstantLibs {
+    val baseName = "com.dapascript.mever"
     val coreModules = listOf(
         ":core:data",
         ":core:common",

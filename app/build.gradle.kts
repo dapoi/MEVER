@@ -7,8 +7,6 @@ plugins {
 }
 
 android {
-    namespace = "com.dapascript.mever"
-
     defaultConfig {
         applicationId = "com.dapascript.mever"
         versionCode = 1
