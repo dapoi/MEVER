@@ -1,6 +1,7 @@
 package com.dapascript.mever.build_logic.convention
 
 import com.android.build.api.dsl.CommonExtension
+import com.dapascript.mever.build_logic.convention.ConstantLibs.BASE_NAME
 import com.dapascript.mever.build_logic.convention.ConstantLibs.FREE_COMPILER
 import com.dapascript.mever.build_logic.convention.ConstantLibs.MAX_SDK_VERSION
 import com.dapascript.mever.build_logic.convention.ConstantLibs.MIN_SDK_VERSION
@@ -16,7 +17,8 @@ internal fun Project.configAndroid(
 ) {
     commonExtension.apply {
         compileSdk = MAX_SDK_VERSION
-        namespace = "${ConstantLibs.baseName}.${project.path.replace(":", ".").substring(1)}"
+        namespace = (if (project.name == "app") BASE_NAME
+        else "$BASE_NAME.${project.path.replace(":", ".").substring(1)}")
 
         defaultConfig {
             minSdk = MIN_SDK_VERSION
