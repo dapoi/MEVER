@@ -72,7 +72,7 @@ ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 # Custom plugins
 mever-application = { id = "mever.application", version = "unspecified" }
 mever-application-compose = { id = "mever.application.compose", version = "unspecified" }
-mever-data = { id = "mever.data", version = "unspecified" }
+mever-api = { id = "mever.api", version = "unspecified" }
 mever-feature = { id = "mever.feature", version = "unspecified" }
 mever-hilt = { id = "mever.hilt", version = "unspecified" }
 mever-library = { id = "mever.library", version = "unspecified" }

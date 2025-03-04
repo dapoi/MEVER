@@ -46,9 +46,9 @@ gradlePlugin {
             id = "mever.application.compose"
             implementationClass = "AppComposePlugin"
         }
-        register("androidData") {
-            id = "mever.data"
-            implementationClass = "DataPlugin"
+        register("androidApi") {
+            id = "mever.api"
+            implementationClass = "ApiPlugin"
         }
         register("androidFeature") {
             id = "mever.feature"
