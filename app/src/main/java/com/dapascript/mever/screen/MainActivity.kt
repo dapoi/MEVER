@@ -13,14 +13,14 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
-import com.dapascript.mever.viewmodel.MainViewModel
-import com.dapascript.mever.core.navigation.graph.MeverNavGraphs
 import com.dapascript.mever.core.common.ui.theme.MeverTheme
 import com.dapascript.mever.core.common.ui.theme.ThemeType.Dark
 import com.dapascript.mever.core.common.ui.theme.ThemeType.Light
 import com.dapascript.mever.core.common.util.LanguageManager.setLanguage
 import com.dapascript.mever.core.common.util.LocalActivity
+import com.dapascript.mever.core.navigation.base.BaseNavGraph
 import com.dapascript.mever.navigation.MainNavigation
+import com.dapascript.mever.viewmodel.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -31,7 +31,7 @@ class MainActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels()
 
     @Inject
-    lateinit var meverNavGraphs: MeverNavGraphs
+    lateinit var navGraphs: Set<@JvmSuppressWildcards BaseNavGraph>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,7 +49,7 @@ class MainActivity : AppCompatActivity() {
             ) {
                 Surface(modifier = Modifier.fillMaxSize(), color = colorScheme.background) {
                     CompositionLocalProvider(LocalActivity provides this) {
-                        MainNavigation(meverNavGraphs = meverNavGraphs)
+                        MainNavigation(navGraphs = navGraphs)
                     }
                 }
             }

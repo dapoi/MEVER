@@ -1,15 +1,18 @@
 package com.dapascript.mever.feature.startup.navigation.di
 
+import com.dapascript.mever.core.navigation.base.BaseNavGraph
 import com.dapascript.mever.feature.startup.navigation.StartupNavGraphImpl
+import dagger.Binds
 import dagger.Module
-import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import dagger.multibindings.IntoSet
 
 @Module
 @InstallIn(SingletonComponent::class)
-class StartupNavModule {
+abstract class StartupNavModule {
 
-    @Provides
-    fun provideStartupNavGraph() = StartupNavGraphImpl()
+    @Binds
+    @IntoSet
+    abstract fun provideStartupNavGraph(startupNavGraphImpl: StartupNavGraphImpl): BaseNavGraph
 }

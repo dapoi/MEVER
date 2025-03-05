@@ -1,4 +1,4 @@
-package com.dapascript.mever.core.navigation.graph.route
+package com.dapascript.mever.core.navigation.route
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.toRoute

@@ -1,20 +1,18 @@
 package com.dapascript.mever.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
-import com.dapascript.mever.core.navigation.graph.MeverNavGraphs
-import com.dapascript.mever.core.navigation.graph.route.StartupScreenRoute.SplashRoute
+import com.dapascript.mever.core.navigation.base.BaseNavGraph
+import com.dapascript.mever.core.navigation.route.StartupScreenRoute.SplashRoute
 
 @Composable
 internal fun MainNavigation(
-    meverNavGraphs: MeverNavGraphs,
+    navGraphs: Set<@JvmSuppressWildcards BaseNavGraph>,
     modifier: Modifier = Modifier
 ) {
     val navController = rememberNavController()
-    val navGraphs = remember { meverNavGraphs.getNavGraphs() }
 
     NavHost(
         modifier = modifier,

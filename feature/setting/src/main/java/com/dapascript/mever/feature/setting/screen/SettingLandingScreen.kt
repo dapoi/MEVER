@@ -54,9 +54,9 @@ import com.dapascript.mever.core.common.ui.theme.ThemeType
 import com.dapascript.mever.core.common.util.navigateToGmail
 import com.dapascript.mever.core.common.util.navigateToNotificationSettings
 import com.dapascript.mever.core.navigation.helper.navigateTo
-import com.dapascript.mever.core.navigation.graph.route.SettingScreenRoute.SettingLanguageRoute
-import com.dapascript.mever.core.navigation.graph.route.SettingScreenRoute.SettingLanguageRoute.LanguageData
-import com.dapascript.mever.core.navigation.graph.route.SettingScreenRoute.SettingThemeRoute
+import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLanguageRoute
+import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLanguageRoute.LanguageData
+import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingThemeRoute
 import com.dapascript.mever.feature.setting.viewmodel.SettingLandingViewModel
 
 @OptIn(ExperimentalFoundationApi::class)

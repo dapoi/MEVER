@@ -90,9 +90,9 @@ import com.dapascript.mever.core.common.util.replaceTimeFormat
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.dapascript.mever.core.navigation.helper.navigateTo
-import com.dapascript.mever.core.navigation.graph.route.GalleryScreenRoute.GalleryContentDetailRoute
-import com.dapascript.mever.core.navigation.graph.route.GalleryScreenRoute.GalleryLandingRoute
-import com.dapascript.mever.core.navigation.graph.route.SettingScreenRoute.SettingLandingRoute
+import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
+import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute
+import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLandingRoute
 import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetDownload
 import com.dapascript.mever.feature.home.screen.component.HandleDialogError
 import com.dapascript.mever.feature.home.screen.component.HandleDialogPermission

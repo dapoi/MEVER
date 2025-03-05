@@ -1,4 +1,4 @@
-package com.dapascript.mever.core.navigation.graph.route
+package com.dapascript.mever.core.navigation.route
 
 import kotlinx.serialization.Serializable
 
