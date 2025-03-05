@@ -12,6 +12,7 @@ import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.actions
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.navigationIcon
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.title
+import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,7 +31,7 @@ fun MeverTopBar(
             ),
             actions = actions(actionMenus),
             colors = centerAlignedTopAppBarColors(
-                containerColor = topBarColor ?: colorScheme.background,
+                containerColor = topBarColor ?: MeverTransparent,
                 navigationIconContentColor = iconBackColor ?: colorScheme.onPrimary,
                 titleContentColor = titleColor ?: colorScheme.onPrimary,
                 actionIconContentColor = actionMenusColor ?: colorScheme.onPrimary
@@ -46,7 +47,7 @@ fun MeverTopBar(
             ),
             actions = actions(actionMenus),
             colors = topAppBarColors(
-                containerColor = topBarColor ?: colorScheme.background,
+                containerColor = topBarColor ?: MeverTransparent,
                 navigationIconContentColor = iconBackColor ?: colorScheme.onPrimary,
                 titleContentColor = titleColor ?: colorScheme.onPrimary,
                 actionIconContentColor = actionMenusColor ?: colorScheme.onPrimary
