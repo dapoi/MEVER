@@ -10,7 +10,6 @@ internal fun Project.configCompose(
 ) {
     commonExtension.apply {
         buildFeatures {
-            buildConfig = true
             compose = true
         }
 

@@ -33,7 +33,9 @@ internal fun Project.configAndroid(
             buildConfigField("String", "BASE_URL", baseUrl)
         }
 
-        buildFeatures { buildConfig = true }
+        buildFeatures {
+            buildConfig = true
+        }
 
         compileOptions {
             sourceCompatibility = VERSION_17

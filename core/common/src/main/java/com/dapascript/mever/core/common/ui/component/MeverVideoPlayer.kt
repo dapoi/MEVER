@@ -60,7 +60,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle.Event.ON_CREATE
-import androidx.lifecycle.Lifecycle.Event.ON_RESUME
 import androidx.lifecycle.Lifecycle.Event.ON_START
 import androidx.lifecycle.Lifecycle.Event.ON_STOP
 import androidx.lifecycle.LifecycleEventObserver
@@ -171,20 +170,18 @@ fun MeverVideoPlayer(
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
                 ON_CREATE -> {
+                    activity.hideStatusBar(true)
                     player = Builder(context).build().apply {
                         setMediaItem(fromUri(source))
                         prepare()
                     }
                     player?.addListener(listener)
                 }
-
                 ON_START -> if (player?.isPlaying == false) player?.play()
-                ON_RESUME -> activity.hideStatusBar(true)
                 ON_STOP -> {
                     activity.hideStatusBar(false)
                     player?.pause()
                 }
-
                 else -> Unit
             }
         }

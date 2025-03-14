@@ -11,7 +11,6 @@ class FeaturePlugin : Plugin<Project> {
         with(target) {
             with(pluginManager) {
                 alias(libs.plugins.mever.library)
-                alias(libs.plugins.mever.hilt)
                 alias(libs.plugins.mever.navigation)
                 alias(libs.plugins.mever.library.compose)
             }
