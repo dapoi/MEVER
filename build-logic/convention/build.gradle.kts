@@ -1,5 +1,7 @@
+import org.gradle.api.JavaVersion.VERSION_21
 import org.gradle.initialization.DependenciesAccessors
 import org.gradle.kotlin.dsl.support.serviceOf
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -9,13 +11,14 @@ plugins {
 group = "com.dapascript.mever.build_logic.convention"
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = VERSION_21
+    targetCompatibility = VERSION_21
 }
 
 tasks.withType<KotlinCompile>().configureEach {
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
+    compilerOptions {
+        jvmTarget.set(JVM_21)
+        freeCompilerArgs.add("-opt-in=kotlin.RequiresOptIn")
     }
 }
 
@@ -38,35 +41,31 @@ tasks {
 
 gradlePlugin {
     plugins {
-        register("androidApplication") {
+        register("application") {
             id = "mever.application"
             implementationClass = "AppPlugin"
         }
-        register("androidApplicationCompose") {
-            id = "mever.application.compose"
-            implementationClass = "AppComposePlugin"
-        }
-        register("androidApi") {
+        register("api") {
             id = "mever.api"
             implementationClass = "ApiPlugin"
         }
-        register("androidFeature") {
+        register("feature") {
             id = "mever.feature"
             implementationClass = "FeaturePlugin"
         }
-        register("androidHilt") {
+        register("hilt") {
             id = "mever.hilt"
             implementationClass = "HiltPlugin"
         }
         register("androidLibrary") {
-            id = "mever.library"
-            implementationClass = "LibPlugin"
+            id = "mever.android.library"
+            implementationClass = "AndroidLibPlugin"
         }
-        register("androidLibraryCompose") {
-            id = "mever.library.compose"
-            implementationClass = "LibComposePlugin"
+        register("ComposeLibrary") {
+            id = "mever.compose.library"
+            implementationClass = "ComposeLibPlugin"
         }
-        register("androidNav") {
+        register("navigation") {
             id = "mever.navigation"
             implementationClass = "NavPlugin"
         }

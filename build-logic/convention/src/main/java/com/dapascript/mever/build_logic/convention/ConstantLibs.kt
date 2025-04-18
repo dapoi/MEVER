@@ -11,7 +11,6 @@ object ConstantLibs {
         "/META-INF/gradle/incremental.annotation.processors"
     )
     const val BASE_NAME = "com.dapascript.mever"
-    const val COMPILER_VERSION = "1.5.21"
     const val MIN_SDK_VERSION = 26
     const val MAX_SDK_VERSION = 35
     const val KSP = "ksp"

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">MEVER</string>
     <string name="downloader_tab">Downloader</string>
     <string name="ai_tab">AI Image</string>
     <string name="downloader_title">Media Saver</string>

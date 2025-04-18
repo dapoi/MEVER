@@ -1,16 +1,16 @@
 [versions]
-androidGradlePlugin = "8.6.1"
-androidTools = "31.8.1"
-androidxActivity = "1.10.0"
-androidxComposeBom = "2025.02.00"
-androidxNavigation = "2.8.7"
+androidGradlePlugin = "8.9.1"
+androidTools = "31.9.1"
+androidxActivity = "1.10.1"
+androidxComposeBom = "2025.04.00"
+androidxNavigation = "2.8.9"
 appCompat = "1.7.0"
-chucker = "4.0.0"
-coil = "3.0.2"
-coreKtxVersion = "1.15.0"
-dataStorePreferences = "1.1.2"
+chucker = "4.1.0"
+coil = "3.1.0"
+coreKtxVersion = "1.16.0"
+dataStorePreferences = "1.1.4"
 espressoCore = "3.6.1"
-hilt = "2.53.1"
+hilt = "2.55"
 hiltNavigation = "1.2.0"
 interceptor = "4.12.0"
 junit = "1.2.1"
@@ -18,7 +18,7 @@ ketch = "2.0.3"
 kotlin = "2.1.0"
 kotlinxSerializationJson = "1.8.0"
 ksp = "2.1.0-1.0.29"
-media3 = "1.5.1"
+media3 = "1.6.1"
 retrofit = "2.11.0"
 timber = "5.0.1"
 
@@ -70,11 +70,10 @@ hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
 # Custom plugins
+mever-android-library = { id = "mever.android.library", version = "unspecified" }
 mever-application = { id = "mever.application", version = "unspecified" }
-mever-application-compose = { id = "mever.application.compose", version = "unspecified" }
 mever-api = { id = "mever.api", version = "unspecified" }
+mever-compose-library = { id = "mever.compose.library", version = "unspecified" }
 mever-feature = { id = "mever.feature", version = "unspecified" }
 mever-hilt = { id = "mever.hilt", version = "unspecified" }
-mever-library = { id = "mever.library", version = "unspecified" }
-mever-library-compose = { id = "mever.library.compose", version = "unspecified" }
 mever-navigation = { id = "mever.navigation", version = "unspecified" }

@@ -11,11 +11,7 @@ import org.gradle.kotlin.dsl.dependencies
 class ApiPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
-            with(pluginManager) {
-                alias(libs.plugins.mever.library)
-                alias(libs.plugins.mever.hilt)
-            }
-
+            pluginManager.alias(libs.plugins.mever.android.library)
             dependencies {
                 implementation(project(coreModules[1]))
                 implementation(libs.dataStorePreferences.get())

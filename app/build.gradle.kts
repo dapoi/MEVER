@@ -2,7 +2,6 @@ import com.dapascript.mever.build_logic.convention.implementation
 
 plugins {
     alias(libs.plugins.mever.application)
-    alias(libs.plugins.mever.application.compose)
     alias(libs.plugins.mever.hilt)
 }
 

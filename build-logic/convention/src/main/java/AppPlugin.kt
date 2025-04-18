@@ -3,6 +3,7 @@ import com.dapascript.mever.build_logic.convention.ConstantLibs.MAX_SDK_VERSION
 import com.dapascript.mever.build_logic.convention.ConstantLibs.resourceExcludes
 import com.dapascript.mever.build_logic.convention.alias
 import com.dapascript.mever.build_logic.convention.configAndroid
+import com.dapascript.mever.build_logic.convention.configCompose
 import com.dapascript.mever.build_logic.convention.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -19,13 +20,9 @@ class AppPlugin : Plugin<Project> {
 
             extensions.configure<ApplicationExtension> {
                 configAndroid(this)
+                configCompose(this)
                 defaultConfig.targetSdk = MAX_SDK_VERSION
-
-                packaging {
-                    resources {
-                        resourceExcludes.forEach { excludes += it }
-                    }
-                }
+                packaging.resources.excludes.addAll(resourceExcludes)
             }
         }
     }

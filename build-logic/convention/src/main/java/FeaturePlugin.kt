@@ -10,9 +10,9 @@ class FeaturePlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             with(pluginManager) {
-                alias(libs.plugins.mever.library)
+                alias(libs.plugins.mever.android.library)
+                alias(libs.plugins.mever.compose.library)
                 alias(libs.plugins.mever.navigation)
-                alias(libs.plugins.mever.library.compose)
             }
 
             dependencies {

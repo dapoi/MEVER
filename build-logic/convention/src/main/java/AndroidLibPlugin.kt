@@ -7,13 +7,14 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
 
-class LibPlugin : Plugin<Project> {
+class AndroidLibPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             with(pluginManager) {
                 alias(libs.plugins.android.library)
                 alias(libs.plugins.kotlin.android)
                 alias(libs.plugins.kotlin.compose)
+                alias(libs.plugins.mever.hilt)
             }
 
             extensions.configure<LibraryExtension> {
