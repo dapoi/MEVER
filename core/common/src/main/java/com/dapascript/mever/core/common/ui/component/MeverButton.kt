@@ -3,7 +3,6 @@ package com.dapascript.mever.core.common.ui.component
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -28,7 +27,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp30
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
-import com.dapascript.mever.core.common.util.clickableSingle
+import com.dapascript.mever.core.common.util.onCustomClick
 
 @Composable
 fun MeverButton(
@@ -47,7 +46,7 @@ fun MeverButton(
             .background(color = getButtonColor(isEnabled, buttonType), shape = shape)
             .setBorder(isTypeOutlined = buttonType == OUTLINED, shape = shape)
             .clip(shape)
-            .clickableSingle(enabled = isEnabled) {
+            .onCustomClick(enabled = isEnabled) {
                 onClick()
                 keyboardController?.hide()
             },

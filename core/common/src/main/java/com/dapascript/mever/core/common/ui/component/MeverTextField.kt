@@ -37,10 +37,9 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp3
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
-import com.dapascript.mever.core.common.ui.theme.MeverLightGray
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.util.clearFocusOnKeyboardDismiss
-import com.dapascript.mever.core.common.util.clickableSingle
+import com.dapascript.mever.core.common.util.onCustomClick
 
 @Composable
 fun MeverTextField(
@@ -67,7 +66,7 @@ fun MeverTextField(
                 .clip(CircleShape)
                 .background(color = Transparent, shape = CircleShape)
                 .size(Dp24)
-                .clickableSingle { clipboardManager.getText()?.text?.let { onValueChange(TextFieldValue(it)) } }
+                .onCustomClick { clipboardManager.getText()?.text?.let { onValueChange(TextFieldValue(it)) } }
         ) {
             Icon(
                 modifier = Modifier.fillMaxSize(),

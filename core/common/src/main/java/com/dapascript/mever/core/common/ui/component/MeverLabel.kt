@@ -16,7 +16,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
-import com.dapascript.mever.core.common.util.clickableSingle
+import com.dapascript.mever.core.common.util.onCustomClick
 
 @Composable
 fun MeverLabel(
@@ -45,7 +45,7 @@ fun MeverLabel(
             )
             actionMessage?.let {
                 Text(
-                    modifier = Modifier.clickableSingle { onClickLabel() },
+                    modifier = Modifier.onCustomClick { onClickLabel() },
                     text = actionMessage,
                     style = typography.labelBold1,
                     color = labelContentColor

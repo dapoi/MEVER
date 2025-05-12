@@ -9,18 +9,19 @@ import android.content.Intent.EXTRA_SUBJECT
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory.decodeStream
 import android.media.MediaMetadataRetriever
-import android.media.MediaMetadataRetriever.METADATA_KEY_DURATION
 import android.os.Environment.DIRECTORY_DOWNLOADS
 import android.os.Environment.getExternalStoragePublicDirectory
 import android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS
 import android.provider.Settings.EXTRA_APP_PACKAGE
 import android.util.Patterns.WEB_URL
+import android.widget.Toast
 import androidx.core.app.ShareCompat.IntentBuilder
 import androidx.core.content.FileProvider.getUriForFile
 import androidx.core.view.WindowCompat.getInsetsController
 import androidx.core.view.WindowInsetsCompat.Type.systemBars
 import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
 import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.util.Constant.PlatformType
 import com.dapascript.mever.core.common.util.Constant.PlatformType.FACEBOOK
 import com.dapascript.mever.core.common.util.Constant.PlatformType.INSTAGRAM
@@ -72,39 +73,15 @@ suspend fun getUrlContentType(url: String) = withContext(IO) {
     val client = OkHttpClient()
     val request = Request.Builder()
         .url(url)
-        .head()
+        .get()
         .build()
 
     try {
         val type = client.newCall(request).execute()
-        val contentDisposition = type.header("content-disposition")
-        val contentType = type.header("content-type")
-        val videoTypes = listOf("application/octet-stream", "video/mp4")
-        if (contentDisposition.orEmpty().contains(".mp4") || contentType in videoTypes) ".mp4" else ".jpg"
+        if (type.body?.contentType().toString() == "video/mp4") ".mp4" else ".jpg"
     } catch (e: Exception) {
         e.printStackTrace()
         null
-    }
-}
-
-fun getTotalVideoDuration(file: String): String? {
-    val retriever = MediaMetadataRetriever()
-    return try {
-        with(retriever) {
-            setDataSource(file)
-            val duration = extractMetadata(METADATA_KEY_DURATION)?.toLong() ?: 0
-            val hours = duration / 1000 / 3600
-            val minutes = (duration / 1000 % 3600) / 60
-            val seconds = duration / 1000 % 60
-
-            if (hours > 0) String.format(getDefault(), "%02d:%02d:%02d", hours, minutes, seconds)
-            else String.format(getDefault(), "%02d:%02d", minutes, seconds)
-        }
-    } catch (e: Exception) {
-        e.printStackTrace()
-        null
-    } finally {
-        retriever.release()
     }
 }
 
@@ -121,7 +98,11 @@ fun calculateDownloadPercentage(downloadedBytes: Long, totalBytes: Long): String
     return percentage.toInt().toString() + "%"
 }
 
-fun getLocalContentType(path: String) = if (path.isVideo()) "video/mp4" else "image/jpg"
+fun getContentType(path: String) = when {
+    path.isEmpty() -> "in progress"
+    path.isVideo() -> "video/mp4"
+    else -> "image/jpg"
+}
 
 fun getMeverFolder() = File(getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS), "MEVER")
 
@@ -141,7 +122,7 @@ fun shareContent(context: Context, authority: String, path: String) {
     try {
         val uri = getUriForFile(context, "$authority.provider", File(path))
         IntentBuilder(context)
-            .setType(getLocalContentType(path))
+            .setType(getContentType(path))
             .setSubject("MEVER Shared Content")
             .addStream(uri)
             .setChooserTitle("Share with")
@@ -153,7 +134,12 @@ fun shareContent(context: Context, authority: String, path: String) {
 
 fun navigateToNotificationSettings(context: Context) {
     try {
-        context.startActivity(Intent(ACTION_APP_NOTIFICATION_SETTINGS).putExtra(EXTRA_APP_PACKAGE, context.packageName))
+        context.startActivity(
+            Intent(ACTION_APP_NOTIFICATION_SETTINGS).putExtra(
+                EXTRA_APP_PACKAGE,
+                context.packageName
+            )
+        )
     } catch (e: Exception) {
         e.printStackTrace()
     }
@@ -168,7 +154,7 @@ fun navigateToGmail(context: Context) {
         }
         context.startActivity(intent)
     } catch (e: Exception) {
-        e.printStackTrace()
+        Toast.makeText(context, R.string.gmail_not_found, Toast.LENGTH_SHORT).show()
     }
 }
 
@@ -186,7 +172,14 @@ fun Long.toTimeFormat(): String {
     val minutes = seconds / 60
     val hours = minutes / 60
     return when {
-        hours > 0 -> String.format(getDefault(), "%02d:%02d:%02d", hours, minutes % 60, seconds % 60)
+        hours > 0 -> String.format(
+            getDefault(),
+            "%02d:%02d:%02d",
+            hours,
+            minutes % 60,
+            seconds % 60
+        )
+
         else -> String.format(getDefault(), "%02d:%02d", minutes, seconds % 60)
     }
 }
@@ -223,7 +216,7 @@ fun String.replaceTimeFormat() = replace("_", ".")
 
 fun String.removeExtension() = substringBeforeLast(".")
 
-fun Activity.hideStatusBar(value: Boolean) {
+fun Activity.hideSystemBar(value: Boolean) {
     val insetsController = getInsetsController(window, window.decorView)
     if (value) {
         insetsController.hide(systemBars())
@@ -234,4 +227,6 @@ fun Activity.hideStatusBar(value: Boolean) {
     }
 }
 
-fun DownloadModel.isAvailableOnLocal() = getMeverFiles()?.map { it.name }.orEmpty().contains(fileName)
+fun DownloadModel.isAvailableOnLocal() = getMeverFiles()?.any {
+    it.name == fileName
+} ?: false

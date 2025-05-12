@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -73,18 +74,20 @@ import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.util.Constant.PlatformType
 import com.dapascript.mever.core.common.util.Constant.PlatformType.UNKNOWN
 import com.dapascript.mever.core.common.util.getMeverFiles
-import com.dapascript.mever.core.common.util.isAvailableOnLocal
 import com.dapascript.mever.core.common.util.replaceTimeFormat
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.navigation.helper.navigateTo
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.DELETE_ALL
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.MORE
+import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.PAUSE_ALL
+import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.RESUME_ALL
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.listDropDown
 import com.dapascript.mever.feature.gallery.viewmodel.GalleryLandingViewModel
 import com.ketch.DownloadModel
 import com.ketch.Status.FAILED
 import com.ketch.Status.PAUSED
+import com.ketch.Status.PROGRESS
 import com.ketch.Status.SUCCESS
 import com.dapascript.mever.core.common.R as RCommon
 
@@ -105,11 +108,12 @@ internal fun GalleryLandingScreen(
 
     BaseScreen(
         topBarArgs = TopBarArgs(
-            actionMenus = if (downloadList.isNullOrEmpty().not()) listOf(ActionMenu(
-                icon = R.drawable.ic_more,
-                nameIcon = MORE,
-                onClickActionMenu = { showDropDownMenu = true }
-            )) else emptyList(),
+            actionMenus = if (downloadList.isNullOrEmpty().not()) listOf(
+                ActionMenu(
+                    icon = R.drawable.ic_more,
+                    nameIcon = MORE,
+                    onClickActionMenu = { showDropDownMenu = true }
+                )) else emptyList(),
             screenName = if (isExpanded.not()) stringResource(RCommon.string.gallery) else "",
             onClickBack = { navController.popBackStack() }
         ),
@@ -117,21 +121,34 @@ internal fun GalleryLandingScreen(
     ) {
         MeverPopupDropDownMenu(
             modifier = Modifier.padding(top = Dp64, end = Dp24),
-            listDropDown = listDropDown,
+            listDropDown = listDropDown.filter {
+                when (it) {
+                    DELETE_ALL -> downloadList.isNullOrEmpty().not()
+                    PAUSE_ALL -> downloadList?.any { model ->
+                        model.status == PROGRESS
+                    } == true
+                    RESUME_ALL -> downloadList?.any { model ->
+                        model.progress < model.total
+                    } == true
+                    else -> false
+                }
+            },
             showDropDownMenu = showDropDownMenu,
             onDismissDropDownMenu = { showDropDownMenu = it },
             onClick = { item ->
                 when (item) {
                     DELETE_ALL -> showDeleteAllDialog = true
+                    PAUSE_ALL -> ketch.pauseAll()
+                    else -> downloadList?.filter { model -> model.status == PAUSED }?.map { model ->
+                        ketch.resume(model.id)
+                    }
                 }
             }
         )
 
         GalleryContentSection(
             downloadList = downloadList?.filter { download ->
-                with(download) {
-                    (isAvailableOnLocal() || status != SUCCESS) && (selectedFilter == UNKNOWN || tag == selectedFilter.platformName)
-                }
+                selectedFilter == UNKNOWN || download.tag == selectedFilter.platformName
             },
             scrollState = scrollState,
             isExpanded = isExpanded,
@@ -140,26 +157,30 @@ internal fun GalleryLandingScreen(
             onClickFilter = { selectedFilter = it },
             onClickCard = { model ->
                 with(model) {
-                    if (progress < 100) when (status) {
+                    when (status) {
+                        SUCCESS -> navController.navigateTo(
+                            GalleryContentDetailRoute(
+                                id = id,
+                                sourceFile = getMeverFiles()?.find { file ->
+                                    file.name == fileName
+                                }?.path.orEmpty(),
+                                fileName = fileName.replaceTimeFormat()
+                            )
+                        )
+
                         FAILED -> showFailedDialog = id
                         PAUSED -> ketch.resume(id)
                         else -> ketch.pause(id)
-                    } else navController.navigateTo(
-                        GalleryContentDetailRoute(
-                            id = id,
-                            sourceFile = getMeverFiles()?.find { file ->
-                                file.name == fileName
-                            }?.path.orEmpty(),
-                            fileName = fileName.replaceTimeFormat()
-                        )
-                    )
+                    }
                 }
             },
             onClickShare = {
                 shareContent(
                     context = context,
                     authority = context.packageName,
-                    path = getMeverFiles()?.find { file -> file.name == it.fileName }?.path.orEmpty()
+                    path = getMeverFiles()?.find { file ->
+                        file.name == it.fileName
+                    }?.path.orEmpty()
                 )
             },
             onClickDelete = { showDeleteDialog = it.id },
@@ -168,6 +189,10 @@ internal fun GalleryLandingScreen(
         )
 
         MeverSnackbar(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = Dp24)
+                .navigationBarsPadding(),
             message = snackbarMessage,
             onResetMessage = { resetMessage -> snackbarMessage = resetMessage }
         )
@@ -341,7 +366,9 @@ private fun GalleryContentSection(
                                                 path = it.path,
                                                 urlThumbnail = it.metaData,
                                                 icon = getPlatformIcon(it.tag),
-                                                iconBackgroundColor = getPlatformIconBackgroundColor(it.tag),
+                                                iconBackgroundColor = getPlatformIconBackgroundColor(
+                                                    it.tag
+                                                ),
                                                 iconSize = Dp24,
                                                 iconPadding = Dp5
                                             ),

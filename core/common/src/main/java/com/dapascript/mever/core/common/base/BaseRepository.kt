@@ -5,7 +5,6 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 
 open class BaseRepository {
-
     inline fun <T, R> collectApiResult(
         crossinline fetchApi: suspend () -> T,
         crossinline transformData: (T) -> R

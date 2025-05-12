@@ -29,8 +29,8 @@ internal fun Project.configAndroid(
                     if (entry.size == 2) rootProject.extra.set(entry[0].trim(), entry[1].trim())
                 }
             }
-            val baseUrl = rootProject.extra.get("BASE_URL")?.toString()?.takeIf { it.isNotBlank() } ?: "\"\""
-            buildConfigField("String", "BASE_URL", baseUrl)
+            buildConfigField("String", "BASE_URL", getEnvVariable("BASE_URL"))
+            buildConfigField("String", "API_KEY", getEnvVariable("API_KEY"))
         }
 
         buildFeatures {
@@ -50,3 +50,6 @@ internal fun Project.configAndroid(
         }
     }
 }
+
+private fun Project.getEnvVariable(key: String) =
+    rootProject.extra.get(key)?.toString()?.takeIf { it.isNotBlank() } ?: ""

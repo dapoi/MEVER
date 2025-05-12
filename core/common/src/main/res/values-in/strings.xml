@@ -51,11 +51,13 @@
     <string name="support">Dukungan</string>
     <string name="contact">Hubungi Kami</string>
     <string name="about">Tentang Aplikasi</string>
-    <string name="choose_file">Pilih jenis file Anda</string>
+    <string name="choose_file">Pilih jenis file</string>
     <string name="wait">Harap tunggu…</string>
     <string name="video_text">Video</string>
     <string name="image_text">Gambar</string>
-    <string name="quality">Kualitas: %1$s</string>
+    <string name="quality">Kualitas %1$s</string>
     <string name="type">Tipe: %1$s</string>
     <string name="all">Semua</string>
+    <string name="gmail_not_found">Aplikasi Gmail tidak ditemukan</string>
+    <string name="choose_quality">Pilih Resolusi</string>
 </resources>

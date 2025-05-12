@@ -22,7 +22,7 @@ fun MeverBottomSheet(
     onClickDismiss: () -> Unit,
     content: @Composable () -> Unit
 ) {
-    val sheetState = rememberModalBottomSheetState()
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     if (showBottomSheet) {
         ModalBottomSheet(
             modifier = modifier,

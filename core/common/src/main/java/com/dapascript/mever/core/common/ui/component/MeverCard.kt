@@ -55,15 +55,16 @@ import com.dapascript.mever.core.common.ui.theme.MeverRed
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.util.calculateDownloadPercentage
 import com.dapascript.mever.core.common.util.calculateDownloadedMegabytes
-import com.dapascript.mever.core.common.util.clickableSingle
-import com.dapascript.mever.core.common.util.getLocalContentType
+import com.dapascript.mever.core.common.util.getContentType
 import com.dapascript.mever.core.common.util.getMeverFiles
 import com.dapascript.mever.core.common.util.getTwoDecimals
 import com.dapascript.mever.core.common.util.isVideo
+import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.replaceTimeFormat
 import com.ketch.Status
 import com.ketch.Status.FAILED
 import com.ketch.Status.PAUSED
+import com.ketch.Status.SUCCESS
 
 @Composable
 fun MeverCard(
@@ -90,9 +91,12 @@ fun MeverCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(Dp8))
-                .clickableSingle { onClickCard?.invoke() }
+                .onCustomClick(
+                    onLongClick = { onClickDelete?.invoke() },
+                    onClick = { onClickCard?.invoke() }
+                )
         ) {
-            if (progress < 100 && urlThumbnail.isNullOrEmpty()) MeverUrlThumbnail(
+            if (status != SUCCESS && urlThumbnail.isNullOrEmpty()) MeverUrlThumbnail(
                 source = source,
                 isFailedFetchImage = status == FAILED,
                 modifier = Modifier
@@ -138,11 +142,11 @@ fun MeverCard(
                     )
                 }
                 Text(
-                    text = stringResource(R.string.type, getLocalContentType(filePath)),
+                    text = stringResource(R.string.type, getContentType(filePath)),
                     style = typography.label2,
                     color = MeverGray
                 )
-                if (progress < 100) Row(
+                if (status != SUCCESS) Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = Dp12),
@@ -237,7 +241,8 @@ private fun getImagePainter(status: Status) = rememberAsyncImagePainter(
 )
 
 @Composable
-private fun getStatusDownloadColor(status: Status) = if (status == FAILED) MeverRed else colorScheme.primary
+private fun getStatusDownloadColor(status: Status) =
+    if (status == FAILED) MeverRed else colorScheme.primary
 
 private fun Builder.setThumbnail(
     progress: Int,

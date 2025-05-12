@@ -29,7 +29,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp50
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverLightGray
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
-import com.dapascript.mever.core.common.util.clickableSingle
+import com.dapascript.mever.core.common.util.onCustomClick
 
 @Composable
 fun MeverMenuItem(
@@ -49,7 +49,7 @@ fun MeverMenuItem(
                     bottomEnd = Dp8
                 )
             )
-            .clickableSingle { onClick() },
+            .onCustomClick { onClick() },
         horizontalArrangement = SpaceBetween,
         verticalAlignment = CenterVertically
     ) {

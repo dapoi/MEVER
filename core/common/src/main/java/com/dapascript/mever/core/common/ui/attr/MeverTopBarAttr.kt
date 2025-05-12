@@ -22,7 +22,7 @@ import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.component.MeverActionButton
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
-import com.dapascript.mever.core.common.util.clickableSingle
+import com.dapascript.mever.core.common.util.onCustomClick
 
 object MeverTopBarAttr {
 
@@ -52,7 +52,7 @@ object MeverTopBarAttr {
             modifier = screenName?.let {
                 Modifier
                     .clip(CircleShape)
-                    .clickableSingle { onClickBack?.invoke() }
+                    .onCustomClick { onClickBack?.invoke() }
             } ?: Modifier,
             contentAlignment = Center
         ) {

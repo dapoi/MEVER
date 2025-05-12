@@ -89,7 +89,10 @@ fun NavController.navigateClearBackStack(route: Any) {
 inline fun <reified T> NavController.setPopBackStackWithCustomArgs(
     key: String,
     value: T
-) = previousBackStackEntry?.savedStateHandle?.set(key, Json.encodeToString(value))
+) {
+    popBackStack()
+    previousBackStackEntry?.savedStateHandle?.set(key, Json.encodeToString(value))
+}
 
 inline fun <reified T> NavController.getPopBackStackWithCustomArgs(
     key: String

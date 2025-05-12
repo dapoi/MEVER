@@ -31,10 +31,17 @@ class GalleryLandingViewModel @Inject constructor(
     val downloadList = ketch.observeDownloads()
         .map { downloads ->
             downloads
-                .filter { it.isAvailableOnLocal() || it.status != SUCCESS }
-                .sortedByDescending { it.lastModified }
-                .also { platformTypes = PlatformType.entries.filter { type -> it.any { it.tag == type.platformName } } }
-                .onEach { if (it.status == SUCCESS && it.isAvailableOnLocal().not()) ketch.clearDb(it.id) }
+                .sortedByDescending { it.timeQueued }
+                .also {
+                    platformTypes = PlatformType.entries.filter { type ->
+                        it.any { it.tag == type.platformName }
+                    }
+                }
+                .onEach {
+                    if (it.status == SUCCESS && it.isAvailableOnLocal().not()) {
+                        ketch.clearDb(it.id)
+                    }
+                }
         }
         .stateIn(viewModelScope, Lazily, null)
 }

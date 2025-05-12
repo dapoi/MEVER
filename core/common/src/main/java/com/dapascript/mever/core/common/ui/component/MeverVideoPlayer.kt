@@ -92,8 +92,8 @@ import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.LocalActivity
-import com.dapascript.mever.core.common.util.clickableSingle
-import com.dapascript.mever.core.common.util.hideStatusBar
+import com.dapascript.mever.core.common.util.onCustomClick
+import com.dapascript.mever.core.common.util.hideSystemBar
 import com.dapascript.mever.core.common.util.toTimeFormat
 import kotlinx.coroutines.delay
 
@@ -170,7 +170,7 @@ fun MeverVideoPlayer(
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
                 ON_CREATE -> {
-                    activity.hideStatusBar(true)
+                    activity.hideSystemBar(true)
                     player = Builder(context).build().apply {
                         setMediaItem(fromUri(source))
                         prepare()
@@ -179,7 +179,7 @@ fun MeverVideoPlayer(
                 }
                 ON_START -> if (player?.isPlaying == false) player?.play()
                 ON_STOP -> {
-                    activity.hideStatusBar(false)
+                    activity.hideSystemBar(false)
                     player?.pause()
                 }
                 else -> Unit
@@ -266,7 +266,7 @@ fun MeverVideoPlayer(
                 showDeleteDialog = false
             },
             onClickSecondaryButton = {
-                activity.hideStatusBar(true)
+                activity.hideSystemBar(true)
                 showDeleteDialog = false
             }
         ),
@@ -517,7 +517,7 @@ private fun VideoBottomControlSection(
                 modifier = Modifier
                     .size(Dp32)
                     .padding(end = Dp6)
-                    .clickableSingle { onClickFullScreen() }
+                    .onCustomClick { onClickFullScreen() }
             )
         }
     }

@@ -8,8 +8,21 @@ class MeverRepositoryImpl @Inject constructor(
     private val apiService: ApiService
 ) : MeverRepository, BaseRepository() {
 
+    override fun getSavefromDownloader(url: String) = collectApiResult(
+        fetchApi = { apiService.getSaveFromDownloader(url) },
+        transformData = { it.mapToEntity() }
+    )
+
     override fun getFacebookDownloader(url: String) = collectApiResult(
         fetchApi = { apiService.getFacebookDownloader(url) },
+        transformData = { it.mapToEntity() }
+    )
+
+    override fun getYoutubeDownloader(
+        url: String,
+        quality: String
+    ) = collectApiResult(
+        fetchApi = { apiService.getYoutubeDownloader(url, quality) },
         transformData = { it.mapToEntity() }
     )
 
@@ -25,11 +38,6 @@ class MeverRepositoryImpl @Inject constructor(
 
     override fun getTikTokDownloader(url: String) = collectApiResult(
         fetchApi = { apiService.getTikTokDownloader(url) },
-        transformData = { it.mapToEntity() }
-    )
-
-    override fun getYoutubeDownloader(url: String) = collectApiResult(
-        fetchApi = { apiService.getYoutubeDownloader(url) },
         transformData = { it.mapToEntity() }
     )
 }

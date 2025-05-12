@@ -3,11 +3,16 @@ package com.dapascript.mever.core.data.di
 import android.content.Context
 import com.chuckerteam.chucker.api.ChuckerCollector
 import com.chuckerteam.chucker.api.ChuckerInterceptor
+import com.dapascript.mever.core.data.BuildConfig
+import com.dapascript.mever.core.data.BuildConfig.API_KEY
 import com.dapascript.mever.core.data.BuildConfig.BASE_URL
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.repository.MeverRepositoryImpl
 import com.dapascript.mever.core.data.source.local.MeverDataStore
 import com.dapascript.mever.core.data.source.remote.ApiService
+import com.dapascript.mever.core.data.util.ApiKey
+import com.dapascript.mever.core.data.util.ApiKeyInterceptor
+import com.dapascript.mever.core.data.util.BaseUrl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,38 +21,56 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.logging.HttpLoggingInterceptor.Level.BODY
+import okhttp3.logging.HttpLoggingInterceptor.Level.NONE
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit.SECONDS
 
 @Module
 @InstallIn(SingletonComponent::class)
 class DataModule {
 
     @Provides
-    fun provideMeverDataStore(@ApplicationContext context: Context) = MeverDataStore(context)
+    @ApiKey
+    fun provideApiKey(): String = API_KEY
 
     @Provides
-    fun provideMeverRepository(repo: MeverRepositoryImpl): MeverRepository = repo
+    @BaseUrl
+    fun provideBaseUrl(): String = BASE_URL
 
     @Provides
-    fun provideRetrofitService(retrofit: Retrofit): ApiService = retrofit.create(ApiService::class.java)
+    fun provideApiKeyInterceptor(
+        @ApiKey apiKey: String
+    ) = ApiKeyInterceptor(apiKey)
+
+    @Provides
+    fun provideRetrofitService(retrofit: Retrofit): ApiService =
+        retrofit.create(ApiService::class.java)
 
     @Provides
     fun provideApiService(
+        @BaseUrl baseUrl: String,
         okHttpClient: OkHttpClient,
         gsonConverterFactory: GsonConverterFactory
     ): Retrofit = Retrofit.Builder()
-        .baseUrl(BASE_URL)
+        .baseUrl(baseUrl)
         .addConverterFactory(gsonConverterFactory)
         .client(okHttpClient)
         .build()
 
     @Provides
     fun provideOkHttpClient(
+        apiKeyInterceptor: ApiKeyInterceptor,
         chuckerInterceptor: ChuckerInterceptor
     ) = OkHttpClient.Builder()
-        .addInterceptor(HttpLoggingInterceptor().apply { level = BODY })
+        .addInterceptor(HttpLoggingInterceptor().apply {
+            level = if (BuildConfig.DEBUG) BODY else NONE
+        })
+        .addInterceptor(apiKeyInterceptor)
         .addInterceptor(chuckerInterceptor)
+        .connectTimeout(30, SECONDS)
+        .readTimeout(30, SECONDS)
+        .writeTimeout(30, SECONDS)
         .build()
 
     @Provides
@@ -57,4 +80,10 @@ class DataModule {
     fun provideChuckerInterceptor(
         @ApplicationContext context: Context
     ) = ChuckerInterceptor.Builder(context).collector(ChuckerCollector(context)).build()
+
+    @Provides
+    fun provideMeverDataStore(@ApplicationContext context: Context) = MeverDataStore(context)
+
+    @Provides
+    fun provideMeverRepository(repo: MeverRepositoryImpl): MeverRepository = repo
 }

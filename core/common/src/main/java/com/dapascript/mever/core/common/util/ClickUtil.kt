@@ -1,8 +1,9 @@
 package com.dapascript.mever.core.common.util
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Indication
 import androidx.compose.foundation.LocalIndication
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -25,37 +26,44 @@ class DebounceHandler(private val interval: Long = 500L) {
     }
 }
 
-fun Modifier.clickableSingle(
+@OptIn(ExperimentalFoundationApi::class)
+fun Modifier.onCustomClick(
     enabled: Boolean = true,
     onClickLabel: String? = null,
     role: Role? = null,
+    onLongClick: (() -> Unit)? = null,
     onClick: (() -> Unit)?
 ) = composed {
     val handler = rememberDebounceHandler()
-    Modifier.clickable(
+    Modifier.combinedClickable(
         enabled = enabled,
-        onClickLabel = onClickLabel,
-        onClick = { handler.processClick(onClick) },
-        role = role,
         indication = LocalIndication.current,
-        interactionSource = remember { MutableInteractionSource() }
+        interactionSource = remember { MutableInteractionSource() },
+        role = role,
+        onClickLabel = onClickLabel,
+        onLongClick = onLongClick,
+        onClick = { handler.processClick(onClick) },
     )
 }
 
-fun Modifier.clickableSingle(
+@OptIn(ExperimentalFoundationApi::class)
+fun Modifier.onCustomClick(
     interactionSource: MutableInteractionSource,
     indication: Indication?,
     enabled: Boolean = true,
     onClickLabel: String? = null,
     role: Role? = null,
+    onLongClick: (() -> Unit)? = null,
     onClick: (() -> Unit)?
 ) = composed {
     val handler = rememberDebounceHandler()
-    Modifier.clickable(
+    Modifier.combinedClickable(
+        enabled = enabled,
         interactionSource = interactionSource,
         indication = indication,
-        enabled = enabled,
-        onClickLabel = onClickLabel,
         role = role,
-    ) { handler.processClick(onClick) }
+        onClickLabel = onClickLabel,
+        onLongClick = onLongClick,
+        onClick = { handler.processClick(onClick) }
+    )
 }

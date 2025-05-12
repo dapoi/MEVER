@@ -34,8 +34,8 @@ import kotlinx.coroutines.delay
 @Composable
 fun MeverUrlThumbnail(
     source: String,
-    isFailedFetchImage: Boolean = false,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isFailedFetchImage: Boolean = false
 ) {
     val thumbnail = remember(source) { mutableStateOf<Bitmap?>(null) }
 

@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -78,8 +79,9 @@ import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp22
 import com.dapascript.mever.core.common.util.Constant.PlatformName.UNKNOWN
 import com.dapascript.mever.core.common.util.Constant.PlatformType
+import com.dapascript.mever.core.common.util.Constant.PlatformType.YOUTUBE
 import com.dapascript.mever.core.common.util.LocalActivity
-import com.dapascript.mever.core.common.util.clickableSingle
+import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.NetworkStatus.Available
 import com.dapascript.mever.core.common.util.getMeverFiles
 import com.dapascript.mever.core.common.util.getNetworkStatus
@@ -96,11 +98,14 @@ import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLand
 import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetDownload
 import com.dapascript.mever.feature.home.screen.component.HandleDialogError
 import com.dapascript.mever.feature.home.screen.component.HandleDialogPermission
+import com.dapascript.mever.feature.home.screen.component.HandleDialogYoutubeQuality
 import com.dapascript.mever.feature.home.viewmodel.HomeLandingViewModel
 import com.ketch.DownloadModel
 import com.ketch.Status.FAILED
 import com.ketch.Status.PAUSED
+import com.ketch.Status.SUCCESS
 import kotlinx.coroutines.launch
+import com.dapascript.mever.core.common.util.Constant.PlatformType.UNKNOWN as UNKNOWN_TYPE
 import com.dapascript.mever.feature.home.R as FeatureHomeR
 
 @Composable
@@ -109,22 +114,28 @@ internal fun HomeLandingScreen(
     viewModel: HomeLandingViewModel = hiltViewModel()
 ) = with(viewModel) {
     val contentState = contentState.collectAsStateValue()
-    val isNetworkAvailable = connectivityObserver.observe().collectAsState(connectivityObserver.isConnected())
+    val isNetworkAvailable = connectivityObserver.observe().collectAsState(
+        connectivityObserver.isConnected()
+    )
     val activity = LocalActivity.current
     val dialogQueue = showDialogPermission
     var contents by remember { mutableStateOf<List<ContentEntity>>(emptyList()) }
     var showLoading by remember { mutableStateOf(false) }
+    var showYoutubeChooseQualityModal by remember { mutableStateOf(false) }
     var showErrorNetworkModal by remember { mutableStateOf(false) }
     var showErrorResponseModal by remember { mutableStateOf<Throwable?>(null) }
-    val requestStoragePermissionLauncher = rememberLauncherForActivityResult(RequestMultiplePermissions()) { perms ->
-        val allGranted = getStoragePermission.all { perms[it] == true }
-
+    val storagePermLauncher = rememberLauncherForActivityResult(RequestMultiplePermissions()) {
+        val allGranted = getStoragePermission.all { permissions -> it[permissions] == true }
         if (allGranted) getNetworkStatus(
             isNetworkAvailable = isNetworkAvailable.value,
-            onNetworkAvailable = { getApiDownloader(urlSocialMediaState) },
+            onNetworkAvailable = {
+                if (urlSocialMediaState.text.getPlatformType() == YOUTUBE) {
+                    showYoutubeChooseQualityModal = true
+                } else getApiDownloader(urlSocialMediaState)
+            },
             onNetworkUnavailable = { showErrorNetworkModal = true }
         ) else getStoragePermission.forEach { permission ->
-            onPermissionResult(permission, isGranted = perms[permission] == true)
+            onPermissionResult(permission, isGranted = it[permission] == true)
         }
     }
 
@@ -147,6 +158,9 @@ internal fun HomeLandingScreen(
         }
 
         HandleBottomSheetDownload(
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding(),
             listContent = contents,
             showBottomSheet = contents.isNotEmpty(),
             isFailedFetchImage = isNetworkAvailable.value != Available,
@@ -202,16 +216,26 @@ internal fun HomeLandingScreen(
             },
             onAllow = {
                 dismissDialog()
-                requestStoragePermissionLauncher.launch(getStoragePermission)
+                storagePermLauncher.launch(getStoragePermission)
             },
             onDismiss = ::dismissDialog
+        )
+
+        HandleDialogYoutubeQuality(
+            showDialog = showYoutubeChooseQualityModal,
+            onApplyQuality = { quality ->
+                showYoutubeChooseQualityModal = false
+                selectedQuality = quality
+                getApiDownloader(urlSocialMediaState)
+            },
+            onDismiss = { showYoutubeChooseQualityModal = false }
         )
 
         HomeScreenContent(
             viewModel = this,
             navController = navController,
             isLoading = showLoading
-        ) { requestStoragePermissionLauncher.launch(getStoragePermission) }
+        ) { storagePermLauncher.launch(getStoragePermission) }
     }
 }
 
@@ -224,7 +248,11 @@ private fun HomeScreenContent(
     modifier: Modifier = Modifier,
     requestStoragePermissionLauncher: () -> Unit
 ) = with(viewModel) {
-    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+    BoxWithConstraints(
+        modifier = modifier
+            .fillMaxSize()
+            .navigationBarsPadding()
+    ) {
         val context = LocalContext.current
         val downloadList = downloadList.collectAsStateValue()
         val getListActionMenu = remember { getListActionMenu(context) }
@@ -277,30 +305,35 @@ private fun HomeScreenContent(
                                         available: Offset,
                                         source: NestedScrollSource
                                     ) = if (available.y > 0) Offset.Zero
-                                    else Offset(x = 0f, y = -scrollState.dispatchRawDelta(-available.y))
+                                    else Offset(
+                                        x = 0f,
+                                        y = -scrollState.dispatchRawDelta(-available.y)
+                                    )
                                 }
                             })
                     ) { index ->
                         when (index) {
-                            0 -> HomeVideoSection(
+                            0 -> DownloaderSection(
                                 downloadList = downloadList,
                                 isLoading = isLoading,
                                 urlSocialMediaState = urlSocialMediaState,
                                 onClickCard = { model ->
                                     with(model) {
-                                        if (progress < 100) when (status) {
+                                        when (status) {
+                                            SUCCESS -> navController.navigateTo(
+                                                GalleryContentDetailRoute(
+                                                    id = id,
+                                                    sourceFile = getMeverFiles()?.find { file ->
+                                                        file.name == fileName
+                                                    }?.path.orEmpty(),
+                                                    fileName = fileName.replaceTimeFormat()
+                                                )
+                                            )
+
                                             FAILED -> showFailedDialog = id
                                             PAUSED -> ketch.resume(id)
                                             else -> ketch.pause(id)
-                                        } else navController.navigateTo(
-                                            GalleryContentDetailRoute(
-                                                id = id,
-                                                sourceFile = getMeverFiles()?.find { file ->
-                                                    file.name == fileName
-                                                }?.path.orEmpty(),
-                                                fileName = fileName.replaceTimeFormat()
-                                            )
-                                        )
+                                        }
                                     }
                                 },
                                 onClickDelete = { showDeleteDialog = it.id },
@@ -314,7 +347,9 @@ private fun HomeScreenContent(
                                     )
                                 },
                                 onValueChange = { urlSocialMediaState = it },
-                                onClickDownload = { if (isLoading.not()) requestStoragePermissionLauncher() },
+                                onClickDownload = {
+                                    if (isLoading.not()) requestStoragePermissionLauncher()
+                                },
                                 onClickViewAll = { navController.navigateToGalleryScreen() }
                             )
 
@@ -375,7 +410,7 @@ private fun HomeScreenContent(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun HomeVideoSection(
+private fun DownloaderSection(
     isLoading: Boolean,
     urlSocialMediaState: TextFieldValue,
     downloadList: List<DownloadModel>?,
@@ -439,7 +474,7 @@ private fun HomeVideoSection(
                         .height(Dp40),
                     title = stringResource(R.string.download),
                     buttonType = FILLED,
-                    isEnabled = urlSocialMediaState.text.trim().getPlatformType() != PlatformType.UNKNOWN,
+                    isEnabled = urlSocialMediaState.text.trim().getPlatformType() != UNKNOWN_TYPE,
                     isLoading = isLoading
                 ) { onClickDownload() }
                 Spacer(modifier = Modifier.size(Dp24))
@@ -465,7 +500,7 @@ private fun HomeVideoSection(
                         modifier = Modifier
                             .animateItem()
                             .clip(RoundedCornerShape(Dp8))
-                            .clickableSingle { onClickViewAll() }
+                            .onCustomClick { onClickViewAll() }
                     )
                 }
             }
@@ -516,13 +551,14 @@ private fun tabItems(context: Context) = listOf(
     context.getString(R.string.ai_tab)
 )
 
-private fun handleClickActionMenu(context: Context, navController: NavController) = { name: String ->
-    when (name) {
-        context.getString(R.string.gallery) -> navController.navigateToGalleryScreen()
-        context.getString(R.string.settings) -> navController.navigateToSettingScreen()
-        else -> Unit
+private fun handleClickActionMenu(context: Context, navController: NavController) =
+    { name: String ->
+        when (name) {
+            context.getString(R.string.gallery) -> navController.navigateToGalleryScreen()
+            context.getString(R.string.settings) -> navController.navigateToSettingScreen()
+            else -> Unit
+        }
     }
-}
 
 private fun NavController.navigateToGalleryScreen() = navigateTo(GalleryLandingRoute)
 

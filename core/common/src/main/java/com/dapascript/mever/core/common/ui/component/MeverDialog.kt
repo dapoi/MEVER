@@ -53,14 +53,14 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp20
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
-import com.dapascript.mever.core.common.util.clickableSingle
+import com.dapascript.mever.core.common.util.onCustomClick
 
 @Composable
 fun MeverDialog(
     showDialog: Boolean,
     meverDialogArgs: MeverDialogArgs,
-    hideInteractionButton: Boolean = false,
     modifier: Modifier = Modifier,
+    hideInteractionButton: Boolean = false,
     contentBody: @Composable ColumnScope.() -> Unit
 ) = with(meverDialogArgs) {
     var showAnimatedDialog by remember { mutableStateOf(false) }
@@ -142,7 +142,7 @@ private fun DialogContent(
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(Dp14))
-                    .clickableSingle { onClickSecondaryButton() }
+                    .onCustomClick { onClickSecondaryButton() }
                     .weight(1f)
                     .padding(vertical = Dp16),
                 contentAlignment = Center
@@ -165,7 +165,7 @@ private fun DialogContent(
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(Dp14))
-                    .clickableSingle { onClickPrimaryButton() }
+                    .onCustomClick { onClickPrimaryButton() }
                     .weight(1f)
                     .padding(vertical = Dp16),
                 contentAlignment = Center

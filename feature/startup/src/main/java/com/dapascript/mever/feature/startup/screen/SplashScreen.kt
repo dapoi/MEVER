@@ -1,5 +1,10 @@
 package com.dapascript.mever.feature.startup.screen
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement.spacedBy
@@ -36,7 +41,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.LocalActivity
-import com.dapascript.mever.core.common.util.hideStatusBar
+import com.dapascript.mever.core.common.util.hideSystemBar
 import com.dapascript.mever.core.navigation.helper.navigateClearBackStack
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeLandingRoute
 import com.dapascript.mever.core.navigation.route.StartupScreenRoute.OnboardRoute
@@ -48,18 +53,26 @@ internal fun SplashScreen(
     navController: NavController,
     viewModel: SplashScreenViewModel = hiltViewModel()
 ) = with(viewModel) {
-    val isOnboarded = isOnboarded.collectAsStateValue()
-    val activity = LocalActivity.current
-    val lifecycleOwner by rememberUpdatedState(LocalLifecycleOwner.current)
-    var isSplashScreenFinished by remember { mutableStateOf(false) }
-
     BaseScreen(
         hideDefaultTopBar = true,
         allowScreenOverlap = true,
         useSystemBarsPadding = false
     ) {
+        val isOnboarded = isOnboarded.collectAsStateValue()
+        val activity = LocalActivity.current
+        val lifecycleOwner by rememberUpdatedState(LocalLifecycleOwner.current)
+        var showLogo by remember { mutableStateOf(false) }
+        var isSplashScreenFinished by remember { mutableStateOf(false) }
+
         LaunchedEffect(Unit) {
-            delay(2000)
+            delay(300)
+            showLogo = true
+        }
+
+        LaunchedEffect(Unit) {
+            delay(1500)
+            showLogo = false
+            delay(250)
             isSplashScreenFinished = true
         }
 
@@ -70,7 +83,9 @@ internal fun SplashScreen(
         }
 
         DisposableEffect(lifecycleOwner) {
-            val observer = LifecycleEventObserver { _, event -> activity.hideStatusBar(event != ON_STOP) }
+            val observer = LifecycleEventObserver { _, event ->
+                activity.hideSystemBar(event != ON_STOP)
+            }
             lifecycleOwner.lifecycle.addObserver(observer)
             onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
         }
@@ -85,19 +100,31 @@ internal fun SplashScreen(
                 horizontalAlignment = CenterHorizontally,
                 verticalArrangement = spacedBy(Dp8)
             ) {
-                Image(
-                    modifier = Modifier
-                        .width(Dp189)
-                        .height(Dp72),
-                    painter = painterResource(R.drawable.ic_mever),
-                    colorFilter = tint(MeverWhite),
-                    contentDescription = "Logo Mever"
-                )
-                Text(
-                    text = "Social Media Saver",
-                    style = typography.bodyBold1,
-                    color = MeverWhite
-                )
+                AnimatedVisibility(
+                    visible = showLogo,
+                    enter = fadeIn() + slideInVertically { -it },
+                    exit = slideOutVertically { -it } + fadeOut()
+                ) {
+                    Image(
+                        modifier = Modifier
+                            .width(Dp189)
+                            .height(Dp72),
+                        painter = painterResource(R.drawable.ic_mever),
+                        colorFilter = tint(MeverWhite),
+                        contentDescription = "Logo Mever"
+                    )
+                }
+                AnimatedVisibility(
+                    visible = showLogo,
+                    enter = fadeIn() + slideInVertically { it },
+                    exit = slideOutVertically { it } + fadeOut()
+                ) {
+                    Text(
+                        text = "Social Media Saver",
+                        style = typography.bodyBold1,
+                        color = MeverWhite
+                    )
+                }
             }
         }
     }

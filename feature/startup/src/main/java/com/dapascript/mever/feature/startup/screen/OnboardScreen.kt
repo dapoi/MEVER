@@ -2,6 +2,9 @@ package com.dapascript.mever.feature.startup.screen
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -26,6 +29,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
@@ -50,6 +58,7 @@ import com.dapascript.mever.core.navigation.helper.navigateClearBackStack
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeLandingRoute
 import com.dapascript.mever.feature.startup.R
 import com.dapascript.mever.feature.startup.viewmodel.OnboardViewModel
+import kotlinx.coroutines.delay
 
 @Composable
 internal fun OnboardScreen(
@@ -62,9 +71,15 @@ internal fun OnboardScreen(
         hideDefaultTopBar = true,
         modifier = Modifier.background(colorScheme.background)
     ) {
+        var showContent by remember { mutableStateOf(false) }
         val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
-        val requestNotifPermissionLauncher = rememberLauncherForActivityResult(RequestPermission()) {
+        val notifPermissionLauncher = rememberLauncherForActivityResult(RequestPermission()) {
             navController.navigateClearBackStack(HomeLandingRoute)
+        }
+
+        LaunchedEffect(Unit) {
+            delay(300)
+            showContent = true
         }
 
         Column(
@@ -73,25 +88,40 @@ internal fun OnboardScreen(
                 .padding(top = statusBarHeight)
                 .verticalScroll(rememberScrollState())
         ) {
-            Image(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(3f / 4f),
-                painter = painterResource(
-                    if (isSystemInDarkTheme()) R.drawable.bg_onboard_dark
-                    else R.drawable.bg_onboard_light
-                ),
-                contentDescription = "Background Onboard"
-            )
-            DescriptionOnboardSection()
-            ButtonOnboardSection(
-                modifier = Modifier
-                    .padding(bottom = Dp16)
-                    .systemBarsPadding()
+            AnimatedVisibility(
+                visible = showContent,
+                enter = fadeIn() + slideInVertically { -it }
             ) {
-                setIsOnboarded(true)
-                if (isAndroidTiramisuAbove()) requestNotifPermissionLauncher.launch(getNotificationPermission)
-                else navController.navigateClearBackStack(HomeLandingRoute)
+                Image(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(3f / 4f),
+                    painter = painterResource(
+                        if (isSystemInDarkTheme()) R.drawable.bg_onboard_dark
+                        else R.drawable.bg_onboard_light
+                    ),
+                    contentDescription = "Background Onboard"
+                )
+            }
+            AnimatedVisibility(
+                visible = showContent,
+                enter = fadeIn() + slideInVertically { it }
+            ) { DescriptionOnboardSection() }
+            AnimatedVisibility(
+                visible = showContent,
+                enter = fadeIn() + slideInVertically { it }
+            ) {
+                ButtonOnboardSection(
+                    modifier = Modifier
+                        .padding(bottom = Dp16)
+                        .systemBarsPadding()
+                ) {
+                    setIsOnboarded(true)
+                    if (isAndroidTiramisuAbove()) notifPermissionLauncher.launch(
+                        getNotificationPermission
+                    )
+                    else navController.navigateClearBackStack(HomeLandingRoute)
+                }
             }
         }
     }

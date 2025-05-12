@@ -41,7 +41,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.LocalActivity
-import com.dapascript.mever.core.common.util.hideStatusBar
+import com.dapascript.mever.core.common.util.hideSystemBar
 
 @Composable
 fun MeverPhotoViewer(
@@ -136,7 +136,7 @@ fun MeverPhotoViewer(
                 showDeleteDialog = false
             },
             onClickSecondaryButton = {
-                activity.hideStatusBar(true)
+                activity.hideSystemBar(true)
                 showDeleteDialog = false
             }
         ),
