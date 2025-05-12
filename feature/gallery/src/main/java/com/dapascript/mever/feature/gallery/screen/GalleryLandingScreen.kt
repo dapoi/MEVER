@@ -62,7 +62,7 @@ import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
 import com.dapascript.mever.core.common.ui.component.MeverPopupDropDownMenu
 import com.dapascript.mever.core.common.ui.component.MeverSnackbar
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp210
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp189
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
@@ -128,7 +128,7 @@ internal fun GalleryLandingScreen(
                         model.status == PROGRESS
                     } == true
                     RESUME_ALL -> downloadList?.any { model ->
-                        model.progress < model.total
+                        model.progress < model.total && model.status == PAUSED
                     } == true
                     else -> false
                 }
@@ -380,8 +380,8 @@ private fun GalleryContentSection(
                                 }
                             }
                         } else MeverEmptyItem(
-                            image = RCommon.drawable.ic_gallery_empty,
-                            size = Dp210,
+                            image = RCommon.drawable.ic_not_found,
+                            size = Dp189,
                             description = stringResource(RCommon.string.empty_list_desc)
                         )
                     }

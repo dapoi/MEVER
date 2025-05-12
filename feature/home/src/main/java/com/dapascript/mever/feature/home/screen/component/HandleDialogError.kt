@@ -22,7 +22,7 @@ internal fun HandleDialogError(
     showDialog: Boolean,
     errorTitle: String,
     errorDescription: String,
-    errorImage: Int = R.drawable.ic_error_response,
+    errorImage: Int = R.drawable.ic_error,
     primaryButtonText: String = stringResource(R.string.retry),
     onRetry: () -> Unit,
     onDismiss: () -> Unit

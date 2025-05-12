@@ -3,7 +3,7 @@
     <string name="downloader_tab">Downloader</string>
     <string name="ai_tab">AI Image</string>
     <string name="downloader_title">Media Saver</string>
-    <string name="downloader_desc">Easiest way to download your favorite content from the biggest social media platforms like Facebook, Instagram, TikTok, Twitter (X), and YouTube.</string>
+    <string name="downloader_desc">Easiest way to download your favorite content from the biggest social media platforms like Facebook, Instagram, Twitter (X), TikTok, and YouTube.</string>
     <string name="paste_url">Paste Link Here…</string>
     <string name="download">Download</string>
     <string name="recently_downloaded">Recently Downloaded</string>
@@ -37,7 +37,7 @@
     <string name="download_failed_desc">Sorry, your download has failed. What would you like to do?</string>
     <string name="retry">Try Again</string>
     <string name="cancel">Cancel</string>
-    <string name="empty_list_desc">Looks like you haven\'t downloaded anything yet. Start downloading now!</string>
+    <string name="empty_list_desc">Looks like you haven\'t downloaded anything yet.</string>
     <string name="gallery">Gallery</string>
     <string name="settings">Settings</string>
     <string name="application">Application</string>

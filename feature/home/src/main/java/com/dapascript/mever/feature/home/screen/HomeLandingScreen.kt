@@ -68,8 +68,8 @@ import com.dapascript.mever.core.common.ui.component.MeverTabs
 import com.dapascript.mever.core.common.ui.component.MeverTextField
 import com.dapascript.mever.core.common.ui.component.MeverTopBar
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp10
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp150
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp210
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
@@ -81,13 +81,13 @@ import com.dapascript.mever.core.common.util.Constant.PlatformName.UNKNOWN
 import com.dapascript.mever.core.common.util.Constant.PlatformType
 import com.dapascript.mever.core.common.util.Constant.PlatformType.YOUTUBE
 import com.dapascript.mever.core.common.util.LocalActivity
-import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.NetworkStatus.Available
 import com.dapascript.mever.core.common.util.getMeverFiles
 import com.dapascript.mever.core.common.util.getNetworkStatus
 import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.getStoragePermission
 import com.dapascript.mever.core.common.util.goToSetting
+import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.replaceTimeFormat
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.data.model.local.ContentEntity
@@ -180,7 +180,7 @@ internal fun HomeLandingScreen(
             showDialog = showErrorNetworkModal,
             errorTitle = stringResource(R.string.no_internet_title),
             errorDescription = stringResource(R.string.no_internet_desc),
-            errorImage = R.drawable.ic_offline,
+            errorImage = R.drawable.ic_connection,
             onRetry = {
                 showErrorNetworkModal = false
                 getNetworkStatus(
@@ -531,9 +531,9 @@ private fun DownloaderSection(
                     )
                 } else item {
                     MeverEmptyItem(
-                        image = R.drawable.ic_gallery_empty,
-                        size = Dp210,
-                        description = stringResource(R.string.empty_list_desc),
+                        image = R.drawable.ic_not_found,
+                        size = Dp150.plus(Dp16),
+                        description = stringResource(R.string.empty_list_desc)
                     )
                 }
             }
