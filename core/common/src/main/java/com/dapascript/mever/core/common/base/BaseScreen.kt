@@ -26,13 +26,13 @@ import com.dapascript.mever.core.common.util.LocalActivity
 @SuppressLint("SourceLockedOrientationActivity")
 @Composable
 fun BaseScreen(
+    modifier: Modifier = Modifier,
     topBarArgs: TopBarArgs = TopBarArgs(),
     useCenterTopBar: Boolean = true,
     useSystemBarsPadding: Boolean = true,
     allowScreenOverlap: Boolean = false,
     hideDefaultTopBar: Boolean = false,
     lockOrientation: Boolean = true,
-    modifier: Modifier = Modifier,
     statusBarColor: Color? = null,
     navigationBarColor: Color? = null,
     content: @Composable () -> Unit

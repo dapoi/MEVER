@@ -1,6 +1,7 @@
 package com.dapascript.mever.feature.home.viewmodel
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -18,6 +19,7 @@ import com.dapascript.mever.core.common.util.state.UiState
 import com.dapascript.mever.core.common.util.state.UiState.StateInitial
 import com.dapascript.mever.core.common.util.toCurrentDate
 import com.dapascript.mever.core.data.model.local.ContentEntity
+import com.dapascript.mever.core.data.model.local.ImageAiEntity
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.ketch.Ketch
 import com.ketch.Status.PAUSED
@@ -43,12 +45,26 @@ class HomeLandingViewModel @Inject constructor(
 ) : BaseViewModel() {
     private val meverFolder by lazy { getMeverFolder() }
 
+    /**
+     * Downloader
+     */
     var urlSocialMediaState by mutableStateOf(TextFieldValue(""))
         internal set
     var selectedQuality by mutableStateOf("")
         internal set
     var showBadge by mutableStateOf(false)
         private set
+
+    /**
+     * Image Generator
+     */
+    var promptState by mutableStateOf(TextFieldValue(""))
+        internal set
+    var selectedImageCount by mutableIntStateOf(1)
+        internal set
+    var selectedArtStyle by mutableStateOf(Pair("", ""))
+        internal set
+
     val showDialogPermission = mutableStateListOf<String>()
     val downloadList = ketch.observeDownloads()
         .map { downloads ->
@@ -67,12 +83,12 @@ class HomeLandingViewModel @Inject constructor(
         }
         .stateIn(viewModelScope, Lazily, null)
 
-    private val _contentState = MutableStateFlow<UiState<List<ContentEntity>>>(StateInitial)
-    val contentState = _contentState.asStateFlow()
+    private val _downloaderResponseState = MutableStateFlow<UiState<List<ContentEntity>>>(StateInitial)
+    val downloaderResponseState = _downloaderResponseState.asStateFlow()
 
     fun getApiDownloader(urlSocialMedia: TextFieldValue) = collectApiAsUiState(
         response = repository.getApiDownloader(urlSocialMedia.text),
-        updateState = { _contentState.value = it }
+        updateState = { _downloaderResponseState.value = it }
     )
 
     fun downloadFile(

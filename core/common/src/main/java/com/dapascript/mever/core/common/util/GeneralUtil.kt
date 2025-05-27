@@ -118,6 +118,16 @@ fun getMeverFiles(): List<File>? {
 @OptIn(ExperimentalPathApi::class)
 fun deleteAllMeverFolder() = getMeverFolder().apply { if (exists()) toPath().deleteRecursively() }
 
+fun String.convertToBitmap(): Bitmap? {
+    return try {
+        val inputStream = URL(this).openStream()
+        decodeStream(inputStream)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
 fun shareContent(context: Context, authority: String, path: String) {
     try {
         val uri = getUriForFile(context, "$authority.provider", File(path))

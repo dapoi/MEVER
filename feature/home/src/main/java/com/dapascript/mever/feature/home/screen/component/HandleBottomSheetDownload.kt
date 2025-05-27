@@ -59,9 +59,8 @@ internal fun HandleBottomSheetDownload(
     onClickDismiss: () -> Unit
 ) = with(listContent) {
     MeverBottomSheet(
-        modifier = modifier,
         showBottomSheet = showBottomSheet,
-        onClickDismiss = onClickDismiss
+        modifier = modifier
     ) {
         Column(
             modifier = Modifier

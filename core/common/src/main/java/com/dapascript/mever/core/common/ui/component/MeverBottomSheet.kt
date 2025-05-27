@@ -7,9 +7,11 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalBottomSheetProperties
+import androidx.compose.material3.SheetValue.Hidden
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.window.SecureFlagPolicy.SecureOn
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp96
@@ -19,16 +21,15 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp96
 fun MeverBottomSheet(
     showBottomSheet: Boolean,
     modifier: Modifier = Modifier,
-    onClickDismiss: () -> Unit,
     content: @Composable () -> Unit
 ) {
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true) { it != Hidden }
     if (showBottomSheet) {
         ModalBottomSheet(
             modifier = modifier,
             sheetState = sheetState,
             containerColor = colorScheme.background,
-            properties = ModalBottomSheetProperties(shouldDismissOnBackPress = false),
+            properties = ModalBottomSheetProperties(securePolicy = SecureOn),
             dragHandle = {
                 HorizontalDivider(
                     thickness = Dp4,
@@ -38,7 +39,7 @@ fun MeverBottomSheet(
                         .padding(vertical = Dp24)
                 )
             },
-            onDismissRequest = { onClickDismiss() }
+            onDismissRequest = {}
         ) { content() }
     }
 }

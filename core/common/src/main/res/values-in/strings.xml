@@ -60,4 +60,16 @@
     <string name="all">Semua</string>
     <string name="gmail_not_found">Aplikasi Gmail tidak ditemukan</string>
     <string name="choose_quality">Pilih Resolusi</string>
+    <string name="type_anything">Ketik apa saja…</string>
+    <string name="image_generator">Pembuat Gambar</string>
+    <string name="image_generator_desc">Cara termudah untuk membuat gambar AI dari teks yang Anda masukkan.</string>
+    <string name="total_images">Total Gambar</string>
+    <string name="art_style">Gaya Seni</string>
+    <string name="optional">(Opsional)</string>
+    <string name="cinematic">Sinema</string>
+    <string name="dreamy">Mimpi</string>
+    <string name="futuristic">Futuristik</string>
+    <string name="painterly">Lukisan</string>
+    <string name="clear">Hapus</string>
+    <string name="generate">Buat Gambar</string>
 </resources>

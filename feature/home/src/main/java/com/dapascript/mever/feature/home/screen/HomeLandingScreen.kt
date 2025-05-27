@@ -3,14 +3,14 @@ package com.dapascript.mever.feature.home.screen
 import android.content.Context
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement.SpaceBetween
+import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,12 +19,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
@@ -33,52 +30,38 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
-import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.FILLED
-import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardArgs
 import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
-import com.dapascript.mever.core.common.ui.attr.MeverIconAttr.getPlatformIcon
-import com.dapascript.mever.core.common.ui.attr.MeverIconAttr.getPlatformIconBackgroundColor
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.ActionMenu
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverButton
-import com.dapascript.mever.core.common.ui.component.MeverCard
 import com.dapascript.mever.core.common.ui.component.MeverDialog
-import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
-import com.dapascript.mever.core.common.ui.component.MeverIcon
 import com.dapascript.mever.core.common.ui.component.MeverTabs
-import com.dapascript.mever.core.common.ui.component.MeverTextField
 import com.dapascript.mever.core.common.ui.component.MeverTopBar
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp10
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp150
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp5
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
-import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp22
-import com.dapascript.mever.core.common.util.Constant.PlatformName.UNKNOWN
-import com.dapascript.mever.core.common.util.Constant.PlatformType
 import com.dapascript.mever.core.common.util.Constant.PlatformType.YOUTUBE
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.NetworkStatus.Available
@@ -87,25 +70,25 @@ import com.dapascript.mever.core.common.util.getNetworkStatus
 import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.getStoragePermission
 import com.dapascript.mever.core.common.util.goToSetting
-import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.replaceTimeFormat
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.dapascript.mever.core.navigation.helper.navigateTo
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute
+import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeImageGeneratorResultRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLandingRoute
 import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetDownload
 import com.dapascript.mever.feature.home.screen.component.HandleDialogError
 import com.dapascript.mever.feature.home.screen.component.HandleDialogPermission
 import com.dapascript.mever.feature.home.screen.component.HandleDialogYoutubeQuality
+import com.dapascript.mever.feature.home.screen.section.HomeAiSection
+import com.dapascript.mever.feature.home.screen.section.HomeDownloaderSection
 import com.dapascript.mever.feature.home.viewmodel.HomeLandingViewModel
-import com.ketch.DownloadModel
 import com.ketch.Status.FAILED
 import com.ketch.Status.PAUSED
 import com.ketch.Status.SUCCESS
 import kotlinx.coroutines.launch
-import com.dapascript.mever.core.common.util.Constant.PlatformType.UNKNOWN as UNKNOWN_TYPE
 import com.dapascript.mever.feature.home.R as FeatureHomeR
 
 @Composable
@@ -113,7 +96,7 @@ internal fun HomeLandingScreen(
     navController: NavController,
     viewModel: HomeLandingViewModel = hiltViewModel()
 ) = with(viewModel) {
-    val contentState = contentState.collectAsStateValue()
+    val downloaderResponseState = downloaderResponseState.collectAsStateValue()
     val isNetworkAvailable = connectivityObserver.observe().collectAsState(
         connectivityObserver.isConnected()
     )
@@ -143,8 +126,8 @@ internal fun HomeLandingScreen(
         hideDefaultTopBar = true,
         allowScreenOverlap = true
     ) {
-        LaunchedEffect(contentState) {
-            contentState.handleUiState(
+        LaunchedEffect(downloaderResponseState) {
+            downloaderResponseState.handleUiState(
                 onLoading = { showLoading = true },
                 onSuccess = { result ->
                     showLoading = false
@@ -262,6 +245,7 @@ private fun HomeScreenContent(
         val scope = rememberCoroutineScope()
         var showDeleteDialog by remember { mutableStateOf<Int?>(null) }
         var showFailedDialog by remember { mutableStateOf<Int?>(null) }
+        var generateButtonHeight by remember { mutableIntStateOf(0) }
 
         Column(
             modifier = Modifier
@@ -313,49 +297,111 @@ private fun HomeScreenContent(
                             })
                     ) { index ->
                         when (index) {
-                            0 -> DownloaderSection(
-                                downloadList = downloadList,
-                                isLoading = isLoading,
-                                urlSocialMediaState = urlSocialMediaState,
-                                onClickCard = { model ->
-                                    with(model) {
-                                        when (status) {
-                                            SUCCESS -> navController.navigateTo(
-                                                GalleryContentDetailRoute(
-                                                    id = id,
-                                                    sourceFile = getMeverFiles()?.find { file ->
-                                                        file.name == fileName
-                                                    }?.path.orEmpty(),
-                                                    fileName = fileName.replaceTimeFormat()
+                            0 -> {
+                                HomeDownloaderSection(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(horizontal = Dp24)
+                                        .navigationBarsPadding(),
+                                    downloadList = downloadList,
+                                    isLoading = isLoading,
+                                    urlSocialMediaState = urlSocialMediaState,
+                                    onClickCard = { model ->
+                                        with(model) {
+                                            when (status) {
+                                                SUCCESS -> navController.navigateTo(
+                                                    GalleryContentDetailRoute(
+                                                        id = id,
+                                                        sourceFile = getMeverFiles()?.find { file ->
+                                                            file.name == fileName
+                                                        }?.path.orEmpty(),
+                                                        fileName = fileName.replaceTimeFormat()
+                                                    )
                                                 )
-                                            )
 
-                                            FAILED -> showFailedDialog = id
-                                            PAUSED -> ketch.resume(id)
-                                            else -> ketch.pause(id)
+                                                FAILED -> showFailedDialog = id
+                                                PAUSED -> ketch.resume(id)
+                                                else -> ketch.pause(id)
+                                            }
                                         }
-                                    }
-                                },
-                                onClickDelete = { showDeleteDialog = it.id },
-                                onClickShare = {
-                                    shareContent(
-                                        context = context,
-                                        authority = context.packageName,
-                                        path = getMeverFiles()?.find { file ->
-                                            file.name == it.fileName
-                                        }?.path.orEmpty()
-                                    )
-                                },
-                                onValueChange = { urlSocialMediaState = it },
-                                onClickDownload = {
-                                    if (isLoading.not()) requestStoragePermissionLauncher()
-                                },
-                                onClickViewAll = { navController.navigateToGalleryScreen() }
-                            )
+                                    },
+                                    onClickDelete = { showDeleteDialog = it.id },
+                                    onClickShare = {
+                                        shareContent(
+                                            context = context,
+                                            authority = context.packageName,
+                                            path = getMeverFiles()?.find { file ->
+                                                file.name == it.fileName
+                                            }?.path.orEmpty()
+                                        )
+                                    },
+                                    onValueChange = { urlSocialMediaState = it },
+                                    onClickDownload = {
+                                        if (isLoading.not()) requestStoragePermissionLauncher()
+                                    },
+                                    onClickViewAll = { navController.navigateToGalleryScreen() }
+                                )
+                            }
 
-                            1 -> {}
+                            1 -> {
+                                HomeAiSection(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(
+                                            start = Dp24,
+                                            end = Dp24,
+                                            bottom = generateButtonHeight.dp
+                                        )
+                                        .navigationBarsPadding(),
+                                    prompt = promptState.text,
+                                    totalImageSelected = selectedImageCount,
+                                    artStyleSelected = selectedArtStyle.first,
+                                    onPromptChange = {
+                                        if (it.length <= 300 || it.length < promptState.text.length) {
+                                            promptState = promptState.copy(text = it)
+                                        }
+                                    },
+                                    onImageCountSelected = { selectedImageCount = it },
+                                    onArtStyleSelected = { name, prompt ->
+                                        selectedArtStyle = Pair(name, prompt)
+                                    }
+                                )
+                            }
                         }
                     }
+                }
+            }
+        }
+        AnimatedVisibility(
+            modifier = Modifier.align(BottomCenter),
+            visible = pagerState.currentPage == 1,
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(start = Dp24, end = Dp24, bottom = Dp24)
+                    .onGloballyPositioned {
+                        generateButtonHeight = it.size.height
+                    },
+                horizontalAlignment = CenterHorizontally,
+                verticalArrangement = spacedBy(Dp16)
+            ) {
+                MeverButton(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(Dp40),
+                    title = stringResource(R.string.generate),
+                    isEnabled = promptState.text.isNotEmpty(),
+                    buttonType = FILLED
+                ) {
+                    navController.navigateTo(
+                        HomeImageGeneratorResultRoute(
+                            prompt = promptState.text,
+                            artStyle = selectedArtStyle.second,
+                            totalImages = selectedImageCount
+                        )
+                    )
                 }
             }
         }
@@ -403,139 +449,6 @@ private fun HomeScreenContent(
                     style = typography.body1,
                     color = colorScheme.onPrimary
                 )
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun DownloaderSection(
-    isLoading: Boolean,
-    urlSocialMediaState: TextFieldValue,
-    downloadList: List<DownloadModel>?,
-    modifier: Modifier = Modifier,
-    onClickCard: (DownloadModel) -> Unit,
-    onClickDelete: (DownloadModel) -> Unit,
-    onClickShare: (DownloadModel) -> Unit,
-    onValueChange: (TextFieldValue) -> Unit,
-    onClickDownload: () -> Unit,
-    onClickViewAll: () -> Unit
-) {
-    CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
-        LazyColumn(
-            modifier = modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = Dp48, start = Dp24, end = Dp24)
-        ) {
-            item {
-                Text(
-                    text = stringResource(R.string.downloader_title),
-                    style = typography.h2.copy(fontSize = Sp22),
-                    color = colorScheme.onPrimary
-                )
-            }
-            item {
-                Spacer(modifier = Modifier.size(Dp16))
-                Text(
-                    text = stringResource(R.string.downloader_desc),
-                    style = typography.body2,
-                    color = colorScheme.secondary
-                )
-            }
-            item {
-                Spacer(modifier = Modifier.size(Dp24))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = SpaceBetween
-                ) {
-                    PlatformType.entries.filter { it.platformName != UNKNOWN }.map {
-                        MeverIcon(
-                            icon = getPlatformIcon(it.platformName),
-                            iconBackgroundColor = getPlatformIconBackgroundColor(it.platformName),
-                            iconSize = Dp48,
-                            iconPadding = Dp10
-                        )
-                    }
-                }
-            }
-            item {
-                Spacer(modifier = Modifier.size(Dp24))
-                MeverTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    webDomainValue = urlSocialMediaState,
-                    onValueChange = { onValueChange(it) }
-                )
-            }
-            item {
-                Spacer(modifier = Modifier.size(Dp10))
-                MeverButton(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(Dp40),
-                    title = stringResource(R.string.download),
-                    buttonType = FILLED,
-                    isEnabled = urlSocialMediaState.text.trim().getPlatformType() != UNKNOWN_TYPE,
-                    isLoading = isLoading
-                ) { onClickDownload() }
-                Spacer(modifier = Modifier.size(Dp24))
-            }
-            stickyHeader {
-                Row(
-                    modifier = Modifier
-                        .background(color = colorScheme.background)
-                        .fillMaxWidth()
-                        .padding(top = Dp16),
-                    verticalAlignment = CenterVertically,
-                    horizontalArrangement = SpaceBetween
-                ) {
-                    Text(
-                        text = stringResource(R.string.recently_downloaded),
-                        style = typography.bodyBold1,
-                        color = colorScheme.onPrimary
-                    )
-                    if (downloadList.isNullOrEmpty().not()) Text(
-                        text = stringResource(R.string.view_all),
-                        style = typography.body2,
-                        color = colorScheme.primary,
-                        modifier = Modifier
-                            .animateItem()
-                            .clip(RoundedCornerShape(Dp8))
-                            .onCustomClick { onClickViewAll() }
-                    )
-                }
-            }
-            downloadList?.let { files ->
-                if (files.isNotEmpty()) items(
-                    items = files.take(5),
-                    key = { it.id }
-                ) {
-                    MeverCard(
-                        modifier = Modifier.animateItem(),
-                        cardArgs = MeverCardArgs(
-                            source = it.url,
-                            tag = it.tag,
-                            fileName = it.fileName,
-                            status = it.status,
-                            progress = it.progress,
-                            total = it.total,
-                            path = it.path,
-                            urlThumbnail = it.metaData,
-                            icon = getPlatformIcon(it.tag),
-                            iconBackgroundColor = getPlatformIconBackgroundColor(it.tag),
-                            iconSize = Dp24,
-                            iconPadding = Dp5
-                        ),
-                        onClickCard = { onClickCard(it) },
-                        onClickShare = { onClickShare(it) },
-                        onClickDelete = { onClickDelete(it) }
-                    )
-                } else item {
-                    MeverEmptyItem(
-                        image = R.drawable.ic_not_found,
-                        size = Dp150.plus(Dp16),
-                        description = stringResource(R.string.empty_list_desc)
-                    )
-                }
             }
         }
     }

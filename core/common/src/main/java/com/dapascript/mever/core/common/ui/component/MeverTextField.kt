@@ -44,8 +44,8 @@ import com.dapascript.mever.core.common.util.onCustomClick
 @Composable
 fun MeverTextField(
     webDomainValue: TextFieldValue,
-    shape: RoundedCornerShape = RoundedCornerShape(Dp48),
     modifier: Modifier = Modifier,
+    shape: RoundedCornerShape = RoundedCornerShape(Dp48),
     onValueChange: (TextFieldValue) -> Unit
 ) {
     val focusManager = LocalFocusManager.current

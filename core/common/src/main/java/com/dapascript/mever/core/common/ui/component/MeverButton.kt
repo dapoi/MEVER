@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.StrokeCap.Companion.Round
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.unit.TextUnit
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.FILLED
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.OUTLINED
@@ -33,10 +34,11 @@ import com.dapascript.mever.core.common.util.onCustomClick
 fun MeverButton(
     title: String,
     buttonType: MeverButtonType,
+    modifier: Modifier = Modifier,
     isEnabled: Boolean = true,
     isLoading: Boolean = false,
     shape: RoundedCornerShape = RoundedCornerShape(Dp30),
-    modifier: Modifier = Modifier,
+    textSize: TextUnit? = null,
     onClick: () -> Unit
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -66,7 +68,7 @@ fun MeverButton(
             )
         } else Text(
             text = title,
-            style = typography.body2,
+            style = textSize?.let { typography.body2.copy(fontSize = it) } ?: typography.body2,
             color = if (buttonType == FILLED) colorScheme.onSecondary else MeverPurple,
             modifier = Modifier.padding(horizontal = Dp15, vertical = Dp4)
         )

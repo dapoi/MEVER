@@ -60,4 +60,16 @@
     <string name="all">All</string>
     <string name="gmail_not_found">Gmail app not found</string>
     <string name="choose_quality">Choose Quality</string>
+    <string name="type_anything">Type anything…</string>
+    <string name="image_generator">Image Generator</string>
+    <string name="image_generator_desc">Easily generate images from text prompts using the latest AI technology.</string>
+    <string name="total_images">Total Images</string>
+    <string name="art_style">Art Style</string>
+    <string name="optional">(Optional)</string>
+    <string name="cinematic">Cinematic</string>
+    <string name="dreamy">Dreamy</string>
+    <string name="futuristic">Futuristic</string>
+    <string name="painterly">Painterly</string>
+    <string name="clear">Clear</string>
+    <string name="generate">Generate Image</string>
 </resources>
