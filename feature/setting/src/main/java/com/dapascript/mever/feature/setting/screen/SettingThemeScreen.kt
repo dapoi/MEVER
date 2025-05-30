@@ -61,7 +61,7 @@ internal fun SettingThemeScreen(
 
     BaseScreen(
         topBarArgs = TopBarArgs(
-            screenName = if (isExpanded.not()) stringResource(R.string.theme) else "",
+            title = if (isExpanded.not()) stringResource(R.string.theme) else "",
             onClickBack = { navController.popBackStack() }
         ),
         allowScreenOverlap = true

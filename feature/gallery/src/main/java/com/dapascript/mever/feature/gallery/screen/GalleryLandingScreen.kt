@@ -119,7 +119,7 @@ internal fun GalleryLandingScreen(
                     nameIcon = MORE,
                     onClickActionMenu = { showDropDownMenu = true }
                 )) else emptyList(),
-            screenName = if (isExpanded.not()) stringResource(RCommon.string.gallery) else "",
+            title = if (isExpanded.not()) stringResource(RCommon.string.gallery) else "",
             onClickBack = { navController.popBackStack() }
         ),
         allowScreenOverlap = true

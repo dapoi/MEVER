@@ -94,7 +94,7 @@ fun MeverPhotoViewer(
                             onClickActionMenu = { showDropDownMenu = showDropDownMenu.not() }
                         )
                     ),
-                    screenName = fileName,
+                    title = fileName,
                     topBarColor = MeverTransparent,
                     titleColor = MeverWhite,
                     iconBackColor = MeverWhite,

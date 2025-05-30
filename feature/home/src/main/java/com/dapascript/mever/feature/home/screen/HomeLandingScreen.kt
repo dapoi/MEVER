@@ -289,7 +289,7 @@ private fun HomeScreenContent(
                     .fillMaxWidth()
                     .padding(horizontal = Dp24),
                 topBarArgs = TopBarArgs(
-                    screenName = null,
+                    title = null,
                     actionMenus = getListActionMenu.map { (name, resource) ->
                         ActionMenu(
                             icon = resource,

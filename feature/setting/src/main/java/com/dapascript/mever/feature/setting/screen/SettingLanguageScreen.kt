@@ -60,7 +60,7 @@ internal fun SettingLanguageScreen(
 
     BaseScreen(
         topBarArgs = TopBarArgs(
-            screenName = if (isExpanded.not()) stringResource(R.string.language) else "",
+            title = if (isExpanded.not()) stringResource(R.string.language) else "",
             onClickBack = { navController.popBackStack() }
         ),
         allowScreenOverlap = true

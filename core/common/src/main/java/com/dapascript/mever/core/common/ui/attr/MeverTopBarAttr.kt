@@ -35,7 +35,7 @@ object MeverTopBarAttr {
 
     data class TopBarArgs(
         val actionMenus: List<ActionMenu> = emptyList(),
-        val screenName: String? = null,
+        val title: String? = null,
         val topBarColor: Color? = null,
         val titleColor: Color? = null,
         val iconBackColor: Color? = null,

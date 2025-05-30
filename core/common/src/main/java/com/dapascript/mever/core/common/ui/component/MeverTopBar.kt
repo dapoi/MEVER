@@ -24,9 +24,9 @@ fun MeverTopBar(
     if (useCenterTopBar) {
         CenterAlignedTopAppBar(
             modifier = modifier,
-            title = title(screenName),
+            title = title(title),
             navigationIcon = navigationIcon(
-                screenName = screenName,
+                screenName = title,
                 onClickBack = onClickBack
             ),
             actions = actions(actionMenus),
@@ -40,9 +40,9 @@ fun MeverTopBar(
     } else {
         TopAppBar(
             modifier = modifier,
-            title = title(screenName),
+            title = title(title),
             navigationIcon = navigationIcon(
-                screenName = screenName,
+                screenName = title,
                 onClickBack = onClickBack
             ),
             actions = actions(actionMenus),

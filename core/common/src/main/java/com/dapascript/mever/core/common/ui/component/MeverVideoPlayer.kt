@@ -337,7 +337,7 @@ private fun VideoPlayer(
                             onClickActionMenu = onClickActionMenu
                         )
                     ),
-                    screenName = title,
+                    title = title,
                     topBarColor = MeverTransparent,
                     titleColor = MeverWhite,
                     iconBackColor = MeverWhite,

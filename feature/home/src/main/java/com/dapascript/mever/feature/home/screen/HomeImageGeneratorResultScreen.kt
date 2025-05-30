@@ -88,7 +88,7 @@ internal fun HomeImageGeneratorResultScreen(
 
     BaseScreen(
         topBarArgs = TopBarArgs(
-            screenName = "Image Generator",
+            title = "Image Generator",
             onClickBack = { showCancelExitConfirmation = true }
         )
     ) {

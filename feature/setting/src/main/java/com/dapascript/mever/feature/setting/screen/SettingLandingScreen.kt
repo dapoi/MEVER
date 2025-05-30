@@ -75,7 +75,7 @@ internal fun SettingLandingScreen(
 
     BaseScreen(
         topBarArgs = TopBarArgs(
-            screenName = if (isExpanded.not()) stringResource(R.string.settings) else "",
+            title = if (isExpanded.not()) stringResource(R.string.settings) else "",
             onClickBack = { navController.popBackStack() }
         ),
         allowScreenOverlap = true
