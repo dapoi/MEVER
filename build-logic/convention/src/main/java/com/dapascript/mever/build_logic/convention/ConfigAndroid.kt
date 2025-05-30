@@ -22,7 +22,7 @@ internal fun Project.configAndroid(
 
         defaultConfig {
             minSdk = MIN_SDK_VERSION
-            val apiConfigFile = rootProject.file("./build-properties/env.properties")
+            val apiConfigFile = rootProject.file("./env.properties")
             (apiConfigFile.exists()).let {
                 apiConfigFile.forEachLine { line ->
                     val entry = line.split("=", limit = 2)
