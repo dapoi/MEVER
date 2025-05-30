@@ -30,7 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.component.MeverBottomSheet
-import com.dapascript.mever.core.common.ui.component.MeverLocalThumbnail
+import com.dapascript.mever.core.common.ui.component.MeverImage
 import com.dapascript.mever.core.common.ui.component.MeverRadioButton
 import com.dapascript.mever.core.common.ui.component.MeverUrlThumbnail
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
@@ -77,7 +77,7 @@ internal fun HandleBottomSheetDownload(
                         .height(Dp150)
                         .padding(bottom = Dp32)
                         .clip(RoundedCornerShape(Dp12))
-                ) else MeverLocalThumbnail(
+                ) else MeverImage(
                     source = get(0).thumbnail,
                     modifier = Modifier
                         .fillMaxWidth()

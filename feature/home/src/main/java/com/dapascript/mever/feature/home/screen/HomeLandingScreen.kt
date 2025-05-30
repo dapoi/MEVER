@@ -4,13 +4,20 @@ import android.content.Context
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalOverscrollConfiguration
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Arrangement.spacedBy
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,9 +26,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
@@ -36,33 +47,66 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.BottomCenter
+import androidx.compose.ui.Alignment.Companion.Center
+import androidx.compose.ui.Alignment.Companion.CenterEnd
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.FILLED
+import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.OUTLINED
+import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardArgs
 import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
+import com.dapascript.mever.core.common.ui.attr.MeverIconAttr.getPlatformIcon
+import com.dapascript.mever.core.common.ui.attr.MeverIconAttr.getPlatformIconBackgroundColor
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.ActionMenu
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
+import com.dapascript.mever.core.common.ui.component.MeverAutoSizableTextField
 import com.dapascript.mever.core.common.ui.component.MeverButton
+import com.dapascript.mever.core.common.ui.component.MeverCard
 import com.dapascript.mever.core.common.ui.component.MeverDialog
+import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
+import com.dapascript.mever.core.common.ui.component.MeverIcon
 import com.dapascript.mever.core.common.ui.component.MeverTabs
+import com.dapascript.mever.core.common.ui.component.MeverTextField
 import com.dapascript.mever.core.common.ui.component.MeverTopBar
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp10
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp150
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp5
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp90
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
+import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp14
+import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
+import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp22
+import com.dapascript.mever.core.common.util.Constant.PlatformName.UNKNOWN
+import com.dapascript.mever.core.common.util.Constant.PlatformType
 import com.dapascript.mever.core.common.util.Constant.PlatformType.YOUTUBE
+import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType
+import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType.NETWORK
+import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType.RESPONSE
+import com.dapascript.mever.core.common.util.ErrorHandle.getErrorResponseContent
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.NetworkStatus.Available
 import com.dapascript.mever.core.common.util.getMeverFiles
@@ -70,8 +114,10 @@ import com.dapascript.mever.core.common.util.getNetworkStatus
 import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.getStoragePermission
 import com.dapascript.mever.core.common.util.goToSetting
+import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.replaceTimeFormat
 import com.dapascript.mever.core.common.util.shareContent
+import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.dapascript.mever.core.navigation.helper.navigateTo
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
@@ -82,9 +128,9 @@ import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetDownl
 import com.dapascript.mever.feature.home.screen.component.HandleDialogError
 import com.dapascript.mever.feature.home.screen.component.HandleDialogPermission
 import com.dapascript.mever.feature.home.screen.component.HandleDialogYoutubeQuality
-import com.dapascript.mever.feature.home.screen.section.HomeAiSection
-import com.dapascript.mever.feature.home.screen.section.HomeDownloaderSection
+import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.getArtStyles
 import com.dapascript.mever.feature.home.viewmodel.HomeLandingViewModel
+import com.ketch.DownloadModel
 import com.ketch.Status.FAILED
 import com.ketch.Status.PAUSED
 import com.ketch.Status.SUCCESS
@@ -105,8 +151,7 @@ internal fun HomeLandingScreen(
     var contents by remember { mutableStateOf<List<ContentEntity>>(emptyList()) }
     var showLoading by remember { mutableStateOf(false) }
     var showYoutubeChooseQualityModal by remember { mutableStateOf(false) }
-    var showErrorNetworkModal by remember { mutableStateOf(false) }
-    var showErrorResponseModal by remember { mutableStateOf<Throwable?>(null) }
+    var showErrorModal by remember { mutableStateOf<ErrorType?>(null) }
     val storagePermLauncher = rememberLauncherForActivityResult(RequestMultiplePermissions()) {
         val allGranted = getStoragePermission.all { permissions -> it[permissions] == true }
         if (allGranted) getNetworkStatus(
@@ -116,7 +161,7 @@ internal fun HomeLandingScreen(
                     showYoutubeChooseQualityModal = true
                 } else getApiDownloader(urlSocialMediaState)
             },
-            onNetworkUnavailable = { showErrorNetworkModal = true }
+            onNetworkUnavailable = { showErrorModal = NETWORK }
         ) else getStoragePermission.forEach { permission ->
             onPermissionResult(permission, isGranted = it[permission] == true)
         }
@@ -135,7 +180,7 @@ internal fun HomeLandingScreen(
                 },
                 onFailed = {
                     showLoading = false
-                    showErrorResponseModal = it
+                    showErrorModal = RESPONSE
                 }
             )
         }
@@ -159,36 +204,22 @@ internal fun HomeLandingScreen(
             onClickDismiss = { contents = emptyList() }
         )
 
-        HandleDialogError(
-            showDialog = showErrorNetworkModal,
-            errorTitle = stringResource(R.string.no_internet_title),
-            errorDescription = stringResource(R.string.no_internet_desc),
-            errorImage = R.drawable.ic_connection,
-            onRetry = {
-                showErrorNetworkModal = false
-                getNetworkStatus(
-                    isNetworkAvailable = isNetworkAvailable.value,
-                    onNetworkAvailable = { getApiDownloader(urlSocialMediaState) },
-                    onNetworkUnavailable = { showErrorNetworkModal = true }
-                )
-            },
-            onDismiss = { showErrorNetworkModal = false }
-        )
-
-        HandleDialogError(
-            showDialog = showErrorResponseModal != null,
-            errorTitle = stringResource(R.string.unknown_error_title),
-            errorDescription = stringResource(R.string.unknown_error_desc),
-            onRetry = {
-                showErrorResponseModal = null
-                getNetworkStatus(
-                    isNetworkAvailable = isNetworkAvailable.value,
-                    onNetworkAvailable = { getApiDownloader(urlSocialMediaState) },
-                    onNetworkUnavailable = { showErrorNetworkModal = true }
-                )
-            },
-            onDismiss = { showErrorResponseModal = null }
-        )
+        getErrorResponseContent(showErrorModal)?.let { (title, desc) ->
+            HandleDialogError(
+                showDialog = true,
+                errorTitle = stringResource(title),
+                errorDescription = stringResource(desc),
+                onRetry = {
+                    showErrorModal = null
+                    getNetworkStatus(
+                        isNetworkAvailable = isNetworkAvailable.value,
+                        onNetworkAvailable = { getApiDownloader(urlSocialMediaState) },
+                        onNetworkUnavailable = { showErrorModal = NETWORK }
+                    )
+                },
+                onDismiss = { showErrorModal = null }
+            )
+        }
 
         HandleDialogPermission(
             activity = activity,
@@ -449,6 +480,280 @@ private fun HomeScreenContent(
                     style = typography.body1,
                     color = colorScheme.onPrimary
                 )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+internal fun HomeDownloaderSection(
+    isLoading: Boolean,
+    urlSocialMediaState: TextFieldValue,
+    downloadList: List<DownloadModel>?,
+    modifier: Modifier = Modifier,
+    onClickCard: (DownloadModel) -> Unit,
+    onClickDelete: (DownloadModel) -> Unit,
+    onClickShare: (DownloadModel) -> Unit,
+    onValueChange: (TextFieldValue) -> Unit,
+    onClickDownload: () -> Unit,
+    onClickViewAll: () -> Unit
+) = CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
+    LazyColumn(modifier = modifier) {
+        item {
+            Text(
+                text = stringResource(R.string.downloader_title),
+                style = typography.h2.copy(fontSize = Sp22),
+                color = colorScheme.onPrimary
+            )
+        }
+        item {
+            Spacer(modifier = Modifier.size(Dp16))
+            Text(
+                text = stringResource(R.string.downloader_desc),
+                style = typography.body2,
+                color = colorScheme.secondary
+            )
+        }
+        item {
+            Spacer(modifier = Modifier.size(Dp24))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = SpaceBetween
+            ) {
+                PlatformType.entries.filter { it.platformName != UNKNOWN }.map {
+                    MeverIcon(
+                        icon = getPlatformIcon(it.platformName),
+                        iconBackgroundColor = getPlatformIconBackgroundColor(it.platformName),
+                        iconSize = Dp48,
+                        iconPadding = Dp10
+                    )
+                }
+            }
+        }
+        item {
+            Spacer(modifier = Modifier.size(Dp24))
+            MeverTextField(
+                modifier = Modifier.fillMaxWidth(),
+                webDomainValue = urlSocialMediaState,
+                onValueChange = { onValueChange(it) }
+            )
+        }
+        item {
+            Spacer(modifier = Modifier.size(Dp10))
+            MeverButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(Dp40),
+                title = stringResource(R.string.download),
+                buttonType = FILLED,
+                isEnabled = urlSocialMediaState.text.trim().getPlatformType() != PlatformType.UNKNOWN,
+                isLoading = isLoading
+            ) { onClickDownload() }
+            Spacer(modifier = Modifier.size(Dp24))
+        }
+        stickyHeader {
+            Row(
+                modifier = Modifier
+                    .background(color = colorScheme.background)
+                    .fillMaxWidth()
+                    .padding(top = Dp16),
+                verticalAlignment = CenterVertically,
+                horizontalArrangement = SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(R.string.recently_downloaded),
+                    style = typography.bodyBold1,
+                    color = colorScheme.onPrimary
+                )
+                if (downloadList.isNullOrEmpty().not()) Text(
+                    text = stringResource(R.string.view_all),
+                    style = typography.body2,
+                    color = colorScheme.primary,
+                    modifier = Modifier
+                        .animateItem()
+                        .clip(RoundedCornerShape(Dp8))
+                        .onCustomClick { onClickViewAll() }
+                )
+            }
+        }
+        downloadList?.let { files ->
+            if (files.isNotEmpty()) items(
+                items = files.take(5),
+                key = { it.id }
+            ) {
+                MeverCard(
+                    modifier = Modifier.animateItem(),
+                    cardArgs = MeverCardArgs(
+                        source = it.url,
+                        tag = it.tag,
+                        fileName = it.fileName,
+                        status = it.status,
+                        progress = it.progress,
+                        total = it.total,
+                        path = it.path,
+                        urlThumbnail = it.metaData,
+                        icon = getPlatformIcon(it.tag),
+                        iconBackgroundColor = getPlatformIconBackgroundColor(it.tag),
+                        iconSize = Dp24,
+                        iconPadding = Dp5
+                    ),
+                    onClickCard = { onClickCard(it) },
+                    onClickShare = { onClickShare(it) },
+                    onClickDelete = { onClickDelete(it) }
+                )
+            } else item {
+                MeverEmptyItem(
+                    image = R.drawable.ic_not_found,
+                    size = Dp150.plus(Dp16),
+                    description = stringResource(R.string.empty_list_desc)
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+internal fun HomeAiSection(
+    prompt: String,
+    totalImageSelected: Int,
+    artStyleSelected: String,
+    modifier: Modifier = Modifier,
+    onPromptChange: (String) -> Unit,
+    onImageCountSelected: (Int) -> Unit,
+    onArtStyleSelected: (String, String) -> Unit
+) = CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
+    val context = LocalContext.current
+    val imagesCountGenerated = remember { List(4) { it + 1 } }
+    val artStyles = remember { getArtStyles(context) }
+
+    LazyColumn(
+        modifier = modifier
+    ) {
+        item {
+            Text(
+                modifier = Modifier.padding(bottom = Dp16),
+                text = stringResource(R.string.image_generator),
+                style = typography.h2.copy(fontSize = Sp22),
+                color = colorScheme.onPrimary
+            )
+        }
+        item {
+            Text(
+                modifier = Modifier.padding(bottom = Dp24),
+                text = stringResource(R.string.image_generator_desc),
+                style = typography.body2,
+                color = colorScheme.secondary
+            )
+        }
+        item {
+            MeverAutoSizableTextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(Dp150),
+                value = prompt,
+                fontSize = Sp18,
+                minFontSize = Sp14,
+                maxLines = 4
+            ) { onPromptChange(it) }
+        }
+        item {
+            Text(
+                modifier = Modifier.padding(vertical = Dp24),
+                text = stringResource(R.string.total_images),
+                style = typography.bodyBold1,
+                color = colorScheme.onPrimary
+            )
+        }
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = SpaceBetween
+            ) {
+                imagesCountGenerated.map { count ->
+                    MeverButton(
+                        modifier = Modifier
+                            .height(Dp40)
+                            .width(Dp80),
+                        title = count.toString(),
+                        buttonType = if (totalImageSelected == count) FILLED else OUTLINED,
+                        shape = RoundedCornerShape(Dp12)
+                    ) { onImageCountSelected(count) }
+                }
+            }
+        }
+        item {
+            Row(modifier = Modifier.padding(vertical = Dp24)) {
+                Text(
+                    text = stringResource(R.string.art_style),
+                    style = typography.bodyBold1,
+                    color = colorScheme.onPrimary
+                )
+                Spacer(modifier = Modifier.size(Dp4))
+                Text(
+                    text = stringResource(R.string.optional),
+                    style = typography.body2,
+                    color = colorScheme.onPrimary
+                )
+                if (artStyleSelected.isNotEmpty()) Box(modifier = Modifier.weight(1f)) {
+                    Text(
+                        modifier = Modifier
+                            .align(CenterEnd)
+                            .clip(RoundedCornerShape(Dp12))
+                            .onCustomClick { onArtStyleSelected("", "") },
+                        text = stringResource(R.string.clear),
+                        style = typography.bodyBold2,
+                        color = colorScheme.primary
+                    )
+                }
+            }
+        }
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = SpaceBetween,
+                verticalAlignment = CenterVertically
+            ) {
+                artStyles.forEach {
+                    val imageSize by animateDpAsState(
+                        targetValue = if (artStyleSelected == it.styleName) Dp90 else Dp80
+                    )
+                    Column(
+                        horizontalAlignment = CenterHorizontally,
+                        verticalArrangement = spacedBy(Dp4)
+                    ) {
+                        Box(
+                            modifier = Modifier.size(Dp90),
+                            contentAlignment = Center
+                        ) {
+                            Image(
+                                modifier = Modifier
+                                    .size(imageSize)
+                                    .clip(RoundedCornerShape(Dp12))
+                                    .then(
+                                        if (artStyleSelected == it.styleName) Modifier
+                                            .border(
+                                                width = Dp4,
+                                                color = colorScheme.primary,
+                                                shape = RoundedCornerShape(Dp12)
+                                            )
+                                        else Modifier
+                                    )
+                                    .onCustomClick {
+                                        onArtStyleSelected(it.styleName, it.promptKeywords)
+                                    },
+                                painter = painterResource(it.image),
+                                contentDescription = it.styleName
+                            )
+                        }
+                        Text(
+                            text = it.styleName,
+                            style = typography.bodyBold2,
+                            color = colorScheme.onPrimary
+                        )
+                    }
+                }
             }
         }
     }

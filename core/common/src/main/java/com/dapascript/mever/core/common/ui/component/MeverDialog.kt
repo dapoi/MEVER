@@ -171,7 +171,7 @@ private fun DialogContent(
                 contentAlignment = Center
             ) {
                 Text(
-                    text = primaryButtonText.orEmpty(),
+                    text = primaryButtonText ?: stringResource(R.string.yes),
                     style = typography.bodyBold2,
                     color = primaryButtonColor ?: colorScheme.primary
                 )

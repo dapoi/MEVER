@@ -26,15 +26,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter.Companion.tint
 import androidx.compose.ui.graphics.StrokeCap.Companion.Round
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow.Companion.Ellipsis
 import coil3.compose.LocalPlatformContext
 import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest.Builder
-import coil3.request.crossfade
-import coil3.video.VideoFrameDecoder
-import coil3.video.videoFrameMillis
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.FILLED
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.OUTLINED
@@ -58,7 +54,6 @@ import com.dapascript.mever.core.common.util.calculateDownloadedMegabytes
 import com.dapascript.mever.core.common.util.getContentType
 import com.dapascript.mever.core.common.util.getMeverFiles
 import com.dapascript.mever.core.common.util.getTwoDecimals
-import com.dapascript.mever.core.common.util.isVideo
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.replaceTimeFormat
 import com.ketch.Status
@@ -79,13 +74,11 @@ fun MeverCard(
             .fillMaxWidth()
             .padding(vertical = Dp24)
     ) {
-        val context = LocalContext.current
         val animatedProgress by animateFloatAsState(
             targetValue = progress / 100f,
             animationSpec = ProgressAnimationSpec,
             label = "Progress Animation"
         )
-        val filePath = getMeverFiles()?.find { it.name == fileName }?.path.orEmpty()
 
         Row(
             modifier = Modifier
@@ -103,11 +96,8 @@ fun MeverCard(
                     .size(width = Dp88, height = Dp86)
                     .clip(RoundedCornerShape(Dp8))
                     .align(CenterVertically)
-            ) else MeverLocalThumbnail(
-                source = Builder(context)
-                    .setThumbnail(progress, filePath, urlThumbnail.orEmpty())
-                    .crossfade(true)
-                    .build(),
+            ) else MeverImage(
+                source = getFilePath(fileName),
                 modifier = Modifier
                     .size(width = Dp88, height = Dp86)
                     .clip(RoundedCornerShape(Dp8))
@@ -142,7 +132,10 @@ fun MeverCard(
                     )
                 }
                 Text(
-                    text = stringResource(R.string.type, getContentType(filePath)),
+                    text = stringResource(
+                        R.string.type,
+                        getContentType(getFilePath(fileName))
+                    ),
                     style = typography.label2,
                     color = MeverGray
                 )
@@ -192,7 +185,7 @@ fun MeverCard(
                                 .fillMaxWidth()
                                 .height(Dp5)
                                 .padding(bottom = Dp2),
-                            color = getStatusDownloadColor(status),
+                            color = if (status == FAILED) MeverRed else colorScheme.primary,
                             trackColor = MeverLightGray,
                             gapSize = -Dp15,
                             strokeCap = Round,
@@ -240,19 +233,5 @@ private fun getImagePainter(status: Status) = rememberAsyncImagePainter(
     ).build()
 )
 
-@Composable
-private fun getStatusDownloadColor(status: Status) =
-    if (status == FAILED) MeverRed else colorScheme.primary
-
-private fun Builder.setThumbnail(
-    progress: Int,
-    localPath: String,
-    urlThumbnail: String
-): Builder = apply {
-    data(if (progress < 100) urlThumbnail else localPath).takeIf {
-        progress == 100 && localPath.isVideo()
-    }?.apply {
-        videoFrameMillis(1000)
-        decoderFactory { result, options, _ -> VideoFrameDecoder(result.source, options) }
-    }
-}
+private fun getFilePath(fileName: String) =
+    getMeverFiles()?.find { it.name == fileName }?.path.orEmpty()

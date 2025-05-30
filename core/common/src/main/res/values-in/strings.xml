@@ -72,4 +72,11 @@
     <string name="painterly">Lukisan</string>
     <string name="clear">Hapus</string>
     <string name="generate">Buat Gambar</string>
+    <string name="cancel_generate_title">Batalkan Gambar</string>
+    <string name="cancel_generate_desc">Apakah Anda yakin ingin keluar?</string>
+    <string name="yes">Ya</string>
+    <string name="prompt">Perintah AI</string>
+    <string name="regenerate">Buat ulang</string>
+    <string name="copy">Salin Perintah</string>
+    <string name="copied">Perintah Disalin ✅</string>
 </resources>

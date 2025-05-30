@@ -18,12 +18,11 @@ import androidx.compose.ui.graphics.Color
 fun MeverSnackbar(
     message: String,
     modifier: Modifier = Modifier,
+    actionMessage: String? = null,
     alignment: Alignment = BottomCenter,
     duration: SnackbarDuration = Short,
     snackbarColor: Color = colorScheme.primary,
     snackbarContentColor: Color = colorScheme.onSecondary,
-    actionMessage: String? = null,
-    onResetMessage: (String) -> Unit,
     onClickSnackbar: (() -> Unit)? = null
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -31,7 +30,6 @@ fun MeverSnackbar(
     LaunchedEffect(message) {
         if (message.isNotEmpty()) {
             snackbarHostState.showSnackbar(message = message, duration = duration)
-            onResetMessage("")
         }
     }
 
@@ -45,10 +43,7 @@ fun MeverSnackbar(
                 labelColor = snackbarColor,
                 labelContentColor = snackbarContentColor,
                 actionMessage = actionMessage
-            ) {
-                onResetMessage("")
-                onClickSnackbar?.invoke()
-            }
+            ) { onClickSnackbar?.invoke() }
         }
     }
 }

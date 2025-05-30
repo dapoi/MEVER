@@ -21,9 +21,9 @@ import com.dapascript.mever.core.common.util.onCustomClick
 @Composable
 fun MeverLabel(
     message: String,
+    modifier: Modifier = Modifier,
     labelColor: Color = MeverPurple,
     labelContentColor: Color = MeverWhite,
-    modifier: Modifier = Modifier,
     actionMessage: String? = null,
     onClickLabel: () -> Unit
 ) {

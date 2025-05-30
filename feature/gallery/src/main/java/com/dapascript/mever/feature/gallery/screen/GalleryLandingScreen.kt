@@ -24,6 +24,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,6 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
@@ -61,11 +63,13 @@ import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
 import com.dapascript.mever.core.common.ui.component.MeverPopupDropDownMenu
 import com.dapascript.mever.core.common.ui.component.MeverSnackbar
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp189
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp3
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp5
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
@@ -76,6 +80,7 @@ import com.dapascript.mever.core.common.util.Constant.PlatformType.UNKNOWN
 import com.dapascript.mever.core.common.util.getMeverFiles
 import com.dapascript.mever.core.common.util.replaceTimeFormat
 import com.dapascript.mever.core.common.util.shareContent
+import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.navigation.helper.navigateTo
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.DELETE_ALL
@@ -127,9 +132,11 @@ internal fun GalleryLandingScreen(
                     PAUSE_ALL -> downloadList?.any { model ->
                         model.status == PROGRESS
                     } == true
+
                     RESUME_ALL -> downloadList?.any { model ->
                         model.progress < model.total && model.status == PAUSED
                     } == true
+
                     else -> false
                 }
             },
@@ -193,8 +200,7 @@ internal fun GalleryLandingScreen(
                 .fillMaxSize()
                 .padding(horizontal = Dp24)
                 .navigationBarsPadding(),
-            message = snackbarMessage,
-            onResetMessage = { resetMessage -> snackbarMessage = resetMessage }
+            message = snackbarMessage
         )
 
         MeverDialog(
@@ -288,7 +294,7 @@ private fun GalleryContentSection(
 ) {
     Column(
         modifier = Modifier
-            .fillMaxSize()
+            .matchParentSize()
             .verticalScroll(scrollState)
     ) {
         Spacer(modifier = Modifier.height(Dp16))
@@ -303,29 +309,24 @@ private fun GalleryContentSection(
         if (platformTypes.size > 1) Spacer(modifier = Modifier.height(Dp32))
         Column(modifier = Modifier.height(this@BoxWithConstraints.maxHeight)) {
             if (platformTypes.size > 1) {
-                Row(
+                FilterContent(
                     modifier = Modifier
                         .background(colorScheme.background)
                         .fillMaxWidth()
                         .horizontalScroll(rememberScrollState())
-                        .padding(PaddingValues(horizontal = Dp24)),
-                    horizontalArrangement = spacedBy(Dp8),
-                    verticalAlignment = CenterVertically
-                ) {
-                    MeverButton(
-                        title = stringResource(RCommon.string.all),
-                        shape = RoundedCornerShape(Dp64),
-                        buttonType = if (selectedFilter == UNKNOWN) FILLED else OUTLINED,
-                    ) { onClickFilter(UNKNOWN) }
-                    platformTypes.map { type ->
-                        MeverButton(
-                            title = type.platformName,
-                            shape = RoundedCornerShape(Dp64),
-                            buttonType = if (selectedFilter == type) FILLED else OUTLINED,
-                        ) { onClickFilter(type) }
-                    }
-                }
+                        .padding(start = Dp24, end = Dp24, top = Dp4, bottom = Dp24),
+                    platformTypes = platformTypes,
+                    selectedFilter = selectedFilter,
+                ) { onClickFilter(it) }
             }
+            if (isExpanded.not()) HorizontalDivider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = Dp1)
+                    .shadow(Dp3),
+                thickness = Dp1,
+                color = colorScheme.onPrimary.copy(alpha = 0.12f)
+            )
             Column(
                 modifier = Modifier
                     .fillMaxHeight()
@@ -335,19 +336,22 @@ private fun GalleryContentSection(
                             source: NestedScrollSource
                         ) = if (available.y > 0 || isExpanded) Offset.Zero
                         else Offset(x = 0f, y = -scrollState.dispatchRawDelta(-available.y))
-                    })
+                    }
+                    )
             ) {
                 downloadList?.let { files ->
+                    LaunchedEffect(selectedFilter, downloadList.isEmpty()) {
+                        if (selectedFilter != UNKNOWN && downloadList.isEmpty()) onChangeFilter(
+                            UNKNOWN
+                        )
+                    }
                     AnimatedContent(
                         targetState = files.isNotEmpty(),
                         label = "Contents"
                     ) { isNotEmpty ->
                         if (isNotEmpty) {
                             CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
-                                LazyColumn(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentPadding = PaddingValues(bottom = Dp48)
-                                ) {
+                                LazyColumn(modifier = Modifier.fillMaxSize()) {
                                     items(
                                         items = downloadList,
                                         key = { it.id }
@@ -387,11 +391,34 @@ private fun GalleryContentSection(
                     }
                 }
             }
+        }
+    }
+}
 
-            downloadList?.let {
-                LaunchedEffect(selectedFilter, downloadList.isEmpty()) {
-                    if (selectedFilter != UNKNOWN && downloadList.isEmpty()) onChangeFilter(UNKNOWN)
-                }
+@Composable
+private fun FilterContent(
+    platformTypes: List<PlatformType>,
+    selectedFilter: PlatformType,
+    modifier: Modifier = Modifier,
+    onClickFilter: (PlatformType) -> Unit
+) {
+    if (platformTypes.size > 1) {
+        Row(
+            modifier = modifier,
+            horizontalArrangement = spacedBy(Dp8),
+            verticalAlignment = CenterVertically
+        ) {
+            MeverButton(
+                title = stringResource(RCommon.string.all),
+                shape = RoundedCornerShape(Dp64),
+                buttonType = if (selectedFilter == UNKNOWN) FILLED else OUTLINED,
+            ) { onClickFilter(UNKNOWN) }
+            platformTypes.map { type ->
+                MeverButton(
+                    title = type.platformName,
+                    shape = RoundedCornerShape(Dp64),
+                    buttonType = if (selectedFilter == type) FILLED else OUTLINED,
+                ) { onClickFilter(type) }
             }
         }
     }

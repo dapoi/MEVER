@@ -224,8 +224,6 @@ fun Long.toCurrentDate(): String {
 
 fun String.replaceTimeFormat() = replace("_", ".")
 
-fun String.removeExtension() = substringBeforeLast(".")
-
 fun Activity.hideSystemBar(value: Boolean) {
     val insetsController = getInsetsController(window, window.decorView)
     if (value) {

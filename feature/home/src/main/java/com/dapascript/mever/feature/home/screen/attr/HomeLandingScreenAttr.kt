@@ -1,10 +1,10 @@
-package com.dapascript.mever.feature.home.screen.section.attr
+package com.dapascript.mever.feature.home.screen.attr
 
 import android.content.Context
 import com.dapascript.mever.feature.home.R
 import com.dapascript.mever.core.common.R as coreUiR
 
-object HomeAiSectionAttr {
+object HomeLandingScreenAttr {
     data class StyleOption(
         val styleName: String,
         val promptKeywords: String,

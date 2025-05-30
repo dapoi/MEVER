@@ -1,7 +1,5 @@
 package com.dapascript.mever.core.common.base
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.util.state.ApiState
@@ -18,7 +16,6 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -65,6 +62,8 @@ open class BaseViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    @Composable
-    fun <T> StateFlow<T>.collectAsStateValue() = collectAsState().value
+    override fun onCleared() {
+        super.onCleared()
+        apiJob?.cancel()
+    }
 }

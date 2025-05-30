@@ -72,4 +72,11 @@
     <string name="painterly">Painterly</string>
     <string name="clear">Clear</string>
     <string name="generate">Generate Image</string>
+    <string name="cancel_generate_title">Cancel Generate Image</string>
+    <string name="cancel_generate_desc">Are you sure you want to exit?</string>
+    <string name="yes">Yes</string>
+    <string name="prompt">Prompt AI</string>
+    <string name="regenerate">Re-generate</string>
+    <string name="copy">Copy Prompt</string>
+    <string name="copied">Prompt Copied ✅</string>
 </resources>
