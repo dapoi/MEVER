@@ -36,7 +36,7 @@
         android:theme="@style/Theme.MEVER"
         android:localeConfig="@xml/locales_config"
         android:enableOnBackInvokedCallback="true"
-        tools:targetApi="33">
+        tools:targetApi="36">
         <activity
             android:name=".screen.MainActivity"
             android:configChanges="locale|orientation|screenSize|layoutDirection|keyboardHidden"
