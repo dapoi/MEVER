@@ -51,9 +51,6 @@
     <string name="contact">Hubungi Kami</string>
     <string name="about">Tentang Aplikasi</string>
     <string name="choose_file">Pilih jenis file</string>
-    <string name="wait">Harap tunggu…</string>
-    <string name="video_text">Video</string>
-    <string name="image_text">Gambar</string>
     <string name="quality">Kualitas %1$s</string>
     <string name="type">Tipe: %1$s</string>
     <string name="all">Semua</string>
@@ -78,6 +75,5 @@
     <string name="regenerate">Buat ulang</string>
     <string name="copy">Salin Perintah</string>
     <string name="copied">Perintah Disalin ✅</string>
-    <string name="select_image">Pilih gambar yang ingin Anda unduh, lalu klik tombol unduh.</string>
     <string name="image_has_been_downloaded">Gambar telah diunduh</string>
 </resources>

@@ -51,9 +51,6 @@
     <string name="contact">Contact Us</string>
     <string name="about">About Application</string>
     <string name="choose_file">Choose the file</string>
-    <string name="wait">Please wait…</string>
-    <string name="video_text">Video</string>
-    <string name="image_text">Image</string>
     <string name="quality">Quality %1$s</string>
     <string name="type">Type: %1$s</string>
     <string name="all">All</string>
@@ -78,6 +75,5 @@
     <string name="regenerate">Re-generate</string>
     <string name="copy">Copy Prompt</string>
     <string name="copied">Prompt Copied ✅</string>
-    <string name="select_image">Select image that you want to download, then click the download button.</string>
     <string name="image_has_been_downloaded">Image has been downloaded</string>
 </resources>
