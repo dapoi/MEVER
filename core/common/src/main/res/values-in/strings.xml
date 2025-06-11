@@ -32,7 +32,6 @@
     <string name="delete_all_title">Hapus Semua File?</string>
     <string name="delete_desc">File yang telah dihapus tidak dapat dipulihkan.</string>
     <string name="delete_all_desc">Semua file yang telah dihapus tidak dapat dipulihkan.</string>
-    <string name="snackbar_delete">File telah dihapus</string>
     <string name="download_failed_title">Unduhan Gagal</string>
     <string name="download_failed_desc">Maaf, unduhan Anda gagal. Apa yang ingin Anda lakukan?</string>
     <string name="retry">Coba Lagi</string>
@@ -75,8 +74,10 @@
     <string name="cancel_generate_title">Batalkan Gambar</string>
     <string name="cancel_generate_desc">Apakah Anda yakin ingin keluar?</string>
     <string name="yes">Ya</string>
-    <string name="prompt">Perintah AI</string>
+    <string name="prompt">Prompt Anda</string>
     <string name="regenerate">Buat ulang</string>
     <string name="copy">Salin Perintah</string>
     <string name="copied">Perintah Disalin ✅</string>
+    <string name="select_image">Pilih gambar yang ingin Anda unduh, lalu klik tombol unduh.</string>
+    <string name="image_has_been_downloaded">Gambar telah diunduh</string>
 </resources>

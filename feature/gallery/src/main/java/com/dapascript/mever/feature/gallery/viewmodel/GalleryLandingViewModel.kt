@@ -38,7 +38,7 @@ class GalleryLandingViewModel @Inject constructor(
                     }
                 }
                 .onEach {
-                    if (it.status == SUCCESS && it.isAvailableOnLocal().not()) {
+                    if (it.status == SUCCESS && isAvailableOnLocal(it.fileName).not()) {
                         ketch.clearDb(it.id)
                     }
                 }

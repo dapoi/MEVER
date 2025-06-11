@@ -85,7 +85,7 @@ internal fun SplashScreen(
 
         DisposableEffect(lifecycleOwner) {
             val observer = LifecycleEventObserver { _, event ->
-                activity.hideSystemBar(event != ON_STOP)
+                hideSystemBar(activity, event != ON_STOP)
             }
             lifecycleOwner.lifecycle.addObserver(observer)
             onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }

@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -62,7 +61,6 @@ import com.dapascript.mever.core.common.ui.component.MeverCard
 import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
 import com.dapascript.mever.core.common.ui.component.MeverPopupDropDownMenu
-import com.dapascript.mever.core.common.ui.component.MeverSnackbar
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp189
@@ -78,7 +76,6 @@ import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.util.Constant.PlatformType
 import com.dapascript.mever.core.common.util.Constant.PlatformType.UNKNOWN
 import com.dapascript.mever.core.common.util.getMeverFiles
-import com.dapascript.mever.core.common.util.replaceTimeFormat
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.navigation.helper.navigateTo
@@ -94,6 +91,7 @@ import com.ketch.Status.FAILED
 import com.ketch.Status.PAUSED
 import com.ketch.Status.PROGRESS
 import com.ketch.Status.SUCCESS
+import java.io.File
 import com.dapascript.mever.core.common.R as RCommon
 
 @Composable
@@ -105,7 +103,6 @@ internal fun GalleryLandingScreen(
     val downloadList = downloadList.collectAsStateValue()
     val scrollState = rememberScrollState()
     val isExpanded by remember { derivedStateOf { scrollState.value <= titleHeight } }
-    var snackbarMessage by remember { mutableStateOf("") }
     var showFailedDialog by remember { mutableStateOf<Int?>(null) }
     var showDeleteDialog by remember { mutableStateOf<Int?>(null) }
     var showDeleteAllDialog by remember { mutableStateOf(false) }
@@ -154,13 +151,13 @@ internal fun GalleryLandingScreen(
         )
 
         GalleryContentSection(
-            downloadList = downloadList?.filter { download ->
-                selectedFilter == UNKNOWN || download.tag == selectedFilter.platformName
-            },
+            selectedFilter = selectedFilter,
             scrollState = scrollState,
             isExpanded = isExpanded,
             platformTypes = platformTypes,
-            selectedFilter = selectedFilter,
+            downloadList = downloadList?.filter { download ->
+                selectedFilter == UNKNOWN || download.tag == selectedFilter.platformName
+            },
             onClickFilter = { selectedFilter = it },
             onClickCard = { model ->
                 with(model) {
@@ -171,7 +168,7 @@ internal fun GalleryLandingScreen(
                                 sourceFile = getMeverFiles()?.find { file ->
                                     file.name == fileName
                                 }?.path.orEmpty(),
-                                fileName = fileName.replaceTimeFormat()
+                                fileName = fileName.replace("_", ".")
                             )
                         )
 
@@ -184,23 +181,14 @@ internal fun GalleryLandingScreen(
             onClickShare = {
                 shareContent(
                     context = context,
-                    authority = context.packageName,
-                    path = getMeverFiles()?.find { file ->
+                    file = File(getMeverFiles()?.find { file ->
                         file.name == it.fileName
-                    }?.path.orEmpty()
+                    }?.path.orEmpty())
                 )
             },
             onClickDelete = { showDeleteDialog = it.id },
             onChangeFilter = { selectedFilter = it },
             onChangeTitleHeight = { titleHeight = it }
-        )
-
-        MeverSnackbar(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = Dp24)
-                .navigationBarsPadding(),
-            message = snackbarMessage
         )
 
         MeverDialog(
@@ -210,7 +198,6 @@ internal fun GalleryLandingScreen(
                 primaryButtonText = stringResource(R.string.delete_button),
                 onClickPrimaryButton = {
                     ketch.clearAllDb()
-                    snackbarMessage = context.getString(R.string.snackbar_delete)
                     showDeleteAllDialog = false
                 },
                 onClickSecondaryButton = { showDeleteAllDialog = false }
@@ -369,7 +356,9 @@ private fun GalleryContentSection(
                                                 total = it.total,
                                                 path = it.path,
                                                 urlThumbnail = it.metaData,
-                                                icon = getPlatformIcon(it.tag),
+                                                icon = if (it.tag.isNotEmpty()) {
+                                                    getPlatformIcon(it.tag)
+                                                } else null,
                                                 iconBackgroundColor = getPlatformIconBackgroundColor(
                                                     it.tag
                                                 ),
@@ -383,11 +372,15 @@ private fun GalleryContentSection(
                                     }
                                 }
                             }
-                        } else MeverEmptyItem(
-                            image = RCommon.drawable.ic_not_found,
-                            size = Dp189,
-                            description = stringResource(RCommon.string.empty_list_desc)
-                        )
+                        } else {
+                            Column(verticalArrangement = spacedBy(Dp8)) {
+                                MeverEmptyItem(
+                                    image = RCommon.drawable.ic_not_found,
+                                    size = Dp189,
+                                    description = stringResource(RCommon.string.empty_list_desc)
+                                )
+                            }
+                        }
                     }
                 }
             }

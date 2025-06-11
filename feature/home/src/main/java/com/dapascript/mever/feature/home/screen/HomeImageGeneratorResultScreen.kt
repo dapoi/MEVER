@@ -1,31 +1,45 @@
 package com.dapascript.mever.feature.home.screen
 
+import android.graphics.Bitmap.CompressFormat.PNG
+import android.os.Handler
+import android.os.Looper.getMainLooper
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
+import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,6 +48,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.AnnotatedString
@@ -48,6 +63,7 @@ import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverButton
 import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverImage
+import com.dapascript.mever.core.common.ui.component.MeverSnackbar
 import com.dapascript.mever.core.common.ui.component.meverShimmer
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp10
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
@@ -55,8 +71,10 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp120
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp20
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp52
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
@@ -65,12 +83,20 @@ import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType
 import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType.NETWORK
 import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType.RESPONSE
 import com.dapascript.mever.core.common.util.ErrorHandle.getErrorResponseContent
-import com.dapascript.mever.core.common.util.getNetworkStatus
+import com.dapascript.mever.core.common.util.getPhotoThumbnail
+import com.dapascript.mever.core.common.util.getUrlContentType
 import com.dapascript.mever.core.common.util.onCustomClick
+import com.dapascript.mever.core.common.util.shareContent
+import com.dapascript.mever.core.common.util.state.UiState.StateSuccess
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
-import com.dapascript.mever.core.data.model.local.ImageAiEntity
+import com.dapascript.mever.core.navigation.helper.navigateTo
+import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute
+import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeImageGeneratorResultRoute
 import com.dapascript.mever.feature.home.screen.component.HandleDialogError
 import com.dapascript.mever.feature.home.viewmodel.HomeImageGeneratorResultViewModel
+import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
 
 @Composable
 internal fun HomeImageGeneratorResultScreen(
@@ -78,23 +104,24 @@ internal fun HomeImageGeneratorResultScreen(
     viewModel: HomeImageGeneratorResultViewModel = hiltViewModel()
 ) = with(viewModel) {
     val aiResponseState = aiResponseState.collectAsStateValue()
-    val isNetworkAvailable = connectivityObserver.observe().collectAsState(
-        connectivityObserver.isConnected()
-    )
-    var aiImages by remember { mutableStateOf<ImageAiEntity?>(null) }
+    val isNetworkAvailable = isNetworkAvailable.collectAsStateValue()
+    val scope = rememberCoroutineScope()
+    var aiImages by remember { mutableStateOf<List<String>>(emptyList()) }
     var showShimmer by remember { mutableStateOf(false) }
     var showErrorModal by remember { mutableStateOf<ErrorType?>(null) }
     var showCancelExitConfirmation by remember { mutableStateOf(false) }
+    var imageSelected by remember(aiImages) { mutableStateOf(aiImages.firstOrNull()) }
 
     BaseScreen(
         topBarArgs = TopBarArgs(
-            title = "Image Generator",
+            title = stringResource(R.string.image_generator),
             onClickBack = { showCancelExitConfirmation = true }
-        )
+        ),
+        allowScreenOverlap = true
     ) {
-        LaunchedEffect(isNetworkAvailable.value) {
-            getNetworkStatus(
-                isNetworkAvailable = isNetworkAvailable.value,
+        LaunchedEffect(isNetworkAvailable) {
+            if (aiResponseState !is StateSuccess) getNetworkStatus(
+                isNetworkAvailable = isNetworkAvailable,
                 onNetworkAvailable = ::getImageAiGenerator,
                 onNetworkUnavailable = { showErrorModal = NETWORK }
             )
@@ -102,9 +129,19 @@ internal fun HomeImageGeneratorResultScreen(
 
         LaunchedEffect(aiResponseState) {
             aiResponseState.handleUiState(
-                onLoading = { showShimmer = true },
-                onSuccess = { result -> aiImages = result },
-                onFailed = { showErrorModal = RESPONSE }
+                onLoading = {
+                    showShimmer = true
+                    showErrorModal = null
+                },
+                onSuccess = { result ->
+                    showShimmer = false
+                    aiImages = result.imagesUrl.take(args.totalImages)
+                },
+                onFailed = {
+                    showShimmer = false
+                    aiImages = emptyList()
+                    showErrorModal = RESPONSE
+                }
             )
         }
 
@@ -136,7 +173,7 @@ internal fun HomeImageGeneratorResultScreen(
                 onRetry = {
                     showErrorModal = null
                     getNetworkStatus(
-                        isNetworkAvailable = isNetworkAvailable.value,
+                        isNetworkAvailable = isNetworkAvailable,
                         onNetworkAvailable = ::getImageAiGenerator,
                         onNetworkUnavailable = { showErrorModal = NETWORK }
                     )
@@ -148,18 +185,43 @@ internal fun HomeImageGeneratorResultScreen(
             )
         }
 
-        if (showShimmer && aiImages == null) ImageGeneratorLoading(
-            modifier = Modifier.fillMaxWidth(),
-            totalImages = args.totalImages
-        )
-
-        aiImages?.let { images ->
-            ImageGeneratorResultContent(
-                modifier = Modifier.fillMaxWidth(),
-                imageAiEntity = images,
-                totalImages = args.totalImages,
+        AnimatedContent(
+            targetState = showShimmer && aiImages.isEmpty(),
+            transitionSpec = { (fadeIn() togetherWith fadeOut()).using(SizeTransform(clip = false)) }
+        ) { isLoading ->
+            if (isLoading) ImageGeneratorLoading(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = Dp64, start = Dp24, end = Dp24),
+                totalImages = args.totalImages
+            ) else ImageGeneratorResultContent(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = Dp64),
+                aiImages = aiImages,
+                imageSelected = imageSelected.orEmpty(),
                 promptText = args.prompt,
-                onClickDownload = {}
+                onChangeImageSelected = { url -> imageSelected = url },
+                onClickRegenerate = {
+                    aiImages = emptyList()
+                    getImageAiGenerator()
+                },
+                onClickDownload = {
+                    scope.launch {
+                        ketch.download(
+                            url = imageSelected.orEmpty(),
+                            fileName = args.prompt + getUrlContentType(imageSelected.orEmpty()),
+                            path = meverFolder.path
+                        )
+                    }
+                    if (aiImages.size <= 1) navController.navigateTo(
+                        route = GalleryLandingRoute,
+                        popUpTo = HomeImageGeneratorResultRoute::class,
+                        inclusive = true
+                    ) else aiImages = aiImages.toMutableStateList().apply {
+                        removeAt(aiImages.indexOf(imageSelected))
+                    }
+                }
             )
         }
     }
@@ -167,129 +229,208 @@ internal fun HomeImageGeneratorResultScreen(
 
 @Composable
 private fun ImageGeneratorResultContent(
-    totalImages: Int,
+    aiImages: List<String>,
+    imageSelected: String,
     promptText: String,
-    imageAiEntity: ImageAiEntity,
     modifier: Modifier = Modifier,
-    onClickDownload: (String) -> Unit
-) = with(imageAiEntity) {
-    var imageSelected by remember(imagesUrl) { mutableStateOf(imagesUrl.firstOrNull()) }
-    var hasCopied by remember { mutableStateOf(false) }
+    onChangeImageSelected: (String) -> Unit,
+    onClickRegenerate: () -> Unit,
+    onClickDownload: () -> Unit
+) {
+    val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
+    val scrollState = rememberScrollState()
+    val scope = rememberCoroutineScope()
+    val snackbarMessage = remember { mutableStateOf("") }
+    var hasCopied by remember { mutableStateOf(false) }
 
-    Column(
-        modifier = modifier.verticalScroll(rememberScrollState()),
-        verticalArrangement = spacedBy(Dp16)
-    ) {
-        MeverImage(
+    Box(modifier = modifier) {
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(1f)
-                .clip(RoundedCornerShape(Dp12)),
-            source = imageSelected
-        )
-        if (totalImages > 1) Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = spacedBy(Dp8)
+                .matchParentSize()
+                .padding(horizontal = Dp24)
+                .navigationBarsPadding()
+                .verticalScroll(scrollState),
+            verticalArrangement = spacedBy(Dp16)
         ) {
-            imagesUrl.take(totalImages).map { url ->
-                MeverImage(
-                    modifier = Modifier
-                        .weight(1f)
-                        .heightIn(max = Dp80)
-                        .clip(RoundedCornerShape(Dp12))
-                        .then(
-                            if (imageSelected == url) {
-                                Modifier.border(
-                                    width = Dp4,
-                                    color = colorScheme.primary,
-                                    shape = RoundedCornerShape(Dp10)
-                                )
-                            } else {
-                                Modifier.drawWithContent {
-                                    drawContent()
-                                    drawRect(
-                                        color = MeverWhite.copy(alpha = 0.3f),
-                                        size = size,
-                                        style = Fill
+            MeverImage(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1f)
+                    .clip(RoundedCornerShape(Dp12)),
+                source = imageSelected
+            )
+            if (aiImages.size > 1) Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = spacedBy(Dp8)
+            ) {
+                aiImages.map { url ->
+                    MeverImage(
+                        modifier = Modifier
+                            .weight(1f)
+                            .heightIn(max = Dp80)
+                            .clip(RoundedCornerShape(Dp12))
+                            .then(
+                                if (imageSelected == url) {
+                                    Modifier.border(
+                                        width = Dp4,
+                                        color = colorScheme.primary,
+                                        shape = RoundedCornerShape(Dp10)
                                     )
+                                } else {
+                                    Modifier.drawWithContent {
+                                        drawContent()
+                                        drawRect(
+                                            color = MeverWhite.copy(alpha = 0.3f),
+                                            size = size,
+                                            style = Fill
+                                        )
+                                    }
                                 }
-                            }
-                        )
-                        .onCustomClick { imageSelected = url },
-                    source = url
-                )
+                            )
+                            .onCustomClick { onChangeImageSelected(url) },
+                        source = url
+                    )
+                }
             }
-        }
-        Text(
-            text = stringResource(R.string.prompt),
-            style = typography.bodyBold1,
-            color = colorScheme.onPrimary
-        )
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(Dp120)
-                .shadow(elevation = Dp2, shape = RoundedCornerShape(Dp12))
-                .background(color = colorScheme.surface, shape = RoundedCornerShape(Dp12))
-                .clip(RoundedCornerShape(Dp12))
-                .verticalScroll(rememberScrollState())
-        ) {
             Text(
-                modifier = Modifier.padding(Dp12),
-                text = promptText,
-                style = typography.body1,
+                text = stringResource(R.string.prompt),
+                style = typography.bodyBold1,
                 color = colorScheme.onPrimary
             )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(Dp120)
+                    .background(color = colorScheme.onSurface, shape = RoundedCornerShape(Dp12))
+                    .clip(RoundedCornerShape(Dp12))
+                    .verticalScroll(rememberScrollState())
+            ) {
+                Text(
+                    modifier = Modifier.padding(Dp12),
+                    text = promptText,
+                    style = typography.body1,
+                    color = colorScheme.onPrimary
+                )
+            }
+            Pair(
+                R.drawable.ic_copy to stringResource(if (hasCopied) R.string.copied else R.string.copy),
+                R.drawable.ic_share to stringResource(R.string.share)
+            ).toList().forEach { (icon, text) ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .shadow(elevation = Dp2, shape = RoundedCornerShape(Dp12))
+                        .background(color = colorScheme.surface, shape = RoundedCornerShape(Dp12))
+                        .clip(RoundedCornerShape(Dp12))
+                        .onCustomClick {
+                            when (icon) {
+                                R.drawable.ic_copy -> {
+                                    clipboardManager.setText(AnnotatedString(promptText))
+                                    hasCopied = true
+                                }
+
+                                R.drawable.ic_share -> {
+                                    scope.launch {
+                                        val cachePath = File(context.cacheDir, "images")
+                                        if (!cachePath.exists()) cachePath.mkdirs()
+                                        val cacheFile = File(cachePath, "shared_image.png")
+                                        val stream = FileOutputStream(cacheFile)
+                                        val bitmap = getPhotoThumbnail(imageSelected)
+                                        bitmap?.compress(
+                                            /* format = */ PNG,
+                                            /* quality = */ 100,
+                                            /* stream = */ stream
+                                        )
+                                        stream.close()
+                                        bitmap?.let {
+                                            shareContent(
+                                                context = context,
+                                                file = cacheFile
+                                            )
+                                        }
+                                        Handler(getMainLooper()).postDelayed({
+                                            cacheFile.delete()
+                                        }, 5000)
+                                    }
+                                }
+                            }
+                        }
+                ) {
+                    Row(
+                        modifier = Modifier.padding(Dp10),
+                        horizontalArrangement = spacedBy(Dp8),
+                        verticalAlignment = CenterVertically
+                    ) {
+                        Icon(
+                            modifier = Modifier.size(Dp20),
+                            imageVector = ImageVector.vectorResource(icon),
+                            tint = colorScheme.onPrimary.copy(alpha = 0.4f),
+                            contentDescription = "Copy Prompt"
+                        )
+                        Text(
+                            text = text,
+                            style = typography.bodyBold2,
+                            color = colorScheme.onPrimary.copy(alpha = 0.4f)
+                        )
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(Dp120))
         }
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .shadow(elevation = Dp2, shape = RoundedCornerShape(Dp12))
-                .background(color = colorScheme.surface, shape = RoundedCornerShape(Dp12))
-                .clip(RoundedCornerShape(Dp12))
-                .onCustomClick {
-                    clipboardManager.setText(AnnotatedString(promptText))
-                    hasCopied = true
+                .align(BottomCenter)
+        ) {
+            Column {
+                MeverSnackbar(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = Dp24, vertical = Dp16),
+                    message = snackbarMessage
+                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(color = colorScheme.background)
+                ) {
+                    if (scrollState.canScrollBackward || scrollState.canScrollForward) {
+                        HorizontalDivider(
+                            modifier = Modifier.fillMaxWidth(),
+                            thickness = Dp2,
+                            color = colorScheme.onPrimary.copy(alpha = 0.12f)
+                        )
+                    }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(Dp24),
+                        horizontalArrangement = spacedBy(Dp8),
+                        verticalAlignment = CenterVertically
+                    ) {
+                        MeverButton(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(Dp52),
+                            title = stringResource(R.string.regenerate),
+                            buttonType = OUTLINED
+                        ) { onClickRegenerate() }
+                        MeverButton(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(Dp52),
+                            title = stringResource(R.string.download),
+                            buttonType = FILLED
+                        ) {
+                            snackbarMessage.value = context.getString(
+                                R.string.image_has_been_downloaded
+                            )
+                            onClickDownload()
+                        }
+                    }
                 }
-        ) {
-            Row(
-                modifier = Modifier.padding(Dp10),
-                horizontalArrangement = spacedBy(Dp8),
-                verticalAlignment = CenterVertically
-            ) {
-                Icon(
-                    modifier = Modifier.size(Dp20),
-                    imageVector = ImageVector.vectorResource(R.drawable.ic_copy),
-                    tint = colorScheme.onPrimary.copy(alpha = 0.4f),
-                    contentDescription = "Copy Prompt"
-                )
-                Text(
-                    text = stringResource(if (hasCopied) R.string.copied else R.string.copy),
-                    style = typography.bodyBold2,
-                    color = colorScheme.onPrimary.copy(alpha = 0.4f)
-                )
             }
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = spacedBy(Dp8),
-            verticalAlignment = CenterVertically
-        ) {
-            MeverButton(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(Dp52),
-                title = stringResource(R.string.regenerate),
-                buttonType = OUTLINED
-            ) { }
-            MeverButton(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(Dp52),
-                title = stringResource(R.string.download),
-                buttonType = FILLED
-            ) { }
         }
     }
 }
@@ -300,7 +441,7 @@ private fun ImageGeneratorLoading(
     modifier: Modifier = Modifier
 ) = Column(
     modifier = modifier.verticalScroll(rememberScrollState()),
-    verticalArrangement = spacedBy(Dp8)
+    verticalArrangement = spacedBy(Dp16)
 ) {
     Box(
         modifier = Modifier
@@ -323,4 +464,18 @@ private fun ImageGeneratorLoading(
             )
         }
     }
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(Dp52)
+            .clip(RoundedCornerShape(Dp12))
+            .background(meverShimmer())
+    )
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(Dp120)
+            .clip(RoundedCornerShape(Dp12))
+            .background(meverShimmer())
+    )
 }

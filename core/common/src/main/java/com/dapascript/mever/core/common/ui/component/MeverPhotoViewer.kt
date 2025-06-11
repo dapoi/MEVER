@@ -136,7 +136,7 @@ fun MeverPhotoViewer(
                 showDeleteDialog = false
             },
             onClickSecondaryButton = {
-                activity.hideSystemBar(true)
+                hideSystemBar(activity, true)
                 showDeleteDialog = false
             }
         ),

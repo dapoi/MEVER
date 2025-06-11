@@ -55,7 +55,6 @@ import com.dapascript.mever.core.common.util.getContentType
 import com.dapascript.mever.core.common.util.getMeverFiles
 import com.dapascript.mever.core.common.util.getTwoDecimals
 import com.dapascript.mever.core.common.util.onCustomClick
-import com.dapascript.mever.core.common.util.replaceTimeFormat
 import com.ketch.Status
 import com.ketch.Status.FAILED
 import com.ketch.Status.PAUSED
@@ -125,7 +124,7 @@ fun MeverCard(
                         )
                     }
                     Text(
-                        text = "$tag - ${fileName.replaceTimeFormat()}",
+                        text = "$tag ${fileName.replace("_", ".")}",
                         style = typography.bodyBold2,
                         maxLines = 1,
                         overflow = Ellipsis

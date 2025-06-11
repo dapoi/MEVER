@@ -39,7 +39,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -108,14 +107,14 @@ import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType.NETWORK
 import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType.RESPONSE
 import com.dapascript.mever.core.common.util.ErrorHandle.getErrorResponseContent
 import com.dapascript.mever.core.common.util.LocalActivity
+import com.dapascript.mever.core.common.util.changeToCurrentDate
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.NetworkStatus.Available
 import com.dapascript.mever.core.common.util.getMeverFiles
-import com.dapascript.mever.core.common.util.getNetworkStatus
 import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.getStoragePermission
+import com.dapascript.mever.core.common.util.getUrlContentType
 import com.dapascript.mever.core.common.util.goToSetting
 import com.dapascript.mever.core.common.util.onCustomClick
-import com.dapascript.mever.core.common.util.replaceTimeFormat
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.data.model.local.ContentEntity
@@ -124,17 +123,19 @@ import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryCont
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeImageGeneratorResultRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLandingRoute
+import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.getArtStyles
 import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetDownload
 import com.dapascript.mever.feature.home.screen.component.HandleDialogError
 import com.dapascript.mever.feature.home.screen.component.HandleDialogPermission
 import com.dapascript.mever.feature.home.screen.component.HandleDialogYoutubeQuality
-import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.getArtStyles
 import com.dapascript.mever.feature.home.viewmodel.HomeLandingViewModel
 import com.ketch.DownloadModel
 import com.ketch.Status.FAILED
 import com.ketch.Status.PAUSED
 import com.ketch.Status.SUCCESS
 import kotlinx.coroutines.launch
+import java.io.File
+import java.lang.System.currentTimeMillis
 import com.dapascript.mever.feature.home.R as FeatureHomeR
 
 @Composable
@@ -143,11 +144,9 @@ internal fun HomeLandingScreen(
     viewModel: HomeLandingViewModel = hiltViewModel()
 ) = with(viewModel) {
     val downloaderResponseState = downloaderResponseState.collectAsStateValue()
-    val isNetworkAvailable = connectivityObserver.observe().collectAsState(
-        connectivityObserver.isConnected()
-    )
+    val isNetworkAvailable = isNetworkAvailable.collectAsStateValue()
     val activity = LocalActivity.current
-    val dialogQueue = showDialogPermission
+    val scope = rememberCoroutineScope()
     var contents by remember { mutableStateOf<List<ContentEntity>>(emptyList()) }
     var showLoading by remember { mutableStateOf(false) }
     var showYoutubeChooseQualityModal by remember { mutableStateOf(false) }
@@ -155,9 +154,9 @@ internal fun HomeLandingScreen(
     val storagePermLauncher = rememberLauncherForActivityResult(RequestMultiplePermissions()) {
         val allGranted = getStoragePermission.all { permissions -> it[permissions] == true }
         if (allGranted) getNetworkStatus(
-            isNetworkAvailable = isNetworkAvailable.value,
+            isNetworkAvailable = isNetworkAvailable,
             onNetworkAvailable = {
-                if (urlSocialMediaState.text.getPlatformType() == YOUTUBE) {
+                if (getPlatformType(urlSocialMediaState.text) == YOUTUBE) {
                     showYoutubeChooseQualityModal = true
                 } else getApiDownloader(urlSocialMediaState)
             },
@@ -191,13 +190,18 @@ internal fun HomeLandingScreen(
                 .navigationBarsPadding(),
             listContent = contents,
             showBottomSheet = contents.isNotEmpty(),
-            isFailedFetchImage = isNetworkAvailable.value != Available,
+            isFailedFetchImage = isNetworkAvailable != Available,
             onClickDownload = { url ->
-                downloadFile(
-                    url = url,
-                    platformName = urlSocialMediaState.text.getPlatformType().platformName,
-                    thumbnail = contents.firstOrNull()?.thumbnail.orEmpty()
-                )
+                if (meverFolder.exists().not()) meverFolder.mkdirs()
+                scope.launch {
+                    ketch.download(
+                        url = url,
+                        path = meverFolder.path,
+                        fileName = changeToCurrentDate(currentTimeMillis()) + getUrlContentType(url),
+                        tag = getPlatformType(urlSocialMediaState.text).platformName,
+                        metaData = contents.firstOrNull()?.thumbnail.orEmpty()
+                    )
+                }
                 contents = emptyList()
                 urlSocialMediaState = urlSocialMediaState.copy(text = "")
             },
@@ -212,7 +216,7 @@ internal fun HomeLandingScreen(
                 onRetry = {
                     showErrorModal = null
                     getNetworkStatus(
-                        isNetworkAvailable = isNetworkAvailable.value,
+                        isNetworkAvailable = isNetworkAvailable,
                         onNetworkAvailable = { getApiDownloader(urlSocialMediaState) },
                         onNetworkUnavailable = { showErrorModal = NETWORK }
                     )
@@ -223,7 +227,7 @@ internal fun HomeLandingScreen(
 
         HandleDialogPermission(
             activity = activity,
-            dialogQueue = dialogQueue,
+            dialogQueue = showDialogPermission,
             onGoToSetting = {
                 dismissDialog()
                 activity.goToSetting()
@@ -346,7 +350,7 @@ private fun HomeScreenContent(
                                                         sourceFile = getMeverFiles()?.find { file ->
                                                             file.name == fileName
                                                         }?.path.orEmpty(),
-                                                        fileName = fileName.replaceTimeFormat()
+                                                        fileName = fileName.replace("_", ".")
                                                     )
                                                 )
 
@@ -360,10 +364,9 @@ private fun HomeScreenContent(
                                     onClickShare = {
                                         shareContent(
                                             context = context,
-                                            authority = context.packageName,
-                                            path = getMeverFiles()?.find { file ->
+                                            file = File(getMeverFiles()?.find { file ->
                                                 file.name == it.fileName
-                                            }?.path.orEmpty()
+                                            }?.path.orEmpty())
                                         )
                                     },
                                     onValueChange = { urlSocialMediaState = it },
@@ -547,7 +550,7 @@ internal fun HomeDownloaderSection(
                     .height(Dp40),
                 title = stringResource(R.string.download),
                 buttonType = FILLED,
-                isEnabled = urlSocialMediaState.text.trim().getPlatformType() != PlatformType.UNKNOWN,
+                isEnabled = getPlatformType(urlSocialMediaState.text.trim()) != PlatformType.UNKNOWN,
                 isLoading = isLoading
             ) { onClickDownload() }
             Spacer(modifier = Modifier.size(Dp24))
@@ -593,7 +596,7 @@ internal fun HomeDownloaderSection(
                         total = it.total,
                         path = it.path,
                         urlThumbnail = it.metaData,
-                        icon = getPlatformIcon(it.tag),
+                        icon = if (it.tag.isNotEmpty()) getPlatformIcon(it.tag) else null,
                         iconBackgroundColor = getPlatformIconBackgroundColor(it.tag),
                         iconSize = Dp24,
                         iconPadding = Dp5

@@ -90,7 +90,7 @@ internal fun HandleBottomSheetDownload(
                     style = typography.bodyBold1.copy(fontSize = Sp20),
                     color = colorScheme.onPrimary
                 )
-                filter { it.url.isValidUrl() }.map { content ->
+                filter { isValidUrl(it.url) }.map { content ->
                     CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
                         MeverRadioButton(
                             value = if (content.quality.isNotEmpty()) stringResource(

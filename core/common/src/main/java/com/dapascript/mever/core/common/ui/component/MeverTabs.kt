@@ -52,9 +52,9 @@ import com.dapascript.mever.core.common.ui.theme.MeverWhite
 fun MeverTabs(
     items: List<String>,
     pagerState: PagerState,
+    modifier: Modifier = Modifier,
     containerColor: Color = colorScheme.onSecondaryContainer,
     indicatorColor: Color = colorScheme.background,
-    modifier: Modifier = Modifier,
     onChangeTab: (Int) -> Unit
 ) = CustomTab(
     modifier = modifier,

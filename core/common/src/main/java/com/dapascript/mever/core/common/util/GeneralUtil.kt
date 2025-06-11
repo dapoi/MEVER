@@ -14,6 +14,7 @@ import android.os.Environment.getExternalStoragePublicDirectory
 import android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS
 import android.provider.Settings.EXTRA_APP_PACKAGE
 import android.util.Patterns.WEB_URL
+import android.webkit.MimeTypeMap.getSingleton
 import android.widget.Toast
 import androidx.core.app.ShareCompat.IntentBuilder
 import androidx.core.content.FileProvider.getUriForFile
@@ -29,9 +30,6 @@ import com.dapascript.mever.core.common.util.Constant.PlatformType.TIKTOK
 import com.dapascript.mever.core.common.util.Constant.PlatformType.TWITTER
 import com.dapascript.mever.core.common.util.Constant.PlatformType.UNKNOWN
 import com.dapascript.mever.core.common.util.Constant.PlatformType.YOUTUBE
-import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.NetworkStatus
-import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.NetworkStatus.Available
-import com.ketch.DownloadModel
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -42,8 +40,6 @@ import java.text.SimpleDateFormat
 import java.util.Calendar.getInstance
 import java.util.Locale.ROOT
 import java.util.Locale.getDefault
-import kotlin.io.path.ExperimentalPathApi
-import kotlin.io.path.deleteRecursively
 
 suspend fun getPhotoThumbnail(url: String) = withContext(IO) {
     try {
@@ -58,7 +54,7 @@ suspend fun getVideoThumbnail(source: String): Bitmap? = withContext(IO) {
     val retriever = MediaMetadataRetriever()
     try {
         with(retriever) {
-            if (source.isValidUrl()) setDataSource(source, HashMap()) else setDataSource(source)
+            if (isValidUrl(source)) setDataSource(source, HashMap()) else setDataSource(source)
             getFrameAtTime(100000)
         }
     } catch (e: Exception) {
@@ -100,9 +96,12 @@ fun calculateDownloadPercentage(downloadedBytes: Long, totalBytes: Long): String
 
 fun getContentType(path: String) = when {
     path.isEmpty() -> "in progress"
-    path.isVideo() -> "video/mp4"
+    isVideo(path) -> "video/mp4"
     else -> "image/jpg"
 }
+
+fun getContentTypeFromFile(file: File) =
+    getSingleton().getMimeTypeFromExtension(file.extension.lowercase())
 
 fun getMeverFolder() = File(getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS), "MEVER")
 
@@ -115,24 +114,15 @@ fun getMeverFiles(): List<File>? {
     } else emptyList()
 }
 
-@OptIn(ExperimentalPathApi::class)
-fun deleteAllMeverFolder() = getMeverFolder().apply { if (exists()) toPath().deleteRecursively() }
-
-fun String.convertToBitmap(): Bitmap? {
-    return try {
-        val inputStream = URL(this).openStream()
-        decodeStream(inputStream)
-    } catch (e: Exception) {
-        e.printStackTrace()
-        null
-    }
-}
-
-fun shareContent(context: Context, authority: String, path: String) {
+fun shareContent(context: Context, file: File) {
     try {
-        val uri = getUriForFile(context, "$authority.provider", File(path))
+        val uri = getUriForFile(
+            /* context = */ context,
+            /* authority = */ "${context.packageName}.fileprovider",
+            /* file = */ file
+        )
         IntentBuilder(context)
-            .setType(getContentType(path))
+            .setType(getContentTypeFromFile(file))
             .setSubject("MEVER Shared Content")
             .addStream(uri)
             .setChooserTitle("Share with")
@@ -168,17 +158,8 @@ fun navigateToGmail(context: Context) {
     }
 }
 
-fun getNetworkStatus(
-    isNetworkAvailable: NetworkStatus,
-    onNetworkAvailable: () -> Unit,
-    onNetworkUnavailable: () -> Unit
-) = when (isNetworkAvailable) {
-    Available -> onNetworkAvailable()
-    else -> onNetworkUnavailable()
-}
-
-fun Long.toTimeFormat(): String {
-    val seconds = this / 1000
+fun convertToTimeFormat(milliseconds: Long): String {
+    val seconds = milliseconds / 1000
     val minutes = seconds / 60
     val hours = minutes / 60
     return when {
@@ -194,7 +175,7 @@ fun Long.toTimeFormat(): String {
     }
 }
 
-fun String.getPlatformType(): PlatformType {
+fun getPlatformType(url: String): PlatformType {
     val listFbUrl = listOf("facebook.com", "fb.com", "m.facebook.com", "fb.watch")
     val listInstagramUrl = listOf("instagram.com", "instagr.am", "ig.com")
     val listTwitterUrl = listOf("x.com", "twitter.com", "t.co", "mobile.twitter.com")
@@ -202,29 +183,27 @@ fun String.getPlatformType(): PlatformType {
     val listYouTubeUrl = listOf("youtube.com", "youtu.be", "m.youtube.com", "yt.com")
 
     return when {
-        listFbUrl.any { contains(it) } -> FACEBOOK
-        listInstagramUrl.any { contains(it) } -> INSTAGRAM
-        listTwitterUrl.any { contains(it) } -> TWITTER
-        listTiktokUrl.any { contains(it) } -> TIKTOK
-        listYouTubeUrl.any { contains(it) } -> YOUTUBE
+        listFbUrl.any { url.contains(it) } -> FACEBOOK
+        listInstagramUrl.any { url.contains(it) } -> INSTAGRAM
+        listTwitterUrl.any { url.contains(it) } -> TWITTER
+        listTiktokUrl.any { url.contains(it) } -> TIKTOK
+        listYouTubeUrl.any { url.contains(it) } -> YOUTUBE
         else -> UNKNOWN
     }
 }
 
-fun String.isValidUrl() = WEB_URL.matcher(this).matches()
+fun isValidUrl(url: String) = WEB_URL.matcher(url).matches()
 
-fun String.isVideo() = endsWith(".mp4")
+fun isVideo(path: String) = path.endsWith(".mp4")
 
-fun Long.toCurrentDate(): String {
+fun changeToCurrentDate(date: Long): String {
     val calendar = getInstance()
     val dateFormat = SimpleDateFormat("yyyy.MM.dd - HH_mm", getDefault())
-    calendar.timeInMillis = this
+    calendar.timeInMillis = date
     return dateFormat.format(calendar.time)
 }
 
-fun String.replaceTimeFormat() = replace("_", ".")
-
-fun Activity.hideSystemBar(value: Boolean) {
+fun hideSystemBar(activity: Activity, value: Boolean) = with(activity) {
     val insetsController = getInsetsController(window, window.decorView)
     if (value) {
         insetsController.hide(systemBars())
@@ -235,6 +214,6 @@ fun Activity.hideSystemBar(value: Boolean) {
     }
 }
 
-fun DownloadModel.isAvailableOnLocal() = getMeverFiles()?.any {
+fun isAvailableOnLocal(fileName: String) = getMeverFiles()?.any {
     it.name == fileName
 } ?: false

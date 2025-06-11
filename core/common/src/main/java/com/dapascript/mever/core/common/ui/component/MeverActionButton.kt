@@ -40,8 +40,8 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp600
 @Composable
 fun MeverActionButton(
     resource: Int,
-    showBadge: Boolean = false,
     modifier: Modifier = Modifier,
+    showBadge: Boolean = false,
     onClick: () -> Unit
 ) {
     var showAnimationIconSize by remember { mutableStateOf(false) }

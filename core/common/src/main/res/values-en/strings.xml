@@ -32,7 +32,6 @@
     <string name="delete_all_title">Delete All Files?</string>
     <string name="delete_desc">File that has been deleted cannot be recovered.</string>
     <string name="delete_all_desc">All files that have been deleted cannot be recovered.</string>
-    <string name="snackbar_delete">File has been deleted</string>
     <string name="download_failed_title">Download Failed</string>
     <string name="download_failed_desc">Sorry, your download has failed. What would you like to do?</string>
     <string name="retry">Try Again</string>
@@ -75,8 +74,10 @@
     <string name="cancel_generate_title">Cancel Generate Image</string>
     <string name="cancel_generate_desc">Are you sure you want to exit?</string>
     <string name="yes">Yes</string>
-    <string name="prompt">Prompt AI</string>
+    <string name="prompt">Your Prompt</string>
     <string name="regenerate">Re-generate</string>
     <string name="copy">Copy Prompt</string>
     <string name="copied">Prompt Copied ✅</string>
+    <string name="select_image">Select image that you want to download, then click the download button.</string>
+    <string name="image_has_been_downloaded">Image has been downloaded</string>
 </resources>

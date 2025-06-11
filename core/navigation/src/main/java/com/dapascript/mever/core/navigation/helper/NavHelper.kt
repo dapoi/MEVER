@@ -1,5 +1,6 @@
 package com.dapascript.mever.core.navigation.helper
 
+import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.Bundle
 import androidx.compose.animation.AnimatedContentScope
@@ -17,6 +18,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navDeepLink
 import kotlinx.serialization.json.Json
+import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.typeOf
 
@@ -61,9 +63,10 @@ inline fun <reified T : Any> customNavType(
 
 inline fun <reified T : Any> generateCustomNavType() = typeOf<T>() to customNavType<T>()
 
+@SuppressLint("RestrictedApi")
 fun NavController.navigateTo(
     route: Any,
-    popUpTo: Any? = null,
+    popUpTo: KClass<*>? = null,
     inclusive: Boolean = false,
     launchSingleTop: Boolean = false
 ) {

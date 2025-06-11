@@ -67,12 +67,12 @@ Contributions are welcome! If you'd like to contribute to this project, please f
 1. Fork the repository.
 2. If you encounter an error, change to the project and create the env.properties file
    > ![image](https://github.com/user-attachments/assets/8c0653d6-6dd6-44f4-a16e-c2d2bf45f957)
-4. Put url inside of it, you can get api key & session from [api neoxr](https://api.neoxr.eu/)
+3. Put url inside of it, you can get api key & session from [api neoxr](https://api.neoxr.eu/)
    > ![image](https://github.com/user-attachments/assets/a7853cee-75e4-442e-babb-290966aaaf94)
-6. Create a new branch (`git checkout -b feature/feature-name`).
-7. Commit your changes (`git commit -m 'Add some feature'`).
-8. Push to the branch (`git push origin feature/feature-name`).
-9. Open a pull request.
+4. Create a new branch (`git checkout -b feature/feature-name`).
+5. Commit your changes (`git commit -m 'Add some feature'`).
+6. Push to the branch (`git push origin feature/feature-name`).
+7. Open a pull request.
 
 Please ensure your code follows the project's coding standards and includes appropriate documentation.
 

@@ -13,6 +13,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverBlack
 import com.dapascript.mever.core.common.util.isVideo
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.feature.gallery.viewmodel.GalleryPlayerViewModel
+import java.io.File
 
 @Composable
 internal fun GalleryContentDetailScreen(
@@ -31,15 +32,14 @@ internal fun GalleryContentDetailScreen(
         modifier = Modifier.background(MeverBlack)
     ) {
         with(args) {
-            if (fileName.isVideo()) MeverVideoPlayer(
+            if (isVideo(fileName)) MeverVideoPlayer(
                 source = sourceFile,
                 fileName = fileName,
                 onClickDelete = { deleteContent(id) },
                 onClickShare = {
                     shareContent(
                         context = context,
-                        authority = context.packageName,
-                        path = sourceFile
+                        file = File(sourceFile)
                     )
                 },
                 onClickBack = { navigator.popBackStack() }
@@ -50,8 +50,7 @@ internal fun GalleryContentDetailScreen(
                 onClickShare = {
                     shareContent(
                         context = context,
-                        authority = context.packageName,
-                        path = sourceFile
+                        file = File(sourceFile)
                     )
                 },
                 onClickBack = { navigator.popBackStack() }

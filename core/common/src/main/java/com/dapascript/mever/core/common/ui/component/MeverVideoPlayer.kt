@@ -92,9 +92,9 @@ import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.LocalActivity
-import com.dapascript.mever.core.common.util.onCustomClick
+import com.dapascript.mever.core.common.util.convertToTimeFormat
 import com.dapascript.mever.core.common.util.hideSystemBar
-import com.dapascript.mever.core.common.util.toTimeFormat
+import com.dapascript.mever.core.common.util.onCustomClick
 import kotlinx.coroutines.delay
 
 @SuppressLint("SourceLockedOrientationActivity")
@@ -170,18 +170,20 @@ fun MeverVideoPlayer(
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
                 ON_CREATE -> {
-                    activity.hideSystemBar(true)
+                    hideSystemBar(activity, true)
                     player = Builder(context).build().apply {
                         setMediaItem(fromUri(source))
                         prepare()
                     }
                     player?.addListener(listener)
                 }
+
                 ON_START -> if (player?.isPlaying == false) player?.play()
                 ON_STOP -> {
-                    activity.hideSystemBar(false)
+                    hideSystemBar(activity, false)
                     player?.pause()
                 }
+
                 else -> Unit
             }
         }
@@ -266,7 +268,7 @@ fun MeverVideoPlayer(
                 showDeleteDialog = false
             },
             onClickSecondaryButton = {
-                activity.hideSystemBar(true)
+                hideSystemBar(activity, true)
                 showDeleteDialog = false
             }
         ),
@@ -469,7 +471,12 @@ private fun VideoBottomControlSection(
                 track = { sliderState ->
                     Box(
                         modifier = Modifier
-                            .fillMaxWidth((bufferProgress / totalDuration.toFloat()).coerceIn(0f, 1f))
+                            .fillMaxWidth(
+                                (bufferProgress / totalDuration.toFloat()).coerceIn(
+                                    0f,
+                                    1f
+                                )
+                            )
                             .height(Dp6)
                             .background(color = MeverWhite.copy(alpha = 0.7f), shape = CircleShape)
                     )
@@ -504,7 +511,7 @@ private fun VideoBottomControlSection(
         ) {
             Text(
                 modifier = Modifier.padding(start = Dp12),
-                text = "${videoTimer.toTimeFormat()} / ${totalDuration.toTimeFormat()}",
+                text = "${convertToTimeFormat(videoTimer)} / ${convertToTimeFormat(totalDuration)}",
                 style = typography.body1,
                 color = MeverWhite
             )

@@ -1,7 +1,6 @@
 package com.dapascript.mever.core.common.util
 
 import android.graphics.Rect
-import android.util.Patterns.WEB_URL
 import android.view.View
 import android.view.ViewTreeObserver
 import androidx.compose.runtime.Composable
