@@ -38,7 +38,9 @@ class HomeLandingViewModel @Inject constructor(
     private val repository: MeverRepository,
     internal val ketch: Ketch
 ) : BaseViewModel() {
-    val meverFolder by lazy { getMeverFolder() }
+    val meverFolder by lazy {
+        getMeverFolder().takeIf { it.exists() } ?: getMeverFolder().apply { mkdirs() }
+    }
 
     /**
      * Downloader

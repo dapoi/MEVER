@@ -1,8 +1,7 @@
 package com.dapascript.mever.feature.gallery.screen
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.LocalOverscrollConfiguration
+import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
@@ -258,7 +257,6 @@ internal fun GalleryLandingScreen(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun GalleryContentSection(
     selectedFilter: PlatformType,
@@ -337,7 +335,7 @@ private fun GalleryContentSection(
                         label = "Contents"
                     ) { isNotEmpty ->
                         if (isNotEmpty) {
-                            CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
+                            CompositionLocalProvider(LocalOverscrollFactory provides null) {
                                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                                     items(
                                         items = downloadList,

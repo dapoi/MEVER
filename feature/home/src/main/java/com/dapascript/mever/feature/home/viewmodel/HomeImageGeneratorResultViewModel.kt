@@ -26,7 +26,9 @@ class HomeImageGeneratorResultViewModel @Inject constructor(
     internal val ketch: Ketch,
     private val repository: MeverRepository
 ) : BaseViewModel() {
-    val meverFolder by lazy { getMeverFolder() }
+    val meverFolder by lazy {
+        getMeverFolder().takeIf { it.exists() } ?: getMeverFolder().apply { mkdirs() }
+    }
     val args by lazy { savedStateHandle.toRoute<HomeImageGeneratorResultRoute>() }
     val isNetworkAvailable = connectivityObserver
         .observe()

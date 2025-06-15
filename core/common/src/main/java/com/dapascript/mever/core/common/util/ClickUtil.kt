@@ -1,6 +1,5 @@
 package com.dapascript.mever.core.common.util
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Indication
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.combinedClickable
@@ -26,7 +25,6 @@ class DebounceHandler(private val interval: Long = 500L) {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 fun Modifier.onCustomClick(
     enabled: Boolean = true,
     onClickLabel: String? = null,
@@ -46,7 +44,6 @@ fun Modifier.onCustomClick(
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 fun Modifier.onCustomClick(
     interactionSource: MutableInteractionSource,
     indication: Indication?,

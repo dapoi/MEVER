@@ -37,11 +37,7 @@ fun isAndroidTiramisuAbove() = SDK_INT >= TIRAMISU
 fun isAndroidUpSideDownCake() = SDK_INT >= UPSIDE_DOWN_CAKE
 
 @Composable
-fun getDescriptionPermission(permission: String) = when (permission) {
-    READ_MEDIA_IMAGES -> stringResource(R.string.permission_request_read_media_image)
-    READ_MEDIA_VIDEO -> stringResource(R.string.permission_request_read_media_video)
-    READ_MEDIA_VISUAL_USER_SELECTED -> stringResource(R.string.permission_request_visual_selected)
-    READ_EXTERNAL_STORAGE -> stringResource(R.string.permission_request_read_external)
-    POST_NOTIFICATIONS -> stringResource(R.string.permission_request_notification)
-    else -> stringResource(R.string.permission_request_write_external)
-}
+fun getDescriptionPermission(permission: String) = stringResource(
+    if (permission == POST_NOTIFICATIONS) R.string.permission_request_notification
+    else R.string.permission_request_media
+)

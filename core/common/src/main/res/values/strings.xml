@@ -7,6 +7,7 @@
     <string name="downloader_desc">Easiest way to download your favorite content from the biggest social media platforms like Facebook, Instagram, Twitter (X), TikTok, and YouTube.</string>
     <string name="paste_url">Paste Link Here…</string>
     <string name="download">Download</string>
+    <string name="download_all">Download All</string>
     <string name="recently_downloaded">Recently Downloaded</string>
     <string name="view_all">View All</string>
     <string name="choose_preferrence">Choose your preference</string>
@@ -18,11 +19,7 @@
     <string name="unknown_error_title">Oops! Something went wrong</string>
     <string name="unknown_error_desc">An unknown error occurred. Please try again later.</string>
     <string name="permission_request_title">Permission Required</string>
-    <string name="permission_request_read_media_image">We need to access your image to download the file.</string>
-    <string name="permission_request_read_media_video">We need to access your video to download the file.</string>
-    <string name="permission_request_visual_selected">We need to access your visual user selectedto download the file.</string>
-    <string name="permission_request_read_external">We need to access your media to read the file.</string>
-    <string name="permission_request_write_external">We need to access your media to save the file.</string>
+    <string name="permission_request_media">We need to access your media to save the file.</string>
     <string name="permission_request_notification">We need to access your notification to show the download progress.</string>
     <string name="go_to_settings">Go to Settings</string>
     <string name="allow">Allow</string>

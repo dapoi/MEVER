@@ -1,8 +1,7 @@
 package com.dapascript.mever.feature.setting.screen
 
 import android.content.Context
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.LocalOverscrollConfiguration
+import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -61,7 +60,6 @@ import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLang
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingThemeRoute
 import com.dapascript.mever.feature.setting.viewmodel.SettingLandingViewModel
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun SettingLandingScreen(
     navController: NavController,
@@ -121,7 +119,7 @@ internal fun SettingLandingScreen(
                             }
                         )
                 ) {
-                    CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
+                    CompositionLocalProvider(LocalOverscrollFactory provides null) {
                         LazyColumn(modifier = Modifier.fillMaxSize()) {
                             settingMenus.forEach { (title, menus) ->
                                 item {

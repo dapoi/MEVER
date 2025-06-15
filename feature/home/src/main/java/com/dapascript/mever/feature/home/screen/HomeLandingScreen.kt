@@ -3,13 +3,13 @@ package com.dapascript.mever.feature.home.screen
 import android.content.Context
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions
+import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.LocalOverscrollConfiguration
+import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
@@ -110,10 +110,12 @@ import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.changeToCurrentDate
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.NetworkStatus.Available
 import com.dapascript.mever.core.common.util.getMeverFiles
+import com.dapascript.mever.core.common.util.getNotificationPermission
 import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.getStoragePermission
 import com.dapascript.mever.core.common.util.getUrlContentType
 import com.dapascript.mever.core.common.util.goToSetting
+import com.dapascript.mever.core.common.util.isAndroidTiramisuAbove
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
@@ -164,6 +166,9 @@ internal fun HomeLandingScreen(
         ) else getStoragePermission.forEach { permission ->
             onPermissionResult(permission, isGranted = it[permission] == true)
         }
+    }
+    val notifPermLauncher = rememberLauncherForActivityResult(RequestPermission()) {
+        storagePermLauncher.launch(getStoragePermission)
     }
 
     BaseScreen(
@@ -227,14 +232,15 @@ internal fun HomeLandingScreen(
 
         HandleDialogPermission(
             activity = activity,
-            dialogQueue = showDialogPermission,
+            permission = showDialogPermission,
             onGoToSetting = {
                 dismissDialog()
                 activity.goToSetting()
             },
             onAllow = {
                 dismissDialog()
-                storagePermLauncher.launch(getStoragePermission)
+                if (isAndroidTiramisuAbove()) notifPermLauncher.launch(getNotificationPermission)
+                else storagePermLauncher.launch(getStoragePermission)
             },
             onDismiss = ::dismissDialog
         )
@@ -253,11 +259,13 @@ internal fun HomeLandingScreen(
             viewModel = this,
             navController = navController,
             isLoading = showLoading
-        ) { storagePermLauncher.launch(getStoragePermission) }
+        ) {
+            if (isAndroidTiramisuAbove()) notifPermLauncher.launch(getNotificationPermission)
+            else storagePermLauncher.launch(getStoragePermission)
+        }
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun HomeScreenContent(
     viewModel: HomeLandingViewModel,
@@ -313,7 +321,7 @@ private fun HomeScreenContent(
                     pagerState = pagerState
                 ) { scope.launch { pagerState.animateScrollToPage(it) } }
                 Spacer(modifier = Modifier.size(Dp24))
-                CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
+                CompositionLocalProvider(LocalOverscrollFactory provides null) {
                     HorizontalPager(
                         state = pagerState,
                         modifier = Modifier
@@ -488,7 +496,6 @@ private fun HomeScreenContent(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun HomeDownloaderSection(
     isLoading: Boolean,
@@ -501,7 +508,7 @@ internal fun HomeDownloaderSection(
     onValueChange: (TextFieldValue) -> Unit,
     onClickDownload: () -> Unit,
     onClickViewAll: () -> Unit
-) = CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
+) = CompositionLocalProvider(LocalOverscrollFactory provides null) {
     LazyColumn(modifier = modifier) {
         item {
             Text(
@@ -616,7 +623,6 @@ internal fun HomeDownloaderSection(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun HomeAiSection(
     prompt: String,
@@ -626,7 +632,7 @@ internal fun HomeAiSection(
     onPromptChange: (String) -> Unit,
     onImageCountSelected: (Int) -> Unit,
     onArtStyleSelected: (String, String) -> Unit
-) = CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
+) = CompositionLocalProvider(LocalOverscrollFactory provides null) {
     val context = LocalContext.current
     val imagesCountGenerated = remember { List(4) { it + 1 } }
     val artStyles = remember { getArtStyles(context) }

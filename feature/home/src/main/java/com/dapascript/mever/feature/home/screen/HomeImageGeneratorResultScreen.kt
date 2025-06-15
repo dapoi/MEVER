@@ -4,6 +4,9 @@ import android.graphics.Bitmap.CompressFormat.PNG
 import android.os.Handler
 import android.os.Looper.getMainLooper
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions
+import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.fadeIn
@@ -33,6 +36,7 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -83,8 +87,13 @@ import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType
 import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType.NETWORK
 import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType.RESPONSE
 import com.dapascript.mever.core.common.util.ErrorHandle.getErrorResponseContent
+import com.dapascript.mever.core.common.util.LocalActivity
+import com.dapascript.mever.core.common.util.getNotificationPermission
 import com.dapascript.mever.core.common.util.getPhotoThumbnail
+import com.dapascript.mever.core.common.util.getStoragePermission
 import com.dapascript.mever.core.common.util.getUrlContentType
+import com.dapascript.mever.core.common.util.goToSetting
+import com.dapascript.mever.core.common.util.isAndroidTiramisuAbove
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.UiState.StateSuccess
@@ -93,6 +102,7 @@ import com.dapascript.mever.core.navigation.helper.navigateTo
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeImageGeneratorResultRoute
 import com.dapascript.mever.feature.home.screen.component.HandleDialogError
+import com.dapascript.mever.feature.home.screen.component.HandleDialogPermission
 import com.dapascript.mever.feature.home.viewmodel.HomeImageGeneratorResultViewModel
 import kotlinx.coroutines.launch
 import java.io.File
@@ -103,6 +113,8 @@ internal fun HomeImageGeneratorResultScreen(
     navController: NavController,
     viewModel: HomeImageGeneratorResultViewModel = hiltViewModel()
 ) = with(viewModel) {
+    val activity = LocalActivity.current
+    val context = LocalContext.current
     val aiResponseState = aiResponseState.collectAsStateValue()
     val isNetworkAvailable = isNetworkAvailable.collectAsStateValue()
     val scope = rememberCoroutineScope()
@@ -110,7 +122,55 @@ internal fun HomeImageGeneratorResultScreen(
     var showShimmer by remember { mutableStateOf(false) }
     var showErrorModal by remember { mutableStateOf<ErrorType?>(null) }
     var showCancelExitConfirmation by remember { mutableStateOf(false) }
+    var isDownloadAllClicked by remember { mutableStateOf(false) }
     var imageSelected by remember(aiImages) { mutableStateOf(aiImages.firstOrNull()) }
+    val snackbarMessage = remember { mutableStateOf("") }
+    val storagePermLauncher = rememberLauncherForActivityResult(RequestMultiplePermissions()) {
+        val allGranted = getStoragePermission.all { permissions -> it[permissions] == true }
+        if (allGranted) getNetworkStatus(
+            isNetworkAvailable = isNetworkAvailable,
+            onNetworkAvailable = {
+                if (isDownloadAllClicked) {
+                    aiImages.forEach { url ->
+                        scope.launch {
+                            ketch.download(
+                                url = url,
+                                fileName = args.prompt + getUrlContentType(url),
+                                path = meverFolder.path
+                            )
+                        }
+                    }
+                    navController.navigateTo(
+                        route = GalleryLandingRoute,
+                        popUpTo = HomeImageGeneratorResultRoute::class,
+                        inclusive = true
+                    )
+                } else {
+                    snackbarMessage.value = context.getString(R.string.image_has_been_downloaded)
+                    scope.launch {
+                        ketch.download(
+                            url = imageSelected.orEmpty(),
+                            fileName = args.prompt + getUrlContentType(imageSelected.orEmpty()),
+                            path = meverFolder.path
+                        )
+                    }
+                    if (aiImages.size <= 1) navController.navigateTo(
+                        route = GalleryLandingRoute,
+                        popUpTo = HomeImageGeneratorResultRoute::class,
+                        inclusive = true
+                    ) else aiImages = aiImages.toMutableStateList().apply {
+                        removeAt(aiImages.indexOf(imageSelected))
+                    }
+                }
+            },
+            onNetworkUnavailable = { showErrorModal = NETWORK }
+        ) else getStoragePermission.forEach { permission ->
+            onPermissionResult(permission, isGranted = it[permission] == true)
+        }
+    }
+    val notifPermLauncher = rememberLauncherForActivityResult(RequestPermission()) {
+        storagePermLauncher.launch(getStoragePermission)
+    }
 
     BaseScreen(
         topBarArgs = TopBarArgs(
@@ -165,6 +225,21 @@ internal fun HomeImageGeneratorResultScreen(
             )
         }
 
+        HandleDialogPermission(
+            activity = activity,
+            permission = showDialogPermission,
+            onGoToSetting = {
+                dismissDialog()
+                activity.goToSetting()
+            },
+            onAllow = {
+                dismissDialog()
+                if (isAndroidTiramisuAbove()) notifPermLauncher.launch(getNotificationPermission)
+                else storagePermLauncher.launch(getStoragePermission)
+            },
+            onDismiss = ::dismissDialog
+        )
+
         getErrorResponseContent(showErrorModal)?.let { (title, desc) ->
             HandleDialogError(
                 showDialog = true,
@@ -201,26 +276,19 @@ internal fun HomeImageGeneratorResultScreen(
                 aiImages = aiImages,
                 imageSelected = imageSelected.orEmpty(),
                 promptText = args.prompt,
+                snackbarMessage = snackbarMessage,
                 onChangeImageSelected = { url -> imageSelected = url },
+                onClickDownloadAll = {
+                    isDownloadAllClicked = true
+                    storagePermLauncher.launch(getStoragePermission)
+                },
                 onClickRegenerate = {
                     aiImages = emptyList()
                     getImageAiGenerator()
                 },
                 onClickDownload = {
-                    scope.launch {
-                        ketch.download(
-                            url = imageSelected.orEmpty(),
-                            fileName = args.prompt + getUrlContentType(imageSelected.orEmpty()),
-                            path = meverFolder.path
-                        )
-                    }
-                    if (aiImages.size <= 1) navController.navigateTo(
-                        route = GalleryLandingRoute,
-                        popUpTo = HomeImageGeneratorResultRoute::class,
-                        inclusive = true
-                    ) else aiImages = aiImages.toMutableStateList().apply {
-                        removeAt(aiImages.indexOf(imageSelected))
-                    }
+                    if (isAndroidTiramisuAbove()) notifPermLauncher.launch(getNotificationPermission)
+                    else storagePermLauncher.launch(getStoragePermission)
                 }
             )
         }
@@ -232,8 +300,10 @@ private fun ImageGeneratorResultContent(
     aiImages: List<String>,
     imageSelected: String,
     promptText: String,
+    snackbarMessage: MutableState<String>,
     modifier: Modifier = Modifier,
     onChangeImageSelected: (String) -> Unit,
+    onClickDownloadAll: () -> Unit,
     onClickRegenerate: () -> Unit,
     onClickDownload: () -> Unit
 ) {
@@ -241,7 +311,6 @@ private fun ImageGeneratorResultContent(
     val clipboardManager = LocalClipboardManager.current
     val scrollState = rememberScrollState()
     val scope = rememberCoroutineScope()
-    val snackbarMessage = remember { mutableStateOf("") }
     var hasCopied by remember { mutableStateOf(false) }
 
     Box(modifier = modifier) {
@@ -313,10 +382,11 @@ private fun ImageGeneratorResultContent(
                     color = colorScheme.onPrimary
                 )
             }
-            Pair(
+            Triple(
                 R.drawable.ic_copy to stringResource(if (hasCopied) R.string.copied else R.string.copy),
-                R.drawable.ic_share to stringResource(R.string.share)
-            ).toList().forEach { (icon, text) ->
+                R.drawable.ic_share to stringResource(R.string.share),
+                R.drawable.ic_download to stringResource(R.string.download_all)
+            ).toList().map { (icon, text) ->
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -354,6 +424,10 @@ private fun ImageGeneratorResultContent(
                                         }, 5000)
                                     }
                                 }
+
+                                R.drawable.ic_download -> {
+                                    onClickDownloadAll()
+                                }
                             }
                         }
                 ) {
@@ -371,7 +445,7 @@ private fun ImageGeneratorResultContent(
                         Text(
                             text = text,
                             style = typography.bodyBold2,
-                            color = colorScheme.onPrimary.copy(alpha = 0.4f)
+                            color = colorScheme.onPrimary
                         )
                     }
                 }
@@ -422,12 +496,7 @@ private fun ImageGeneratorResultContent(
                                 .height(Dp52),
                             title = stringResource(R.string.download),
                             buttonType = FILLED
-                        ) {
-                            snackbarMessage.value = context.getString(
-                                R.string.image_has_been_downloaded
-                            )
-                            onClickDownload()
-                        }
+                        ) { onClickDownload() }
                     }
                 }
             }

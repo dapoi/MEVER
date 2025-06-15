@@ -1,7 +1,6 @@
 package com.dapascript.mever.feature.setting.screen
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.LocalOverscrollConfiguration
+import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -48,7 +47,6 @@ import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.feature.setting.viewmodel.SettingLanguageViewModel
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun SettingLanguageScreen(
     navController: NavController,
@@ -79,7 +77,7 @@ internal fun SettingLanguageScreen(
                 thickness = Dp1,
                 color = colorScheme.onPrimary.copy(alpha = 0.12f)
             )
-            CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
+            CompositionLocalProvider(LocalOverscrollFactory provides null) {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()

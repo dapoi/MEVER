@@ -10,9 +10,7 @@ import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.repository.MeverRepositoryImpl
 import com.dapascript.mever.core.data.source.local.MeverDataStore
 import com.dapascript.mever.core.data.source.remote.ApiService
-import com.dapascript.mever.core.data.util.ApiKey
 import com.dapascript.mever.core.data.util.ApiKeyInterceptor
-import com.dapascript.mever.core.data.util.BaseUrl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -29,31 +27,19 @@ import java.util.concurrent.TimeUnit.MINUTES
 @Module
 @InstallIn(SingletonComponent::class)
 class DataModule {
-
-    @Provides
-    @ApiKey
-    fun provideApiKey(): String = API_KEY
-
-    @Provides
-    @BaseUrl
-    fun provideBaseUrl(): String = BASE_URL
-
-    @Provides
-    fun provideApiKeyInterceptor(
-        @ApiKey apiKey: String
-    ) = ApiKeyInterceptor(apiKey)
-
     @Provides
     fun provideRetrofitService(retrofit: Retrofit): ApiService =
         retrofit.create(ApiService::class.java)
 
     @Provides
+    fun provideApiKeyInterceptor(): ApiKeyInterceptor = ApiKeyInterceptor(API_KEY)
+
+    @Provides
     fun provideApiService(
-        @BaseUrl baseUrl: String,
         okHttpClient: OkHttpClient,
         gsonConverterFactory: GsonConverterFactory
     ): Retrofit = Retrofit.Builder()
-        .baseUrl(baseUrl)
+        .baseUrl(BASE_URL)
         .addConverterFactory(gsonConverterFactory)
         .client(okHttpClient)
         .build()

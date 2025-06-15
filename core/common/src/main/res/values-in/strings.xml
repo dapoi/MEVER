@@ -6,6 +6,7 @@
     <string name="downloader_desc">Cara termudah untuk mengunduh konten favorit Anda dari platform media sosial terbesar seperti Facebook, Instagram, Twitter (X), TikTok, dan YouTube.</string>
     <string name="paste_url">Salin Tautan Di Sini…</string>
     <string name="download">Unduh</string>
+    <string name="download_all">Unduh Semua</string>
     <string name="recently_downloaded">Terakhir Diunduh</string>
     <string name="view_all">Lihat Semua</string>
     <string name="choose_preferrence">Pilih preferensi Anda</string>
@@ -17,11 +18,7 @@
     <string name="unknown_error_title">Ups! Ada yang salah</string>
     <string name="unknown_error_desc">Terjadi kesalahan yang tidak diketahui. Silakan coba lagi nanti.</string>
     <string name="permission_request_title">Izin Diperlukan</string>
-    <string name="permission_request_read_media_image">Kami perlu mengakses gambar Anda untuk mengunduh file.</string>
-    <string name="permission_request_read_media_video">Kami perlu mengakses video Anda untuk mengunduh file.</string>
-    <string name="permission_request_visual_selected">Kami perlu mengakses pengguna visual yang dipilih untuk mengunduh file.</string>
-    <string name="permission_request_read_external">Kami perlu mengakses media Anda untuk membaca file.</string>
-    <string name="permission_request_write_external">Kami perlu mengakses media Anda untuk menyimpan file.</string>
+    <string name="permission_request_media">Kami perlu mengakses media Anda untuk menyimpan file.</string>
     <string name="permission_request_notification">Kami perlu mengakses notifikasi Anda untuk menampilkan kemajuan unduhan.</string>
     <string name="go_to_settings">Buka Pengaturan</string>
     <string name="allow">Izinkan</string>

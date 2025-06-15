@@ -72,7 +72,7 @@ open class BaseViewModel @Inject constructor() : ViewModel() {
     ) = if (isNetworkAvailable == Available) onNetworkAvailable() else onNetworkUnavailable()
 
 
-    fun dismissDialog() = showDialogPermission.removeAt(0)
+    fun dismissDialog() = showDialogPermission.removeRange(0, showDialogPermission.size)
 
     fun onPermissionResult(
         permission: String,
