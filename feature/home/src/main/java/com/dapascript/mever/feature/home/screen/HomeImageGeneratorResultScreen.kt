@@ -12,6 +12,7 @@ import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement.spacedBy
@@ -115,9 +116,12 @@ internal fun HomeImageGeneratorResultScreen(
 ) = with(viewModel) {
     val activity = LocalActivity.current
     val context = LocalContext.current
+    val clipboardManager = LocalClipboardManager.current
+    val scope = rememberCoroutineScope()
+    val scrollState = rememberScrollState()
     val aiResponseState = aiResponseState.collectAsStateValue()
     val isNetworkAvailable = isNetworkAvailable.collectAsStateValue()
-    val scope = rememberCoroutineScope()
+    var hasCopied by remember { mutableStateOf(false) }
     var aiImages by remember { mutableStateOf<List<String>>(emptyList()) }
     var showShimmer by remember { mutableStateOf(false) }
     var showErrorModal by remember { mutableStateOf<ErrorType?>(null) }
@@ -276,8 +280,38 @@ internal fun HomeImageGeneratorResultScreen(
                 aiImages = aiImages,
                 imageSelected = imageSelected.orEmpty(),
                 promptText = args.prompt,
+                hasCopied = hasCopied,
+                scrollState = scrollState,
                 snackbarMessage = snackbarMessage,
                 onChangeImageSelected = { url -> imageSelected = url },
+                onClickCopy = {
+                    clipboardManager.setText(AnnotatedString(args.prompt))
+                    hasCopied = true
+                },
+                onClickShare = {
+                    scope.launch {
+                        val cachePath = File(context.cacheDir, "images")
+                        if (!cachePath.exists()) cachePath.mkdirs()
+                        val cacheFile = File(cachePath, "shared_image.png")
+                        val stream = FileOutputStream(cacheFile)
+                        val bitmap = getPhotoThumbnail(imageSelected.orEmpty())
+                        bitmap?.compress(
+                            /* format = */ PNG,
+                            /* quality = */ 100,
+                            /* stream = */ stream
+                        )
+                        stream.close()
+                        bitmap?.let {
+                            shareContent(
+                                context = context,
+                                file = cacheFile
+                            )
+                        }
+                        Handler(getMainLooper()).postDelayed({
+                            cacheFile.delete()
+                        }, 5000)
+                    }
+                },
                 onClickDownloadAll = {
                     isDownloadAllClicked = true
                     storagePermLauncher.launch(getStoragePermission)
@@ -300,204 +334,170 @@ private fun ImageGeneratorResultContent(
     aiImages: List<String>,
     imageSelected: String,
     promptText: String,
+    hasCopied: Boolean,
+    scrollState: ScrollState,
     snackbarMessage: MutableState<String>,
     modifier: Modifier = Modifier,
     onChangeImageSelected: (String) -> Unit,
+    onClickCopy: () -> Unit,
+    onClickShare: () -> Unit,
     onClickDownloadAll: () -> Unit,
     onClickRegenerate: () -> Unit,
     onClickDownload: () -> Unit
-) {
-    val context = LocalContext.current
-    val clipboardManager = LocalClipboardManager.current
-    val scrollState = rememberScrollState()
-    val scope = rememberCoroutineScope()
-    var hasCopied by remember { mutableStateOf(false) }
-
-    Box(modifier = modifier) {
-        Column(
+) = Box(modifier = modifier) {
+    Column(
+        modifier = Modifier
+            .matchParentSize()
+            .padding(horizontal = Dp24)
+            .navigationBarsPadding()
+            .verticalScroll(scrollState),
+        verticalArrangement = spacedBy(Dp16)
+    ) {
+        MeverImage(
             modifier = Modifier
-                .matchParentSize()
-                .padding(horizontal = Dp24)
-                .navigationBarsPadding()
-                .verticalScroll(scrollState),
-            verticalArrangement = spacedBy(Dp16)
+                .fillMaxWidth()
+                .aspectRatio(1f)
+                .clip(RoundedCornerShape(Dp12)),
+            source = imageSelected
+        )
+        if (aiImages.size > 1) Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = spacedBy(Dp8)
         ) {
-            MeverImage(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(1f)
-                    .clip(RoundedCornerShape(Dp12)),
-                source = imageSelected
-            )
-            if (aiImages.size > 1) Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = spacedBy(Dp8)
-            ) {
-                aiImages.map { url ->
-                    MeverImage(
-                        modifier = Modifier
-                            .weight(1f)
-                            .heightIn(max = Dp80)
-                            .clip(RoundedCornerShape(Dp12))
-                            .then(
-                                if (imageSelected == url) {
-                                    Modifier.border(
-                                        width = Dp4,
-                                        color = colorScheme.primary,
-                                        shape = RoundedCornerShape(Dp10)
-                                    )
-                                } else {
-                                    Modifier.drawWithContent {
-                                        drawContent()
-                                        drawRect(
-                                            color = MeverWhite.copy(alpha = 0.3f),
-                                            size = size,
-                                            style = Fill
-                                        )
-                                    }
-                                }
-                            )
-                            .onCustomClick { onChangeImageSelected(url) },
-                        source = url
-                    )
-                }
-            }
-            Text(
-                text = stringResource(R.string.prompt),
-                style = typography.bodyBold1,
-                color = colorScheme.onPrimary
-            )
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(Dp120)
-                    .background(color = colorScheme.onSurface, shape = RoundedCornerShape(Dp12))
-                    .clip(RoundedCornerShape(Dp12))
-                    .verticalScroll(rememberScrollState())
-            ) {
-                Text(
-                    modifier = Modifier.padding(Dp12),
-                    text = promptText,
-                    style = typography.body1,
-                    color = colorScheme.onPrimary
-                )
-            }
-            Triple(
-                R.drawable.ic_copy to stringResource(if (hasCopied) R.string.copied else R.string.copy),
-                R.drawable.ic_share to stringResource(R.string.share),
-                R.drawable.ic_download to stringResource(R.string.download_all)
-            ).toList().map { (icon, text) ->
-                Box(
+            aiImages.map { url ->
+                MeverImage(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .shadow(elevation = Dp2, shape = RoundedCornerShape(Dp12))
-                        .background(color = colorScheme.surface, shape = RoundedCornerShape(Dp12))
+                        .weight(1f)
+                        .heightIn(max = Dp80)
                         .clip(RoundedCornerShape(Dp12))
-                        .onCustomClick {
-                            when (icon) {
-                                R.drawable.ic_copy -> {
-                                    clipboardManager.setText(AnnotatedString(promptText))
-                                    hasCopied = true
-                                }
-
-                                R.drawable.ic_share -> {
-                                    scope.launch {
-                                        val cachePath = File(context.cacheDir, "images")
-                                        if (!cachePath.exists()) cachePath.mkdirs()
-                                        val cacheFile = File(cachePath, "shared_image.png")
-                                        val stream = FileOutputStream(cacheFile)
-                                        val bitmap = getPhotoThumbnail(imageSelected)
-                                        bitmap?.compress(
-                                            /* format = */ PNG,
-                                            /* quality = */ 100,
-                                            /* stream = */ stream
-                                        )
-                                        stream.close()
-                                        bitmap?.let {
-                                            shareContent(
-                                                context = context,
-                                                file = cacheFile
-                                            )
-                                        }
-                                        Handler(getMainLooper()).postDelayed({
-                                            cacheFile.delete()
-                                        }, 5000)
-                                    }
-                                }
-
-                                R.drawable.ic_download -> {
-                                    onClickDownloadAll()
+                        .then(
+                            if (imageSelected == url) {
+                                Modifier.border(
+                                    width = Dp4,
+                                    color = colorScheme.primary,
+                                    shape = RoundedCornerShape(Dp10)
+                                )
+                            } else {
+                                Modifier.drawWithContent {
+                                    drawContent()
+                                    drawRect(
+                                        color = MeverWhite.copy(alpha = 0.3f),
+                                        size = size,
+                                        style = Fill
+                                    )
                                 }
                             }
-                        }
-                ) {
-                    Row(
-                        modifier = Modifier.padding(Dp10),
-                        horizontalArrangement = spacedBy(Dp8),
-                        verticalAlignment = CenterVertically
-                    ) {
-                        Icon(
-                            modifier = Modifier.size(Dp20),
-                            imageVector = ImageVector.vectorResource(icon),
-                            tint = colorScheme.onPrimary.copy(alpha = 0.4f),
-                            contentDescription = "Copy Prompt"
                         )
-                        Text(
-                            text = text,
-                            style = typography.bodyBold2,
-                            color = colorScheme.onPrimary
-                        )
-                    }
-                }
+                        .onCustomClick { onChangeImageSelected(url) },
+                    source = url
+                )
             }
-            Spacer(modifier = Modifier.height(Dp120))
         }
+        Text(
+            text = stringResource(R.string.prompt),
+            style = typography.bodyBold1,
+            color = colorScheme.onPrimary
+        )
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .align(BottomCenter)
+                .height(Dp120)
+                .background(color = colorScheme.onSurface, shape = RoundedCornerShape(Dp12))
+                .clip(RoundedCornerShape(Dp12))
+                .verticalScroll(rememberScrollState())
         ) {
-            Column {
-                MeverSnackbar(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = Dp24, vertical = Dp16),
-                    message = snackbarMessage
-                )
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(color = colorScheme.background)
+            Text(
+                modifier = Modifier.padding(Dp12),
+                text = promptText,
+                style = typography.body1,
+                color = colorScheme.onPrimary
+            )
+        }
+        Triple(
+            R.drawable.ic_copy to stringResource(if (hasCopied) R.string.copied else R.string.copy),
+            R.drawable.ic_share to stringResource(R.string.share),
+            R.drawable.ic_download to stringResource(R.string.download_all)
+        ).toList().map { (icon, text) ->
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .shadow(elevation = Dp2, shape = RoundedCornerShape(Dp12))
+                    .background(color = colorScheme.surface, shape = RoundedCornerShape(Dp12))
+                    .clip(RoundedCornerShape(Dp12))
+                    .onCustomClick {
+                        when (icon) {
+                            R.drawable.ic_copy -> onClickCopy()
+                            R.drawable.ic_share -> onClickShare()
+                            R.drawable.ic_download -> onClickDownloadAll()
+                        }
+                    }
+            ) {
+                Row(
+                    modifier = Modifier.padding(Dp10),
+                    horizontalArrangement = spacedBy(Dp8),
+                    verticalAlignment = CenterVertically
                 ) {
-                    if (scrollState.canScrollBackward || scrollState.canScrollForward) {
-                        HorizontalDivider(
-                            modifier = Modifier.fillMaxWidth(),
-                            thickness = Dp2,
-                            color = colorScheme.onPrimary.copy(alpha = 0.12f)
-                        )
-                    }
-                    Row(
+                    Icon(
+                        modifier = Modifier.size(Dp20),
+                        imageVector = ImageVector.vectorResource(icon),
+                        tint = colorScheme.onPrimary.copy(alpha = 0.4f),
+                        contentDescription = "Copy Prompt"
+                    )
+                    Text(
+                        text = text,
+                        style = typography.bodyBold2,
+                        color = colorScheme.onPrimary
+                    )
+                }
+            }
+        }
+        Spacer(modifier = Modifier.height(Dp120))
+    }
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .align(BottomCenter)
+    ) {
+        Column {
+            MeverSnackbar(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = Dp24, vertical = Dp16),
+                message = snackbarMessage
+            )
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(color = colorScheme.background)
+            ) {
+                if (scrollState.canScrollBackward || scrollState.canScrollForward) {
+                    HorizontalDivider(
+                        modifier = Modifier.fillMaxWidth(),
+                        thickness = Dp2,
+                        color = colorScheme.onPrimary.copy(alpha = 0.12f)
+                    )
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(Dp24),
+                    horizontalArrangement = spacedBy(Dp8),
+                    verticalAlignment = CenterVertically
+                ) {
+                    MeverButton(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(Dp24),
-                        horizontalArrangement = spacedBy(Dp8),
-                        verticalAlignment = CenterVertically
-                    ) {
-                        MeverButton(
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(Dp52),
-                            title = stringResource(R.string.regenerate),
-                            buttonType = OUTLINED
-                        ) { onClickRegenerate() }
-                        MeverButton(
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(Dp52),
-                            title = stringResource(R.string.download),
-                            buttonType = FILLED
-                        ) { onClickDownload() }
-                    }
+                            .weight(1f)
+                            .height(Dp52),
+                        title = stringResource(R.string.regenerate),
+                        buttonType = OUTLINED
+                    ) { onClickRegenerate() }
+                    MeverButton(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(Dp52),
+                        title = stringResource(R.string.download),
+                        buttonType = FILLED
+                    ) { onClickDownload() }
                 }
             }
         }
