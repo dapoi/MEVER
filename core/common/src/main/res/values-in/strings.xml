@@ -70,7 +70,9 @@
     <string name="yes">Ya</string>
     <string name="prompt">Prompt Anda</string>
     <string name="regenerate">Buat ulang</string>
-    <string name="copy">Salin Perintah</string>
+    <string name="copy_prompt">Salin Perintah</string>
     <string name="copied">Perintah Disalin ✅</string>
     <string name="image_has_been_downloaded">Gambar telah diunduh</string>
+    <string name="bitcoin_address">Alamat Bitcoin</string>
+    <string name="copy">Salin</string>
 </resources>

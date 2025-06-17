@@ -414,7 +414,7 @@ private fun ImageGeneratorResultContent(
             )
         }
         Triple(
-            R.drawable.ic_copy to stringResource(if (hasCopied) R.string.copied else R.string.copy),
+            R.drawable.ic_copy to stringResource(if (hasCopied) R.string.copied else R.string.copy_prompt),
             R.drawable.ic_share to stringResource(R.string.share),
             R.drawable.ic_download to stringResource(R.string.download_all)
         ).toList().map { (icon, text) ->

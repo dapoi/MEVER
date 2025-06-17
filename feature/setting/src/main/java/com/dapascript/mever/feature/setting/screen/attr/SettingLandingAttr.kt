@@ -10,6 +10,8 @@ import com.dapascript.mever.core.common.ui.theme.MeverViolet
 import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.SettingMenus.SubMenu
 
 object SettingLandingAttr {
+    const val BTC_ADDRESS = "1NSwLsd4JvewCbXMqB5WVYKcx34NwoUTkM"
+
     data class SettingMenus(
         val header: Int,
         val menus: List<SubMenu>
