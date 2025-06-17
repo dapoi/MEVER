@@ -122,7 +122,7 @@ fun MeverAutoSizableTextField(
                     .size(Dp22)
                     .clip(shape)
                     .onCustomClick { onValueChange("") },
-                imageVector = ImageVector.vectorResource(R.drawable.ic_replay),
+                imageVector = ImageVector.vectorResource(R.drawable.ic_clear),
                 tint = colorScheme.onPrimary,
                 contentDescription = "Clear"
             )
