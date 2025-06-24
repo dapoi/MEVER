@@ -3,6 +3,7 @@ package com.dapascript.mever.core.common.ui.component
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
@@ -36,6 +37,7 @@ import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.ActionMenu
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
+import com.dapascript.mever.core.common.ui.theme.MeverBlack
 import com.dapascript.mever.core.common.ui.theme.MeverDark
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
@@ -75,7 +77,11 @@ fun MeverPhotoViewer(
         }
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MeverBlack)
+    ) {
         PhotoViewer(source) { isPhotoTouched = it }
         AnimatedVisibility(
             visible = isPhotoTouched.not(),

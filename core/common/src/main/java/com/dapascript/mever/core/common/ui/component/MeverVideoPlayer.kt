@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
 import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT
 import androidx.activity.compose.BackHandler
-import androidx.annotation.OptIn
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring.DampingRatioLowBouncy
 import androidx.compose.animation.core.Spring.DampingRatioNoBouncy
@@ -69,7 +68,6 @@ import androidx.media3.common.MediaItem.fromUri
 import androidx.media3.common.Player
 import androidx.media3.common.Player.STATE_BUFFERING
 import androidx.media3.common.Player.STATE_ENDED
-import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer.Builder
 import androidx.media3.ui.PlayerView
 import com.dapascript.mever.core.common.R
@@ -98,7 +96,6 @@ import com.dapascript.mever.core.common.util.onCustomClick
 import kotlinx.coroutines.delay
 
 @SuppressLint("SourceLockedOrientationActivity")
-@OptIn(UnstableApi::class)
 @Composable
 fun MeverVideoPlayer(
     source: String,
@@ -306,10 +303,12 @@ private fun VideoPlayer(
     val context = LocalContext.current
 
     Box(
-        modifier = modifier.clickable(
-            interactionSource = remember { MutableInteractionSource() },
-            indication = null
-        ) { onClickAny() }
+        modifier = modifier
+            .background(MeverBlack)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) { onClickAny() }
     ) {
         AndroidView(
             modifier = Modifier.align(Center),
@@ -437,7 +436,7 @@ private fun VideoCenterControlSection(
     )
 }
 
-@kotlin.OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun VideoBottomControlSection(
     videoTimer: Long,

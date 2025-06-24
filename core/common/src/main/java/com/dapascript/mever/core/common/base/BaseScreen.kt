@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.windowInsetsTopHeight
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Modifier
@@ -81,7 +82,11 @@ private fun BaseScreenContent(
     content: @Composable () -> Unit
 ) {
     if (allowScreenOverlap) {
-        Box(modifier = modifier.then(if (useSystemBarsPadding) Modifier.systemBarsPadding() else Modifier)) {
+        Box(
+            modifier = modifier
+                .background(color = colorScheme.background)
+                .then(if (useSystemBarsPadding) Modifier.systemBarsPadding() else Modifier)
+        ) {
             content()
             if (hideDefaultTopBar.not()) MeverTopBar(
                 topBarArgs = topBarArgs,
@@ -92,6 +97,7 @@ private fun BaseScreenContent(
     } else {
         Column(
             modifier = modifier
+                .background(color = colorScheme.background)
                 .padding(horizontal = Dp24)
                 .then(if (useSystemBarsPadding) Modifier.systemBarsPadding() else Modifier)
         ) {
