@@ -112,7 +112,7 @@ internal fun GalleryLandingScreen(
 
     BaseScreen(
         topBarArgs = TopBarArgs(
-            actionMenus = if (downloadList.isNullOrEmpty().not()) listOf(
+            actionMenus = if (downloadList.isNullOrEmpty().not() && isExpanded.not()) listOf(
                 ActionMenu(
                     icon = R.drawable.ic_more,
                     nameIcon = MORE,
