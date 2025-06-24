@@ -6,6 +6,8 @@ import android.os.Bundle
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.Companion.End
 import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.Companion.Start
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -25,23 +27,19 @@ import kotlin.reflect.typeOf
 inline fun <reified T : Any> NavGraphBuilder.composableScreen(
     customArgs: Map<KType, NavType<*>>? = null,
     deepLinks: List<NavDeepLink>? = null,
+    enterTransition: EnterTransition? = null,
+    exitTransition: ExitTransition? = null,
+    popEnterTransition: EnterTransition? = null,
+    popExitTransition: ExitTransition? = null,
     noinline content: @Composable (AnimatedContentScope.(NavBackStackEntry) -> Unit)
 ) {
     composable<T>(
         typeMap = customArgs ?: emptyMap(),
         deepLinks = deepLinks ?: emptyList(),
-        enterTransition = {
-            slideIntoContainer(towards = Start, animationSpec = tween(350))
-        },
-        exitTransition = {
-            fadeOut(animationSpec = tween(350))
-        },
-        popEnterTransition = {
-            fadeIn(animationSpec = tween(350))
-        },
-        popExitTransition = {
-            slideOutOfContainer(towards = End, animationSpec = tween(350))
-        },
+        enterTransition = { enterTransition ?: slideIntoContainer(Start, tween(350)) },
+        exitTransition = { exitTransition ?: fadeOut(tween(350)) },
+        popEnterTransition = { popEnterTransition ?: fadeIn(tween(350)) },
+        popExitTransition = { popExitTransition ?: slideOutOfContainer(End, tween(350)) },
         content = content
     )
 }
@@ -50,7 +48,8 @@ inline fun <reified T : Any> customNavType(
     isNullableAllowed: Boolean = false,
     json: Json = Json
 ) = object : NavType<T>(isNullableAllowed = isNullableAllowed) {
-    override fun get(bundle: Bundle, key: String) = bundle.getString(key)?.let<String, T>(json::decodeFromString)
+    override fun get(bundle: Bundle, key: String) =
+        bundle.getString(key)?.let<String, T>(json::decodeFromString)
 
     override fun parseValue(value: String): T = json.decodeFromString(value)
 

@@ -1,5 +1,7 @@
 package com.dapascript.mever.feature.home.navigation
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInVertically
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import com.dapascript.mever.core.navigation.base.BaseNavGraph
@@ -15,9 +17,9 @@ class HomeNavGraphImpl @Inject constructor() : BaseNavGraph {
         navController: NavController,
         navGraphBuilder: NavGraphBuilder
     ) = with(navGraphBuilder) {
-        composableScreen<HomeLandingRoute> {
-            HomeLandingScreen(navController)
-        }
+        composableScreen<HomeLandingRoute>(
+            enterTransition = slideInVertically(tween(600)) { it }
+        ) { HomeLandingScreen(navController) }
         composableScreen<HomeImageGeneratorResultRoute> {
             HomeImageGeneratorResultScreen(navController)
         }
