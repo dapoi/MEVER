@@ -11,6 +11,11 @@ import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.Setti
 
 object SettingLandingAttr {
     const val BTC_ADDRESS = "1NSwLsd4JvewCbXMqB5WVYKcx34NwoUTkM"
+    const val PAYPAL_EMAIL = "daffaprabowo5@gmail.com"
+
+    enum class DonateDialogType {
+        BITCOIN, PAYPAL
+    }
 
     data class SettingMenus(
         val header: Int,

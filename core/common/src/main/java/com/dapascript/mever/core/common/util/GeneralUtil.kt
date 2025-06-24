@@ -149,7 +149,7 @@ fun navigateToGmail(context: Context) {
     try {
         val intent = Intent(ACTION_SENDTO).apply {
             type = "text/plain"
-            putExtra(EXTRA_EMAIL, arrayOf("luthfidaffaprabowo@gmail.com"))
+            putExtra(EXTRA_EMAIL, arrayOf("daffaprabowo5@gmail.com"))
             putExtra(EXTRA_SUBJECT, "MEVER Feedback")
         }
         context.startActivity(intent)

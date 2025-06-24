@@ -75,5 +75,6 @@
     <string name="copied">Prompt Copied ✅</string>
     <string name="image_has_been_downloaded">Image has been downloaded</string>
     <string name="bitcoin_address">Bitcoin Address</string>
+    <string name="paypal_email">PayPal Email</string>
     <string name="copy">Copy</string>
 </resources>

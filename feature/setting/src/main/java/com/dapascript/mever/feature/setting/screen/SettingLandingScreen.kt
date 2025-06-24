@@ -36,6 +36,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.style.TextAlign.Companion.Center
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
@@ -66,6 +67,10 @@ import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLang
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLanguageRoute.LanguageData
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingThemeRoute
 import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.BTC_ADDRESS
+import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.DonateDialogType
+import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.DonateDialogType.BITCOIN
+import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.DonateDialogType.PAYPAL
+import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.PAYPAL_EMAIL
 import com.dapascript.mever.feature.setting.viewmodel.SettingLandingViewModel
 
 @Composable
@@ -78,7 +83,7 @@ internal fun SettingLandingScreen(
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
     val scrollState = rememberScrollState()
-    val showBitcoinAddressDialog = remember { mutableStateOf(false) }
+    val showDonateDialog = remember { mutableStateOf<DonateDialogType?>(null) }
     val isExpanded by remember { derivedStateOf { scrollState.value <= titleHeight } }
 
     BaseScreen(
@@ -88,23 +93,29 @@ internal fun SettingLandingScreen(
         ),
         allowScreenOverlap = true
     ) {
-        MeverDialog(
-            showDialog = showBitcoinAddressDialog.value,
-            meverDialogArgs = MeverDialogArgs(
-                title = stringResource(R.string.bitcoin_address),
-                primaryButtonText = stringResource(R.string.copy),
-                onClickPrimaryButton = {
-                    clipboardManager.setText(AnnotatedString(BTC_ADDRESS))
-                    showBitcoinAddressDialog.value = false
-                },
-                onClickSecondaryButton = { showBitcoinAddressDialog.value = false }
-            )
-        ) {
-            Text(
-                text = BTC_ADDRESS,
-                style = typography.body1,
-                color = colorScheme.onPrimary
-            )
+        showDonateDialog.value?.let {
+            getContentDonateTypeDialog(context, it).let { (title, address) ->
+                MeverDialog(
+                    showDialog = true,
+                    meverDialogArgs = MeverDialogArgs(
+                        title = title,
+                        primaryButtonText = stringResource(R.string.copy),
+                        onClickPrimaryButton = {
+                            clipboardManager.setText(AnnotatedString(address))
+                            showDonateDialog.value = null
+                        },
+                        onClickSecondaryButton = { showDonateDialog.value = null }
+                    )
+                ) {
+                    Text(
+                        text = address,
+                        textAlign = Center,
+                        style = typography.body1,
+                        color = colorScheme.onPrimary,
+                        modifier = Modifier.padding(vertical = Dp8)
+                    )
+                }
+            }
         }
 
         SettingLandingContent(
@@ -115,7 +126,7 @@ internal fun SettingLandingScreen(
             getLanguageCode = getLanguageCode,
             themeType = themeType,
             navController = navController,
-            showBitcoinAddressDialog = showBitcoinAddressDialog
+            showDonateDialog = showDonateDialog
         )
     }
 }
@@ -129,7 +140,7 @@ private fun SettingLandingContent(
     getLanguageCode: String,
     themeType: ThemeType,
     navController: NavController,
-    showBitcoinAddressDialog: MutableState<Boolean>
+    showDonateDialog: MutableState<DonateDialogType?>
 ) = with(viewModel) {
     BoxWithConstraints(
         modifier = Modifier
@@ -216,7 +227,7 @@ private fun SettingLandingContent(
                                         title = context.getString(menu.leadingTitle),
                                         languageCode = getLanguageCode,
                                         themeType = themeType,
-                                        showBitcoinAddressDialog = showBitcoinAddressDialog
+                                        showDonateDialog = showDonateDialog
                                     )
                                 }
                             }
@@ -234,13 +245,22 @@ private fun NavController.handleClickMenu(
     title: String,
     languageCode: String,
     themeType: ThemeType,
-    showBitcoinAddressDialog: MutableState<Boolean>
+    showDonateDialog: MutableState<DonateDialogType?>
 ) = with(context) {
     when (title) {
         getString(R.string.language) -> navigateTo(SettingLanguageRoute(LanguageData(languageCode)))
         getString(R.string.notification) -> navigateToNotificationSettings(this)
         getString(R.string.theme) -> navigateTo(SettingThemeRoute(themeType))
-        getString(R.string.bitcoin) -> showBitcoinAddressDialog.value = true
+        getString(R.string.bitcoin) -> showDonateDialog.value = BITCOIN
+        getString(R.string.paypal) -> showDonateDialog.value = PAYPAL
         getString(R.string.contact) -> navigateToGmail(this)
     }
+}
+
+private fun getContentDonateTypeDialog(
+    context: Context,
+    donateType: DonateDialogType
+) = when (donateType) {
+    BITCOIN -> Pair(context.getString(R.string.bitcoin_address), BTC_ADDRESS)
+    PAYPAL -> Pair(context.getString(R.string.paypal_email), PAYPAL_EMAIL)
 }

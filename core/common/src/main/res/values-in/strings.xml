@@ -74,5 +74,6 @@
     <string name="copied">Perintah Disalin ✅</string>
     <string name="image_has_been_downloaded">Gambar telah diunduh</string>
     <string name="bitcoin_address">Alamat Bitcoin</string>
+    <string name="paypal_email">Email PayPal</string>
     <string name="copy">Salin</string>
 </resources>
