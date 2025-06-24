@@ -17,7 +17,7 @@ internal fun HandleDialogYoutubeQuality(
     onApplyQuality: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
-    val qualityList = remember { listOf("144p", "240p", "360p", "480p", "720p", "1080p") }
+    val qualityList = remember { listOf("360p", "480p", "720p", "1080p") }
     var chooseQuality by remember { mutableStateOf(qualityList[0]) }
 
     MeverDialog(
