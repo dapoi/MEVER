@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -32,6 +33,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
@@ -90,6 +92,7 @@ import com.ketch.Status.FAILED
 import com.ketch.Status.PAUSED
 import com.ketch.Status.PROGRESS
 import com.ketch.Status.SUCCESS
+import kotlinx.coroutines.launch
 import java.io.File
 import com.dapascript.mever.core.common.R as RCommon
 
@@ -293,6 +296,8 @@ private fun GalleryContentSection(
         )
         if (platformTypes.size > 1) Spacer(modifier = Modifier.height(Dp32))
         Column(modifier = Modifier.height(this@BoxWithConstraints.maxHeight)) {
+            val listState = rememberLazyListState()
+            val scope = rememberCoroutineScope()
             if (platformTypes.size > 1) {
                 FilterContent(
                     modifier = Modifier
@@ -302,7 +307,10 @@ private fun GalleryContentSection(
                         .padding(start = Dp24, end = Dp24, top = Dp4, bottom = Dp24),
                     platformTypes = platformTypes,
                     selectedFilter = selectedFilter,
-                ) { onClickFilter(it) }
+                ) { filter ->
+                    onClickFilter(filter)
+                    if (filter == UNKNOWN) scope.launch { listState.animateScrollToItem(0) }
+                }
             }
             if (isExpanded.not()) HorizontalDivider(
                 modifier = Modifier
@@ -315,13 +323,14 @@ private fun GalleryContentSection(
             Column(
                 modifier = Modifier
                     .fillMaxHeight()
-                    .nestedScroll(object : NestedScrollConnection {
-                        override fun onPreScroll(
-                            available: Offset,
-                            source: NestedScrollSource
-                        ) = if (available.y > 0 || isExpanded) Offset.Zero
-                        else Offset(x = 0f, y = -scrollState.dispatchRawDelta(-available.y))
-                    }
+                    .nestedScroll(
+                        object : NestedScrollConnection {
+                            override fun onPreScroll(
+                                available: Offset,
+                                source: NestedScrollSource
+                            ) = if (available.y > 0) Offset.Zero
+                            else Offset(x = 0f, y = -scrollState.dispatchRawDelta(-available.y))
+                        }
                     )
             ) {
                 downloadList?.let { files ->
@@ -336,7 +345,10 @@ private fun GalleryContentSection(
                     ) { isNotEmpty ->
                         if (isNotEmpty) {
                             CompositionLocalProvider(LocalOverscrollFactory provides null) {
-                                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                                LazyColumn(
+                                    modifier = Modifier.fillMaxSize(),
+                                    state = listState
+                                ) {
                                     items(
                                         items = downloadList,
                                         key = { it.id }
@@ -344,7 +356,10 @@ private fun GalleryContentSection(
                                         MeverCard(
                                             modifier = Modifier
                                                 .padding(horizontal = Dp24)
-                                                .animateItem(),
+                                                .then(
+                                                    if (isExpanded) Modifier.animateItem()
+                                                    else Modifier
+                                                ),
                                             cardArgs = MeverCardArgs(
                                                 source = it.url,
                                                 tag = it.tag,
