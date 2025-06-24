@@ -43,10 +43,9 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
-import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp20
-import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.isValidUrl
+import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.data.model.local.ContentEntity
 
 @Composable
@@ -102,9 +101,7 @@ internal fun HandleBottomSheetDownload(
                 }
             }
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MeverWhite),
+                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = CenterVertically,
                 horizontalArrangement = SpaceBetween
             ) {
