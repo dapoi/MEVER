@@ -45,6 +45,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterEnd
@@ -589,7 +590,7 @@ internal fun HomeDownloaderSection(
         }
         downloadList?.let { files ->
             if (files.isNotEmpty()) items(
-                items = files.take(5),
+                items = files.toMutableStateList().apply { removeRange(5, size) },
                 key = { it.id }
             ) {
                 MeverCard(
@@ -620,6 +621,7 @@ internal fun HomeDownloaderSection(
                 )
             }
         }
+        item { Spacer(modifier = Modifier.size(Dp40)) }
     }
 }
 
