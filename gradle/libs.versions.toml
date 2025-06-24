@@ -5,6 +5,7 @@ androidxActivity = "1.10.1"
 androidxComposeBom = "2025.06.00"
 androidxNavigation = "2.9.0"
 appCompat = "1.7.1"
+appUpdate = "2.1.0"
 chucker = "4.1.0"
 coil = "3.1.0"
 coreKtxVersion = "1.16.0"
@@ -39,6 +40,8 @@ coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref 
 coil-network = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
 coil-video = { group = "io.coil-kt.coil3", name = "coil-video", version.ref = "coil" }
 dataStorePreferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "dataStorePreferences" }
+google-play-update-core = { group = "com.google.android.play", name = "app-update", version.ref = "appUpdate" }
+google-play-update-ktx = { group = "com.google.android.play", name = "app-update-ktx", version.ref = "appUpdate" }
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
 hilt-navigation = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigation" }
