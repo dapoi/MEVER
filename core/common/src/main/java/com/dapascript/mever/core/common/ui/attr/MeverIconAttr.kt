@@ -20,7 +20,7 @@ object MeverIconAttr {
         platform.contains(TWITTER) -> R.drawable.ic_twitter
         platform.contains(YOUTUBE) -> R.drawable.ic_youtube
         platform.contains(TIKTOK) -> R.drawable.ic_tiktok
-        else -> -1
+        else -> R.drawable.ic_broken_image
     }
 
     fun getPlatformIconBackgroundColor(platform: String) = when {

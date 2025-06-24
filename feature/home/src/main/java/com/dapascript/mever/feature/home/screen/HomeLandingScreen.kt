@@ -206,9 +206,9 @@ internal fun HomeLandingScreen(
                         tag = getPlatformType(urlSocialMediaState.text).platformName,
                         metaData = contents.firstOrNull()?.thumbnail.orEmpty()
                     )
+                    urlSocialMediaState = TextFieldValue("")
                 }
                 contents = emptyList()
-                urlSocialMediaState = urlSocialMediaState.copy(text = "")
             },
             onClickDismiss = { contents = emptyList() }
         )
