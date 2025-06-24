@@ -51,6 +51,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
@@ -357,7 +358,12 @@ private fun ImageGeneratorResultContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(1f)
-                .clip(RoundedCornerShape(Dp12)),
+                .clip(RoundedCornerShape(Dp12))
+                .graphicsLayer {
+                    scaleY = 1.1f
+                    scaleX = 1.1f
+                    clip = true
+                },
             source = imageSelected
         )
         if (aiImages.size > 1) Row(

@@ -292,7 +292,7 @@ private fun HomeScreenContent(
 
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .matchParentSize()
                 .verticalScroll(scrollState),
             horizontalAlignment = CenterHorizontally
         ) {
