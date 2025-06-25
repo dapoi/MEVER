@@ -7,14 +7,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign.Companion.Center
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
+import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
 import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
-import com.dapascript.mever.core.common.util.getDescriptionPermission
-import com.dapascript.mever.core.common.R
 
 @Composable
-internal fun HandleDialogPermission(
+internal fun HandleHomeDialogPermission(
     activity: Activity,
     permission: List<String>,
     onGoToSetting: () -> Unit,
@@ -34,7 +33,7 @@ internal fun HandleDialogPermission(
         )
     ) {
         Text(
-            text = getDescriptionPermission(it),
+            text = stringResource(R.string.permission_request_media),
             textAlign = Center,
             style = typography.body1,
             color = colorScheme.onPrimary

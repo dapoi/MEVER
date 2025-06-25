@@ -104,7 +104,7 @@ import com.dapascript.mever.core.navigation.helper.navigateTo
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeImageGeneratorResultRoute
 import com.dapascript.mever.feature.home.screen.component.HandleDialogError
-import com.dapascript.mever.feature.home.screen.component.HandleDialogPermission
+import com.dapascript.mever.feature.home.screen.component.HandleHomeDialogPermission
 import com.dapascript.mever.feature.home.viewmodel.HomeImageGeneratorResultViewModel
 import kotlinx.coroutines.launch
 import java.io.File
@@ -229,7 +229,7 @@ internal fun HomeImageGeneratorResultScreen(
             )
         }
 
-        HandleDialogPermission(
+        HandleHomeDialogPermission(
             activity = activity,
             permission = showDialogPermission,
             onGoToSetting = {

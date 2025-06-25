@@ -130,7 +130,7 @@ import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLand
 import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.getArtStyles
 import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetDownload
 import com.dapascript.mever.feature.home.screen.component.HandleDialogError
-import com.dapascript.mever.feature.home.screen.component.HandleDialogPermission
+import com.dapascript.mever.feature.home.screen.component.HandleHomeDialogPermission
 import com.dapascript.mever.feature.home.screen.component.HandleDialogYoutubeQuality
 import com.dapascript.mever.feature.home.viewmodel.HomeLandingViewModel
 import com.ketch.DownloadModel
@@ -232,7 +232,7 @@ internal fun HomeLandingScreen(
             )
         }
 
-        HandleDialogPermission(
+        HandleHomeDialogPermission(
             activity = activity,
             permission = showDialogPermission,
             onGoToSetting = {
@@ -241,8 +241,7 @@ internal fun HomeLandingScreen(
             },
             onAllow = {
                 dismissDialog()
-                if (isAndroidTiramisuAbove()) notifPermLauncher.launch(getNotificationPermission)
-                else storagePermLauncher.launch(getStoragePermission)
+                storagePermLauncher.launch(getStoragePermission)
             },
             onDismiss = ::dismissDialog
         )
