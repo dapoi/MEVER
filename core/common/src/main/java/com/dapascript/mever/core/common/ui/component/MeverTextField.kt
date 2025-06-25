@@ -1,5 +1,6 @@
 package com.dapascript.mever.core.common.ui.component
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -24,7 +25,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -40,16 +40,17 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.util.clearFocusOnKeyboardDismiss
 import com.dapascript.mever.core.common.util.onCustomClick
+import com.dapascript.mever.core.common.util.pasteFromClipboard
 
 @Composable
 fun MeverTextField(
+    context: Context,
     webDomainValue: TextFieldValue,
     modifier: Modifier = Modifier,
     shape: RoundedCornerShape = RoundedCornerShape(Dp48),
     onValueChange: (TextFieldValue) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
-    val clipboardManager = LocalClipboardManager.current
     val interactionSource = remember { MutableInteractionSource() }
 
     Row(
@@ -66,7 +67,9 @@ fun MeverTextField(
                 .clip(CircleShape)
                 .background(color = Transparent, shape = CircleShape)
                 .size(Dp24)
-                .onCustomClick { clipboardManager.getText()?.text?.let { onValueChange(TextFieldValue(it)) } }
+                .onCustomClick {
+                    pasteFromClipboard(context)?.let { onValueChange(TextFieldValue(it)) }
+                }
         ) {
             Icon(
                 modifier = Modifier.fillMaxSize(),

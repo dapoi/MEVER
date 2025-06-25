@@ -347,6 +347,7 @@ private fun HomeScreenContent(
                                         .fillMaxSize()
                                         .padding(horizontal = Dp24)
                                         .navigationBarsPadding(),
+                                    context = context,
                                     downloadList = downloadList,
                                     isLoading = isLoading,
                                     urlSocialMediaState = urlSocialMediaState,
@@ -396,6 +397,7 @@ private fun HomeScreenContent(
                                             bottom = generateButtonHeight.dp
                                         )
                                         .navigationBarsPadding(),
+                                    context = context,
                                     prompt = promptState.text,
                                     totalImageSelected = selectedImageCount,
                                     artStyleSelected = selectedArtStyle.first,
@@ -499,6 +501,7 @@ private fun HomeScreenContent(
 
 @Composable
 internal fun HomeDownloaderSection(
+    context: Context,
     isLoading: Boolean,
     urlSocialMediaState: TextFieldValue,
     downloadList: List<DownloadModel>?,
@@ -546,6 +549,7 @@ internal fun HomeDownloaderSection(
             Spacer(modifier = Modifier.size(Dp24))
             MeverTextField(
                 modifier = Modifier.fillMaxWidth(),
+                context = context,
                 webDomainValue = urlSocialMediaState,
                 onValueChange = { onValueChange(it) }
             )
@@ -627,6 +631,7 @@ internal fun HomeDownloaderSection(
 
 @Composable
 internal fun HomeAiSection(
+    context: Context,
     prompt: String,
     totalImageSelected: Int,
     artStyleSelected: String,
@@ -635,13 +640,10 @@ internal fun HomeAiSection(
     onImageCountSelected: (Int) -> Unit,
     onArtStyleSelected: (String, String) -> Unit
 ) = CompositionLocalProvider(LocalOverscrollFactory provides null) {
-    val context = LocalContext.current
     val imagesCountGenerated = remember { List(4) { it + 1 } }
     val artStyles = remember { getArtStyles(context) }
 
-    LazyColumn(
-        modifier = modifier
-    ) {
+    LazyColumn(modifier = modifier) {
         item {
             Text(
                 modifier = Modifier.padding(bottom = Dp16),

@@ -53,11 +53,9 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
@@ -91,6 +89,7 @@ import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType.NETWORK
 import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType.RESPONSE
 import com.dapascript.mever.core.common.util.ErrorHandle.getErrorResponseContent
 import com.dapascript.mever.core.common.util.LocalActivity
+import com.dapascript.mever.core.common.util.copyToClipboard
 import com.dapascript.mever.core.common.util.getNotificationPermission
 import com.dapascript.mever.core.common.util.getPhotoThumbnail
 import com.dapascript.mever.core.common.util.getStoragePermission
@@ -118,7 +117,6 @@ internal fun HomeImageGeneratorResultScreen(
 ) = with(viewModel) {
     val activity = LocalActivity.current
     val context = LocalContext.current
-    val clipboardManager = LocalClipboardManager.current
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
     val aiResponseState = aiResponseState.collectAsStateValue()
@@ -287,7 +285,7 @@ internal fun HomeImageGeneratorResultScreen(
                 snackbarMessage = snackbarMessage,
                 onChangeImageSelected = { url -> imageSelected = url },
                 onClickCopy = {
-                    clipboardManager.setText(AnnotatedString(args.prompt))
+                    copyToClipboard(context, args.prompt)
                     hasCopied = true
                 },
                 onClickShare = {

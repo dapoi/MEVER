@@ -32,10 +32,8 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign.Companion.Center
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -59,6 +57,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.ui.theme.ThemeType
+import com.dapascript.mever.core.common.util.copyToClipboard
 import com.dapascript.mever.core.common.util.navigateToGmail
 import com.dapascript.mever.core.common.util.navigateToNotificationSettings
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
@@ -81,7 +80,6 @@ internal fun SettingLandingScreen(
     val getLanguageCode = getLanguageCode.collectAsStateValue()
     val themeType = themeType.collectAsStateValue()
     val context = LocalContext.current
-    val clipboardManager = LocalClipboardManager.current
     val scrollState = rememberScrollState()
     val showDonateDialog = remember { mutableStateOf<DonateDialogType?>(null) }
     val isExpanded by remember { derivedStateOf { scrollState.value <= titleHeight } }
@@ -101,7 +99,7 @@ internal fun SettingLandingScreen(
                         title = title,
                         primaryButtonText = stringResource(R.string.copy),
                         onClickPrimaryButton = {
-                            clipboardManager.setText(AnnotatedString(address))
+                            copyToClipboard(context, address)
                             showDonateDialog.value = null
                         },
                         onClickSecondaryButton = { showDonateDialog.value = null }
