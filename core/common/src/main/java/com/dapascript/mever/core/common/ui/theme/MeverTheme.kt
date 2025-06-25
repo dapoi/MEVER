@@ -1,6 +1,7 @@
 package com.dapascript.mever.core.common.ui.theme
 
 import android.os.Build
+import androidx.annotation.Keep
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -39,6 +40,7 @@ val DarkColorScheme = darkColorScheme(
     background = Dark.background
 )
 
+@Keep
 enum class ThemeType(val themeResId: Int) {
     System(R.string.system_default),
     Light(R.string.light),
