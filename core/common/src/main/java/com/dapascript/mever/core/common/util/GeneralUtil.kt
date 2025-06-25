@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.Intent.ACTION_SENDTO
 import android.content.Intent.EXTRA_EMAIL
 import android.content.Intent.EXTRA_SUBJECT
+import android.content.Intent.EXTRA_TEXT
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory.decodeStream
 import android.media.MediaMetadataRetriever
@@ -18,6 +19,7 @@ import android.webkit.MimeTypeMap.getSingleton
 import android.widget.Toast
 import androidx.core.app.ShareCompat.IntentBuilder
 import androidx.core.content.FileProvider.getUriForFile
+import androidx.core.net.toUri
 import androidx.core.view.WindowCompat.getInsetsController
 import androidx.core.view.WindowInsetsCompat.Type.systemBars
 import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
@@ -148,9 +150,10 @@ fun navigateToNotificationSettings(context: Context) {
 fun navigateToGmail(context: Context) {
     try {
         val intent = Intent(ACTION_SENDTO).apply {
-            type = "text/plain"
+            data = "mailto:".toUri()
             putExtra(EXTRA_EMAIL, arrayOf("daffaprabowo5@gmail.com"))
             putExtra(EXTRA_SUBJECT, "MEVER Feedback")
+            putExtra(EXTRA_TEXT, "Hello, I would like to share my feedback about MEVER.")
         }
         context.startActivity(intent)
     } catch (e: Exception) {
