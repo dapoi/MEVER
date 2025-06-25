@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter.Companion.tint
 import androidx.compose.ui.graphics.StrokeCap.Companion.Round
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow.Companion.Ellipsis
 import coil3.compose.LocalPlatformContext
@@ -101,6 +102,12 @@ fun MeverCard(
                     .size(width = Dp88, height = Dp86)
                     .clip(RoundedCornerShape(Dp8))
                     .align(CenterVertically)
+                    .graphicsLayer {
+                        scaleX = 1.5f
+                        scaleY = 1.5f
+                        translationX = 1.5f
+                        translationY = 1.5f
+                    }
             )
             Column(
                 modifier = Modifier

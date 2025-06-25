@@ -7,30 +7,29 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.core.view.WindowCompat.getInsetsController
-import androidx.core.view.WindowInsetsCompat.Type.systemBars
-import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
-import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import coil3.compose.AsyncImage
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.ActionMenu
@@ -60,29 +59,22 @@ fun MeverPhotoViewer(
     var showDropDownMenu by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
-    DisposableEffect(lifecycleOwner) {
-        val window = activity.window
-        val insetsController = getInsetsController(window, window.decorView)
+    DisposableEffect(lifecycleOwner) { onDispose { hideSystemBar(activity, false) } }
 
-        insetsController.apply {
-            hide(systemBars())
-            systemBarsBehavior = BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-        }
-
-        onDispose {
-            insetsController.apply {
-                show(systemBars())
-                systemBarsBehavior = BEHAVIOR_DEFAULT
-            }
-        }
-    }
+    LaunchedEffect(isPhotoTouched) { hideSystemBar(activity, isPhotoTouched) }
 
     Box(
         modifier = modifier
             .fillMaxSize()
             .background(MeverBlack)
     ) {
-        PhotoViewer(source) { isPhotoTouched = it }
+        PhotoViewer(
+            modifier = Modifier
+                .wrapContentSize()
+                .align(Center),
+            image = source,
+            isPhotoTouched = isPhotoTouched
+        ) { isPhotoTouched = it }
         AnimatedVisibility(
             visible = isPhotoTouched.not(),
             enter = fadeIn(),
@@ -159,27 +151,23 @@ fun MeverPhotoViewer(
 @Composable
 private fun PhotoViewer(
     image: String,
+    isPhotoTouched: Boolean,
     modifier: Modifier = Modifier,
     onPhotoTouched: (Boolean) -> Unit
 ) {
-    // Mutable state variables to hold scale and offset values
     var scale by remember { mutableFloatStateOf(1f) }
     var offsetX by remember { mutableFloatStateOf(0f) }
     var offsetY by remember { mutableFloatStateOf(0f) }
-
-    val minScale = 1f
-    val maxScale = 4f
-
     // Remember the initial offset
     var initialOffset by remember { mutableStateOf(Offset(0f, 0f)) }
-
     // Coefficient for slowing down movement
     val slowMovement = 0.5f
+    val minScale = 1f
+    val maxScale = 4f
 
     // Box composable containing the image
     Box(
         modifier = modifier
-            .fillMaxSize()
             .pointerInput(Unit) {
                 detectTransformGestures { _, pan, zoom, _ ->
                     // Update scale with the zoom
@@ -210,31 +198,26 @@ private fun PhotoViewer(
                     if (pan != Offset(0f, 0f) && initialOffset == Offset(0f, 0f)) {
                         initialOffset = Offset(offsetX, offsetY)
                     }
+
+                    // set photo touched state based on scale
+                    onPhotoTouched(scale > 1f)
                 }
             }
-            .pointerInput(Unit) {
+            .pointerInput(isPhotoTouched) {
                 detectTapGestures(
+                    onTap = { onPhotoTouched(isPhotoTouched.not()) },
                     onDoubleTap = {
                         if (scale != 1f) {
                             scale = 1f
                             offsetX = 0f
                             offsetY = 0f
-                        } else scale = 2f
-                    }
-                )
-            }
-            .pointerInput(Unit) {
-                awaitPointerEventScope {
-                    while (true) {
-                        val event = awaitPointerEvent()
-                        event.changes.forEach { pointerInputChange ->
-                            when {
-                                pointerInputChange.pressed -> onPhotoTouched(true)
-                                pointerInputChange.changedToUp() -> onPhotoTouched(false)
-                            }
+                            onPhotoTouched(false)
+                        } else {
+                            scale = 2f
+                            onPhotoTouched(true)
                         }
                     }
-                }
+                )
             }
             .graphicsLayer {
                 scaleX = scale
@@ -243,10 +226,20 @@ private fun PhotoViewer(
                 translationY = offsetY
             }
     ) {
-        AsyncImage(
-            modifier = Modifier.fillMaxSize(),
-            model = image,
-            contentDescription = "Photo"
-        )
+        Box(
+            modifier = Modifier
+                .aspectRatio(1f)
+                .clipToBounds()
+        ) {
+            MeverImage(
+                modifier = Modifier.graphicsLayer {
+                    scaleX = 1.5f
+                    scaleY = 1.5f
+                    translationX = 1.5f
+                    translationY = 1.5f
+                },
+                source = image
+            )
+        }
     }
 }

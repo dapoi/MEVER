@@ -22,8 +22,6 @@ import androidx.core.content.FileProvider.getUriForFile
 import androidx.core.net.toUri
 import androidx.core.view.WindowCompat.getInsetsController
 import androidx.core.view.WindowInsetsCompat.Type.systemBars
-import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
-import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.util.Constant.PlatformType
 import com.dapascript.mever.core.common.util.Constant.PlatformType.FACEBOOK
@@ -208,13 +206,7 @@ fun changeToCurrentDate(date: Long): String {
 
 fun hideSystemBar(activity: Activity, value: Boolean) = with(activity) {
     val insetsController = getInsetsController(window, window.decorView)
-    if (value) {
-        insetsController.hide(systemBars())
-        insetsController.systemBarsBehavior = BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-    } else {
-        insetsController.show(systemBars())
-        insetsController.systemBarsBehavior = BEHAVIOR_DEFAULT
-    }
+    if (value) insetsController.hide(systemBars()) else insetsController.show(systemBars())
 }
 
 fun isAvailableOnLocal(fileName: String) = getMeverFiles()?.any {
