@@ -1,6 +1,8 @@
 package com.dapascript.mever.feature.setting.screen
 
 import android.content.Context
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -20,7 +22,6 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -58,13 +59,14 @@ import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.ui.theme.ThemeType
 import com.dapascript.mever.core.common.util.copyToClipboard
+import com.dapascript.mever.core.common.util.getNotificationPermission
+import com.dapascript.mever.core.common.util.isAndroidTiramisuAbove
 import com.dapascript.mever.core.common.util.navigateToGmail
 import com.dapascript.mever.core.common.util.navigateToNotificationSettings
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
-import com.dapascript.mever.core.navigation.helper.navigateTo
+import com.dapascript.mever.core.navigation.route.SettingScreenRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLanguageRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLanguageRoute.LanguageData
-import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingThemeRoute
 import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.BTC_ADDRESS
 import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.DonateDialogType
 import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.DonateDialogType.BITCOIN
@@ -82,7 +84,12 @@ internal fun SettingLandingScreen(
     val context = LocalContext.current
     val scrollState = rememberScrollState()
     val showDonateDialog = remember { mutableStateOf<DonateDialogType?>(null) }
+    val showNotificationPermissionDialog = remember { mutableStateOf(false) }
     val isExpanded by remember { derivedStateOf { scrollState.value <= titleHeight } }
+    val notifPermLauncher = rememberLauncherForActivityResult(RequestPermission()) { isGranted ->
+        if (isGranted) navigateToNotificationSettings(context)
+        else showNotificationPermissionDialog.value = true
+    }
 
     BaseScreen(
         topBarArgs = TopBarArgs(
@@ -91,6 +98,27 @@ internal fun SettingLandingScreen(
         ),
         allowScreenOverlap = true
     ) {
+        MeverDialog(
+            showDialog = showNotificationPermissionDialog.value,
+            meverDialogArgs = MeverDialogArgs(
+                title = stringResource(R.string.permission_request_title),
+                primaryButtonText = stringResource(R.string.go_to_settings),
+                onClickPrimaryButton = {
+                    showNotificationPermissionDialog.value = false
+                    navigateToNotificationSettings(context)
+                },
+                onClickSecondaryButton = { showNotificationPermissionDialog.value = false }
+            )
+        ) {
+            Text(
+                text = stringResource(R.string.permission_request_notification),
+                textAlign = Center,
+                style = typography.body1,
+                color = colorScheme.onPrimary,
+                modifier = Modifier.padding(vertical = Dp8)
+            )
+        }
+
         showDonateDialog.value?.let {
             getContentDonateTypeDialog(context, it).let { (title, address) ->
                 MeverDialog(
@@ -123,8 +151,16 @@ internal fun SettingLandingScreen(
             scrollState = scrollState,
             getLanguageCode = getLanguageCode,
             themeType = themeType,
-            navController = navController,
-            showDonateDialog = showDonateDialog
+            onClickChangeLanguage = {
+                navController.navigate(SettingLanguageRoute(LanguageData(it)))
+            },
+            onClickNotificationPermission = {
+                if (isAndroidTiramisuAbove()) notifPermLauncher.launch(getNotificationPermission)
+                else navigateToNotificationSettings(context)
+            },
+            onClickChangeTheme = { navController.navigate(SettingScreenRoute.SettingThemeRoute(it)) },
+            onClickDonate = { showDonateDialog.value = it },
+            onClickContact = { navigateToGmail(context) }
         )
     }
 }
@@ -137,8 +173,11 @@ private fun SettingLandingContent(
     scrollState: ScrollState,
     getLanguageCode: String,
     themeType: ThemeType,
-    navController: NavController,
-    showDonateDialog: MutableState<DonateDialogType?>
+    onClickChangeLanguage: (String) -> Unit,
+    onClickNotificationPermission: () -> Unit,
+    onClickChangeTheme: (ThemeType) -> Unit,
+    onClickDonate: (DonateDialogType) -> Unit,
+    onClickContact: () -> Unit
 ) = with(viewModel) {
     BoxWithConstraints(
         modifier = Modifier
@@ -220,12 +259,16 @@ private fun SettingLandingContent(
                                     ),
                                     modifier = Modifier.animateItem()
                                 ) {
-                                    navController.handleClickMenu(
+                                    handleClickMenu(
                                         context = context,
                                         title = context.getString(menu.leadingTitle),
                                         languageCode = getLanguageCode,
                                         themeType = themeType,
-                                        showDonateDialog = showDonateDialog
+                                        onClickChangeLanguage = { onClickChangeLanguage(it) },
+                                        onClickNotificationPermission = { onClickNotificationPermission() },
+                                        onClickChangeTheme = { onClickChangeTheme(it) },
+                                        onClickDonate = { onClickDonate(it) },
+                                        onClickContact = { onClickContact() }
                                     )
                                 }
                             }
@@ -238,20 +281,24 @@ private fun SettingLandingContent(
     }
 }
 
-private fun NavController.handleClickMenu(
+private fun handleClickMenu(
     context: Context,
     title: String,
     languageCode: String,
     themeType: ThemeType,
-    showDonateDialog: MutableState<DonateDialogType?>
+    onClickChangeLanguage: (String) -> Unit,
+    onClickNotificationPermission: () -> Unit,
+    onClickChangeTheme: (ThemeType) -> Unit,
+    onClickDonate: (DonateDialogType) -> Unit,
+    onClickContact: () -> Unit
 ) = with(context) {
     when (title) {
-        getString(R.string.language) -> navigateTo(SettingLanguageRoute(LanguageData(languageCode)))
-        getString(R.string.notification) -> navigateToNotificationSettings(this)
-        getString(R.string.theme) -> navigateTo(SettingThemeRoute(themeType))
-        getString(R.string.bitcoin) -> showDonateDialog.value = BITCOIN
-        getString(R.string.paypal) -> showDonateDialog.value = PAYPAL
-        getString(R.string.contact) -> navigateToGmail(this)
+        getString(R.string.language) -> onClickChangeLanguage(languageCode)
+        getString(R.string.notification) -> onClickNotificationPermission()
+        getString(R.string.theme) -> onClickChangeTheme(themeType)
+        getString(R.string.bitcoin) -> onClickDonate(BITCOIN)
+        getString(R.string.paypal) -> onClickDonate(PAYPAL)
+        getString(R.string.contact) -> onClickContact()
     }
 }
 
