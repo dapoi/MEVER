@@ -23,11 +23,8 @@ class GalleryLandingViewModel @Inject constructor(
 ) : BaseViewModel() {
 
     var titleHeight by mutableIntStateOf(0)
-        internal set
     var selectedFilter by mutableStateOf(UNKNOWN)
-        internal set
     var platformTypes by mutableStateOf(listOf(UNKNOWN))
-        internal set
     val downloadList = ketch.observeDownloads()
         .map { downloads ->
             downloads

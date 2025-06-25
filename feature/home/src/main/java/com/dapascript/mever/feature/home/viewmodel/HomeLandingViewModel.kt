@@ -46,21 +46,15 @@ class HomeLandingViewModel @Inject constructor(
      * Downloader
      */
     var urlSocialMediaState by mutableStateOf(TextFieldValue(""))
-        internal set
     var selectedQuality by mutableStateOf("")
-        internal set
     var showBadge by mutableStateOf(false)
-        private set
 
     /**
      * Image Generator
      */
     var promptState by mutableStateOf(TextFieldValue(""))
-        internal set
     var selectedImageCount by mutableIntStateOf(1)
-        internal set
     var selectedArtStyle by mutableStateOf(Pair("", ""))
-        internal set
 
     val downloadList = ketch.observeDownloads()
         .map { downloads ->
