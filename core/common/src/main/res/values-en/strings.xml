@@ -76,4 +76,5 @@
     <string name="bitcoin_address">Bitcoin Address</string>
     <string name="paypal_email">PayPal Email</string>
     <string name="copy">Copy</string>
+    <string name="apply">Apply</string>
 </resources>

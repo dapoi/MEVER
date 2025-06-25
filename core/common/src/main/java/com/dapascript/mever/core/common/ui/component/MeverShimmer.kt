@@ -6,17 +6,17 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Offset.Companion.Zero
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Brush.Companion.linearGradient
-import com.dapascript.mever.core.common.ui.theme.MeverDarkGray
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 
 @Composable
 fun meverShimmer(showShimmer: Boolean = true, targetValue: Float = 1000f): Brush {
-    val color = MeverDarkGray
+    val color = colorScheme.onSurface
 
     return if (showShimmer) {
         val shimmerColors = listOf(

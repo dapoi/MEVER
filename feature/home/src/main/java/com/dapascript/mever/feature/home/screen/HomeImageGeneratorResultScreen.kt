@@ -71,6 +71,7 @@ import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverImage
 import com.dapascript.mever.core.common.ui.component.MeverSnackbar
 import com.dapascript.mever.core.common.ui.component.meverShimmer
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp10
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp120
@@ -408,7 +409,8 @@ private fun ImageGeneratorResultContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(Dp120)
-                .background(color = colorScheme.onSurface, shape = RoundedCornerShape(Dp12))
+                .shadow(elevation = Dp1, shape = RoundedCornerShape(Dp12))
+                .background(color = colorScheme.surface, shape = RoundedCornerShape(Dp12))
                 .clip(RoundedCornerShape(Dp12))
                 .verticalScroll(rememberScrollState())
         ) {

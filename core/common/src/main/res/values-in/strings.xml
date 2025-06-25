@@ -76,4 +76,5 @@
     <string name="bitcoin_address">Alamat Bitcoin</string>
     <string name="paypal_email">Email PayPal</string>
     <string name="copy">Salin</string>
+    <string name="apply">Terapkan</string>
 </resources>

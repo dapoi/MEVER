@@ -24,7 +24,7 @@ internal fun HandleDialogYoutubeQuality(
         showDialog = showDialog,
         meverDialogArgs = MeverDialogArgs(
             title = stringResource(R.string.choose_quality),
-            primaryButtonText = stringResource(R.string.download),
+            primaryButtonText = stringResource(R.string.apply),
             secondaryButtonText = stringResource(R.string.cancel),
             onClickPrimaryButton = {
                 onApplyQuality(chooseQuality)
