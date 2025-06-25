@@ -15,4 +15,5 @@ object TextDimens {
     val Sp24 = 24.sp
     val Sp32 = 32.sp
     val Sp40 = 40.sp
+    val Sp50 = 50.sp
 }
