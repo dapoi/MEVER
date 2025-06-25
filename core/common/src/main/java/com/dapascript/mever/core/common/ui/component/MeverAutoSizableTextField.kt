@@ -128,7 +128,7 @@ fun MeverAutoSizableTextField(
             )
             Text(
                 modifier = Modifier.fillMaxWidth(),
-                text = "${value.length} / 300",
+                text = "${value.length} / 1000",
                 textAlign = End
             )
         }

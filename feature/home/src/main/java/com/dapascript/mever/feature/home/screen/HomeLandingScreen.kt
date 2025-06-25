@@ -57,6 +57,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.ContentScale.Companion.Crop
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -402,7 +403,7 @@ private fun HomeScreenContent(
                                     totalImageSelected = selectedImageCount,
                                     artStyleSelected = selectedArtStyle.first,
                                     onPromptChange = {
-                                        if (it.length <= 300 || it.length < promptState.text.length) {
+                                        if (it.length <= 1000 || it.length < promptState.text.length) {
                                             promptState = promptState.copy(text = it)
                                         }
                                     },
@@ -692,7 +693,7 @@ internal fun HomeAiSection(
                         title = count.toString(),
                         buttonType = if (totalImageSelected == count) FILLED else OUTLINED,
                         shape = RoundedCornerShape(Dp12)
-                    ) { onImageCountSelected(count) }
+                    ) { if (totalImageSelected != count) onImageCountSelected(count) }
                 }
             }
         }
@@ -754,9 +755,12 @@ internal fun HomeAiSection(
                                         else Modifier
                                     )
                                     .onCustomClick {
-                                        onArtStyleSelected(it.styleName, it.promptKeywords)
+                                        if (artStyleSelected != it.styleName) {
+                                            onArtStyleSelected(it.styleName, it.promptKeywords)
+                                        }
                                     },
                                 painter = painterResource(it.image),
+                                contentScale = Crop,
                                 contentDescription = it.styleName
                             )
                         }
