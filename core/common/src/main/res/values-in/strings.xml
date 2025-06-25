@@ -20,7 +20,7 @@
     <string name="permission_request_title">Izin Diperlukan</string>
     <string name="permission_request_media">Kami perlu mengakses media Anda untuk menyimpan file.</string>
     <string name="permission_request_notification">Kami perlu mengakses notifikasi Anda untuk menampilkan kemajuan unduhan.</string>
-    <string name="go_to_settings">Buka Pengaturan</string>
+    <string name="go_to_settings">Ke Pengaturan</string>
     <string name="allow">Izinkan</string>
     <string name="failed">Gagal</string>
     <string name="share">Bagikan</string>

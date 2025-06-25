@@ -11,9 +11,6 @@ import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE
 import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.annotation.RequiresApi
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
-import com.dapascript.mever.core.common.R
 
 val getStoragePermission = when {
     isAndroidUpSideDownCake() -> {
@@ -35,9 +32,3 @@ fun isAndroidTiramisuAbove() = SDK_INT >= TIRAMISU
 
 @ChecksSdkIntAtLeast(api = UPSIDE_DOWN_CAKE)
 fun isAndroidUpSideDownCake() = SDK_INT >= UPSIDE_DOWN_CAKE
-
-@Composable
-fun getDescriptionPermission(permission: String) = stringResource(
-    if (permission == POST_NOTIFICATIONS) R.string.permission_request_notification
-    else R.string.permission_request_media
-)

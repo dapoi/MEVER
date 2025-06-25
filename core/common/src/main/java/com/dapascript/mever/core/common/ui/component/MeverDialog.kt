@@ -91,7 +91,7 @@ fun MeverDialog(
                             stiffness = StiffnessMediumLow
                         )
                     ),
-                    exit = slideOutVertically { it / 8 } + fadeOut() + scaleOut(targetScale = .95f)
+                    exit = slideOutVertically { it / 8 } + scaleOut(targetScale = .95f) + fadeOut()
                 ) {
                     Box(
                         modifier = Modifier
