@@ -29,12 +29,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -92,10 +92,14 @@ import com.ketch.Status.FAILED
 import com.ketch.Status.PAUSED
 import com.ketch.Status.PROGRESS
 import com.ketch.Status.SUCCESS
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import java.io.File
 import com.dapascript.mever.core.common.R as RCommon
 
+@OptIn(FlowPreview::class)
 @Composable
 internal fun GalleryLandingScreen(
     navController: NavController,
@@ -104,7 +108,7 @@ internal fun GalleryLandingScreen(
     val context = LocalContext.current
     val downloadList = downloadList.collectAsStateValue()
     val scrollState = rememberScrollState()
-    val isExpanded by remember { derivedStateOf { scrollState.value <= titleHeight } }
+    var isExpanded by remember { mutableStateOf(true) }
     var showFailedDialog by remember { mutableStateOf<Int?>(null) }
     var showDeleteDialog by remember { mutableStateOf<Int?>(null) }
     var showDeleteAllDialog by remember { mutableStateOf(false) }
@@ -123,6 +127,13 @@ internal fun GalleryLandingScreen(
         ),
         allowScreenOverlap = true
     ) {
+        LaunchedEffect(scrollState) {
+            snapshotFlow { scrollState.value <= titleHeight }
+                .debounce(100)
+                .distinctUntilChanged()
+                .collect { isExpanded = it }
+        }
+
         MeverPopupDropDownMenu(
             modifier = Modifier.padding(top = Dp64, end = Dp24),
             listDropDown = listDropDown.filter {

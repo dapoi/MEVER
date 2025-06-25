@@ -35,7 +35,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MEVER"
         android:localeConfig="@xml/locales_config"
-        android:enableOnBackInvokedCallback="true"
         tools:targetApi="36">
         <activity
             android:name=".screen.MainActivity"
