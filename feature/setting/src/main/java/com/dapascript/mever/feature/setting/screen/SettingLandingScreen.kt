@@ -215,7 +215,7 @@ private fun SettingLandingContent(
                             override fun onPreScroll(
                                 available: Offset,
                                 source: NestedScrollSource
-                            ) = if (available.y > 0 || isExpanded) Offset.Zero
+                            ) = if (available.y > 0) Offset.Zero
                             else Offset(x = 0f, y = -scrollState.dispatchRawDelta(-available.y))
                         }
                     )
