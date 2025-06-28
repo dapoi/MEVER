@@ -1,48 +1,34 @@
 package com.dapascript.mever.feature.gallery.screen
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.LocalOverscrollFactory
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement.spacedBy
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -67,11 +53,10 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp189
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp3
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp5
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.util.Constant.PlatformType
@@ -92,14 +77,10 @@ import com.ketch.Status.FAILED
 import com.ketch.Status.PAUSED
 import com.ketch.Status.PROGRESS
 import com.ketch.Status.SUCCESS
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import java.io.File
 import com.dapascript.mever.core.common.R as RCommon
 
-@OptIn(FlowPreview::class)
 @Composable
 internal fun GalleryLandingScreen(
     navController: NavController,
@@ -107,8 +88,9 @@ internal fun GalleryLandingScreen(
 ) = with(viewModel) {
     val context = LocalContext.current
     val downloadList = downloadList.collectAsStateValue()
-    val scrollState = rememberScrollState()
-    var isExpanded by remember { mutableStateOf(true) }
+    val listState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
+    val isExpanded by remember { derivedStateOf { listState.firstVisibleItemIndex < 1 } }
     var showFailedDialog by remember { mutableStateOf<Int?>(null) }
     var showDeleteDialog by remember { mutableStateOf<Int?>(null) }
     var showDeleteAllDialog by remember { mutableStateOf(false) }
@@ -127,13 +109,6 @@ internal fun GalleryLandingScreen(
         ),
         allowScreenOverlap = true
     ) {
-        LaunchedEffect(scrollState) {
-            snapshotFlow { scrollState.value <= titleHeight }
-                .debounce(100)
-                .distinctUntilChanged()
-                .collect { isExpanded = it }
-        }
-
         MeverPopupDropDownMenu(
             modifier = Modifier.padding(top = Dp64, end = Dp24),
             listDropDown = listDropDown.filter {
@@ -165,13 +140,22 @@ internal fun GalleryLandingScreen(
 
         GalleryContentSection(
             selectedFilter = selectedFilter,
-            scrollState = scrollState,
+            listState = listState,
             isExpanded = isExpanded,
             platformTypes = platformTypes,
             downloadList = downloadList?.filter { download ->
                 selectedFilter == UNKNOWN || download.tag == selectedFilter.platformName
             },
-            onClickFilter = { selectedFilter = it },
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = Dp64)
+                .systemBarsPadding(),
+            onClickFilter = {
+                scope.launch {
+                    listState.animateScrollToItem(0)
+                    if (listState.firstVisibleItemIndex == 0) selectedFilter = it
+                }
+            },
             onClickCard = { model ->
                 with(model) {
                     when (status) {
@@ -200,8 +184,12 @@ internal fun GalleryLandingScreen(
                 )
             },
             onClickDelete = { showDeleteDialog = it.id },
-            onChangeFilter = { selectedFilter = it },
-            onChangeTitleHeight = { titleHeight = it }
+            onChangeFilter = {
+                scope.launch {
+                    listState.animateScrollToItem(0)
+                    if (listState.firstVisibleItemIndex == 0) selectedFilter = it
+                }
+            }
         )
 
         MeverDialog(
@@ -210,6 +198,7 @@ internal fun GalleryLandingScreen(
                 title = stringResource(R.string.delete_all_title),
                 primaryButtonText = stringResource(R.string.delete_button),
                 onClickPrimaryButton = {
+                    scope.launch { listState.scrollToItem(0) }
                     ketch.clearAllDb()
                     showDeleteAllDialog = false
                 },
@@ -274,7 +263,7 @@ internal fun GalleryLandingScreen(
 @Composable
 private fun GalleryContentSection(
     selectedFilter: PlatformType,
-    scrollState: ScrollState,
+    listState: LazyListState,
     isExpanded: Boolean,
     platformTypes: List<PlatformType>,
     downloadList: List<DownloadModel>?,
@@ -283,129 +272,89 @@ private fun GalleryContentSection(
     onClickCard: (DownloadModel) -> Unit,
     onClickShare: (DownloadModel) -> Unit,
     onClickDelete: (DownloadModel) -> Unit,
-    onChangeFilter: (PlatformType) -> Unit,
-    onChangeTitleHeight: (Int) -> Unit
-) = BoxWithConstraints(
-    modifier = modifier
-        .fillMaxSize()
-        .padding(top = Dp64)
-        .systemBarsPadding()
+    onChangeFilter: (PlatformType) -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .matchParentSize()
-            .verticalScroll(scrollState)
-    ) {
-        Spacer(modifier = Modifier.height(Dp16))
-        Text(
-            text = stringResource(RCommon.string.gallery),
-            style = typography.h2.copy(fontSize = Sp32),
-            color = colorScheme.onPrimary,
-            modifier = Modifier
-                .padding(PaddingValues(start = Dp24))
-                .onGloballyPositioned { onChangeTitleHeight(it.size.height) }
-        )
-        if (platformTypes.size > 1) Spacer(modifier = Modifier.height(Dp32))
-        Column(modifier = Modifier.height(this@BoxWithConstraints.maxHeight)) {
-            val listState = rememberLazyListState()
-            val scope = rememberCoroutineScope()
-            if (platformTypes.size > 1) {
-                FilterContent(
-                    modifier = Modifier
-                        .background(colorScheme.background)
-                        .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState())
-                        .padding(start = Dp24, end = Dp24, top = Dp4, bottom = Dp24),
-                    platformTypes = platformTypes,
-                    selectedFilter = selectedFilter,
-                ) { filter ->
-                    onClickFilter(filter)
-                    if (filter == UNKNOWN) scope.launch { listState.animateScrollToItem(0) }
-                }
-            }
-            if (isExpanded.not()) HorizontalDivider(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = Dp1)
-                    .shadow(Dp3),
-                thickness = Dp1,
-                color = colorScheme.onPrimary.copy(alpha = 0.12f)
-            )
-            Column(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .nestedScroll(
-                        object : NestedScrollConnection {
-                            override fun onPreScroll(
-                                available: Offset,
-                                source: NestedScrollSource
-                            ) = if (available.y > 0) Offset.Zero
-                            else Offset(x = 0f, y = -scrollState.dispatchRawDelta(-available.y))
-                        }
-                    )
+    LaunchedEffect(selectedFilter, downloadList) {
+        if (selectedFilter != UNKNOWN && downloadList?.isEmpty() == true) onChangeFilter(UNKNOWN)
+    }
+
+    CompositionLocalProvider(LocalOverscrollFactory provides null) {
+        downloadList?.let {
+            if (downloadList.isNotEmpty()) LazyColumn(
+                modifier = modifier,
+                state = listState
             ) {
-                downloadList?.let { files ->
-                    LaunchedEffect(selectedFilter, downloadList.isEmpty()) {
-                        if (selectedFilter != UNKNOWN && downloadList.isEmpty()) onChangeFilter(
-                            UNKNOWN
+                item {
+                    Text(
+                        text = stringResource(RCommon.string.gallery),
+                        style = typography.h2.copy(fontSize = Sp32),
+                        color = colorScheme.onPrimary,
+                        modifier = Modifier.padding(top = Dp16, start = Dp24, end = Dp24)
+                    )
+                }
+                stickyHeader {
+                    if (platformTypes.size > 1) FilterContent(
+                        modifier = Modifier
+                            .background(colorScheme.background)
+                            .fillMaxWidth()
+                            .padding(start = Dp24, end = Dp24, top = Dp16, bottom = Dp24),
+                        platformTypes = platformTypes,
+                        selectedFilter = selectedFilter
+                    ) { filter -> onClickFilter(filter) }
+                    if (isExpanded.not()) {
+                        HorizontalDivider(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .shadow(Dp3),
+                            thickness = Dp1,
+                            color = colorScheme.onPrimary.copy(alpha = 0.12f)
                         )
                     }
-                    AnimatedContent(
-                        targetState = files.isNotEmpty(),
-                        label = "Contents"
-                    ) { isNotEmpty ->
-                        if (isNotEmpty) {
-                            CompositionLocalProvider(LocalOverscrollFactory provides null) {
-                                LazyColumn(
-                                    modifier = Modifier.fillMaxSize(),
-                                    state = listState
-                                ) {
-                                    items(
-                                        items = downloadList,
-                                        key = { it.id }
-                                    ) {
-                                        MeverCard(
-                                            modifier = Modifier
-                                                .padding(horizontal = Dp24)
-                                                .then(
-                                                    if (isExpanded) Modifier.animateItem()
-                                                    else Modifier
-                                                ),
-                                            cardArgs = MeverCardArgs(
-                                                source = it.url,
-                                                tag = it.tag,
-                                                fileName = it.fileName,
-                                                status = it.status,
-                                                progress = it.progress,
-                                                total = it.total,
-                                                path = it.path,
-                                                urlThumbnail = it.metaData,
-                                                icon = if (it.tag.isNotEmpty()) {
-                                                    getPlatformIcon(it.tag)
-                                                } else null,
-                                                iconBackgroundColor = getPlatformIconBackgroundColor(
-                                                    it.tag
-                                                ),
-                                                iconSize = Dp24,
-                                                iconPadding = Dp5
-                                            ),
-                                            onClickCard = { onClickCard(it) },
-                                            onClickShare = { onClickShare(it) },
-                                            onClickDelete = { onClickDelete(it) }
-                                        )
-                                    }
-                                }
-                            }
-                        } else {
-                            Column(verticalArrangement = spacedBy(Dp8)) {
-                                MeverEmptyItem(
-                                    image = RCommon.drawable.ic_not_found,
-                                    size = Dp189,
-                                    description = stringResource(RCommon.string.empty_list_desc)
-                                )
-                            }
-                        }
-                    }
+                }
+                items(
+                    items = downloadList,
+                    key = { it.id }
+                ) {
+                    MeverCard(
+                        modifier = Modifier
+                            .padding(horizontal = Dp24)
+                            .animateItem(),
+                        cardArgs = MeverCardArgs(
+                            source = it.url,
+                            tag = it.tag,
+                            fileName = it.fileName,
+                            status = it.status,
+                            progress = it.progress,
+                            total = it.total,
+                            path = it.path,
+                            urlThumbnail = it.metaData,
+                            icon = if (it.tag.isNotEmpty()) {
+                                getPlatformIcon(it.tag)
+                            } else null,
+                            iconBackgroundColor = getPlatformIconBackgroundColor(
+                                it.tag
+                            ),
+                            iconSize = Dp24,
+                            iconPadding = Dp5
+                        ),
+                        onClickCard = { onClickCard(it) },
+                        onClickShare = { onClickShare(it) },
+                        onClickDelete = { onClickDelete(it) }
+                    )
+                }
+            } else {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    Text(
+                        text = stringResource(RCommon.string.gallery),
+                        style = typography.h2.copy(fontSize = Sp32),
+                        color = colorScheme.onPrimary,
+                        modifier = Modifier.padding(top = Dp80, start = Dp24, end = Dp24)
+                    )
+                    MeverEmptyItem(
+                        image = R.drawable.ic_not_found,
+                        size = Dp189,
+                        description = stringResource(R.string.empty_list_desc)
+                    )
                 }
             }
         }

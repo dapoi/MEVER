@@ -1,7 +1,6 @@
 package com.dapascript.mever.feature.gallery.viewmodel
 
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
@@ -22,7 +21,6 @@ class GalleryLandingViewModel @Inject constructor(
     val ketch: Ketch
 ) : BaseViewModel() {
 
-    var titleHeight by mutableIntStateOf(0)
     var selectedFilter by mutableStateOf(UNKNOWN)
     var platformTypes by mutableStateOf(listOf(UNKNOWN))
     val downloadList = ketch.observeDownloads()
