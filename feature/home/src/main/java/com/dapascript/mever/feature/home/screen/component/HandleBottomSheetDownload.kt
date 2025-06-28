@@ -19,7 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.Center
@@ -44,7 +44,6 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp20
-import com.dapascript.mever.core.common.util.isValidUrl
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.data.model.local.ContentEntity
 
@@ -66,10 +65,10 @@ internal fun HandleBottomSheetDownload(
                 .wrapContentSize()
                 .padding(horizontal = Dp24)
         ) {
-            var chooseQuality by remember(this) { mutableStateOf(firstOrNull()?.url) }
+            var chooseQualityIndex by remember { mutableIntStateOf(0) }
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                if (get(0).thumbnail.isEmpty()) MeverUrlThumbnail(
-                    source = size.takeIf { it > 0 }?.let { get(0).url } ?: "",
+                if (first().thumbnail.isEmpty()) MeverUrlThumbnail(
+                    source = size.takeIf { it > 0 }?.let { first().url } ?: "",
                     isFailedFetchImage = isFailedFetchImage,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -77,7 +76,7 @@ internal fun HandleBottomSheetDownload(
                         .padding(bottom = Dp32)
                         .clip(RoundedCornerShape(Dp12))
                 ) else MeverImage(
-                    source = get(0).thumbnail,
+                    source = first().thumbnail,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(Dp150)
@@ -89,14 +88,14 @@ internal fun HandleBottomSheetDownload(
                     style = typography.bodyBold1.copy(fontSize = Sp20),
                     color = colorScheme.onPrimary
                 )
-                filter { isValidUrl(it.url) }.map { content ->
+                forEachIndexed { index, content ->
                     CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
                         MeverRadioButton(
                             value = if (content.quality.isNotEmpty()) stringResource(
                                 R.string.quality, content.quality
                             ) else content.type.ifEmpty { "Video" },
-                            isChoosen = chooseQuality == content.url
-                        ) { chooseQuality = content.url }
+                            isChoosen = chooseQualityIndex == index,
+                        ) { chooseQualityIndex = index }
                     }
                 }
             }
@@ -131,7 +130,7 @@ internal fun HandleBottomSheetDownload(
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(Dp14))
-                        .onCustomClick { onClickDownload(chooseQuality ?: get(0).url) }
+                        .onCustomClick { onClickDownload(listContent[chooseQualityIndex].url) }
                         .weight(1f)
                         .padding(vertical = Dp16),
                     contentAlignment = Center
