@@ -17,12 +17,15 @@ data class SavefromDownloaderResponse(
         )
     }
 
-    fun mapToEntity() = data.url.filter { it.type.orEmpty().contains("mp3").not() }.map {
-        ContentEntity(
-            url = it.url.orEmpty(),
-            quality = it.subname.orEmpty(),
-            thumbnail = data.thumb.orEmpty(),
-            type = it.type.orEmpty()
-        )
-    }
+    fun mapToEntity() = data.url
+        .filter { it.type.orEmpty().contains("mp3").not() }
+        .distinctBy { it.subname }
+        .map {
+            ContentEntity(
+                url = it.url.orEmpty(),
+                quality = it.subname.orEmpty(),
+                thumbnail = data.thumb.orEmpty(),
+                type = it.type.orEmpty()
+            )
+        }
 }
