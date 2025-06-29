@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -174,8 +175,9 @@ internal fun HomeLandingScreen(
     }
 
     BaseScreen(
-        hideDefaultTopBar = true,
-        allowScreenOverlap = true
+        useSystemBarsPadding = true,
+        allowScreenOverlap = true,
+        hideDefaultTopBar = true
     ) {
         LaunchedEffect(downloaderResponseState) {
             downloaderResponseState.handleUiState(
@@ -254,6 +256,9 @@ internal fun HomeLandingScreen(
         )
 
         HomeScreenContent(
+            modifier = Modifier
+                .fillMaxSize()
+                .systemBarsPadding(),
             viewModel = this,
             navController = navController,
             isLoading = showLoading
@@ -272,11 +277,7 @@ private fun HomeScreenContent(
     modifier: Modifier = Modifier,
     requestStoragePermissionLauncher: () -> Unit
 ) = with(viewModel) {
-    BoxWithConstraints(
-        modifier = modifier
-            .fillMaxSize()
-            .navigationBarsPadding()
-    ) {
+    BoxWithConstraints(modifier = modifier) {
         val context = LocalContext.current
         val downloadList = downloadList.collectAsStateValue()
         val getListActionMenu = remember { getListActionMenu(context) }

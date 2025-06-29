@@ -130,8 +130,9 @@ fun MeverVideoPlayer(
     BackHandler(isFullScreen) { exitFullScreen() }
 
     LaunchedEffect(showController) {
+        hideSystemBar(activity, showController.not())
         if (showController && showDropDownMenu.not()) {
-            delay(3000)
+            delay(2000)
             showController = false
         }
     }
@@ -160,7 +161,6 @@ fun MeverVideoPlayer(
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
                 ON_CREATE -> {
-                    hideSystemBar(activity, true)
                     player = Builder(context).build().apply {
                         setMediaItem(fromUri(source))
                         prepare()
@@ -314,15 +314,18 @@ private fun VideoPlayer(
         )
     }
     AnimatedVisibility(
+        modifier = Modifier.systemBarsPadding(),
         visible = isControllerVisible,
         enter = fadeIn(),
         exit = fadeOut()
     ) {
-        Box(modifier = modifier.background(MeverBlack.copy(alpha = 0.7f))) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MeverBlack.copy(alpha = 0.7f))
+        ) {
             MeverTopBar(
-                modifier = Modifier
-                    .padding(horizontal = Dp24)
-                    .systemBarsPadding(),
+                modifier = Modifier.padding(horizontal = Dp24),
                 topBarArgs = TopBarArgs(
                     actionMenus = listOf(
                         ActionMenu(

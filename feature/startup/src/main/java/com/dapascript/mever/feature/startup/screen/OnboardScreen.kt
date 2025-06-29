@@ -13,10 +13,10 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -67,10 +67,10 @@ internal fun OnboardScreen(
     viewModel: OnboardViewModel = hiltViewModel()
 ) = with(viewModel) {
     BaseScreen(
+        modifier = Modifier.background(colorScheme.background),
         useSystemBarsPadding = false,
         allowScreenOverlap = true,
-        hideDefaultTopBar = true,
-        modifier = Modifier.background(colorScheme.background)
+        hideDefaultTopBar = true
     ) {
         var buttonSize by remember { mutableStateOf(Dp0) }
         val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
@@ -106,7 +106,9 @@ internal fun OnboardScreen(
             }
             ButtonOnboardSection(
                 modifier = Modifier
-                    .systemBarsPadding()
+                    .fillMaxWidth()
+                    .padding(start = Dp24, end = Dp24, bottom = Dp16)
+                    .navigationBarsPadding()
                     .align(BottomCenter)
                     .onGloballyPositioned { buttonSize = it.size.height.dp }
             ) {
@@ -125,9 +127,7 @@ private fun ButtonOnboardSection(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) = Button(
-    modifier = modifier
-        .fillMaxWidth()
-        .padding(horizontal = Dp24),
+    modifier = modifier,
     colors = buttonColors(containerColor = MeverPurple),
     shape = RoundedCornerShape(Dp48),
     onClick = onClick,

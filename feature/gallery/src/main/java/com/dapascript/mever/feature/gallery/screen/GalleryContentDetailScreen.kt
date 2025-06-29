@@ -23,13 +23,11 @@ internal fun GalleryContentDetailScreen(
     val context = LocalContext.current
 
     BaseScreen(
-        hideDefaultTopBar = true,
-        lockOrientation = false,
+        modifier = Modifier.background(MeverBlack),
         useSystemBarsPadding = false,
         allowScreenOverlap = true,
-        statusBarColor = MeverBlack,
-        navigationBarColor = MeverBlack,
-        modifier = Modifier.background(MeverBlack)
+        hideDefaultTopBar = true,
+        lockOrientation = false
     ) {
         with(args) {
             if (isVideo(filePath)) MeverVideoPlayer(

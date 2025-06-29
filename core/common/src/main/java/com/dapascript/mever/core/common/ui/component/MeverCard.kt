@@ -132,7 +132,7 @@ fun MeverCard(
                         )
                     }
                     Text(
-                        text = "$tag ${reformatFileName(fileName)}".trim(),
+                        text = reformatFileName(fileName).trim(),
                         style = typography.bodyBold2,
                         maxLines = 1,
                         overflow = Ellipsis

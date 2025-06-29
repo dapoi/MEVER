@@ -55,9 +55,9 @@ internal fun SplashScreen(
     viewModel: SplashScreenViewModel = hiltViewModel()
 ) = with(viewModel) {
     BaseScreen(
-        hideDefaultTopBar = true,
+        useSystemBarsPadding = false,
         allowScreenOverlap = true,
-        useSystemBarsPadding = false
+        hideDefaultTopBar = true
     ) {
         val isOnboarded = isOnboarded.collectAsStateValue()
         val activity = LocalActivity.current
