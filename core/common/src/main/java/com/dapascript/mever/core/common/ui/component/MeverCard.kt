@@ -56,6 +56,7 @@ import com.dapascript.mever.core.common.util.getContentType
 import com.dapascript.mever.core.common.util.getFilePath
 import com.dapascript.mever.core.common.util.getTwoDecimals
 import com.dapascript.mever.core.common.util.onCustomClick
+import com.dapascript.mever.core.common.util.reformatFileName
 import com.ketch.Status
 import com.ketch.Status.FAILED
 import com.ketch.Status.PAUSED
@@ -131,7 +132,7 @@ fun MeverCard(
                         )
                     }
                     Text(
-                        text = "$tag ${fileName.replace("_", ".")}",
+                        text = "$tag ${reformatFileName(fileName)}".trim(),
                         style = typography.bodyBold2,
                         maxLines = 1,
                         overflow = Ellipsis

@@ -18,7 +18,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverTheme
 import com.dapascript.mever.core.common.ui.theme.ThemeType.Dark
 import com.dapascript.mever.core.common.ui.theme.ThemeType.Light
 import com.dapascript.mever.core.common.util.InAppUpdateManager
-import com.dapascript.mever.core.common.util.LanguageManager.setLanguage
+import com.dapascript.mever.core.common.util.LanguageManager.changeLanguage
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.navigation.base.BaseNavGraph
 import com.dapascript.mever.navigation.MainNavigation
@@ -70,9 +70,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun setLanguage() = lifecycleScope.launch {
         viewModel.getLanguage.collect { languageCode ->
-            setLanguage(
-                this@MainActivity,
-                languageCode
+            changeLanguage(
+                context = this@MainActivity,
+                languageCode = languageCode
             )
         }
     }

@@ -214,6 +214,15 @@ fun changeToCurrentDate(date: Long): String {
     return dateFormat.format(calendar.time)
 }
 
+fun reformatFileName(fileName: String) = try {
+    "${SimpleDateFormat("dd MMM yyyy - HH:mm", getDefault()).format(
+        SimpleDateFormat("yyyy.MM.dd - HH_mm", getDefault())
+            .parse(fileName.removeSuffix(".mp4"))!!
+    )}.mp4"
+} catch (e: Exception) {
+    fileName
+}
+
 fun hideSystemBar(activity: Activity, value: Boolean) = with(activity) {
     val insetsController = getInsetsController(window, window.decorView)
     if (value) insetsController.hide(systemBars()) else insetsController.show(systemBars())

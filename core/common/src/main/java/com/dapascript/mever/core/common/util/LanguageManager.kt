@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatDelegate.setApplicationLocales
 import androidx.core.os.LocaleListCompat
 
 object LanguageManager {
-    fun setLanguage(context: Context, languageCode: String) {
+    fun changeLanguage(context: Context, languageCode: String) {
         if (SDK_INT >= TIRAMISU) {
             context.getSystemService(
                 LocaleManager::class.java

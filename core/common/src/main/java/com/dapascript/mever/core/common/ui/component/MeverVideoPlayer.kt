@@ -92,6 +92,7 @@ import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.convertToTimeFormat
 import com.dapascript.mever.core.common.util.hideSystemBar
 import com.dapascript.mever.core.common.util.onCustomClick
+import com.dapascript.mever.core.common.util.reformatFileName
 import kotlinx.coroutines.delay
 
 @SuppressLint("SourceLockedOrientationActivity")
@@ -190,7 +191,7 @@ fun MeverVideoPlayer(
         modifier = modifier.fillMaxSize(),
         player = player ?: return,
         isVideoBuffering = isVideoBuffering,
-        title = source.substringAfterLast("/"),
+        title = reformatFileName(source.substringAfterLast("/")).ifEmpty { "Video" },
         iconPlayOrPause = if (isVideoPlaying == true) R.drawable.ic_pause else R.drawable.ic_play,
         isControllerVisible = showController,
         isFullScreen = isFullScreen,
