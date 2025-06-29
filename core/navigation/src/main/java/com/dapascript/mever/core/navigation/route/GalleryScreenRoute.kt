@@ -10,7 +10,6 @@ sealed class GalleryScreenRoute {
     @Serializable
     data class GalleryContentDetailRoute(
         val id: Int,
-        val sourceFile: String,
-        val fileName: String
+        val filePath: String
     ) : GalleryScreenRoute()
 }

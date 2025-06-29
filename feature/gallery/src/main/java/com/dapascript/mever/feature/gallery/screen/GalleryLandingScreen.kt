@@ -61,7 +61,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.util.Constant.PlatformType
 import com.dapascript.mever.core.common.util.Constant.PlatformType.UNKNOWN
-import com.dapascript.mever.core.common.util.getMeverFiles
+import com.dapascript.mever.core.common.util.getFilePath
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.navigation.helper.navigateTo
@@ -162,10 +162,7 @@ internal fun GalleryLandingScreen(
                         SUCCESS -> navController.navigateTo(
                             GalleryContentDetailRoute(
                                 id = id,
-                                sourceFile = getMeverFiles()?.find { file ->
-                                    file.name == fileName
-                                }?.path.orEmpty(),
-                                fileName = fileName.replace("_", ".")
+                                filePath = getFilePath(fileName)
                             )
                         )
 
@@ -178,9 +175,7 @@ internal fun GalleryLandingScreen(
             onClickShare = {
                 shareContent(
                     context = context,
-                    file = File(getMeverFiles()?.find { file ->
-                        file.name == it.fileName
-                    }?.path.orEmpty())
+                    file = File(getFilePath(it.fileName))
                 )
             },
             onClickDelete = { showDeleteDialog = it.id },

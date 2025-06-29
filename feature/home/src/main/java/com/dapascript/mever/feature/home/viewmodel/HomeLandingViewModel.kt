@@ -36,11 +36,9 @@ import javax.inject.Inject
 class HomeLandingViewModel @Inject constructor(
     connectivityObserver: ConnectivityObserver,
     private val repository: MeverRepository,
-    internal val ketch: Ketch
+    private val ketch: Ketch
 ) : BaseViewModel() {
-    val meverFolder by lazy {
-        getMeverFolder().takeIf { it.exists() } ?: getMeverFolder().apply { mkdirs() }
-    }
+    private val meverFolder by lazy { getMeverFolder() }
 
     /**
      * Downloader
@@ -84,10 +82,30 @@ class HomeLandingViewModel @Inject constructor(
         MutableStateFlow<UiState<List<ContentEntity>>>(StateInitial)
     val downloaderResponseState = _downloaderResponseState.asStateFlow()
 
-    fun getApiDownloader(urlSocialMedia: TextFieldValue) = collectApiAsUiState(
-        response = repository.getApiDownloader(urlSocialMedia.text),
+    fun getApiDownloader() = collectApiAsUiState(
+        response = repository.getApiDownloader(urlSocialMediaState.text),
         updateState = { _downloaderResponseState.value = it }
     )
+
+    fun startDownload(
+        url: String,
+        fileName: String,
+        thumbnail: String
+    ) = ketch.download(
+        url = url,
+        path = meverFolder.path,
+        fileName = fileName,
+        tag = getPlatformType(urlSocialMediaState.text).platformName,
+        metaData = thumbnail
+    )
+
+    fun resumeDownload(id: Int) = ketch.resume(id)
+
+    fun pauseDownload(id: Int) = ketch.pause(id)
+
+    fun retryDownload(id: Int) = ketch.retry(id)
+
+    fun delete(id: Int) = ketch.clearDb(id)
 
     private fun MeverRepository.getApiDownloader(
         typeUrl: String

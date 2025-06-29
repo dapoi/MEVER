@@ -32,25 +32,24 @@ internal fun GalleryContentDetailScreen(
         modifier = Modifier.background(MeverBlack)
     ) {
         with(args) {
-            if (isVideo(fileName)) MeverVideoPlayer(
-                source = sourceFile,
-                fileName = fileName,
+            if (isVideo(filePath)) MeverVideoPlayer(
+                source = filePath,
                 onClickDelete = { deleteContent(id) },
                 onClickShare = {
                     shareContent(
                         context = context,
-                        file = File(sourceFile)
+                        file = File(filePath)
                     )
                 },
                 onClickBack = { navigator.popBackStack() }
             ) else MeverPhotoViewer(
-                source = sourceFile,
-                fileName = fileName,
+                source = filePath,
+                title = filePath.substringAfterLast("/"),
                 onClickDelete = { deleteContent(id) },
                 onClickShare = {
                     shareContent(
                         context = context,
-                        file = File(sourceFile)
+                        file = File(filePath)
                     )
                 },
                 onClickBack = { navigator.popBackStack() }

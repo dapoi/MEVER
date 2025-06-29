@@ -135,12 +135,11 @@ internal fun HomeImageGeneratorResultScreen(
             isNetworkAvailable = isNetworkAvailable,
             onNetworkAvailable = {
                 if (isDownloadAllClicked) {
-                    aiImages.forEach { url ->
+                    aiImages.map { url ->
                         scope.launch {
-                            ketch.download(
+                            startDownload(
                                 url = url,
-                                fileName = args.prompt + getUrlContentType(url),
-                                path = meverFolder.path
+                                fileName = args.prompt + getUrlContentType(url)
                             )
                         }
                     }
@@ -152,10 +151,9 @@ internal fun HomeImageGeneratorResultScreen(
                 } else {
                     snackbarMessage.value = context.getString(R.string.image_has_been_downloaded)
                     scope.launch {
-                        ketch.download(
+                        startDownload(
                             url = imageSelected.orEmpty(),
-                            fileName = args.prompt + getUrlContentType(imageSelected.orEmpty()),
-                            path = meverFolder.path
+                            fileName = args.prompt + getUrlContentType(imageSelected.orEmpty())
                         )
                     }
                     if (aiImages.size <= 1) navController.navigateTo(

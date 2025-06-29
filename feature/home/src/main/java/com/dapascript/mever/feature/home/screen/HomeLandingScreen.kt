@@ -111,7 +111,7 @@ import com.dapascript.mever.core.common.util.ErrorHandle.getErrorResponseContent
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.changeToCurrentDate
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.NetworkStatus.Available
-import com.dapascript.mever.core.common.util.getMeverFiles
+import com.dapascript.mever.core.common.util.getFilePath
 import com.dapascript.mever.core.common.util.getNotificationPermission
 import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.getStoragePermission
@@ -130,8 +130,8 @@ import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLand
 import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.getArtStyles
 import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetDownload
 import com.dapascript.mever.feature.home.screen.component.HandleDialogError
-import com.dapascript.mever.feature.home.screen.component.HandleHomeDialogPermission
 import com.dapascript.mever.feature.home.screen.component.HandleDialogYoutubeQuality
+import com.dapascript.mever.feature.home.screen.component.HandleHomeDialogPermission
 import com.dapascript.mever.feature.home.viewmodel.HomeLandingViewModel
 import com.ketch.DownloadModel
 import com.ketch.Status.FAILED
@@ -162,7 +162,7 @@ internal fun HomeLandingScreen(
             onNetworkAvailable = {
                 if (getPlatformType(urlSocialMediaState.text) == YOUTUBE) {
                     showYoutubeChooseQualityModal = true
-                } else getApiDownloader(urlSocialMediaState)
+                } else getApiDownloader()
             },
             onNetworkUnavailable = { showErrorModal = NETWORK }
         ) else getStoragePermission.forEach { permission ->
@@ -199,14 +199,11 @@ internal fun HomeLandingScreen(
             showBottomSheet = contents.isNotEmpty(),
             isFailedFetchImage = isNetworkAvailable != Available,
             onClickDownload = { url ->
-                if (meverFolder.exists().not()) meverFolder.mkdirs()
                 scope.launch {
-                    ketch.download(
+                    startDownload(
                         url = url,
-                        path = meverFolder.path,
                         fileName = changeToCurrentDate(currentTimeMillis()) + getUrlContentType(url),
-                        tag = getPlatformType(urlSocialMediaState.text).platformName,
-                        metaData = contents.firstOrNull()?.thumbnail.orEmpty()
+                        thumbnail = contents.firstOrNull()?.thumbnail.orEmpty()
                     )
                     urlSocialMediaState = TextFieldValue("")
                 }
@@ -224,7 +221,7 @@ internal fun HomeLandingScreen(
                     showErrorModal = null
                     getNetworkStatus(
                         isNetworkAvailable = isNetworkAvailable,
-                        onNetworkAvailable = { getApiDownloader(urlSocialMediaState) },
+                        onNetworkAvailable = { getApiDownloader() },
                         onNetworkUnavailable = { showErrorModal = NETWORK }
                     )
                 },
@@ -251,7 +248,7 @@ internal fun HomeLandingScreen(
             onApplyQuality = { quality ->
                 showYoutubeChooseQualityModal = false
                 selectedQuality = quality
-                getApiDownloader(urlSocialMediaState)
+                getApiDownloader()
             },
             onDismiss = { showYoutubeChooseQualityModal = false }
         )
@@ -357,16 +354,13 @@ private fun HomeScreenContent(
                                                 SUCCESS -> navController.navigateTo(
                                                     GalleryContentDetailRoute(
                                                         id = id,
-                                                        sourceFile = getMeverFiles()?.find { file ->
-                                                            file.name == fileName
-                                                        }?.path.orEmpty(),
-                                                        fileName = fileName.replace("_", ".")
+                                                        filePath = getFilePath(fileName)
                                                     )
                                                 )
 
                                                 FAILED -> showFailedDialog = id
-                                                PAUSED -> ketch.resume(id)
-                                                else -> ketch.pause(id)
+                                                PAUSED -> resumeDownload(id)
+                                                else -> pauseDownload(id)
                                             }
                                         }
                                     },
@@ -374,9 +368,7 @@ private fun HomeScreenContent(
                                     onClickShare = {
                                         shareContent(
                                             context = context,
-                                            file = File(getMeverFiles()?.find { file ->
-                                                file.name == it.fileName
-                                            }?.path.orEmpty())
+                                            file = File(getFilePath(it.fileName))
                                         )
                                     },
                                     onValueChange = { urlSocialMediaState = it },
@@ -458,7 +450,7 @@ private fun HomeScreenContent(
                     title = stringResource(R.string.delete_title),
                     primaryButtonText = stringResource(R.string.delete_button),
                     onClickPrimaryButton = {
-                        ketch.clearDb(id)
+                        delete(id)
                         showDeleteDialog = null
                     },
                     onClickSecondaryButton = { showDeleteDialog = null }
@@ -480,11 +472,11 @@ private fun HomeScreenContent(
                     primaryButtonText = stringResource(R.string.delete_button),
                     secondaryButtonText = stringResource(R.string.retry),
                     onClickPrimaryButton = {
-                        ketch.clearDb(id)
+                        delete(id)
                         showFailedDialog = null
                     },
                     onClickSecondaryButton = {
-                        ketch.retry(id)
+                        retryDownload(id)
                         showFailedDialog = null
                     }
                 )

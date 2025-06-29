@@ -63,7 +63,6 @@ import androidx.lifecycle.Lifecycle.Event.ON_START
 import androidx.lifecycle.Lifecycle.Event.ON_STOP
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaItem.fromUri
 import androidx.media3.common.Player
 import androidx.media3.common.Player.STATE_BUFFERING
@@ -99,7 +98,6 @@ import kotlinx.coroutines.delay
 @Composable
 fun MeverVideoPlayer(
     source: String,
-    fileName: String,
     modifier: Modifier = Modifier,
     onClickDelete: () -> Unit,
     onClickShare: () -> Unit,
@@ -112,7 +110,6 @@ fun MeverVideoPlayer(
     var isFullScreen by remember { mutableStateOf(false) }
     var isVideoPlaying by remember { mutableStateOf(player?.isPlaying) }
     var playbackState by remember { mutableStateOf(player?.playbackState) }
-    var title by remember { mutableStateOf(player?.currentMediaItem?.mediaMetadata?.displayTitle.toString()) }
     var videoTimer by remember { mutableLongStateOf(0L) }
     var totalDuration by remember { mutableLongStateOf(0L) }
     var showController by remember { mutableStateOf(false) }
@@ -154,11 +151,6 @@ fun MeverVideoPlayer(
                 playbackState = player.playbackState
             }
 
-            override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
-                super.onMediaItemTransition(mediaItem, reason)
-                title = mediaItem?.mediaMetadata?.displayTitle.toString()
-            }
-
             override fun onPlaybackStateChanged(playbackState: Int) {
                 super.onPlaybackStateChanged(playbackState)
                 isVideoBuffering = playbackState == STATE_BUFFERING
@@ -198,7 +190,7 @@ fun MeverVideoPlayer(
         modifier = modifier.fillMaxSize(),
         player = player ?: return,
         isVideoBuffering = isVideoBuffering,
-        title = fileName,
+        title = source.substringAfterLast("/"),
         iconPlayOrPause = if (isVideoPlaying == true) R.drawable.ic_pause else R.drawable.ic_play,
         isControllerVisible = showController,
         isFullScreen = isFullScreen,

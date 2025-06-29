@@ -103,7 +103,11 @@ fun getContentType(path: String) = when {
 fun getContentTypeFromFile(file: File) =
     getSingleton().getMimeTypeFromExtension(file.extension.lowercase())
 
-fun getMeverFolder() = File(getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS), "MEVER")
+fun getMeverFolder(): File {
+    val folder = File(getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS), "MEVER")
+    if (folder.exists().not()) folder.mkdirs()
+    return folder
+}
 
 fun getMeverFiles(): List<File>? {
     val meverFolder = getMeverFolder()
@@ -113,6 +117,12 @@ fun getMeverFiles(): List<File>? {
         }?.toList()
     } else emptyList()
 }
+
+fun getFilePath(fileName: String) = getMeverFiles()?.find { it.name == fileName }?.path.orEmpty()
+
+fun isAvailableOnLocal(fileName: String) = getMeverFiles()?.any {
+    it.name == fileName
+} ?: false
 
 fun shareContent(context: Context, file: File) {
     try {
@@ -208,7 +218,3 @@ fun hideSystemBar(activity: Activity, value: Boolean) = with(activity) {
     val insetsController = getInsetsController(window, window.decorView)
     if (value) insetsController.hide(systemBars()) else insetsController.show(systemBars())
 }
-
-fun isAvailableOnLocal(fileName: String) = getMeverFiles()?.any {
-    it.name == fileName
-} ?: false

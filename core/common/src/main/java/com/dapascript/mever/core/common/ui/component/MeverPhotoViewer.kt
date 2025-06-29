@@ -47,7 +47,7 @@ import com.dapascript.mever.core.common.util.hideSystemBar
 @Composable
 fun MeverPhotoViewer(
     source: String,
-    fileName: String,
+    title: String,
     modifier: Modifier = Modifier,
     onClickDelete: () -> Unit,
     onClickShare: () -> Unit,
@@ -92,7 +92,7 @@ fun MeverPhotoViewer(
                             onClickActionMenu = { showDropDownMenu = showDropDownMenu.not() }
                         )
                     ),
-                    title = fileName,
+                    title = title,
                     topBarColor = MeverTransparent,
                     titleColor = MeverWhite,
                     iconBackColor = MeverWhite,

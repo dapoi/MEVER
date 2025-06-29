@@ -23,12 +23,10 @@ import javax.inject.Inject
 class HomeImageGeneratorResultViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     connectivityObserver: ConnectivityObserver,
-    internal val ketch: Ketch,
-    private val repository: MeverRepository
+    private val repository: MeverRepository,
+    private val ketch: Ketch
 ) : BaseViewModel() {
-    val meverFolder by lazy {
-        getMeverFolder().takeIf { it.exists() } ?: getMeverFolder().apply { mkdirs() }
-    }
+    private val meverFolder by lazy { getMeverFolder() }
     val args by lazy { savedStateHandle.toRoute<HomeImageGeneratorResultRoute>() }
     val isNetworkAvailable = connectivityObserver
         .observe()
@@ -47,5 +45,14 @@ class HomeImageGeneratorResultViewModel @Inject constructor(
         ),
         resetState = false,
         updateState = { _aiResponseState.value = it }
+    )
+
+    fun startDownload(
+        url: String,
+        fileName: String
+    ) = ketch.download(
+        url = url,
+        fileName = fileName,
+        path = meverFolder.path
     )
 }

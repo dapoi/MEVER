@@ -53,7 +53,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.util.calculateDownloadPercentage
 import com.dapascript.mever.core.common.util.calculateDownloadedMegabytes
 import com.dapascript.mever.core.common.util.getContentType
-import com.dapascript.mever.core.common.util.getMeverFiles
+import com.dapascript.mever.core.common.util.getFilePath
 import com.dapascript.mever.core.common.util.getTwoDecimals
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.ketch.Status
@@ -238,6 +238,3 @@ private fun getImagePainter(status: Status) = rememberAsyncImagePainter(
         }
     ).build()
 )
-
-private fun getFilePath(fileName: String) =
-    getMeverFiles()?.find { it.name == fileName }?.path.orEmpty()
