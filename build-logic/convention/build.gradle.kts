@@ -41,33 +41,40 @@ tasks {
 
 gradlePlugin {
     plugins {
+        // Registering the plugins for different module types
         register("application") {
-            id = "mever.application"
-            implementationClass = "AppPlugin"
+            id = "convention.application"
+            implementationClass = "plugin.module.ApplicationModulePlugin"
         }
-        register("api") {
-            id = "mever.api"
-            implementationClass = "ApiPlugin"
+        register("common") {
+            id = "convention.common"
+            implementationClass = "plugin.module.CommonModulePlugin"
+        }
+        register("data") {
+            id = "convention.data"
+            implementationClass = "plugin.module.DataModulePlugin"
         }
         register("feature") {
-            id = "mever.feature"
-            implementationClass = "FeaturePlugin"
-        }
-        register("hilt") {
-            id = "mever.hilt"
-            implementationClass = "HiltPlugin"
-        }
-        register("androidLibrary") {
-            id = "mever.android.library"
-            implementationClass = "AndroidLibPlugin"
-        }
-        register("ComposeLibrary") {
-            id = "mever.compose.library"
-            implementationClass = "ComposeLibPlugin"
+            id = "convention.feature"
+            implementationClass = "plugin.module.FeatureModulePlugin"
         }
         register("navigation") {
-            id = "mever.navigation"
-            implementationClass = "NavPlugin"
+            id = "convention.navigation"
+            implementationClass = "plugin.module.NavigationModulePlugin"
+        }
+
+        // Registering the plugins for Android, Compose, and Hilt
+        register("androidLibrary") {
+            id = "convention.android.library"
+            implementationClass = "plugin.AndroidLibPlugin"
+        }
+        register("composeLibrary") {
+            id = "convention.compose.library"
+            implementationClass = "plugin.ComposeLibPlugin"
+        }
+        register("hiltLibrary") {
+            id = "convention.hilt"
+            implementationClass = "plugin.HiltLibPlugin"
         }
     }
 }

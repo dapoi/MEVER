@@ -1,4 +1,3 @@
 plugins {
-    alias(libs.plugins.mever.android.library)
-    alias(libs.plugins.mever.navigation)
+    alias(libs.plugins.convention.navigation)
 }

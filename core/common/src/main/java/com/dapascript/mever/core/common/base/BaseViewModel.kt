@@ -19,7 +19,6 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -35,14 +34,15 @@ open class BaseViewModel @Inject constructor() : ViewModel() {
         resetState: Boolean = true,
         updateState: (UiState<T>) -> Unit
     ) {
+        apiJob?.cancel()
         apiJob = viewModelScope.launch(IO) {
-            response.map {
-                when (it) {
+            response.map { apiState ->
+                when (apiState) {
                     is Loading -> StateLoading
-                    is Success -> StateSuccess(it.data)
-                    is Error -> StateFailed(it.throwable)
+                    is Success -> StateSuccess(apiState.data)
+                    is Error -> StateFailed(apiState.throwable)
                 }
-            }.collectLatest { uiState ->
+            }.collect { uiState ->
                 updateState(uiState)
                 if (resetState && (uiState is StateSuccess || uiState is StateFailed)) {
                     delay(300)

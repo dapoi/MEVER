@@ -1,15 +1,18 @@
-import com.dapascript.mever.build_logic.convention.ConstantLibs.coreModules
-import com.dapascript.mever.build_logic.convention.alias
-import com.dapascript.mever.build_logic.convention.implementation
-import com.dapascript.mever.build_logic.convention.libs
+package plugin.module
+
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.dependencies
+import util.ConstantLibs.coreModules
+import util.alias
+import util.implementation
+import util.libs
 
-class NavPlugin : Plugin<Project> {
+class NavigationModulePlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             with(pluginManager) {
+                alias(libs.plugins.convention.android.library)
                 alias(libs.plugins.kotlin.serialization)
                 alias(libs.plugins.kotlin.parcelize)
             }

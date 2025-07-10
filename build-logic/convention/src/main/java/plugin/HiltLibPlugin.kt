@@ -1,12 +1,14 @@
-import com.dapascript.mever.build_logic.convention.ConstantLibs.KSP
-import com.dapascript.mever.build_logic.convention.alias
-import com.dapascript.mever.build_logic.convention.implementation
-import com.dapascript.mever.build_logic.convention.libs
+package plugin
+
+import util.ConstantLibs.KSP
+import util.alias
+import util.implementation
+import util.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.dependencies
 
-class HiltPlugin : Plugin<Project> {
+class HiltLibPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             with(pluginManager) {

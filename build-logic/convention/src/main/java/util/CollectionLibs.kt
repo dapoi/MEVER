@@ -1,8 +1,8 @@
-package com.dapascript.mever.build_logic.convention
+package util
 
-import com.dapascript.mever.build_logic.convention.ConstantLibs.coreModules
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.dependencies
+import util.ConstantLibs.coreModules
 
 object CollectionLibs {
     fun Project.composeDependencies() {
@@ -29,7 +29,7 @@ object CollectionLibs {
         }
     }
 
-    fun Project.apiDependencies() {
+    fun Project.dataDependencies() {
         dependencies {
             implementation(project(coreModules[1]))
             implementation(libs.dataStorePreferences.get())

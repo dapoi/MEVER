@@ -1,10 +1,10 @@
-package com.dapascript.mever.build_logic.convention
+package config
 
 import com.android.build.api.dsl.CommonExtension
-import com.dapascript.mever.build_logic.convention.ConstantLibs.BASE_NAME
-import com.dapascript.mever.build_logic.convention.ConstantLibs.FREE_COMPILER
-import com.dapascript.mever.build_logic.convention.ConstantLibs.MAX_SDK_VERSION
-import com.dapascript.mever.build_logic.convention.ConstantLibs.MIN_SDK_VERSION
+import util.ConstantLibs.BASE_NAME
+import util.ConstantLibs.FREE_COMPILER
+import util.ConstantLibs.MAX_SDK_VERSION
+import util.ConstantLibs.MIN_SDK_VERSION
 import org.gradle.api.JavaVersion.VERSION_21
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.extra

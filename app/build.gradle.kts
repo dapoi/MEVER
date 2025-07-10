@@ -1,8 +1,5 @@
-import com.dapascript.mever.build_logic.convention.implementation
-
 plugins {
-    alias(libs.plugins.mever.application)
-    alias(libs.plugins.mever.hilt)
+    alias(libs.plugins.convention.application)
 }
 
 android {

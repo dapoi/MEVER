@@ -1,7 +1,9 @@
+package plugin
+
 import com.android.build.api.dsl.LibraryExtension
-import com.dapascript.mever.build_logic.convention.alias
-import com.dapascript.mever.build_logic.convention.configCompose
-import com.dapascript.mever.build_logic.convention.libs
+import util.alias
+import config.configCompose
+import util.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure

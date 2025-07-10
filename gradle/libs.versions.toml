@@ -3,7 +3,7 @@ androidGradlePlugin = "8.11.0"
 androidTools = "31.11.0"
 androidxActivity = "1.10.1"
 androidxComposeBom = "2025.06.01"
-androidxNavigation = "2.9.0"
+androidxNavigation = "2.9.1"
 appCompat = "1.7.1"
 appUpdate = "2.1.0"
 chucker = "4.1.0"
@@ -13,7 +13,7 @@ dataStorePreferences = "1.1.7"
 espressoCore = "3.6.1"
 hilt = "2.56.2"
 hiltNavigation = "1.2.0"
-interceptor = "4.12.0"
+interceptor = "5.0.0"
 junit = "1.2.1"
 ketch = "2.0.5"
 kotlin = "2.2.0"
@@ -72,11 +72,15 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
-# Custom plugins
-mever-android-library = { id = "mever.android.library", version = "unspecified" }
-mever-application = { id = "mever.application", version = "unspecified" }
-mever-api = { id = "mever.api", version = "unspecified" }
-mever-compose-library = { id = "mever.compose.library", version = "unspecified" }
-mever-feature = { id = "mever.feature", version = "unspecified" }
-mever-hilt = { id = "mever.hilt", version = "unspecified" }
-mever-navigation = { id = "mever.navigation", version = "unspecified" }
+# Convention plugins
+## These plugins are used in the modules & build-logic
+convention-application = { id = "convention.application", version = "unspecified" }
+convention-common = { id = "convention.common", version = "unspecified" }
+convention-data = { id = "convention.data", version = "unspecified" }
+convention-feature = { id = "convention.feature", version = "unspecified" }
+convention-navigation = { id = "convention.navigation", version = "unspecified" }
+
+## These plugins are used in the build-logic
+convention-android-library = { id = "convention.android.library", version = "unspecified" }
+convention-compose-library = { id = "convention.compose.library", version = "unspecified" }
+convention-hilt = { id = "convention.hilt", version = "unspecified" }

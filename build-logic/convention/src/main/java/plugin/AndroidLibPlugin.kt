@@ -1,8 +1,10 @@
+package plugin
+
 import com.android.build.gradle.LibraryExtension
-import com.dapascript.mever.build_logic.convention.ConstantLibs.MAX_SDK_VERSION
-import com.dapascript.mever.build_logic.convention.alias
-import com.dapascript.mever.build_logic.convention.configAndroid
-import com.dapascript.mever.build_logic.convention.libs
+import util.ConstantLibs.MAX_SDK_VERSION
+import util.alias
+import config.configAndroid
+import util.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
@@ -14,7 +16,7 @@ class AndroidLibPlugin : Plugin<Project> {
                 alias(libs.plugins.android.library)
                 alias(libs.plugins.kotlin.android)
                 alias(libs.plugins.kotlin.compose)
-                alias(libs.plugins.mever.hilt)
+                alias(libs.plugins.convention.hilt)
             }
 
             extensions.configure<LibraryExtension> {

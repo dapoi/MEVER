@@ -1,4 +1,3 @@
 plugins {
-    alias(libs.plugins.mever.android.library)
-    alias(libs.plugins.mever.compose.library)
+    alias(libs.plugins.convention.common)
 }

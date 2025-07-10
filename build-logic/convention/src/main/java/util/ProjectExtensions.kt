@@ -1,4 +1,4 @@
-package com.dapascript.mever.build_logic.convention
+package util
 
 import org.gradle.accessors.dm.LibrariesForLibs
 import org.gradle.api.Project

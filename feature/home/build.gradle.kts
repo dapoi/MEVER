@@ -1,3 +1,3 @@
 plugins {
-    alias(libs.plugins.mever.feature)
+    alias(libs.plugins.convention.feature)
 }
