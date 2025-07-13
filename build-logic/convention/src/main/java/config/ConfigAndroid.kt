@@ -31,7 +31,6 @@ internal fun Project.configAndroid(
             }
             buildConfigField("String", "BASE_URL", getEnvVariable("BASE_URL"))
             buildConfigField("String", "API_KEY", getEnvVariable("API_KEY"))
-            buildConfigField("String", "SESSION", getEnvVariable("SESSION"))
         }
 
         buildFeatures {

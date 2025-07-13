@@ -1,7 +1,6 @@
 package com.dapascript.mever.core.data.repository
 
 import com.dapascript.mever.core.common.base.BaseRepository
-import com.dapascript.mever.core.data.BuildConfig.SESSION
 import com.dapascript.mever.core.data.source.remote.ApiService
 import javax.inject.Inject
 
@@ -27,7 +26,7 @@ class MeverRepositoryImpl @Inject constructor(
     )
 
     override fun getImageAiGenerator(query: String) = collectApiResult(
-        fetchApi = { apiService.getImageAiGenerator(query, SESSION) },
+        fetchApi = { apiService.getImageAiGenerator(query) },
         transformData = { it.mapToEntity() }
     )
 }
