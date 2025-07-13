@@ -5,6 +5,7 @@ import androidx.compose.animation.core.Spring.StiffnessHigh
 import androidx.compose.animation.core.Spring.StiffnessMediumLow
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.navigation.NavController
@@ -31,7 +32,9 @@ class GalleryNavGraphImpl @Inject constructor() : BaseNavGraph {
                     stiffness = StiffnessMediumLow
                 )
             ),
-            popExitTransition = scaleOut(animationSpec = spring(stiffness = StiffnessMediumLow)),
+            popExitTransition = scaleOut(
+                animationSpec = spring(stiffness = StiffnessMediumLow)
+            ) + fadeOut(spring(stiffness = StiffnessMediumLow)),
         ) { GalleryContentDetailScreen(navController) }
     }
 }
