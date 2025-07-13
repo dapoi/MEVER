@@ -77,7 +77,7 @@
     <string name="paypal_email">Email PayPal</string>
     <string name="copy">Salin</string>
     <string name="apply">Terapkan</string>
-    <string name="buy_coffee">Traktir Kami Kopi</string>
-    <string name="donation_desc">Terima kasih telah menggunakan aplikasi kami! Jika Anda merasa aplikasi ini bermanfaat, Anda dapat mentraktir kami kopi untuk mendukung pengembangan lebih lanjut.</string>
+    <string name="hi_there">Hai!</string>
+    <string name="donation_desc">Terima kasih telah menggunakan aplikasi kami! Jika Anda merasa aplikasi ini bermanfaat, Anda dapat mentraktir kami kopi.</string>
     <string name="later">Lain Waktu</string>
 </resources>
