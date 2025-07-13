@@ -132,6 +132,7 @@ import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.getAr
 import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetDownload
 import com.dapascript.mever.feature.home.screen.component.HandleDialogError
 import com.dapascript.mever.feature.home.screen.component.HandleDialogYoutubeQuality
+import com.dapascript.mever.feature.home.screen.component.HandleDonationDialogOffer
 import com.dapascript.mever.feature.home.screen.component.HandleHomeDialogPermission
 import com.dapascript.mever.feature.home.viewmodel.HomeLandingViewModel
 import com.ketch.DownloadModel
@@ -141,6 +142,7 @@ import com.ketch.Status.SUCCESS
 import kotlinx.coroutines.launch
 import java.io.File
 import java.lang.System.currentTimeMillis
+import kotlin.random.Random
 import com.dapascript.mever.feature.home.R as FeatureHomeR
 
 @Composable
@@ -156,6 +158,7 @@ internal fun HomeLandingScreen(
     var showLoading by remember { mutableStateOf(false) }
     var showYoutubeChooseQualityModal by remember { mutableStateOf(false) }
     var showErrorModal by remember { mutableStateOf<ErrorType?>(null) }
+    var randomDonateDialogOffer by remember { mutableIntStateOf(0) }
     val storagePermLauncher = rememberLauncherForActivityResult(RequestMultiplePermissions()) {
         val allGranted = getStoragePermission.all { permissions -> it[permissions] == true }
         if (allGranted) getNetworkStatus(
@@ -192,6 +195,25 @@ internal fun HomeLandingScreen(
                 }
             )
         }
+
+        LaunchedEffect(randomDonateDialogOffer, showDonationDialog) {
+            // Show donation dialog offer randomly
+            if (showDonationDialog) {
+                (0..5).random(Random).also { randomValue ->
+                    randomDonateDialogOffer = randomValue
+                    showDonationDialog = false
+                }
+            }
+        }
+
+        HandleDonationDialogOffer(
+            showDialog = randomDonateDialogOffer == 1,
+            onClickPrimaryButton = {
+                randomDonateDialogOffer = 0
+                navController.navigateTo(SettingLandingRoute)
+            },
+            onClickSecondaryButton = { randomDonateDialogOffer = 0 }
+        )
 
         HandleBottomSheetDownload(
             modifier = Modifier

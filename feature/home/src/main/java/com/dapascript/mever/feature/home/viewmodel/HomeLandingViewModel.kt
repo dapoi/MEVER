@@ -46,6 +46,7 @@ class HomeLandingViewModel @Inject constructor(
     var urlSocialMediaState by mutableStateOf(TextFieldValue(""))
     var selectedQuality by mutableStateOf("")
     var showBadge by mutableStateOf(false)
+    var showDonationDialog by mutableStateOf(true)
 
     /**
      * Image Generator

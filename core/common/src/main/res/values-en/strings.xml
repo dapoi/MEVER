@@ -77,4 +77,7 @@
     <string name="paypal_email">PayPal Email</string>
     <string name="copy">Copy</string>
     <string name="apply">Apply</string>
+    <string name="buy_coffee">Buy Us a Coffee</string>
+    <string name="donation_desc">Thank you for using our app. If you find it useful, you can buy us a coffee to support our development.</string>
+    <string name="later">Later</string>
 </resources>
