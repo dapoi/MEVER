@@ -22,6 +22,7 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -73,6 +74,7 @@ import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.Donat
 import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.DonateDialogType.PAYPAL
 import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.PAYPAL_EMAIL
 import com.dapascript.mever.feature.setting.viewmodel.SettingLandingViewModel
+import kotlinx.coroutines.delay
 
 @Composable
 internal fun SettingLandingScreen(
@@ -98,6 +100,13 @@ internal fun SettingLandingScreen(
         ),
         allowScreenOverlap = true
     ) {
+        LaunchedEffect(args) {
+            if (args.isFromDonate) {
+                delay(500)
+                scrollState.animateScrollTo(scrollState.maxValue)
+            }
+        }
+
         MeverDialog(
             showDialog = showNotificationPermissionDialog.value,
             meverDialogArgs = MeverDialogArgs(

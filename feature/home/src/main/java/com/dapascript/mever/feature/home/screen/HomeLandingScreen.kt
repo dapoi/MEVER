@@ -197,7 +197,6 @@ internal fun HomeLandingScreen(
         }
 
         LaunchedEffect(randomDonateDialogOffer, showDonationDialog) {
-            // Show donation dialog offer randomly
             if (showDonationDialog) {
                 (0..5).random(Random).also { randomValue ->
                     randomDonateDialogOffer = randomValue
@@ -210,7 +209,7 @@ internal fun HomeLandingScreen(
             showDialog = randomDonateDialogOffer == 1,
             onClickPrimaryButton = {
                 randomDonateDialogOffer = 0
-                navController.navigateTo(SettingLandingRoute)
+                navController.navigateTo(SettingLandingRoute(true))
             },
             onClickSecondaryButton = { randomDonateDialogOffer = 0 }
         )
@@ -811,4 +810,4 @@ private fun handleClickActionMenu(context: Context, navController: NavController
 
 private fun NavController.navigateToGalleryScreen() = navigateTo(GalleryLandingRoute)
 
-private fun NavController.navigateToSettingScreen() = navigateTo(SettingLandingRoute)
+private fun NavController.navigateToSettingScreen() = navigateTo(SettingLandingRoute())
