@@ -8,10 +8,11 @@ data class FacebookDownloaderResponse(
 ) {
     data class DataVideo(
         @SerializedName("url") val url: String? = null,
-        @SerializedName("quality") val quality: String? = null
+        @SerializedName("quality") val quality: String? = null,
+        @SerializedName("response") val response: Int? = null
     )
 
-    fun mapToEntity() = data?.map {
+    fun mapToEntity() = data?.filter { it.response == 200 }?.map {
         ContentEntity(
             url = it.url.orEmpty(),
             quality = it.quality.orEmpty(),
