@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign.Companion.Center
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
@@ -202,6 +203,7 @@ internal fun GalleryLandingScreen(
         ) {
             Text(
                 text = stringResource(R.string.delete_all_desc),
+                textAlign = Center,
                 style = typography.body1,
                 color = colorScheme.onPrimary
             )
@@ -222,6 +224,7 @@ internal fun GalleryLandingScreen(
             ) {
                 Text(
                     text = stringResource(R.string.delete_desc),
+                    textAlign = Center,
                     style = typography.body1,
                     color = colorScheme.onPrimary
                 )
@@ -247,6 +250,7 @@ internal fun GalleryLandingScreen(
             ) {
                 Text(
                     text = stringResource(R.string.download_failed_desc),
+                    textAlign = Center,
                     style = typography.body1,
                     color = colorScheme.onPrimary
                 )

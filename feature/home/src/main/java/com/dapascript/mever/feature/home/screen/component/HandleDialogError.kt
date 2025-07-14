@@ -24,16 +24,18 @@ internal fun HandleDialogError(
     errorDescription: String,
     errorImage: Int = R.drawable.ic_error,
     primaryButtonText: String = stringResource(R.string.retry),
-    onRetry: () -> Unit,
-    onDismiss: () -> Unit
+    secondaryButtonText: String = stringResource(R.string.cancel),
+    onClickPrimary: () -> Unit,
+    onClickSecondary: () -> Unit
 ) {
     MeverDialog(
         showDialog = showDialog,
         meverDialogArgs = MeverDialogArgs(
             title = errorTitle,
             primaryButtonText = primaryButtonText,
-            onClickPrimaryButton = onRetry,
-            onClickSecondaryButton = onDismiss
+            secondaryButtonText = secondaryButtonText,
+            onClickPrimaryButton = onClickPrimary,
+            onClickSecondaryButton = onClickSecondary
         )
     ) {
         Image(

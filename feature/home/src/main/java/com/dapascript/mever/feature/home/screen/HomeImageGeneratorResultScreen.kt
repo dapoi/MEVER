@@ -247,7 +247,7 @@ internal fun HomeImageGeneratorResultScreen(
                 showDialog = true,
                 errorTitle = stringResource(title),
                 errorDescription = stringResource(desc),
-                onRetry = {
+                onClickPrimary = {
                     showErrorModal = null
                     getNetworkStatus(
                         isNetworkAvailable = isNetworkAvailable,
@@ -255,7 +255,7 @@ internal fun HomeImageGeneratorResultScreen(
                         onNetworkUnavailable = { showErrorModal = NETWORK }
                     )
                 },
-                onDismiss = {
+                onClickSecondary = {
                     showErrorModal = null
                     navController.popBackStack()
                 }

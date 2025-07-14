@@ -72,7 +72,6 @@ import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.FILLED
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.OUTLINED
 import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardArgs
-import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
 import com.dapascript.mever.core.common.ui.attr.MeverIconAttr.getPlatformIcon
 import com.dapascript.mever.core.common.ui.attr.MeverIconAttr.getPlatformIconBackgroundColor
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.ActionMenu
@@ -80,7 +79,6 @@ import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverAutoSizableTextField
 import com.dapascript.mever.core.common.ui.component.MeverButton
 import com.dapascript.mever.core.common.ui.component.MeverCard
-import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
 import com.dapascript.mever.core.common.ui.component.MeverIcon
 import com.dapascript.mever.core.common.ui.component.MeverTabs
@@ -205,15 +203,6 @@ internal fun HomeLandingScreen(
             }
         }
 
-        HandleDonationDialogOffer(
-            showDialog = randomDonateDialogOffer == 1,
-            onClickPrimaryButton = {
-                randomDonateDialogOffer = 0
-                navController.navigateTo(SettingLandingRoute(true))
-            },
-            onClickSecondaryButton = { randomDonateDialogOffer = 0 }
-        )
-
         HandleBottomSheetDownload(
             modifier = Modifier
                 .fillMaxWidth()
@@ -235,12 +224,21 @@ internal fun HomeLandingScreen(
             onClickDismiss = { contents = emptyList() }
         )
 
+        HandleDonationDialogOffer(
+            showDialog = randomDonateDialogOffer == 1,
+            onClickPrimaryButton = {
+                randomDonateDialogOffer = 0
+                navController.navigateTo(SettingLandingRoute(true))
+            },
+            onClickSecondaryButton = { randomDonateDialogOffer = 0 }
+        )
+
         getErrorResponseContent(showErrorModal)?.let { (title, desc) ->
             HandleDialogError(
                 showDialog = true,
                 errorTitle = stringResource(title),
                 errorDescription = stringResource(desc),
-                onRetry = {
+                onClickPrimary = {
                     showErrorModal = null
                     getNetworkStatus(
                         isNetworkAvailable = isNetworkAvailable,
@@ -248,7 +246,7 @@ internal fun HomeLandingScreen(
                         onNetworkUnavailable = { showErrorModal = NETWORK }
                     )
                 },
-                onDismiss = { showErrorModal = null }
+                onClickSecondary = { showErrorModal = null }
             )
         }
 
@@ -466,49 +464,34 @@ private fun HomeScreenContent(
         }
 
         showDeleteDialog?.let { id ->
-            MeverDialog(
+            HandleDialogError(
                 showDialog = true,
-                meverDialogArgs = MeverDialogArgs(
-                    title = stringResource(R.string.delete_title),
-                    primaryButtonText = stringResource(R.string.delete_button),
-                    onClickPrimaryButton = {
-                        delete(id)
-                        showDeleteDialog = null
-                    },
-                    onClickSecondaryButton = { showDeleteDialog = null }
-                )
-            ) {
-                Text(
-                    text = stringResource(R.string.delete_desc),
-                    style = typography.body1,
-                    color = colorScheme.onPrimary
-                )
-            }
+                errorTitle = stringResource(R.string.delete_title),
+                errorDescription = stringResource(R.string.delete_desc),
+                onClickPrimary = {
+                    delete(id)
+                    showDeleteDialog = null
+                },
+                onClickSecondary = { showDeleteDialog = null },
+            )
         }
 
         showFailedDialog?.let { id ->
-            MeverDialog(
+            HandleDialogError(
                 showDialog = true,
-                meverDialogArgs = MeverDialogArgs(
-                    title = stringResource(R.string.download_failed_title),
-                    primaryButtonText = stringResource(R.string.delete_button),
-                    secondaryButtonText = stringResource(R.string.retry),
-                    onClickPrimaryButton = {
-                        delete(id)
-                        showFailedDialog = null
-                    },
-                    onClickSecondaryButton = {
-                        retryDownload(id)
-                        showFailedDialog = null
-                    }
-                )
-            ) {
-                Text(
-                    text = stringResource(R.string.download_failed_desc),
-                    style = typography.body1,
-                    color = colorScheme.onPrimary
-                )
-            }
+                errorTitle = stringResource(R.string.download_failed_title),
+                errorDescription = stringResource(R.string.download_failed_desc),
+                primaryButtonText = stringResource(R.string.delete_button),
+                secondaryButtonText = stringResource(R.string.retry),
+                onClickPrimary = {
+                    delete(id)
+                    showFailedDialog = null
+                },
+                onClickSecondary = {
+                    retryDownload(id)
+                    showFailedDialog = null
+                }
+            )
         }
     }
 }

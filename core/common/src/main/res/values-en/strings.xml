@@ -3,7 +3,7 @@
     <string name="downloader_tab">Downloader</string>
     <string name="ai_tab">AI Image</string>
     <string name="downloader_title">Media Saver</string>
-    <string name="downloader_desc">Easiest way to download your favorite content from the biggest social media platforms like Facebook, Instagram, Twitter (X), TikTok, and YouTube.</string>
+    <string name="downloader_desc">Easiest way to download your favorite content from the biggest social media platforms.</string>
     <string name="paste_url">Paste Link Here…</string>
     <string name="download">Download</string>
     <string name="download_all">Download All</string>
@@ -17,7 +17,7 @@
     <string name="no_internet_desc">Please check your internet connection and try again.</string>
     <string name="unknown_error_title">Oops! Something went wrong</string>
     <string name="unknown_error_desc">An unknown error occurred. Please try again later.</string>
-    <string name="permission_request_title">Permission Required</string>
+    <string name="permission_request_title">Permission required</string>
     <string name="permission_request_media">We need to access your media to save the file.</string>
     <string name="permission_request_notification">We need to access your notification to show the download progress.</string>
     <string name="go_to_settings">Go to Settings</string>
@@ -25,11 +25,11 @@
     <string name="failed">Failed</string>
     <string name="share">Share</string>
     <string name="delete_button">Delete</string>
-    <string name="delete_title">Delete File?</string>
-    <string name="delete_all_title">Delete All Files?</string>
+    <string name="delete_title">Delete file?</string>
+    <string name="delete_all_title">Delete all files?</string>
     <string name="delete_desc">File that has been deleted cannot be recovered.</string>
     <string name="delete_all_desc">All files that have been deleted cannot be recovered.</string>
-    <string name="download_failed_title">Download Failed</string>
+    <string name="download_failed_title">Download failed</string>
     <string name="download_failed_desc">Sorry, your download has failed. What would you like to do?</string>
     <string name="retry">Try Again</string>
     <string name="cancel">Cancel</string>
@@ -52,7 +52,7 @@
     <string name="type">Type: %1$s</string>
     <string name="all">All</string>
     <string name="gmail_not_found">Gmail app not found</string>
-    <string name="choose_quality">Choose Quality</string>
+    <string name="choose_quality">Choose quality</string>
     <string name="type_anything">Type anything…</string>
     <string name="image_generator">Image Generator</string>
     <string name="image_generator_desc">Easily generate images from text prompts using the latest AI technology.</string>
@@ -65,19 +65,20 @@
     <string name="painterly">Painterly</string>
     <string name="clear">Clear</string>
     <string name="generate">Generate Image</string>
-    <string name="cancel_generate_title">Cancel Generate Image</string>
+    <string name="cancel_generate_title">Cancel?</string>
     <string name="cancel_generate_desc">Are you sure you want to exit?</string>
     <string name="yes">Yes</string>
     <string name="prompt">Your Prompt</string>
     <string name="regenerate">Re-generate</string>
-    <string name="copy_prompt">Copy Prompt</string>
-    <string name="copied">Prompt Copied ✅</string>
+    <string name="copy_prompt">Copy prompt</string>
+    <string name="copied">Prompt copied ✅</string>
     <string name="image_has_been_downloaded">Image has been downloaded</string>
     <string name="bitcoin_address">Bitcoin Address</string>
     <string name="paypal_email">PayPal Email</string>
     <string name="copy">Copy</string>
     <string name="apply">Apply</string>
-    <string name="hi_there">Hi There!</string>
-    <string name="donation_desc">Thanks for using our app. If you find it useful, you can buy us a coffee.</string>
+    <string name="thanks">Thanks for using our app!</string>
+    <string name="donation_desc">If it’s been helping you out, maybe show us some love with a coffee?</string>
+    <string name="sure">Sure</string>
     <string name="later">Later</string>
 </resources>
