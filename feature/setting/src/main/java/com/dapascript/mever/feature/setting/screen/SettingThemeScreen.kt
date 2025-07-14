@@ -82,7 +82,6 @@ internal fun SettingThemeScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = Dp24)
                         .verticalScroll(scrollState)
                 ) {
                     Spacer(modifier = Modifier.height(Dp16))
@@ -90,7 +89,9 @@ internal fun SettingThemeScreen(
                         text = stringResource(R.string.theme),
                         style = typography.h2.copy(fontSize = Sp32),
                         color = colorScheme.onPrimary,
-                        modifier = Modifier.onGloballyPositioned { titleHeight = it.size.height }
+                        modifier = Modifier
+                            .padding(horizontal = Dp24)
+                            .onGloballyPositioned { titleHeight = it.size.height }
                     )
                     Column(
                         modifier = Modifier
@@ -112,7 +113,8 @@ internal fun SettingThemeScreen(
                         Text(
                             text = stringResource(R.string.choose_preferrence),
                             style = typography.h3,
-                            color = colorScheme.onPrimary
+                            color = colorScheme.onPrimary,
+                            modifier = Modifier.padding(horizontal = Dp24)
                         )
                         Spacer(modifier = Modifier.height(Dp20))
                         ThemeType.entries.map { type ->

@@ -197,7 +197,7 @@ internal fun HomeLandingScreen(
 
         LaunchedEffect(randomDonateDialogOffer, showDonationDialog) {
             if (showDonationDialog) {
-                (0..1).random(Random).also { randomValue ->
+                (0..5).random(Random).also { randomValue ->
                     randomDonateDialogOffer = randomValue
                     showDonationDialog = false
                 }

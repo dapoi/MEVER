@@ -60,11 +60,7 @@ internal fun HandleBottomSheetDownload(
         showBottomSheet = showBottomSheet,
         modifier = modifier
     ) {
-        Column(
-            modifier = Modifier
-                .wrapContentSize()
-                .padding(horizontal = Dp24)
-        ) {
+        Column(modifier = Modifier.wrapContentSize()) {
             var chooseQualityIndex by remember { mutableIntStateOf(0) }
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 if (first().thumbnail.isEmpty()) MeverUrlThumbnail(
@@ -73,20 +69,21 @@ internal fun HandleBottomSheetDownload(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(Dp150)
-                        .padding(bottom = Dp32)
+                        .padding(bottom = Dp32, start = Dp24, end = Dp24)
                         .clip(RoundedCornerShape(Dp12))
                 ) else MeverImage(
                     source = first().thumbnail,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(Dp150)
-                        .padding(bottom = Dp32)
+                        .padding(bottom = Dp32, start = Dp24, end = Dp24)
                         .clip(RoundedCornerShape(Dp12))
                 )
                 Text(
                     text = stringResource(R.string.choose_file),
                     style = typography.bodyBold1.copy(fontSize = Sp20),
-                    color = colorScheme.onPrimary
+                    color = colorScheme.onPrimary,
+                    modifier = Modifier.padding(horizontal = Dp24)
                 )
                 forEachIndexed { index, content ->
                     CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
@@ -100,7 +97,9 @@ internal fun HandleBottomSheetDownload(
                 }
             }
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = Dp24),
                 verticalAlignment = CenterVertically,
                 horizontalArrangement = SpaceBetween
             ) {

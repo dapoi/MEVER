@@ -81,7 +81,6 @@ internal fun SettingLanguageScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = Dp24)
                         .verticalScroll(scrollState)
                 ) {
                     Spacer(modifier = Modifier.height(Dp16))
@@ -89,7 +88,9 @@ internal fun SettingLanguageScreen(
                         text = stringResource(R.string.language),
                         style = typography.h2.copy(fontSize = Sp32),
                         color = colorScheme.onPrimary,
-                        modifier = Modifier.onGloballyPositioned { titleHeight = it.size.height }
+                        modifier = Modifier
+                            .padding(horizontal = Dp24)
+                            .onGloballyPositioned { titleHeight = it.size.height }
                     )
                     Column(
                         modifier = Modifier
@@ -100,7 +101,10 @@ internal fun SettingLanguageScreen(
                                         available: Offset,
                                         source: NestedScrollSource
                                     ) = if (available.y > 0) Offset.Zero
-                                    else Offset(x = 0f, y = -scrollState.dispatchRawDelta(-available.y))
+                                    else Offset(
+                                        x = 0f,
+                                        y = -scrollState.dispatchRawDelta(-available.y)
+                                    )
                                 }
                             )
                     ) {
@@ -110,7 +114,8 @@ internal fun SettingLanguageScreen(
                         Text(
                             text = stringResource(R.string.choose_preferrence),
                             style = typography.h3,
-                            color = colorScheme.onPrimary
+                            color = colorScheme.onPrimary,
+                            modifier = Modifier.padding(horizontal = Dp24)
                         )
                         Spacer(modifier = Modifier.height(Dp20))
                         languages.map { (language, code) ->

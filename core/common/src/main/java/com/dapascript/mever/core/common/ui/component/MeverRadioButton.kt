@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -17,6 +18,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.util.onCustomClick
@@ -30,14 +32,14 @@ fun MeverRadioButton(
 ) = Row(
     modifier = modifier
         .fillMaxWidth()
-        .padding(vertical = Dp16)
         .clip(RoundedCornerShape(Dp8))
-        .onCustomClick { onValueChoose() },
+        .onCustomClick(onClick = { onValueChoose() })
+        .padding(vertical = Dp16, horizontal = Dp24),
     verticalAlignment = CenterVertically,
     horizontalArrangement = spacedBy(Dp16)
 ) {
     Box(
-        modifier = modifier.onCustomClick { onValueChoose() },
+        modifier = modifier.clip(CircleShape).onCustomClick { onValueChoose() },
         contentAlignment = Center
     ) {
         Icon(
