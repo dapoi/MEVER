@@ -7,13 +7,23 @@ import javax.inject.Inject
 class MeverRepositoryImpl @Inject constructor(
     private val apiService: ApiService
 ) : MeverRepository, BaseRepository() {
-    override fun getSavefromDownloader(url: String) = collectApiResult(
-        fetchApi = { apiService.getSaveFromDownloader(url) },
+    override fun getFacebookDownloader(url: String) = collectApiResult(
+        fetchApi = { apiService.getFacebookDownloader(url) },
         transformData = { it.mapToEntity() }
     )
 
-    override fun getFacebookDownloader(url: String) = collectApiResult(
-        fetchApi = { apiService.getFacebookDownloader(url) },
+    override fun getInstagramDownloader(url: String) = collectApiResult(
+        fetchApi = { apiService.getInstagramDownloader(url) },
+        transformData = { it.mapToEntity() }
+    )
+
+    override fun getTiktokDownloader(url: String) = collectApiResult(
+        fetchApi = { apiService.getTiktokDownloader(url) },
+        transformData = { it.mapToEntity() }
+    )
+
+    override fun getTwitterDownloader(url: String) = collectApiResult(
+        fetchApi = { apiService.getTwitterDownloader(url) },
         transformData = { it.mapToEntity() }
     )
 

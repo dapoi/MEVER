@@ -8,12 +8,17 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.util.Constant.PlatformType.FACEBOOK
+import com.dapascript.mever.core.common.util.Constant.PlatformType.INSTAGRAM
+import com.dapascript.mever.core.common.util.Constant.PlatformType.TIKTOK
+import com.dapascript.mever.core.common.util.Constant.PlatformType.TWITTER
+import com.dapascript.mever.core.common.util.Constant.PlatformType.UNKNOWN
 import com.dapascript.mever.core.common.util.Constant.PlatformType.YOUTUBE
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver
 import com.dapascript.mever.core.common.util.getMeverFolder
 import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.isAvailableOnLocal
 import com.dapascript.mever.core.common.util.state.UiState
+import com.dapascript.mever.core.common.util.state.UiState.StateFailed
 import com.dapascript.mever.core.common.util.state.UiState.StateInitial
 import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.dapascript.mever.core.data.repository.MeverRepository
@@ -108,11 +113,17 @@ class HomeLandingViewModel @Inject constructor(
 
     fun delete(id: Int) = ketch.clearDb(id)
 
-    private fun MeverRepository.getApiDownloader(
-        typeUrl: String
-    ) = when (getPlatformType(typeUrl)) {
-        FACEBOOK -> getFacebookDownloader(typeUrl)
-        YOUTUBE -> getYoutubeDownloader(typeUrl, selectedQuality)
-        else -> getSavefromDownloader(typeUrl)
+    private fun MeverRepository.getApiDownloader(url: String) = when (getPlatformType(url)) {
+        FACEBOOK -> getFacebookDownloader(url)
+        INSTAGRAM -> getInstagramDownloader(url)
+        TIKTOK -> getTiktokDownloader(url)
+        TWITTER -> getTwitterDownloader(url)
+        YOUTUBE -> getYoutubeDownloader(url, selectedQuality)
+        UNKNOWN -> {
+            _downloaderResponseState.value = StateFailed(
+                Throwable("Platform not supported")
+            )
+            throw Throwable("Platform not supported")
+        }
     }
 }
