@@ -57,8 +57,10 @@ object MeverTopBarAttr {
             contentAlignment = Center
         ) {
             Icon(
-                imageVector = ImageVector.vectorResource(screenName?.let { R.drawable.ic_back } ?: R.drawable.ic_mever),
-                contentDescription = "Back"
+                imageVector = ImageVector.vectorResource(
+                    if (screenName == null) R.drawable.ic_mever else R.drawable.ic_back
+                ),
+                contentDescription = "Navigation Icon"
             )
         }
     }

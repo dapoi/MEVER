@@ -22,7 +22,6 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -59,7 +58,6 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.ui.theme.ThemeType
-import com.dapascript.mever.core.common.util.copyToClipboard
 import com.dapascript.mever.core.common.util.getNotificationPermission
 import com.dapascript.mever.core.common.util.isAndroidTiramisuAbove
 import com.dapascript.mever.core.common.util.navigateToGmail
@@ -68,13 +66,11 @@ import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLanguageRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLanguageRoute.LanguageData
-import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.BTC_ADDRESS
-import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.DonateDialogType
-import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.DonateDialogType.BITCOIN
-import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.DonateDialogType.PAYPAL
-import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.PAYPAL_EMAIL
+import com.dapascript.mever.feature.setting.screen.attr.HandleAppreciateDialogAttr.AppreciateType
+import com.dapascript.mever.feature.setting.screen.attr.HandleAppreciateDialogAttr.AppreciateType.BITCOIN
+import com.dapascript.mever.feature.setting.screen.attr.HandleAppreciateDialogAttr.AppreciateType.PAYPAL
+import com.dapascript.mever.feature.setting.screen.component.HandleAppreciateDialog
 import com.dapascript.mever.feature.setting.viewmodel.SettingLandingViewModel
-import kotlinx.coroutines.delay
 
 @Composable
 internal fun SettingLandingScreen(
@@ -85,7 +81,7 @@ internal fun SettingLandingScreen(
     val themeType = themeType.collectAsStateValue()
     val context = LocalContext.current
     val scrollState = rememberScrollState()
-    val showDonateDialog = remember { mutableStateOf<DonateDialogType?>(null) }
+    val showAppreciateDialog = remember { mutableStateOf<AppreciateType?>(null) }
     val showNotificationPermissionDialog = remember { mutableStateOf(false) }
     val isExpanded by remember { derivedStateOf { scrollState.value <= titleHeight } }
     val notifPermLauncher = rememberLauncherForActivityResult(RequestPermission()) { isGranted ->
@@ -100,13 +96,6 @@ internal fun SettingLandingScreen(
         ),
         allowScreenOverlap = true
     ) {
-        LaunchedEffect(args) {
-            if (args.isFromDonate) {
-                delay(500)
-                scrollState.animateScrollTo(scrollState.maxValue)
-            }
-        }
-
         MeverDialog(
             showDialog = showNotificationPermissionDialog.value,
             meverDialogArgs = MeverDialogArgs(
@@ -128,29 +117,11 @@ internal fun SettingLandingScreen(
             )
         }
 
-        showDonateDialog.value?.let {
-            getContentDonateTypeDialog(context, it).let { (title, address) ->
-                MeverDialog(
-                    showDialog = true,
-                    meverDialogArgs = MeverDialogArgs(
-                        title = title,
-                        primaryButtonText = stringResource(R.string.copy),
-                        onClickPrimaryButton = {
-                            copyToClipboard(context, address)
-                            showDonateDialog.value = null
-                        },
-                        onClickSecondaryButton = { showDonateDialog.value = null }
-                    )
-                ) {
-                    Text(
-                        text = address,
-                        textAlign = Center,
-                        style = typography.body1,
-                        color = colorScheme.onPrimary,
-                        modifier = Modifier.padding(vertical = Dp8)
-                    )
-                }
-            }
+        showAppreciateDialog.value?.let { type ->
+            HandleAppreciateDialog(
+                context = context,
+                appreciateType = type
+            ) { showAppreciateDialog.value = it }
         }
 
         SettingLandingContent(
@@ -168,7 +139,7 @@ internal fun SettingLandingScreen(
                 else navigateToNotificationSettings(context)
             },
             onClickChangeTheme = { navController.navigate(SettingScreenRoute.SettingThemeRoute(it)) },
-            onClickDonate = { showDonateDialog.value = it },
+            onClickDonate = { showAppreciateDialog.value = it },
             onClickContact = { navigateToGmail(context) }
         )
     }
@@ -185,7 +156,7 @@ private fun SettingLandingContent(
     onClickChangeLanguage: (String) -> Unit,
     onClickNotificationPermission: () -> Unit,
     onClickChangeTheme: (ThemeType) -> Unit,
-    onClickDonate: (DonateDialogType) -> Unit,
+    onClickDonate: (AppreciateType) -> Unit,
     onClickContact: () -> Unit
 ) = with(viewModel) {
     BoxWithConstraints(
@@ -298,7 +269,7 @@ private fun handleClickMenu(
     onClickChangeLanguage: (String) -> Unit,
     onClickNotificationPermission: () -> Unit,
     onClickChangeTheme: (ThemeType) -> Unit,
-    onClickDonate: (DonateDialogType) -> Unit,
+    onClickDonate: (AppreciateType) -> Unit,
     onClickContact: () -> Unit
 ) = with(context) {
     when (title) {
@@ -309,12 +280,4 @@ private fun handleClickMenu(
         getString(R.string.paypal) -> onClickDonate(PAYPAL)
         getString(R.string.contact) -> onClickContact()
     }
-}
-
-private fun getContentDonateTypeDialog(
-    context: Context,
-    donateType: DonateDialogType
-) = when (donateType) {
-    BITCOIN -> Pair(context.getString(R.string.bitcoin_address), BTC_ADDRESS)
-    PAYPAL -> Pair(context.getString(R.string.paypal_email), PAYPAL_EMAIL)
 }

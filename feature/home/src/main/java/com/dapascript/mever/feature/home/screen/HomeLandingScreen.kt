@@ -125,6 +125,7 @@ import com.dapascript.mever.core.navigation.helper.navigateTo
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeImageGeneratorResultRoute
+import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingAppreciateRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLandingRoute
 import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.getArtStyles
 import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetDownload
@@ -196,7 +197,7 @@ internal fun HomeLandingScreen(
 
         LaunchedEffect(randomDonateDialogOffer, showDonationDialog) {
             if (showDonationDialog) {
-                (0..5).random(Random).also { randomValue ->
+                (0..1).random(Random).also { randomValue ->
                     randomDonateDialogOffer = randomValue
                     showDonationDialog = false
                 }
@@ -228,7 +229,7 @@ internal fun HomeLandingScreen(
             showDialog = randomDonateDialogOffer == 1,
             onClickPrimaryButton = {
                 randomDonateDialogOffer = 0
-                navController.navigateTo(SettingLandingRoute(true))
+                navController.navigateTo(SettingAppreciateRoute)
             },
             onClickSecondaryButton = { randomDonateDialogOffer = 0 }
         )
@@ -793,4 +794,4 @@ private fun handleClickActionMenu(context: Context, navController: NavController
 
 private fun NavController.navigateToGalleryScreen() = navigateTo(GalleryLandingRoute)
 
-private fun NavController.navigateToSettingScreen() = navigateTo(SettingLandingRoute())
+private fun NavController.navigateToSettingScreen() = navigateTo(SettingLandingRoute)

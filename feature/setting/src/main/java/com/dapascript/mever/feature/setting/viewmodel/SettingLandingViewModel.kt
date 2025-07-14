@@ -3,14 +3,10 @@ package com.dapascript.mever.feature.setting.viewmodel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.toRoute
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.ui.theme.ThemeType.System
 import com.dapascript.mever.core.data.source.local.MeverDataStore
-import com.dapascript.mever.core.navigation.route.SettingScreenRoute
-import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLandingRoute
 import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.getSettingMenus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,10 +18,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingLandingViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
     dataStore: MeverDataStore
 ) : BaseViewModel() {
-    val args = savedStateHandle.toRoute<SettingLandingRoute>()
     val settingMenus by lazy { getSettingMenus() }
     var titleHeight by mutableIntStateOf(0)
 

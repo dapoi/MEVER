@@ -9,9 +9,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 sealed class SettingScreenRoute {
     @Serializable
-    data class SettingLandingRoute(
-        val isFromDonate: Boolean = false
-    ) : SettingScreenRoute()
+    data object SettingLandingRoute
 
     @Serializable
     data class SettingLanguageRoute(val languageData: LanguageData) : SettingScreenRoute() {
@@ -26,4 +24,7 @@ sealed class SettingScreenRoute {
 
     @Serializable
     data class SettingThemeRoute(val themeType: ThemeType) : SettingScreenRoute()
+
+    @Serializable
+    data object SettingAppreciateRoute
 }

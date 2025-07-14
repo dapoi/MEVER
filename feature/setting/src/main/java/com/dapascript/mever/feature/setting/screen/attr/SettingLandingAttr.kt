@@ -10,13 +10,6 @@ import com.dapascript.mever.core.common.ui.theme.MeverViolet
 import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.SettingMenus.SubMenu
 
 object SettingLandingAttr {
-    const val BTC_ADDRESS = "1NSwLsd4JvewCbXMqB5WVYKcx34NwoUTkM"
-    const val PAYPAL_EMAIL = "daffaprabowo5@gmail.com"
-
-    enum class DonateDialogType {
-        BITCOIN, PAYPAL
-    }
-
     data class SettingMenus(
         val header: Int,
         val menus: List<SubMenu>
@@ -53,7 +46,7 @@ object SettingLandingAttr {
             )
         ),
         SettingMenus(
-            header = R.string.donation,
+            header = R.string.appreciate,
             menus = listOf(
                 SubMenu(
                     leadingTitle = R.string.bitcoin,
