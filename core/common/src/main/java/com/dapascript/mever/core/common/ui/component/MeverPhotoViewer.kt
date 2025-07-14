@@ -230,16 +230,6 @@ private fun PhotoViewer(
             modifier = Modifier
                 .aspectRatio(1f)
                 .clipToBounds()
-        ) {
-            MeverImage(
-                modifier = Modifier.graphicsLayer {
-                    scaleX = 1.5f
-                    scaleY = 1.5f
-                    translationX = 1.5f
-                    translationY = 1.5f
-                },
-                source = image
-            )
-        }
+        ) { MeverImage(source = image) }
     }
 }

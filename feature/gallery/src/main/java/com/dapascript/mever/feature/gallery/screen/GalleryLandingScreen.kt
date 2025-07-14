@@ -2,6 +2,7 @@ package com.dapascript.mever.feature.gallery.screen
 
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,6 +14,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -296,6 +298,7 @@ private fun GalleryContentSection(
                         modifier = Modifier
                             .background(colorScheme.background)
                             .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState())
                             .padding(start = Dp24, end = Dp24, top = Dp16, bottom = Dp24),
                         platformTypes = platformTypes,
                         selectedFilter = selectedFilter

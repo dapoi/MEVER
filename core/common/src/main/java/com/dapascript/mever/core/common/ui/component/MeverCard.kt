@@ -36,6 +36,7 @@ import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.FILLED
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.OUTLINED
 import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardArgs
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp15
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
@@ -144,7 +145,8 @@ fun MeverCard(
                         getContentType(getFilePath(fileName))
                     ),
                     style = typography.label2,
-                    color = MeverGray
+                    color = MeverGray,
+                    modifier = Modifier.padding(start = Dp1)
                 )
                 if (status != SUCCESS) Row(
                     modifier = Modifier
