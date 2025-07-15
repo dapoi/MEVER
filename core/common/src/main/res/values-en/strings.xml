@@ -70,7 +70,7 @@
     <string name="yes">Yes</string>
     <string name="prompt">Your Prompt</string>
     <string name="regenerate">Re-generate</string>
-    <string name="copy_prompt">Copy prompt</string>
+    <string name="copy_prompt">Copy Prompt</string>
     <string name="copied">Prompt copied ✅</string>
     <string name="image_has_been_downloaded">Image has been downloaded</string>
     <string name="bitcoin_address">Bitcoin Address</string>
