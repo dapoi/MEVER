@@ -1,16 +1,16 @@
 package config
 
 import com.android.build.api.dsl.CommonExtension
-import util.ConstantLibs.BASE_NAME
-import util.ConstantLibs.FREE_COMPILER
-import util.ConstantLibs.MAX_SDK_VERSION
-import util.ConstantLibs.MIN_SDK_VERSION
 import org.gradle.api.JavaVersion.VERSION_21
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import util.ConstantLibs.BASE_NAME
+import util.ConstantLibs.FREE_COMPILER
+import util.ConstantLibs.MAX_SDK_VERSION
+import util.ConstantLibs.MIN_SDK_VERSION
 
 internal fun Project.configAndroid(
     commonExtension: CommonExtension<*, *, *, *, *, *>,
@@ -29,9 +29,21 @@ internal fun Project.configAndroid(
                     if (entry.size == 2) rootProject.extra.set(entry[0].trim(), entry[1].trim())
                 }
             }
-            buildConfigField("String", "BASE_URL", getEnvVariable("BASE_URL"))
-            buildConfigField("String", "API_KEY", getEnvVariable("API_KEY"))
-            buildConfigField("String", "AD_BANNER_UNIT_ID", getEnvVariable("AD_BANNER_UNIT_ID"))
+            buildConfigField(
+                "String",
+                "AD_BANNER_UNIT_ID",
+                "\"${getEnvVariable("AD_BANNER_UNIT_ID")}\""
+            )
+            buildConfigField(
+                "String",
+                "API_KEY",
+                "\"${getEnvVariable("API_KEY")}\""
+            )
+            buildConfigField(
+                "String",
+                "BASE_URL",
+                "\"${getEnvVariable("BASE_URL")}\""
+            )
         }
 
         buildFeatures {
@@ -52,5 +64,5 @@ internal fun Project.configAndroid(
     }
 }
 
-private fun Project.getEnvVariable(key: String) =
+fun Project.getEnvVariable(key: String) =
     rootProject.extra.get(key)?.toString()?.takeIf { it.isNotBlank() } ?: ""
