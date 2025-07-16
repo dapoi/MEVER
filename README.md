@@ -63,13 +63,11 @@ You can download the app via **Play Store** or **GitHub Releases**.
 ## Contributing
 
 Contributions are welcome! If you'd like to contribute to this project, please follow these steps:
-<img width="588" height="224" alt="image" src="" />
-
 1. Fork the repository.
 2. If you encounter an error, change to the project and create the env.properties file
-   > ![image](https://github.com/user-attachments/assets/8c0653d6-6dd6-44f4-a16e-c2d2bf45f957)
-3. Put url inside of it, you can get api key from [api neoxr](https://api.neoxr.eu/)
-   > ![image](https://github.com/user-attachments/assets/ddecec65-a6f5-4fb5-84ab-024086dce2c0)
+   > ![image](https://github.com/user-attachments/assets/b478861f-a72d-4c63-8841-70e2d85f8b26)
+3. Put all of needed inside, you can get base url & api key from [api neoxr](https://api.neoxr.eu/)
+   > ![image](https://github.com/user-attachments/assets/27991dfa-9029-4f89-95cf-b9b2970c1cb7)
 4. Create a new branch (`git checkout -b feature/feature-name`).
 5. Commit your changes (`git commit -m 'Add some feature'`).
 6. Push to the branch (`git push origin feature/feature-name`).
