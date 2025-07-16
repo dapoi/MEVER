@@ -10,6 +10,7 @@ object CollectionLibs {
             val bom = libs.androidx.compose.bom.get()
             implementation(platform(bom))
             androidTestImplementation(platform(bom))
+            implementation(libs.ads.get())
             implementation(libs.androidx.activity.compose.get())
             implementation(libs.androidx.appcompat.get())
             implementation(libs.androidx.compose.material3.get())

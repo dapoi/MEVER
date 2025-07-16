@@ -23,6 +23,7 @@ import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.navigation.base.BaseNavGraph
 import com.dapascript.mever.navigation.MainNavigation
 import com.dapascript.mever.viewmodel.MainViewModel
+import com.google.android.gms.ads.MobileAds
 import com.google.android.play.core.install.model.UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS
 import com.google.android.play.core.install.model.UpdateAvailability.UPDATE_AVAILABLE
 import dagger.hilt.android.AndroidEntryPoint
@@ -43,6 +44,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        MobileAds.initialize(this)
         inAppUpdateManager = InAppUpdateManager(this)
         inAppUpdateManager.startUpdate(
             updateAvailability = UPDATE_AVAILABLE,

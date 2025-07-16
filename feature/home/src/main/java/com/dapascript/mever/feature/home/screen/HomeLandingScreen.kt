@@ -77,6 +77,7 @@ import com.dapascript.mever.core.common.ui.attr.MeverIconAttr.getPlatformIconBac
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.ActionMenu
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverAutoSizableTextField
+import com.dapascript.mever.core.common.ui.component.MeverBannerAd
 import com.dapascript.mever.core.common.ui.component.MeverButton
 import com.dapascript.mever.core.common.ui.component.MeverCard
 import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
@@ -591,30 +592,40 @@ internal fun HomeDownloaderSection(
             }
         }
         downloadList?.let { files ->
-            if (files.isNotEmpty()) items(
-                items = files.toMutableStateList().apply { if (size > 5) removeRange(5, size) },
-                key = { it.id }
-            ) {
-                MeverCard(
-                    modifier = Modifier.animateItem(),
-                    cardArgs = MeverCardArgs(
-                        source = it.url,
-                        tag = it.tag,
-                        fileName = it.fileName,
-                        status = it.status,
-                        progress = it.progress,
-                        total = it.total,
-                        path = it.path,
-                        urlThumbnail = it.metaData,
-                        icon = if (it.tag.isNotEmpty()) getPlatformIcon(it.tag) else null,
-                        iconBackgroundColor = getPlatformIconBackgroundColor(it.tag),
-                        iconSize = Dp24,
-                        iconPadding = Dp5
-                    ),
-                    onClickCard = { onClickCard(it) },
-                    onClickShare = { onClickShare(it) },
-                    onClickDelete = { onClickDelete(it) }
-                )
+            if (files.isNotEmpty()) {
+                items(
+                    items = files.toMutableStateList().apply { if (size > 3) removeRange(3, size) },
+                    key = { it.id }
+                ) {
+                    MeverCard(
+                        modifier = Modifier.animateItem(),
+                        cardArgs = MeverCardArgs(
+                            source = it.url,
+                            tag = it.tag,
+                            fileName = it.fileName,
+                            status = it.status,
+                            progress = it.progress,
+                            total = it.total,
+                            path = it.path,
+                            urlThumbnail = it.metaData,
+                            icon = if (it.tag.isNotEmpty()) getPlatformIcon(it.tag) else null,
+                            iconBackgroundColor = getPlatformIconBackgroundColor(it.tag),
+                            iconSize = Dp24,
+                            iconPadding = Dp5
+                        ),
+                        onClickCard = { onClickCard(it) },
+                        onClickShare = { onClickShare(it) },
+                        onClickDelete = { onClickDelete(it) }
+                    )
+                }
+                item {
+                    MeverBannerAd(
+                        context = context,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = Dp16)
+                    )
+                }
             } else item {
                 MeverEmptyItem(
                     image = R.drawable.ic_not_found,
@@ -769,6 +780,14 @@ internal fun HomeAiSection(
                     }
                 }
             }
+        }
+        item {
+            MeverBannerAd(
+                context = context,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = Dp16)
+            )
         }
     }
 }
