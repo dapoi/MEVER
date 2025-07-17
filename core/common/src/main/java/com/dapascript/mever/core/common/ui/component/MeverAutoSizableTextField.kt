@@ -1,8 +1,10 @@
 package com.dapascript.mever.core.common.ui.component
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
+import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,6 +27,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalFontFamilyResolver
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.Paragraph
@@ -45,16 +48,19 @@ import com.dapascript.mever.core.common.util.onCustomClick
 import kotlin.Int.Companion.MAX_VALUE
 import kotlin.math.ceil
 
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 fun MeverAutoSizableTextField(
     value: String,
     minFontSize: TextUnit,
+    readOnly: Boolean = false,
     modifier: Modifier = Modifier,
     fontSize: TextUnit = Sp32,
     maxLines: Int = MAX_VALUE,
     shape: RoundedCornerShape = RoundedCornerShape(Dp12),
     scaleFactor: Float = 0.9f,
-    onValueChange: (String) -> Unit
+    onClickInspire: () -> Unit = {},
+    onValueChange: (String) -> Unit = {},
 ) = BoxWithConstraints(modifier = modifier) {
     val interactionSource = remember { MutableInteractionSource() }
     val focusManager = LocalFocusManager.current
@@ -101,6 +107,7 @@ fun MeverAutoSizableTextField(
             keyboardOptions = KeyboardOptions(keyboardType = Uri, imeAction = Done),
             keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
             value = value,
+            readOnly = readOnly,
             maxLines = maxLines,
             onValueChange = onValueChange,
             decorationBox = { innerTextField ->
@@ -111,12 +118,21 @@ fun MeverAutoSizableTextField(
                 innerTextField()
             }
         )
-        Row(
+        if (readOnly.not()) Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(Dp8),
-            horizontalArrangement = SpaceBetween
+            horizontalArrangement = spacedBy(Dp8)
         ) {
+            Icon(
+                modifier = Modifier
+                    .size(Dp22)
+                    .clip(shape)
+                    .onCustomClick { onClickInspire() },
+                painter = painterResource(R.drawable.ic_inspire),
+                tint = colorScheme.onPrimary,
+                contentDescription = "Inspire"
+            )
             if (value.isNotEmpty()) Icon(
                 modifier = Modifier
                     .size(Dp22)
@@ -127,7 +143,7 @@ fun MeverAutoSizableTextField(
                 contentDescription = "Clear"
             )
             Text(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.weight(1f),
                 text = "${value.length} / 1000",
                 textAlign = End
             )

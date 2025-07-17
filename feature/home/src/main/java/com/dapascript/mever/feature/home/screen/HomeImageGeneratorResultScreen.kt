@@ -65,15 +65,16 @@ import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.OUTLINED
 import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
+import com.dapascript.mever.core.common.ui.component.MeverAutoSizableTextField
 import com.dapascript.mever.core.common.ui.component.MeverButton
 import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverImage
 import com.dapascript.mever.core.common.ui.component.MeverSnackbar
 import com.dapascript.mever.core.common.ui.component.meverShimmer
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp10
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp120
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp150
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp20
@@ -85,6 +86,8 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
+import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp14
+import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
 import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType
 import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType.NETWORK
 import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType.RESPONSE
@@ -142,7 +145,7 @@ internal fun HomeImageGeneratorResultScreen(
                         scope.launch {
                             startDownload(
                                 url = url,
-                                fileName = args.prompt + getUrlContentType(url)
+                                fileName = "${args.prompt}.jpg"
                             )
                         }
                     }
@@ -408,22 +411,16 @@ private fun ImageGeneratorResultContent(
             style = typography.bodyBold1,
             color = colorScheme.onPrimary
         )
-        Box(
+        MeverAutoSizableTextField(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(Dp120)
-                .shadow(elevation = Dp1, shape = RoundedCornerShape(Dp12))
-                .background(color = colorScheme.surface, shape = RoundedCornerShape(Dp12))
-                .clip(RoundedCornerShape(Dp12))
-                .verticalScroll(rememberScrollState())
-        ) {
-            Text(
-                modifier = Modifier.padding(Dp12),
-                text = promptText,
-                style = typography.body1,
-                color = colorScheme.onPrimary
-            )
-        }
+                .height(Dp150),
+            value = promptText,
+            readOnly = true,
+            fontSize = Sp18,
+            minFontSize = Sp14,
+            maxLines = 4
+        )
         getMenuActions(context, hasCopied).map { (title, icon) ->
             Box(
                 modifier = Modifier

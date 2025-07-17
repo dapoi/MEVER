@@ -128,6 +128,7 @@ import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeImageGener
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingAppreciateRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLandingRoute
 import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.getArtStyles
+import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.getInspirePrompt
 import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetDownload
 import com.dapascript.mever.feature.home.screen.component.HandleDialogError
 import com.dapascript.mever.feature.home.screen.component.HandleDialogYoutubeQuality
@@ -674,8 +675,10 @@ internal fun HomeAiSection(
                 value = prompt,
                 fontSize = Sp18,
                 minFontSize = Sp14,
-                maxLines = 4
-            ) { onPromptChange(it) }
+                maxLines = 4,
+                onClickInspire = { onPromptChange(getInspirePrompt()) },
+                onValueChange = { onPromptChange(it) }
+            )
         }
         item {
             Text(
