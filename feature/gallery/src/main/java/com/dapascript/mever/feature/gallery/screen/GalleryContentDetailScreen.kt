@@ -42,7 +42,6 @@ internal fun GalleryContentDetailScreen(
                 onClickBack = { navigator.popBackStack() }
             ) else MeverPhotoViewer(
                 source = filePath,
-                title = filePath.substringAfterLast("/"),
                 onClickDelete = { deleteContent(id) },
                 onClickShare = {
                     shareContent(
