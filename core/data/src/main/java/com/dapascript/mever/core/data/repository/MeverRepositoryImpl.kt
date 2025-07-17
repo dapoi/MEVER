@@ -7,6 +7,11 @@ import javax.inject.Inject
 class MeverRepositoryImpl @Inject constructor(
     private val apiService: ApiService
 ) : MeverRepository, BaseRepository() {
+    override fun getAppConfig() = collectApiResult(
+        fetchApi = { apiService.getAppConfig() },
+        transformData = { it.mapToEntity() }
+    )
+
     override fun getFacebookDownloader(url: String) = collectApiResult(
         fetchApi = { apiService.getFacebookDownloader(url) },
         transformData = { it.mapToEntity() }

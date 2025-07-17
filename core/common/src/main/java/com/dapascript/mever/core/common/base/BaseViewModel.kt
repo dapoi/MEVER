@@ -54,9 +54,9 @@ open class BaseViewModel @Inject constructor() : ViewModel() {
 
     fun <T> collectApiAsUiState(
         response: Flow<ApiState<T>>,
-        onLoading: () -> Unit,
-        onSuccess: (T) -> Unit,
-        onFailed: (Throwable) -> Unit,
+        onLoading: () -> Unit = {},
+        onSuccess: (T) -> Unit = {},
+        onFailed: (Throwable) -> Unit = {},
         onReset: (() -> Unit)? = null
     ) {
         apiJob?.cancel()

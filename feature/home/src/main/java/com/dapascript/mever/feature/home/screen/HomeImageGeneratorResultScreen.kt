@@ -68,6 +68,7 @@ import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverAutoSizableTextField
 import com.dapascript.mever.core.common.ui.component.MeverButton
 import com.dapascript.mever.core.common.ui.component.MeverDialog
+import com.dapascript.mever.core.common.ui.component.MeverDialogError
 import com.dapascript.mever.core.common.ui.component.MeverImage
 import com.dapascript.mever.core.common.ui.component.MeverSnackbar
 import com.dapascript.mever.core.common.ui.component.meverShimmer
@@ -109,7 +110,6 @@ import com.dapascript.mever.core.navigation.helper.navigateTo
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeImageGeneratorResultRoute
 import com.dapascript.mever.feature.home.screen.attr.HomeImageGeneratorResultAttr.getMenuActions
-import com.dapascript.mever.feature.home.screen.component.HandleDialogError
 import com.dapascript.mever.feature.home.screen.component.HandleHomeDialogPermission
 import com.dapascript.mever.feature.home.viewmodel.HomeImageGeneratorResultViewModel
 import kotlinx.coroutines.launch
@@ -249,7 +249,7 @@ internal fun HomeImageGeneratorResultScreen(
         )
 
         getErrorResponseContent(showErrorModal)?.let { (title, desc) ->
-            HandleDialogError(
+            MeverDialogError(
                 showDialog = true,
                 errorTitle = stringResource(title),
                 errorDescription = stringResource(desc),

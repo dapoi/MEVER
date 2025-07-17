@@ -80,6 +80,7 @@ import com.dapascript.mever.core.common.ui.component.MeverAutoSizableTextField
 import com.dapascript.mever.core.common.ui.component.MeverBannerAd
 import com.dapascript.mever.core.common.ui.component.MeverButton
 import com.dapascript.mever.core.common.ui.component.MeverCard
+import com.dapascript.mever.core.common.ui.component.MeverDialogError
 import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
 import com.dapascript.mever.core.common.ui.component.MeverIcon
 import com.dapascript.mever.core.common.ui.component.MeverTabs
@@ -130,7 +131,6 @@ import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLand
 import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.getArtStyles
 import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.getInspirePrompt
 import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetDownload
-import com.dapascript.mever.feature.home.screen.component.HandleDialogError
 import com.dapascript.mever.feature.home.screen.component.HandleDialogYoutubeQuality
 import com.dapascript.mever.feature.home.screen.component.HandleDonationDialogOffer
 import com.dapascript.mever.feature.home.screen.component.HandleHomeDialogPermission
@@ -153,6 +153,7 @@ internal fun HomeLandingScreen(
 ) = with(viewModel) {
     val downloaderResponseState = downloaderResponseState.collectAsStateValue()
     val isNetworkAvailable = isNetworkAvailable.collectAsStateValue()
+    val isImageGeneratorFeatureActive = isImageGeneratorFeatureActive.collectAsStateValue()
     val activity = LocalActivity.current
     val scope = rememberCoroutineScope()
     var showLoading by remember { mutableStateOf(false) }
@@ -234,7 +235,7 @@ internal fun HomeLandingScreen(
         )
 
         getErrorResponseContent(showErrorModal)?.let { (title, desc) ->
-            HandleDialogError(
+            MeverDialogError(
                 showDialog = true,
                 errorTitle = stringResource(title),
                 errorDescription = stringResource(desc),
@@ -280,6 +281,7 @@ internal fun HomeLandingScreen(
                 .systemBarsPadding(),
             viewModel = this,
             navController = navController,
+            isImageGeneratorFeatureActive = isImageGeneratorFeatureActive,
             isLoading = showLoading
         ) {
             if (isAndroidTiramisuAbove()) notifPermLauncher.launch(getNotificationPermission)
@@ -293,6 +295,7 @@ private fun HomeScreenContent(
     viewModel: HomeLandingViewModel,
     navController: NavController,
     isLoading: Boolean,
+    isImageGeneratorFeatureActive: Boolean,
     modifier: Modifier = Modifier,
     requestStoragePermissionLauncher: () -> Unit
 ) = with(viewModel) {
@@ -334,14 +337,17 @@ private fun HomeScreenContent(
                 horizontalAlignment = CenterHorizontally
             ) {
                 Spacer(modifier = Modifier.size(Dp16))
-                MeverTabs(
-                    items = tabItems,
-                    pagerState = pagerState
-                ) { scope.launch { pagerState.animateScrollToPage(it) } }
-                Spacer(modifier = Modifier.size(Dp24))
+                if (isImageGeneratorFeatureActive) {
+                    MeverTabs(
+                        items = tabItems,
+                        pagerState = pagerState
+                    ) { scope.launch { pagerState.animateScrollToPage(it) } }
+                    Spacer(modifier = Modifier.size(Dp24))
+                }
                 CompositionLocalProvider(LocalOverscrollFactory provides null) {
                     HorizontalPager(
                         state = pagerState,
+                        userScrollEnabled = isImageGeneratorFeatureActive,
                         modifier = Modifier
                             .fillMaxHeight()
                             .nestedScroll(remember {
@@ -464,7 +470,7 @@ private fun HomeScreenContent(
         }
 
         showDeleteDialog?.let { id ->
-            HandleDialogError(
+            MeverDialogError(
                 showDialog = true,
                 errorTitle = stringResource(R.string.delete_title),
                 errorDescription = stringResource(R.string.delete_desc),
@@ -477,7 +483,7 @@ private fun HomeScreenContent(
         }
 
         showFailedDialog?.let { id ->
-            HandleDialogError(
+            MeverDialogError(
                 showDialog = true,
                 errorTitle = stringResource(R.string.download_failed_title),
                 errorDescription = stringResource(R.string.download_failed_desc),
@@ -592,7 +598,7 @@ internal fun HomeDownloaderSection(
         downloadList?.let { files ->
             if (files.isNotEmpty()) {
                 items(
-                    items = files.toMutableStateList().apply { if (size > 3) removeRange(3, size) },
+                    items = files.toMutableStateList().apply { if (size > 5) removeRange(5, size) },
                     key = { it.id }
                 ) {
                     MeverCard(

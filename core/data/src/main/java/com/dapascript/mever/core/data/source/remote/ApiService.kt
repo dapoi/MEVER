@@ -1,5 +1,6 @@
 package com.dapascript.mever.core.data.source.remote
 
+import com.dapascript.mever.core.data.model.remote.AppConfigResponse
 import com.dapascript.mever.core.data.model.remote.FacebookDownloaderResponse
 import com.dapascript.mever.core.data.model.remote.ImageAiResponse
 import com.dapascript.mever.core.data.model.remote.InstagramDownloaderResponse
@@ -10,6 +11,9 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface ApiService {
+    @GET("app-config")
+    suspend fun getAppConfig(): AppConfigResponse
+
     @GET("fb")
     suspend fun getFacebookDownloader(
         @Query("url") url: String

@@ -1,4 +1,4 @@
-package com.dapascript.mever.feature.home.screen.component
+package com.dapascript.mever.core.common.ui.component
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.size
@@ -18,7 +18,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp200
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 
 @Composable
-internal fun HandleDialogError(
+fun MeverDialogError(
     showDialog: Boolean,
     errorTitle: String,
     errorDescription: String,

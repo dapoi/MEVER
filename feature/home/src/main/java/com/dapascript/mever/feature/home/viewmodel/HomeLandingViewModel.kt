@@ -24,6 +24,7 @@ import com.dapascript.mever.core.common.util.state.UiState.StateLoading
 import com.dapascript.mever.core.common.util.state.UiState.StateSuccess
 import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.dapascript.mever.core.data.repository.MeverRepository
+import com.dapascript.mever.core.data.source.local.MeverDataStore
 import com.ketch.Ketch
 import com.ketch.Status.PAUSED
 import com.ketch.Status.PROGRESS
@@ -43,6 +44,7 @@ import javax.inject.Inject
 class HomeLandingViewModel @Inject constructor(
     connectivityObserver: ConnectivityObserver,
     private val repository: MeverRepository,
+    private val dataStore: MeverDataStore,
     private val ketch: Ketch
 ) : BaseViewModel() {
     private val meverFolder by lazy { getMeverFolder() }
@@ -85,6 +87,12 @@ class HomeLandingViewModel @Inject constructor(
             scope = viewModelScope,
             started = WhileSubscribed(),
             initialValue = connectivityObserver.isConnected()
+        )
+    val isImageGeneratorFeatureActive = dataStore.isImageAiEnabled
+        .stateIn(
+            scope = viewModelScope,
+            started = WhileSubscribed(),
+            initialValue = true
         )
 
     private val _downloaderResponseState =

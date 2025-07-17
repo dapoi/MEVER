@@ -16,6 +16,26 @@ class MeverDataStore @Inject constructor(context: Context) {
 
     private val dataStore = context.dataStore
 
+    suspend fun saveVersion(version: String) {
+        dataStore.edit { preferences ->
+            preferences[KEY_VERSION] = version
+        }
+    }
+
+    val getVersion = dataStore.data.map { preferences ->
+        preferences[KEY_VERSION] ?: "1.0.0"
+    }
+
+    suspend fun setIsImageAiEnabled(isEnabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[KEY_IS_IMAGE_AI_ENABLED] = isEnabled
+        }
+    }
+
+    val isImageAiEnabled = dataStore.data.map { preferences ->
+        preferences[KEY_IS_IMAGE_AI_ENABLED] ?: true
+    }
+
     suspend fun setIsOnboarded(isOnboarded: Boolean) {
         dataStore.edit { preferences ->
             preferences[KEY_IS_ONBOARDED] = isOnboarded
@@ -51,6 +71,8 @@ class MeverDataStore @Inject constructor(context: Context) {
     }
 
     companion object {
+        private val KEY_VERSION = stringPreferencesKey("version")
+        private val KEY_IS_IMAGE_AI_ENABLED = booleanPreferencesKey("is_image_ai_enabled")
         private val KEY_IS_ONBOARDED = booleanPreferencesKey("is_onboarded")
         private val KEY_LANGUAGE = stringPreferencesKey("language")
         private val KEY_THEME = stringPreferencesKey("theme")

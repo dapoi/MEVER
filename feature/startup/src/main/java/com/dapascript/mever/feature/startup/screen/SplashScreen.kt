@@ -20,6 +20,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.Center
@@ -27,6 +28,7 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter.Companion.tint
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle.Event.ON_STOP
 import androidx.lifecycle.LifecycleEventObserver
@@ -34,20 +36,27 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
+import com.dapascript.mever.core.common.ui.component.MeverDialogError
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp189
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp72
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
+import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType
+import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType.NETWORK
+import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType.RESPONSE
+import com.dapascript.mever.core.common.util.ErrorHandle.getErrorResponseContent
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.hideSystemBar
+import com.dapascript.mever.core.common.util.state.UiState.StateSuccess
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.navigation.helper.navigateClearBackStack
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeLandingRoute
 import com.dapascript.mever.core.navigation.route.StartupScreenRoute.OnboardRoute
 import com.dapascript.mever.feature.startup.viewmodel.SplashScreenViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 internal fun SplashScreen(
@@ -60,27 +69,59 @@ internal fun SplashScreen(
         hideDefaultTopBar = true
     ) {
         val isOnboarded = isOnboarded.collectAsStateValue()
+        val appConfigState = appConfigState.collectAsStateValue()
+        val isNetworkAvailable = isNetworkAvailable.collectAsStateValue()
         val activity = LocalActivity.current
+        val scope = rememberCoroutineScope()
         val lifecycleOwner by rememberUpdatedState(LocalLifecycleOwner.current)
         var showLogo by remember { mutableStateOf(false) }
-        var isSplashScreenFinished by remember { mutableStateOf(false) }
+        var showErrorModal by remember { mutableStateOf<ErrorType?>(null) }
 
-        LaunchedEffect(Unit) {
-            delay(300)
-            showLogo = true
+        LaunchedEffect(Unit) { ::getAppConfig }
+
+        LaunchedEffect(appConfigState) {
+            appConfigState.handleUiState(
+                onLoading = { showLogo = true },
+                onSuccess = {
+                    scope.launch {
+                        delay(1000)
+                        showLogo = false
+                        delay(250)
+                        navController.navigateClearBackStack(
+                            if (isOnboarded) HomeLandingRoute else OnboardRoute
+                        )
+                    }
+                },
+                onFailed = { showErrorModal = RESPONSE }
+            )
         }
 
-        LaunchedEffect(Unit) {
-            delay(1500)
-            showLogo = false
-            delay(250)
-            isSplashScreenFinished = true
+        LaunchedEffect(isNetworkAvailable) {
+            if (appConfigState !is StateSuccess) getNetworkStatus(
+                isNetworkAvailable = isNetworkAvailable,
+                onNetworkAvailable = ::getAppConfig,
+                onNetworkUnavailable = { showErrorModal = NETWORK }
+            )
         }
 
-        LaunchedEffect(isSplashScreenFinished) {
-            if (isSplashScreenFinished) {
-                navController.navigateClearBackStack(if (isOnboarded) HomeLandingRoute else OnboardRoute)
-            }
+        getErrorResponseContent(showErrorModal)?.let { (title, desc) ->
+            MeverDialogError(
+                showDialog = true,
+                errorTitle = stringResource(title),
+                errorDescription = stringResource(desc),
+                onClickPrimary = {
+                    showErrorModal = null
+                    getNetworkStatus(
+                        isNetworkAvailable = isNetworkAvailable,
+                        onNetworkAvailable = ::getAppConfig,
+                        onNetworkUnavailable = { showErrorModal = NETWORK }
+                    )
+                },
+                onClickSecondary = {
+                    showErrorModal = null
+                    navController.popBackStack()
+                }
+            )
         }
 
         DisposableEffect(lifecycleOwner) {
