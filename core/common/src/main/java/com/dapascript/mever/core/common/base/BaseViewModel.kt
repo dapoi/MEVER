@@ -31,8 +31,8 @@ open class BaseViewModel @Inject constructor() : ViewModel() {
 
     fun <T> collectApiAsUiState(
         response: Flow<ApiState<T>>,
-        resetState: Boolean = true,
-        updateState: (UiState<T>) -> Unit
+        updateState: (UiState<T>) -> Unit,
+        onResetState: (() -> Unit)? = null
     ) {
         apiJob?.cancel()
         apiJob = viewModelScope.launch(IO) {
@@ -44,9 +44,9 @@ open class BaseViewModel @Inject constructor() : ViewModel() {
                 }
             }.collect { uiState ->
                 updateState(uiState)
-                if (resetState && (uiState is StateSuccess || uiState is StateFailed)) {
+                if (uiState is StateSuccess || uiState is StateFailed) {
                     delay(300)
-                    updateState(StateInitial)
+                    onResetState?.invoke()
                 }
             }
         }

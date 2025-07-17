@@ -43,8 +43,8 @@ class HomeImageGeneratorResultViewModel @Inject constructor(
         response = repository.getImageAiGenerator(
             query = "${args.prompt}. Style of images are ${args.artStyle}"
         ),
-        resetState = false,
-        updateState = { _aiResponseState.value = it }
+        updateState = { _aiResponseState.value = it },
+        onResetState = { _aiResponseState.value = StateInitial }
     )
 
     fun startDownload(
