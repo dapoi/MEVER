@@ -55,16 +55,24 @@ internal fun HandleBottomSheetDownload(
     modifier: Modifier = Modifier,
     onClickDownload: (String) -> Unit,
     onClickDismiss: () -> Unit
-) = with(listContent) {
+) {
+    var chooseQualityIndex by remember { mutableIntStateOf(0) }
+    val jpgContents = remember(listContent) { listContent.filter { it.type.contains("jpg") } }
+    val groupedContent = remember(listContent) {
+        if (jpgContents.size > 1) {
+            listContent.filterNot { it.type.contains("jpg") } + jpgContents.first()
+        } else listContent
+    }
+
     MeverBottomSheet(
         showBottomSheet = showBottomSheet,
         modifier = modifier
     ) {
         Column(modifier = Modifier.wrapContentSize()) {
-            var chooseQualityIndex by remember { mutableIntStateOf(0) }
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                if (first().thumbnail.isEmpty()) MeverUrlThumbnail(
-                    source = size.takeIf { it > 0 }?.let { first().url } ?: "",
+                if (groupedContent.first().thumbnail.isEmpty()) MeverUrlThumbnail(
+                    source = groupedContent.size.takeIf { it > 0 }?.let { groupedContent.first().url }
+                        ?: "",
                     isFailedFetchImage = isFailedFetchImage,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -72,7 +80,7 @@ internal fun HandleBottomSheetDownload(
                         .padding(bottom = Dp32, start = Dp24, end = Dp24)
                         .clip(RoundedCornerShape(Dp12))
                 ) else MeverImage(
-                    source = first().thumbnail,
+                    source = groupedContent.first().thumbnail,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(Dp150)
@@ -85,12 +93,20 @@ internal fun HandleBottomSheetDownload(
                     color = colorScheme.onPrimary,
                     modifier = Modifier.padding(horizontal = Dp24)
                 )
-                forEachIndexed { index, content ->
+                groupedContent.forEachIndexed { index, content ->
                     CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
                         MeverRadioButton(
-                            value = if (content.quality.isNotEmpty()) stringResource(
-                                R.string.quality, content.quality
-                            ) else content.type.ifEmpty { "Video" },
+                            value = when {
+                                content.quality.isNotEmpty() -> {
+                                    stringResource(R.string.quality, content.quality)
+                                }
+
+                                content.type.contains("jpg") -> {
+                                    ".jpg"
+                                }
+
+                                else -> "Video"
+                            },
                             isChoosen = chooseQualityIndex == index,
                         ) { chooseQualityIndex = index }
                     }
@@ -129,7 +145,10 @@ internal fun HandleBottomSheetDownload(
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(Dp14))
-                        .onCustomClick { onClickDownload(listContent[chooseQualityIndex].url) }
+                        .onCustomClick {
+                            if (jpgContents.size > 1) jpgContents.map { onClickDownload(it.url) }
+                            else onClickDownload(groupedContent[chooseQualityIndex].url)
+                        }
                         .weight(1f)
                         .padding(vertical = Dp16),
                     contentAlignment = Center

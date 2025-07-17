@@ -20,6 +20,8 @@ import com.dapascript.mever.core.common.util.isAvailableOnLocal
 import com.dapascript.mever.core.common.util.state.UiState
 import com.dapascript.mever.core.common.util.state.UiState.StateFailed
 import com.dapascript.mever.core.common.util.state.UiState.StateInitial
+import com.dapascript.mever.core.common.util.state.UiState.StateLoading
+import com.dapascript.mever.core.common.util.state.UiState.StateSuccess
 import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.ketch.Ketch
@@ -52,6 +54,7 @@ class HomeLandingViewModel @Inject constructor(
     var selectedQuality by mutableStateOf("")
     var showBadge by mutableStateOf(false)
     var showDonationDialog by mutableStateOf(true)
+    var contents by mutableStateOf<List<ContentEntity>>(emptyList())
 
     /**
      * Image Generator
@@ -90,7 +93,13 @@ class HomeLandingViewModel @Inject constructor(
 
     fun getApiDownloader() = collectApiAsUiState(
         response = repository.getApiDownloader(urlSocialMediaState.text),
-        updateState = { _downloaderResponseState.value = it }
+        onLoading = { _downloaderResponseState.value = StateLoading },
+        onSuccess = {
+            _downloaderResponseState.value = StateSuccess(it)
+            contents = it
+        },
+        onFailed = { _downloaderResponseState.value = StateFailed(it) },
+        onReset = { _downloaderResponseState.value = StateInitial }
     )
 
     fun startDownload(

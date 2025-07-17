@@ -121,7 +121,6 @@ import com.dapascript.mever.core.common.util.isAndroidTiramisuAbove
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
-import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.dapascript.mever.core.navigation.helper.navigateTo
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute
@@ -139,6 +138,7 @@ import com.ketch.DownloadModel
 import com.ketch.Status.FAILED
 import com.ketch.Status.PAUSED
 import com.ketch.Status.SUCCESS
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 import java.lang.System.currentTimeMillis
@@ -154,7 +154,6 @@ internal fun HomeLandingScreen(
     val isNetworkAvailable = isNetworkAvailable.collectAsStateValue()
     val activity = LocalActivity.current
     val scope = rememberCoroutineScope()
-    var contents by remember { mutableStateOf<List<ContentEntity>>(emptyList()) }
     var showLoading by remember { mutableStateOf(false) }
     var showYoutubeChooseQualityModal by remember { mutableStateOf(false) }
     var showErrorModal by remember { mutableStateOf<ErrorType?>(null) }
@@ -185,10 +184,7 @@ internal fun HomeLandingScreen(
         LaunchedEffect(downloaderResponseState) {
             downloaderResponseState.handleUiState(
                 onLoading = { showLoading = true },
-                onSuccess = { result ->
-                    showLoading = false
-                    contents = result
-                },
+                onSuccess = { showLoading = false },
                 onFailed = {
                     showLoading = false
                     showErrorModal = RESPONSE
@@ -219,6 +215,7 @@ internal fun HomeLandingScreen(
                         fileName = changeToCurrentDate(currentTimeMillis()) + getUrlContentType(url),
                         thumbnail = contents.firstOrNull()?.thumbnail.orEmpty()
                     )
+                    delay(500)
                     urlSocialMediaState = TextFieldValue("")
                 }
                 contents = emptyList()
