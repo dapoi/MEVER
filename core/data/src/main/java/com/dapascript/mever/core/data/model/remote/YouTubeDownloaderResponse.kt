@@ -4,10 +4,10 @@ import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.google.gson.annotations.SerializedName
 
 data class YouTubeDownloaderResponse(
-    @SerializedName("data") val data: DataVideo,
+    @SerializedName("data") val data: DataContent,
     @SerializedName("thumbnail") val thumbnail: String? = null
 ) {
-    data class DataVideo(
+    data class DataContent(
         @SerializedName("url") val url: String? = null,
         @SerializedName("quality") val quality: String? = null
     )

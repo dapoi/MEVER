@@ -4,9 +4,9 @@ import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.google.gson.annotations.SerializedName
 
 data class InstagramDownloaderResponse(
-    @SerializedName("data") val data: List<DataVideo>? = null
+    @SerializedName("data") val data: List<DataContent>? = null
 ) {
-    data class DataVideo(
+    data class DataContent(
         @SerializedName("type") val type: String? = null,
         @SerializedName("url") val url: String? = null
     )

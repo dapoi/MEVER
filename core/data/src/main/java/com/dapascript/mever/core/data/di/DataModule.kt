@@ -39,7 +39,7 @@ class DataModule {
         okHttpClient: OkHttpClient,
         gsonConverterFactory: GsonConverterFactory
     ): Retrofit = Retrofit.Builder()
-        .baseUrl(BASE_URL)
+        .baseUrl("$BASE_URL/api/")
         .addConverterFactory(gsonConverterFactory)
         .client(okHttpClient)
         .build()
