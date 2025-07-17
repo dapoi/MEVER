@@ -1,5 +1,6 @@
 package com.dapascript.mever.feature.home.screen
 
+import android.content.Context
 import android.graphics.Bitmap.CompressFormat.PNG
 import android.os.Handler
 import android.os.Looper.getMainLooper
@@ -96,6 +97,7 @@ import com.dapascript.mever.core.common.util.getStoragePermission
 import com.dapascript.mever.core.common.util.getUrlContentType
 import com.dapascript.mever.core.common.util.goToSetting
 import com.dapascript.mever.core.common.util.isAndroidTiramisuAbove
+import com.dapascript.mever.core.common.util.navigateToGmail
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.UiState.StateSuccess
@@ -103,6 +105,7 @@ import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.navigation.helper.navigateTo
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeImageGeneratorResultRoute
+import com.dapascript.mever.feature.home.screen.attr.HomeImageGeneratorResultAttr.getMenuActions
 import com.dapascript.mever.feature.home.screen.component.HandleDialogError
 import com.dapascript.mever.feature.home.screen.component.HandleHomeDialogPermission
 import com.dapascript.mever.feature.home.viewmodel.HomeImageGeneratorResultViewModel
@@ -275,6 +278,7 @@ internal fun HomeImageGeneratorResultScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(top = Dp64),
+                context = context,
                 aiImages = aiImages,
                 imageSelected = imageSelected.orEmpty(),
                 promptText = args.prompt,
@@ -286,6 +290,11 @@ internal fun HomeImageGeneratorResultScreen(
                     copyToClipboard(context, args.prompt)
                     hasCopied = true
                 },
+                onClickDownloadAll = {
+                    isDownloadAllClicked = true
+                    storagePermLauncher.launch(getStoragePermission)
+                },
+                onClickReport = { navigateToGmail(context) },
                 onClickShare = {
                     scope.launch {
                         val cachePath = File(context.cacheDir, "images")
@@ -310,10 +319,6 @@ internal fun HomeImageGeneratorResultScreen(
                         }, 5000)
                     }
                 },
-                onClickDownloadAll = {
-                    isDownloadAllClicked = true
-                    storagePermLauncher.launch(getStoragePermission)
-                },
                 onClickRegenerate = {
                     aiImages = emptyList()
                     getImageAiGenerator()
@@ -329,6 +334,7 @@ internal fun HomeImageGeneratorResultScreen(
 
 @Composable
 private fun ImageGeneratorResultContent(
+    context: Context,
     aiImages: List<String>,
     imageSelected: String,
     promptText: String,
@@ -338,8 +344,9 @@ private fun ImageGeneratorResultContent(
     modifier: Modifier = Modifier,
     onChangeImageSelected: (String) -> Unit,
     onClickCopy: () -> Unit,
-    onClickShare: () -> Unit,
     onClickDownloadAll: () -> Unit,
+    onClickReport: () -> Unit,
+    onClickShare: () -> Unit,
     onClickRegenerate: () -> Unit,
     onClickDownload: () -> Unit
 ) = Box(modifier = modifier) {
@@ -417,11 +424,7 @@ private fun ImageGeneratorResultContent(
                 color = colorScheme.onPrimary
             )
         }
-        Triple(
-            R.drawable.ic_copy to stringResource(if (hasCopied) R.string.copied else R.string.copy_prompt),
-            R.drawable.ic_share to stringResource(R.string.share),
-            R.drawable.ic_download to stringResource(R.string.download_all)
-        ).toList().map { (icon, text) ->
+        getMenuActions(context, hasCopied).map { (title, icon) ->
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -431,8 +434,9 @@ private fun ImageGeneratorResultContent(
                     .onCustomClick {
                         when (icon) {
                             R.drawable.ic_copy -> onClickCopy()
-                            R.drawable.ic_share -> onClickShare()
                             R.drawable.ic_download -> onClickDownloadAll()
+                            R.drawable.ic_report -> onClickReport()
+                            R.drawable.ic_share -> onClickShare()
                         }
                     }
             ) {
@@ -448,7 +452,7 @@ private fun ImageGeneratorResultContent(
                         contentDescription = "Copy Prompt"
                     )
                     Text(
-                        text = text,
+                        text = title,
                         style = typography.bodyBold2,
                         color = colorScheme.onPrimary
                     )
