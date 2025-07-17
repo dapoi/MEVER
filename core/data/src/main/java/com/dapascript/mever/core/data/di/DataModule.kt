@@ -22,7 +22,7 @@ import okhttp3.logging.HttpLoggingInterceptor.Level.BODY
 import okhttp3.logging.HttpLoggingInterceptor.Level.NONE
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.util.concurrent.TimeUnit.SECONDS
+import java.util.concurrent.TimeUnit.MINUTES
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -54,9 +54,9 @@ class DataModule {
         })
         .addInterceptor(apiKeyInterceptor)
         .addInterceptor(chuckerInterceptor)
-        .connectTimeout(45, SECONDS)
-        .readTimeout(45, SECONDS)
-        .writeTimeout(45, SECONDS)
+        .connectTimeout(1, MINUTES)
+        .readTimeout(1, MINUTES)
+        .writeTimeout(1, MINUTES)
         .build()
 
     @Provides
