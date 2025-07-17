@@ -52,10 +52,34 @@ open class BaseViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    fun <T> UiState<T>.handleUiState(
-        onSuccess: (T) -> Unit,
+    fun <T> collectApiAsUiState(
+        response: Flow<ApiState<T>>,
         onLoading: () -> Unit,
-        onFailed: (Throwable) -> Unit
+        onSuccess: (T) -> Unit,
+        onFailed: (Throwable) -> Unit,
+        onReset: (() -> Unit)? = null
+    ) {
+        apiJob?.cancel()
+        apiJob = viewModelScope.launch(IO) {
+            response.collect { apiState ->
+                when (apiState) {
+                    is Loading -> onLoading()
+                    is Success -> apiState.data?.let { onSuccess(it) }
+                    is Error -> onFailed(apiState.throwable)
+                }
+                if (apiState is Success || apiState is Error) {
+                    delay(300)
+                    onReset?.invoke()
+                }
+            }
+        }
+    }
+
+
+    fun <T> UiState<T>.handleUiState(
+        onSuccess: (T) -> Unit = {},
+        onLoading: () -> Unit = {},
+        onFailed: (Throwable) -> Unit = {}
     ) {
         when (this) {
             is StateSuccess -> data?.let { onSuccess(it) }

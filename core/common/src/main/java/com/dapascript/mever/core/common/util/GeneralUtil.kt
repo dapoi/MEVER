@@ -95,7 +95,7 @@ fun calculateDownloadPercentage(downloadedBytes: Long, totalBytes: Long): String
 }
 
 fun getContentType(path: String) = when {
-    path.isEmpty() -> "in progress"
+    path.isEmpty() -> "..."
     isVideo(path) -> "video/mp4"
     else -> "image/jpg"
 }
@@ -164,7 +164,7 @@ fun navigateToGmail(context: Context) {
             putExtra(EXTRA_TEXT, "Hello, I would like to share my feedback about MEVER.")
         }
         context.startActivity(intent)
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         Toast.makeText(context, R.string.gmail_not_found, Toast.LENGTH_SHORT).show()
     }
 }
@@ -209,7 +209,7 @@ fun isVideo(path: String) = path.endsWith(".mp4")
 
 fun changeToCurrentDate(date: Long): String {
     val calendar = getInstance()
-    val dateFormat = SimpleDateFormat("yyyy.MM.dd - HH_mm", getDefault())
+    val dateFormat = SimpleDateFormat("yyyy.MM.dd - HH_mm_ss", getDefault())
     calendar.timeInMillis = date
     return dateFormat.format(calendar.time)
 }
@@ -217,4 +217,16 @@ fun changeToCurrentDate(date: Long): String {
 fun hideSystemBar(activity: Activity, value: Boolean) = with(activity) {
     val insetsController = getInsetsController(window, window.decorView)
     if (value) insetsController.hide(systemBars()) else insetsController.show(systemBars())
+}
+
+fun convertFilename(filename: String): String {
+    val regex = Regex("""(\d{4})\.(\d{2})\.(\d{2}) - (\d{2})_(\d{2})_(\d{2})\.(\w+)""")
+    val match = regex.find(filename)
+
+    return if (match != null) {
+        val (year, month, day, hour, minute, second, ext) = match.destructured
+        val newDate = "$day.$month.$year"
+        val newTime = "$hour:$minute:$second"
+        "$newDate - $newTime.$ext"
+    } else filename
 }

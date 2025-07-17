@@ -42,12 +42,12 @@ import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.LocalActivity
+import com.dapascript.mever.core.common.util.convertFilename
 import com.dapascript.mever.core.common.util.hideSystemBar
 
 @Composable
 fun MeverPhotoViewer(
     source: String,
-    title: String,
     modifier: Modifier = Modifier,
     onClickDelete: () -> Unit,
     onClickShare: () -> Unit,
@@ -92,7 +92,7 @@ fun MeverPhotoViewer(
                             onClickActionMenu = { showDropDownMenu = showDropDownMenu.not() }
                         )
                     ),
-                    title = title,
+                    title = convertFilename(source.substringAfterLast("/")),
                     topBarColor = MeverTransparent,
                     titleColor = MeverWhite,
                     iconBackColor = MeverWhite,

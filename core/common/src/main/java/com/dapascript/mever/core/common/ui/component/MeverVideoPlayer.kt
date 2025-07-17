@@ -89,6 +89,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.LocalActivity
+import com.dapascript.mever.core.common.util.convertFilename
 import com.dapascript.mever.core.common.util.convertToTimeFormat
 import com.dapascript.mever.core.common.util.hideSystemBar
 import com.dapascript.mever.core.common.util.onCustomClick
@@ -190,7 +191,7 @@ fun MeverVideoPlayer(
         modifier = modifier.fillMaxSize(),
         player = player ?: return,
         isVideoBuffering = isVideoBuffering,
-        title = source.substringAfterLast("/").ifEmpty { "Video" },
+        title = convertFilename(source.substringAfterLast("/")).ifEmpty { "Video" },
         iconPlayOrPause = if (isVideoPlaying == true) R.drawable.ic_pause else R.drawable.ic_play,
         isControllerVisible = showController,
         isFullScreen = isFullScreen,

@@ -53,6 +53,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverRed
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.util.calculateDownloadPercentage
 import com.dapascript.mever.core.common.util.calculateDownloadedMegabytes
+import com.dapascript.mever.core.common.util.convertFilename
 import com.dapascript.mever.core.common.util.getContentType
 import com.dapascript.mever.core.common.util.getFilePath
 import com.dapascript.mever.core.common.util.getTwoDecimals
@@ -132,7 +133,9 @@ fun MeverCard(
                         )
                     }
                     Text(
-                        text = getFilePath(fileName).substringAfterLast("/"),
+                        text = convertFilename(
+                            getFilePath(fileName).substringAfterLast("/").ifEmpty { fileName }
+                        ),
                         style = typography.bodyBold2,
                         maxLines = 1,
                         overflow = Ellipsis
