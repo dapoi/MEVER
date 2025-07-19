@@ -31,7 +31,7 @@ fun MeverBannerAd(
 
     AndroidView(
         modifier = modifier,
-        factory = { ctx ->
+        factory = {
             adView.apply {
                 adUnitId = AD_BANNER_UNIT_ID
                 setAdSize(BANNER)

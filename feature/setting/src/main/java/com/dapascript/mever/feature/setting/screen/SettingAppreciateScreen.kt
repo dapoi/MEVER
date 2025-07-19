@@ -20,6 +20,7 @@ import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverMenuItemAttr.MenuItemArgs
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverMenuItem
+import com.dapascript.mever.core.common.ui.component.rememberInterstitialAd
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
@@ -34,6 +35,7 @@ import com.dapascript.mever.feature.setting.screen.component.HandleAppreciateDia
 @Composable
 internal fun SettingAppreciateScreen(navController: NavController) {
     val context = LocalContext.current
+    val showInterstitialAd = rememberInterstitialAd()
     var showAppreciateDialog by remember { mutableStateOf<AppreciateType?>(null) }
 
     BaseScreen(
@@ -72,6 +74,7 @@ internal fun SettingAppreciateScreen(navController: NavController) {
                     when (it.leadingTitle) {
                         R.string.bitcoin -> showAppreciateDialog = BITCOIN
                         R.string.paypal -> showAppreciateDialog = PAYPAL
+                        R.string.ads -> showInterstitialAd()
                     }
                 }
             }

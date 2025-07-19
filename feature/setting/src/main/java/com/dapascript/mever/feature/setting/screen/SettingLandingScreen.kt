@@ -45,6 +45,7 @@ import com.dapascript.mever.core.common.ui.attr.MeverMenuItemAttr.MenuItemArgs
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverMenuItem
+import com.dapascript.mever.core.common.ui.component.rememberInterstitialAd
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
@@ -83,6 +84,7 @@ internal fun SettingLandingScreen(
     val themeType = themeType.collectAsStateValue()
     val context = LocalContext.current
     val scrollState = rememberScrollState()
+    val showInterstitialAd = rememberInterstitialAd()
     val showAppreciateDialog = remember { mutableStateOf<AppreciateType?>(null) }
     val showNotificationPermissionDialog = remember { mutableStateOf(false) }
     val isExpanded by remember { derivedStateOf { scrollState.value <= titleHeight } }
@@ -142,6 +144,7 @@ internal fun SettingLandingScreen(
             },
             onClickChangeTheme = { navController.navigate(SettingScreenRoute.SettingThemeRoute(it)) },
             onClickDonate = { showAppreciateDialog.value = it },
+            onClickWatchAds = { showInterstitialAd() },
             onClickContact = { navigateToGmail(context) },
             onClickAbout = { navController.navigateTo(SettingAboutAppRoute) }
         )
@@ -160,6 +163,7 @@ private fun SettingLandingContent(
     onClickNotificationPermission: () -> Unit,
     onClickChangeTheme: (ThemeType) -> Unit,
     onClickDonate: (AppreciateType) -> Unit,
+    onClickWatchAds: () -> Unit,
     onClickContact: () -> Unit,
     onClickAbout: () -> Unit
 ) = with(viewModel) {
@@ -252,6 +256,7 @@ private fun SettingLandingContent(
                                         onClickNotificationPermission = { onClickNotificationPermission() },
                                         onClickChangeTheme = { onClickChangeTheme(it) },
                                         onClickDonate = { onClickDonate(it) },
+                                        onClickWatchAds = { onClickWatchAds() },
                                         onClickContact = { onClickContact() },
                                         onClickAbout = { onClickAbout() }
                                     )
@@ -275,6 +280,7 @@ private fun handleClickMenu(
     onClickNotificationPermission: () -> Unit,
     onClickChangeTheme: (ThemeType) -> Unit,
     onClickDonate: (AppreciateType) -> Unit,
+    onClickWatchAds: () -> Unit,
     onClickContact: () -> Unit,
     onClickAbout: () -> Unit
 ) = with(context) {
@@ -284,6 +290,7 @@ private fun handleClickMenu(
         getString(R.string.theme) -> onClickChangeTheme(themeType)
         getString(R.string.bitcoin) -> onClickDonate(BITCOIN)
         getString(R.string.paypal) -> onClickDonate(PAYPAL)
+        getString(R.string.ads) -> onClickWatchAds()
         getString(R.string.contact) -> onClickContact()
         getString(R.string.about) -> onClickAbout()
     }

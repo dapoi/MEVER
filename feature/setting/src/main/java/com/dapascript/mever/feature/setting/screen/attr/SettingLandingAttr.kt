@@ -59,8 +59,8 @@ object SettingLandingAttr {
                     iconBackgroundColor = MeverLightBlue
                 ),
                 SubMenu(
-                    leadingTitle = R.string.qris,
-                    icon = R.drawable.ic_qris,
+                    leadingTitle = R.string.ads,
+                    icon = R.drawable.ic_ads,
                     iconBackgroundColor = MeverPink
                 )
             )

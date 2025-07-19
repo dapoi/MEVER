@@ -36,6 +36,11 @@ internal fun Project.configAndroid(
             )
             buildConfigField(
                 "String",
+                "AD_INTERSTITIAL_UNIT_ID",
+                "\"${getEnvVariable("AD_INTERSTITIAL_UNIT_ID")}\""
+            )
+            buildConfigField(
+                "String",
                 "API_KEY",
                 "\"${getEnvVariable("API_KEY")}\""
             )
