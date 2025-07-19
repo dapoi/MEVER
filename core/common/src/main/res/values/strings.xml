@@ -82,4 +82,6 @@
     <string name="sure">Sure</string>
     <string name="later">Later</string>
     <string name="report">Report</string>
+    <string name="copyright">All rights reserved © %1$s</string>
+    <string name="license">License</string>
 </resources>

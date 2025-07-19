@@ -17,6 +17,7 @@ import android.provider.Settings.EXTRA_APP_PACKAGE
 import android.util.Patterns.WEB_URL
 import android.webkit.MimeTypeMap.getSingleton
 import android.widget.Toast
+import android.widget.Toast.LENGTH_SHORT
 import androidx.core.app.ShareCompat.IntentBuilder
 import androidx.core.content.FileProvider.getUriForFile
 import androidx.core.net.toUri
@@ -165,7 +166,7 @@ fun navigateToGmail(context: Context) {
         }
         context.startActivity(intent)
     } catch (_: Exception) {
-        Toast.makeText(context, R.string.gmail_not_found, Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, R.string.gmail_not_found, LENGTH_SHORT).show()
     }
 }
 
@@ -229,4 +230,14 @@ fun convertFilename(filename: String): String {
         val newTime = "$hour:$minute:$second"
         "$newDate - $newTime.$ext"
     } else filename
+}
+
+fun getAppVersion(context: Context): String {
+    return try {
+        val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+        packageInfo.versionName ?: "1.0"
+    } catch (e: Exception) {
+        e.printStackTrace()
+        "1.0"
+    }
 }

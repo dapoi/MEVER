@@ -82,4 +82,6 @@
     <string name="sure">Tentu</string>
     <string name="later">Nanti Aja</string>
     <string name="report">Lapor</string>
+    <string name="copyright">Semua hak dilindungi © %1$s</string>
+    <string name="license">Lisensi</string>
 </resources>

@@ -15,12 +15,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap.Companion.Round
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.TextUnit
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType
-import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.FILLED
-import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.OUTLINED
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp15
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp20
@@ -40,13 +39,19 @@ fun MeverButton(
     shape: RoundedCornerShape = RoundedCornerShape(Dp30),
     textSize: TextUnit? = null,
     onClick: () -> Unit
-) {
+) = with(buttonType) {
     val keyboardController = LocalSoftwareKeyboardController.current
 
     Box(
         modifier = modifier
-            .background(color = getButtonColor(isEnabled, buttonType), shape = shape)
-            .setBorder(isTypeOutlined = buttonType == OUTLINED, shape = shape)
+            .background(
+                color = if (isEnabled) backgroundColor else colorScheme.onSurface,
+                shape = shape
+            )
+            .applyBorder(
+                borderColor = borderColor,
+                shape = shape
+            )
             .clip(shape)
             .onCustomClick(enabled = isEnabled) {
                 onClick()
@@ -64,29 +69,20 @@ fun MeverButton(
             CircularProgressIndicator(
                 modifier = Modifier.size(Dp20),
                 strokeCap = Round,
-                color = colorScheme.onSecondary
+                color = contentColor
             )
         } else Text(
             text = title,
             style = textSize?.let { typography.body2.copy(fontSize = it) } ?: typography.body2,
-            color = if (buttonType == FILLED) colorScheme.onSecondary else MeverPurple,
+            color = contentColor,
             modifier = Modifier.padding(horizontal = Dp15, vertical = Dp4)
         )
     }
 }
 
 @Composable
-private fun getButtonColor(
-    isEnabled: Boolean,
-    buttonType: MeverButtonType
-) = when (buttonType) {
-    FILLED -> if (isEnabled) MeverPurple else colorScheme.onSurface
-    OUTLINED -> colorScheme.background
-}
-
-@Composable
-private fun Modifier.setBorder(
-    isTypeOutlined: Boolean,
-    shape: RoundedCornerShape
-) = if (isTypeOutlined) border(width = Dp1, color = MeverPurple, shape = shape)
+private fun Modifier.applyBorder(
+    shape : RoundedCornerShape,
+    borderColor: Color? = null,
+) = if (borderColor != null) border(width = Dp1, color = borderColor, shape = shape)
 else this

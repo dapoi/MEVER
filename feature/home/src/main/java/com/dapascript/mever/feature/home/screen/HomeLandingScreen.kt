@@ -69,8 +69,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
-import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.FILLED
-import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.OUTLINED
+import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Filled
+import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Outlined
 import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardArgs
 import com.dapascript.mever.core.common.ui.attr.MeverIconAttr.getPlatformIcon
 import com.dapascript.mever.core.common.ui.attr.MeverIconAttr.getPlatformIconBackgroundColor
@@ -99,6 +99,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp90
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
+import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp14
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp22
@@ -456,7 +457,10 @@ private fun HomeScreenContent(
                         .height(Dp40),
                     title = stringResource(R.string.generate),
                     isEnabled = promptState.text.isNotEmpty(),
-                    buttonType = FILLED
+                    buttonType = Filled(
+                        backgroundColor = colorScheme.primary,
+                        contentColor = MeverWhite
+                    )
                 ) {
                     navController.navigateTo(
                         HomeImageGeneratorResultRoute(
@@ -564,7 +568,10 @@ internal fun HomeDownloaderSection(
                     .fillMaxWidth()
                     .height(Dp40),
                 title = stringResource(R.string.download),
-                buttonType = FILLED,
+                buttonType = Filled(
+                    backgroundColor = colorScheme.primary,
+                    contentColor = MeverWhite
+                ),
                 isEnabled = getPlatformType(urlSocialMediaState.text.trim()) != PlatformType.UNKNOWN,
                 isLoading = isLoading
             ) { onClickDownload() }
@@ -705,7 +712,13 @@ internal fun HomeAiSection(
                             .height(Dp40)
                             .width(Dp80),
                         title = count.toString(),
-                        buttonType = if (totalImageSelected == count) FILLED else OUTLINED,
+                        buttonType = if (totalImageSelected == count) Filled(
+                            backgroundColor = colorScheme.primary,
+                            contentColor = MeverWhite
+                        ) else Outlined(
+                            borderColor = colorScheme.primary,
+                            contentColor = colorScheme.primary
+                        ),
                         shape = RoundedCornerShape(Dp12)
                     ) { if (totalImageSelected != count) onImageCountSelected(count) }
                 }

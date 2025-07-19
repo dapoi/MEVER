@@ -27,4 +27,7 @@ sealed class SettingScreenRoute {
 
     @Serializable
     data object SettingAppreciateRoute
+
+    @Serializable
+    data object SettingAboutAppRoute
 }

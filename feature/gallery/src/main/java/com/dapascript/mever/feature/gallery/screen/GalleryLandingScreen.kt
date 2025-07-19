@@ -38,8 +38,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
-import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.FILLED
-import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.OUTLINED
+import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Filled
+import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Outlined
 import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardArgs
 import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
 import com.dapascript.mever.core.common.ui.attr.MeverIconAttr.getPlatformIcon
@@ -61,6 +61,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
+import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.util.Constant.PlatformType
 import com.dapascript.mever.core.common.util.Constant.PlatformType.UNKNOWN
@@ -379,15 +380,24 @@ private fun FilterContent(
             MeverButton(
                 title = stringResource(RCommon.string.all),
                 shape = RoundedCornerShape(Dp64),
-                buttonType = if (selectedFilter == UNKNOWN) FILLED else OUTLINED,
+                buttonType = getButtonType(selectedFilter == UNKNOWN),
             ) { onClickFilter(UNKNOWN) }
             platformTypes.map { type ->
                 MeverButton(
                     title = type.platformName,
                     shape = RoundedCornerShape(Dp64),
-                    buttonType = if (selectedFilter == type) FILLED else OUTLINED,
+                    buttonType = getButtonType(selectedFilter == type),
                 ) { onClickFilter(type) }
             }
         }
     }
 }
+
+@Composable
+private fun getButtonType(isFilled: Boolean) = if (isFilled) Filled(
+    backgroundColor = colorScheme.primary,
+    contentColor = MeverWhite
+) else Outlined(
+    borderColor = colorScheme.primary,
+    contentColor = colorScheme.primary
+)

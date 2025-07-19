@@ -61,8 +61,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
-import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.FILLED
-import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.OUTLINED
+import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Filled
+import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Outlined
 import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverAutoSizableTextField
@@ -494,14 +494,20 @@ private fun ImageGeneratorResultContent(
                             .weight(1f)
                             .height(Dp52),
                         title = stringResource(R.string.regenerate),
-                        buttonType = OUTLINED
+                        buttonType = Outlined(
+                            borderColor = colorScheme.primary,
+                            contentColor = colorScheme.primary
+                        )
                     ) { onClickRegenerate() }
                     MeverButton(
                         modifier = Modifier
                             .weight(1f)
                             .height(Dp52),
                         title = stringResource(R.string.download),
-                        buttonType = FILLED
+                        buttonType = Filled(
+                            backgroundColor = colorScheme.primary,
+                            contentColor = MeverWhite
+                        )
                     ) { onClickDownload() }
                 }
             }

@@ -33,8 +33,8 @@ import coil3.compose.LocalPlatformContext
 import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest.Builder
 import com.dapascript.mever.core.common.R
-import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.FILLED
-import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.OUTLINED
+import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Filled
+import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Outlined
 import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardArgs
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
@@ -51,6 +51,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverGray
 import com.dapascript.mever.core.common.ui.theme.MeverLightGray
 import com.dapascript.mever.core.common.ui.theme.MeverRed
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
+import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.calculateDownloadPercentage
 import com.dapascript.mever.core.common.util.calculateDownloadedMegabytes
 import com.dapascript.mever.core.common.util.convertFilename
@@ -221,11 +222,17 @@ fun MeverCard(
                 ) {
                     MeverButton(
                         title = stringResource(R.string.share),
-                        buttonType = OUTLINED
+                        buttonType = Outlined(
+                            contentColor = colorScheme.primary,
+                            borderColor = colorScheme.primary
+                        )
                     ) { onClickShare?.invoke() }
                     MeverButton(
                         title = stringResource(R.string.delete_button),
-                        buttonType = FILLED
+                        buttonType = Filled(
+                            backgroundColor = colorScheme.primary,
+                            contentColor = MeverWhite
+                        )
                     ) { onClickDelete?.invoke() }
                 }
             }

@@ -63,7 +63,9 @@ import com.dapascript.mever.core.common.util.isAndroidTiramisuAbove
 import com.dapascript.mever.core.common.util.navigateToGmail
 import com.dapascript.mever.core.common.util.navigateToNotificationSettings
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
+import com.dapascript.mever.core.navigation.helper.navigateTo
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute
+import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingAboutAppRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLanguageRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLanguageRoute.LanguageData
 import com.dapascript.mever.feature.setting.screen.attr.HandleAppreciateDialogAttr.AppreciateType
@@ -132,7 +134,7 @@ internal fun SettingLandingScreen(
             getLanguageCode = getLanguageCode,
             themeType = themeType,
             onClickChangeLanguage = {
-                navController.navigate(SettingLanguageRoute(LanguageData(it)))
+                navController.navigateTo(SettingLanguageRoute(LanguageData(it)))
             },
             onClickNotificationPermission = {
                 if (isAndroidTiramisuAbove()) notifPermLauncher.launch(getNotificationPermission)
@@ -140,7 +142,8 @@ internal fun SettingLandingScreen(
             },
             onClickChangeTheme = { navController.navigate(SettingScreenRoute.SettingThemeRoute(it)) },
             onClickDonate = { showAppreciateDialog.value = it },
-            onClickContact = { navigateToGmail(context) }
+            onClickContact = { navigateToGmail(context) },
+            onClickAbout = { navController.navigateTo(SettingAboutAppRoute) }
         )
     }
 }
@@ -157,7 +160,8 @@ private fun SettingLandingContent(
     onClickNotificationPermission: () -> Unit,
     onClickChangeTheme: (ThemeType) -> Unit,
     onClickDonate: (AppreciateType) -> Unit,
-    onClickContact: () -> Unit
+    onClickContact: () -> Unit,
+    onClickAbout: () -> Unit
 ) = with(viewModel) {
     BoxWithConstraints(
         modifier = Modifier
@@ -248,7 +252,8 @@ private fun SettingLandingContent(
                                         onClickNotificationPermission = { onClickNotificationPermission() },
                                         onClickChangeTheme = { onClickChangeTheme(it) },
                                         onClickDonate = { onClickDonate(it) },
-                                        onClickContact = { onClickContact() }
+                                        onClickContact = { onClickContact() },
+                                        onClickAbout = { onClickAbout() }
                                     )
                                 }
                             }
@@ -270,7 +275,8 @@ private fun handleClickMenu(
     onClickNotificationPermission: () -> Unit,
     onClickChangeTheme: (ThemeType) -> Unit,
     onClickDonate: (AppreciateType) -> Unit,
-    onClickContact: () -> Unit
+    onClickContact: () -> Unit,
+    onClickAbout: () -> Unit
 ) = with(context) {
     when (title) {
         getString(R.string.language) -> onClickChangeLanguage(languageCode)
@@ -279,5 +285,6 @@ private fun handleClickMenu(
         getString(R.string.bitcoin) -> onClickDonate(BITCOIN)
         getString(R.string.paypal) -> onClickDonate(PAYPAL)
         getString(R.string.contact) -> onClickContact()
+        getString(R.string.about) -> onClickAbout()
     }
 }
