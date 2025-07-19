@@ -43,8 +43,8 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeLandingViewModel @Inject constructor(
     connectivityObserver: ConnectivityObserver,
+    dataStore: MeverDataStore,
     private val repository: MeverRepository,
-    private val dataStore: MeverDataStore,
     private val ketch: Ketch
 ) : BaseViewModel() {
     private val meverFolder by lazy { getMeverFolder() }

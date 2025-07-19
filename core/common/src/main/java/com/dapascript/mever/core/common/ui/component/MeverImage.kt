@@ -6,10 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -31,7 +27,6 @@ fun MeverImage(
     isImageError: Boolean = false
 ) = Box(modifier = modifier) {
     val context = LocalContext.current
-    var showShimmer by remember { mutableStateOf<Boolean?>(null) }
 
     AsyncImage(
         modifier = Modifier
@@ -42,8 +37,6 @@ fun MeverImage(
             .crossfade(true)
             .build(),
         contentScale = contentScale,
-        onLoading = { showShimmer = true },
-        onSuccess = { showShimmer = false },
         contentDescription = "Thumbnail"
     )
     if (isImageError) Image(
