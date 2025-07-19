@@ -631,7 +631,6 @@ internal fun HomeDownloaderSection(
                 }
                 item {
                     MeverBannerAd(
-                        context = context,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = Dp16)
@@ -802,7 +801,6 @@ internal fun HomeAiSection(
         }
         item {
             MeverBannerAd(
-                context = context,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = Dp16)
