@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "628414683164",
+    "project_id": "mever-22",
+    "storage_bucket": "mever-22.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:628414683164:android:268a0c22ce16c3802527d9",
+        "android_client_info": {
+          "package_name": "com.dapascript.mever"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCFRHWkXQLG13uln_s-GPHFQLKAREYSuoY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:628414683164:android:4b4541ed700356652527d9",
+        "android_client_info": {
+          "package_name": "com.dapascript.mever.debug"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCFRHWkXQLG13uln_s-GPHFQLKAREYSuoY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

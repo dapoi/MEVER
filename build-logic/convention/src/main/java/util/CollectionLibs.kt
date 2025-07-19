@@ -5,7 +5,7 @@ import org.gradle.kotlin.dsl.dependencies
 import util.ConstantLibs.coreModules
 
 object CollectionLibs {
-    fun Project.composeDependencies() {
+    fun Project.commonDependencies() {
         dependencies {
             val bom = libs.androidx.compose.bom.get()
             implementation(platform(bom))
@@ -20,6 +20,7 @@ object CollectionLibs {
             implementation(libs.coil.compose.get())
             implementation(libs.coil.network.get())
             implementation(libs.coil.video.get())
+            implementation(libs.firebase.crashlytics.get())
             implementation(libs.google.play.update.core.get())
             implementation(libs.google.play.update.ktx.get())
             implementation(libs.ketch.get())
