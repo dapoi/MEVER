@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.dapascript.mever.core.common.base.BaseViewModel
+import com.dapascript.mever.core.common.util.Constant.PlatformType.AI
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver
 import com.dapascript.mever.core.common.util.getMeverFolder
 import com.dapascript.mever.core.common.util.state.UiState
@@ -53,6 +54,7 @@ class HomeImageGeneratorResultViewModel @Inject constructor(
     ) = ketch.download(
         url = url,
         fileName = fileName,
-        path = meverFolder.path
+        path = meverFolder.path,
+        tag = AI.platformName
     )
 }

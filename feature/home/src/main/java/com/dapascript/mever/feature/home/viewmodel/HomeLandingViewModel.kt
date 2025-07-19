@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
+import com.dapascript.mever.core.common.util.Constant.PlatformType.AI
 import com.dapascript.mever.core.common.util.Constant.PlatformType.FACEBOOK
 import com.dapascript.mever.core.common.util.Constant.PlatformType.INSTAGRAM
 import com.dapascript.mever.core.common.util.Constant.PlatformType.TIKTOK
@@ -136,7 +137,7 @@ class HomeLandingViewModel @Inject constructor(
         TIKTOK -> getTiktokDownloader(url)
         TWITTER -> getTwitterDownloader(url)
         YOUTUBE -> getYoutubeDownloader(url, selectedQuality)
-        UNKNOWN -> {
+        AI, UNKNOWN -> {
             _downloaderResponseState.value = StateFailed(
                 Throwable("Platform not supported")
             )

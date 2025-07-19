@@ -63,6 +63,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
+import com.dapascript.mever.core.common.util.Constant.PlatformName.AI
 import com.dapascript.mever.core.common.util.Constant.PlatformType
 import com.dapascript.mever.core.common.util.Constant.PlatformType.UNKNOWN
 import com.dapascript.mever.core.common.util.getFilePath
@@ -331,7 +332,7 @@ private fun GalleryContentSection(
                             total = it.total,
                             path = it.path,
                             urlThumbnail = it.metaData,
-                            icon = if (it.tag.isNotEmpty()) {
+                            icon = if (it.tag.isNotEmpty() && it.tag != AI) {
                                 getPlatformIcon(it.tag)
                             } else null,
                             iconBackgroundColor = getPlatformIconBackgroundColor(

@@ -103,6 +103,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp14
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp22
+import com.dapascript.mever.core.common.util.Constant.PlatformName.AI
 import com.dapascript.mever.core.common.util.Constant.PlatformName.UNKNOWN
 import com.dapascript.mever.core.common.util.Constant.PlatformType
 import com.dapascript.mever.core.common.util.Constant.PlatformType.YOUTUBE
@@ -542,7 +543,7 @@ internal fun HomeDownloaderSection(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = SpaceBetween
             ) {
-                PlatformType.entries.filter { it.platformName != UNKNOWN }.map {
+                PlatformType.entries.filter { it.platformName !in listOf(AI, UNKNOWN) }.map {
                     MeverIcon(
                         icon = getPlatformIcon(it.platformName),
                         iconBackgroundColor = getPlatformIconBackgroundColor(it.platformName),
@@ -619,7 +620,9 @@ internal fun HomeDownloaderSection(
                             total = it.total,
                             path = it.path,
                             urlThumbnail = it.metaData,
-                            icon = if (it.tag.isNotEmpty()) getPlatformIcon(it.tag) else null,
+                            icon = if (it.tag.isNotEmpty() && it.tag != AI) {
+                                getPlatformIcon(it.tag)
+                            } else null,
                             iconBackgroundColor = getPlatformIconBackgroundColor(it.tag),
                             iconSize = Dp24,
                             iconPadding = Dp5

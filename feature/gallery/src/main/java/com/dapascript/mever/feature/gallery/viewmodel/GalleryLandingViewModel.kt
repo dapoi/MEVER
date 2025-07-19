@@ -29,7 +29,7 @@ class GalleryLandingViewModel @Inject constructor(
                 .sortedByDescending { it.timeQueued }
                 .also {
                     platformTypes = PlatformType.entries.filter { type ->
-                        it.any { it.tag == type.platformName }
+                        it.any { model -> model.tag == type.platformName }
                     }
                 }
                 .onEach {

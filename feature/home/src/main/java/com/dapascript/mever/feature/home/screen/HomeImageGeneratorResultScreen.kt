@@ -95,6 +95,7 @@ import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType.NETWORK
 import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType.RESPONSE
 import com.dapascript.mever.core.common.util.ErrorHandle.getErrorResponseContent
 import com.dapascript.mever.core.common.util.LocalActivity
+import com.dapascript.mever.core.common.util.changeToCurrentDate
 import com.dapascript.mever.core.common.util.copyToClipboard
 import com.dapascript.mever.core.common.util.getNotificationPermission
 import com.dapascript.mever.core.common.util.getPhotoThumbnail
@@ -116,6 +117,7 @@ import com.dapascript.mever.feature.home.viewmodel.HomeImageGeneratorResultViewM
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
+import java.lang.System.currentTimeMillis
 
 @Composable
 internal fun HomeImageGeneratorResultScreen(
@@ -146,7 +148,7 @@ internal fun HomeImageGeneratorResultScreen(
                         scope.launch {
                             startDownload(
                                 url = url,
-                                fileName = "${args.prompt}.jpg"
+                                fileName = changeToCurrentDate(currentTimeMillis()) + ".jpg"
                             )
                         }
                     }
