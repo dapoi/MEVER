@@ -61,9 +61,9 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
-import com.dapascript.mever.core.common.util.Constant.PlatformName.AI
-import com.dapascript.mever.core.common.util.Constant.PlatformType
-import com.dapascript.mever.core.common.util.Constant.PlatformType.UNKNOWN
+import com.dapascript.mever.core.common.util.PlatformType.AI
+import com.dapascript.mever.core.common.util.PlatformType
+import com.dapascript.mever.core.common.util.PlatformType.ALL
 import com.dapascript.mever.core.common.util.getFilePath
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
@@ -147,7 +147,7 @@ internal fun GalleryLandingScreen(
             isExpanded = isExpanded,
             platformTypes = platformTypes,
             downloadList = downloadList?.filter { download ->
-                selectedFilter == UNKNOWN || download.tag == selectedFilter.platformName
+                selectedFilter == ALL || download.tag == selectedFilter.platformName
             },
             modifier = Modifier
                 .fillMaxSize()
@@ -254,7 +254,7 @@ private fun GalleryContentSection(
     onChangeFilter: (PlatformType) -> Unit
 ) {
     LaunchedEffect(selectedFilter, downloadList) {
-        if (selectedFilter != UNKNOWN && downloadList?.isEmpty() == true) onChangeFilter(UNKNOWN)
+        if (selectedFilter != ALL && downloadList?.isEmpty() == true) onChangeFilter(ALL)
     }
 
     CompositionLocalProvider(LocalOverscrollFactory provides null) {
@@ -308,7 +308,7 @@ private fun GalleryContentSection(
                             total = it.total,
                             path = it.path,
                             urlThumbnail = it.metaData,
-                            icon = if (it.tag.isNotEmpty() && it.tag != AI) {
+                            icon = if (it.tag.isNotEmpty() && it.tag != AI.platformName) {
                                 getPlatformIcon(it.tag)
                             } else null,
                             iconBackgroundColor = getPlatformIconBackgroundColor(
@@ -357,10 +357,10 @@ private fun FilterContent(
             MeverButton(
                 title = stringResource(RCommon.string.all),
                 shape = RoundedCornerShape(Dp64),
-                buttonType = getButtonType(selectedFilter == UNKNOWN),
-            ) { onClickFilter(UNKNOWN) }
+                buttonType = getButtonType(selectedFilter == ALL),
+            ) { onClickFilter(ALL) }
             platformTypes
-                .filterNot { it == UNKNOWN }
+                .filterNot { it == ALL }
                 .map { type ->
                 MeverButton(
                     title = type.platformName,

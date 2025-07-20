@@ -103,15 +103,15 @@ import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp14
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp22
-import com.dapascript.mever.core.common.util.Constant.PlatformName.AI
-import com.dapascript.mever.core.common.util.Constant.PlatformName.UNKNOWN
-import com.dapascript.mever.core.common.util.Constant.PlatformType
-import com.dapascript.mever.core.common.util.Constant.PlatformType.YOUTUBE
 import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType
 import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType.NETWORK
 import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType.RESPONSE
 import com.dapascript.mever.core.common.util.ErrorHandle.getErrorResponseContent
 import com.dapascript.mever.core.common.util.LocalActivity
+import com.dapascript.mever.core.common.util.PlatformType
+import com.dapascript.mever.core.common.util.PlatformType.AI
+import com.dapascript.mever.core.common.util.PlatformType.ALL
+import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
 import com.dapascript.mever.core.common.util.changeToCurrentDate
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.NetworkStatus.Available
 import com.dapascript.mever.core.common.util.getFilePath
@@ -543,7 +543,9 @@ internal fun HomeDownloaderSection(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = SpaceBetween
             ) {
-                PlatformType.entries.filter { it.platformName !in listOf(AI, UNKNOWN) }.map {
+                PlatformType.entries.filter {
+                    it.platformName !in listOf(AI.platformName, ALL.platformName)
+                }.map {
                     MeverIcon(
                         icon = getPlatformIcon(it.platformName),
                         iconBackgroundColor = getPlatformIconBackgroundColor(it.platformName),
@@ -573,7 +575,7 @@ internal fun HomeDownloaderSection(
                     backgroundColor = colorScheme.primary,
                     contentColor = MeverWhite
                 ),
-                isEnabled = getPlatformType(urlSocialMediaState.text.trim()) != PlatformType.UNKNOWN,
+                isEnabled = getPlatformType(urlSocialMediaState.text.trim()) != ALL,
                 isLoading = isLoading
             ) { onClickDownload() }
             Spacer(modifier = Modifier.size(Dp24))
@@ -620,7 +622,7 @@ internal fun HomeDownloaderSection(
                             total = it.total,
                             path = it.path,
                             urlThumbnail = it.metaData,
-                            icon = if (it.tag.isNotEmpty() && it.tag != AI) {
+                            icon = if (it.tag.isNotEmpty() && it.tag != AI.platformName) {
                                 getPlatformIcon(it.tag)
                             } else null,
                             iconBackgroundColor = getPlatformIconBackgroundColor(it.tag),

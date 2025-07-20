@@ -7,13 +7,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
-import com.dapascript.mever.core.common.util.Constant.PlatformType.AI
-import com.dapascript.mever.core.common.util.Constant.PlatformType.FACEBOOK
-import com.dapascript.mever.core.common.util.Constant.PlatformType.INSTAGRAM
-import com.dapascript.mever.core.common.util.Constant.PlatformType.TIKTOK
-import com.dapascript.mever.core.common.util.Constant.PlatformType.TWITTER
-import com.dapascript.mever.core.common.util.Constant.PlatformType.UNKNOWN
-import com.dapascript.mever.core.common.util.Constant.PlatformType.YOUTUBE
+import com.dapascript.mever.core.common.util.PlatformType.AI
+import com.dapascript.mever.core.common.util.PlatformType.FACEBOOK
+import com.dapascript.mever.core.common.util.PlatformType.INSTAGRAM
+import com.dapascript.mever.core.common.util.PlatformType.TIKTOK
+import com.dapascript.mever.core.common.util.PlatformType.TWITTER
+import com.dapascript.mever.core.common.util.PlatformType.ALL
+import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver
 import com.dapascript.mever.core.common.util.getMeverFolder
 import com.dapascript.mever.core.common.util.getPlatformType
@@ -140,7 +140,7 @@ class HomeLandingViewModel @Inject constructor(
         TIKTOK -> getTiktokDownloader(url)
         TWITTER -> getTwitterDownloader(url)
         YOUTUBE -> getYoutubeDownloader(url, selectedQuality)
-        AI, UNKNOWN -> {
+        AI, ALL -> {
             _downloaderResponseState.value = StateFailed(
                 Throwable("Platform not supported")
             )

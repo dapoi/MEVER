@@ -5,8 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
-import com.dapascript.mever.core.common.util.Constant.PlatformType
-import com.dapascript.mever.core.common.util.Constant.PlatformType.UNKNOWN
+import com.dapascript.mever.core.common.util.PlatformType
+import com.dapascript.mever.core.common.util.PlatformType.ALL
 import com.dapascript.mever.core.common.util.isAvailableOnLocal
 import com.ketch.Ketch
 import com.ketch.Status.SUCCESS
@@ -21,8 +21,8 @@ class GalleryLandingViewModel @Inject constructor(
     val ketch: Ketch
 ) : BaseViewModel() {
 
-    var selectedFilter by mutableStateOf(UNKNOWN)
-    var platformTypes by mutableStateOf(listOf(UNKNOWN))
+    var selectedFilter by mutableStateOf(ALL)
+    var platformTypes by mutableStateOf(listOf(ALL))
     val downloadList = ketch.observeDownloads()
         .map { downloads ->
             downloads

@@ -3,32 +3,32 @@ package com.dapascript.mever.core.common.ui.attr
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.theme.MeverCreamPink
 import com.dapascript.mever.core.common.ui.theme.MeverLightBlue
+import com.dapascript.mever.core.common.ui.theme.MeverLightGray
 import com.dapascript.mever.core.common.ui.theme.MeverLightGreen
 import com.dapascript.mever.core.common.ui.theme.MeverLightPurple
 import com.dapascript.mever.core.common.ui.theme.MeverPink
-import com.dapascript.mever.core.common.ui.theme.MeverTransparent
-import com.dapascript.mever.core.common.util.Constant.PlatformName.FACEBOOK
-import com.dapascript.mever.core.common.util.Constant.PlatformName.INSTAGRAM
-import com.dapascript.mever.core.common.util.Constant.PlatformName.TIKTOK
-import com.dapascript.mever.core.common.util.Constant.PlatformName.TWITTER
-import com.dapascript.mever.core.common.util.Constant.PlatformName.YOUTUBE
+import com.dapascript.mever.core.common.util.PlatformType.FACEBOOK
+import com.dapascript.mever.core.common.util.PlatformType.INSTAGRAM
+import com.dapascript.mever.core.common.util.PlatformType.TIKTOK
+import com.dapascript.mever.core.common.util.PlatformType.TWITTER
+import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
 
 object MeverIconAttr {
     fun getPlatformIcon(platform: String) = when {
-        platform.contains(INSTAGRAM) -> R.drawable.ic_instagram
-        platform.contains(FACEBOOK) -> R.drawable.ic_facebook
-        platform.contains(TWITTER) -> R.drawable.ic_twitter
-        platform.contains(YOUTUBE) -> R.drawable.ic_youtube
-        platform.contains(TIKTOK) -> R.drawable.ic_tiktok
+        platform.contains(INSTAGRAM.platformName) -> R.drawable.ic_instagram
+        platform.contains(FACEBOOK.platformName) -> R.drawable.ic_facebook
+        platform.contains(TWITTER.platformName) -> R.drawable.ic_twitter
+        platform.contains(YOUTUBE.platformName) -> R.drawable.ic_youtube
+        platform.contains(TIKTOK.platformName) -> R.drawable.ic_tiktok
         else -> R.drawable.ic_broken_image
     }
 
     fun getPlatformIconBackgroundColor(platform: String) = when {
-        platform.contains(INSTAGRAM) -> MeverCreamPink
-        platform.contains(FACEBOOK) -> MeverLightBlue
-        platform.contains(TWITTER) -> MeverLightPurple
-        platform.contains(YOUTUBE) -> MeverPink
-        platform.contains(TIKTOK) -> MeverLightGreen
-        else -> MeverTransparent
+        platform.contains(INSTAGRAM.platformName) -> MeverCreamPink
+        platform.contains(FACEBOOK.platformName) -> MeverLightBlue
+        platform.contains(TWITTER.platformName) -> MeverLightPurple
+        platform.contains(YOUTUBE.platformName) -> MeverPink
+        platform.contains(TIKTOK.platformName) -> MeverLightGreen
+        else -> MeverLightGray
     }
 }

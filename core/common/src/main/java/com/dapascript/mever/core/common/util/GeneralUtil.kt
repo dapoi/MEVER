@@ -25,13 +25,12 @@ import androidx.core.net.toUri
 import androidx.core.view.WindowCompat.getInsetsController
 import androidx.core.view.WindowInsetsCompat.Type.systemBars
 import com.dapascript.mever.core.common.R
-import com.dapascript.mever.core.common.util.Constant.PlatformType
-import com.dapascript.mever.core.common.util.Constant.PlatformType.FACEBOOK
-import com.dapascript.mever.core.common.util.Constant.PlatformType.INSTAGRAM
-import com.dapascript.mever.core.common.util.Constant.PlatformType.TIKTOK
-import com.dapascript.mever.core.common.util.Constant.PlatformType.TWITTER
-import com.dapascript.mever.core.common.util.Constant.PlatformType.UNKNOWN
-import com.dapascript.mever.core.common.util.Constant.PlatformType.YOUTUBE
+import com.dapascript.mever.core.common.util.PlatformType.FACEBOOK
+import com.dapascript.mever.core.common.util.PlatformType.INSTAGRAM
+import com.dapascript.mever.core.common.util.PlatformType.TIKTOK
+import com.dapascript.mever.core.common.util.PlatformType.TWITTER
+import com.dapascript.mever.core.common.util.PlatformType.ALL
+import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -209,7 +208,7 @@ fun getPlatformType(url: String): PlatformType {
         listTwitterUrl.any { url.contains(it) } -> TWITTER
         listTiktokUrl.any { url.contains(it) } -> TIKTOK
         listYouTubeUrl.any { url.contains(it) } -> YOUTUBE
-        else -> UNKNOWN
+        else -> ALL
     }
 }
 
