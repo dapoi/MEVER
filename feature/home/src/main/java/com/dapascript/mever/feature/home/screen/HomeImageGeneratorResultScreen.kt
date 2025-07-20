@@ -98,7 +98,7 @@ import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.changeToCurrentDate
 import com.dapascript.mever.core.common.util.copyToClipboard
 import com.dapascript.mever.core.common.util.getNotificationPermission
-import com.dapascript.mever.core.common.util.getPhotoThumbnail
+import com.dapascript.mever.core.common.util.fetchPhotoFromUrl
 import com.dapascript.mever.core.common.util.getStoragePermission
 import com.dapascript.mever.core.common.util.getUrlContentType
 import com.dapascript.mever.core.common.util.goToSetting
@@ -307,7 +307,7 @@ internal fun HomeImageGeneratorResultScreen(
                         if (!cachePath.exists()) cachePath.mkdirs()
                         val cacheFile = File(cachePath, "shared_image.png")
                         val stream = FileOutputStream(cacheFile)
-                        val bitmap = getPhotoThumbnail(imageSelected.orEmpty())
+                        val bitmap = fetchPhotoFromUrl(imageSelected.orEmpty())
                         bitmap?.compress(
                             /* format = */ PNG,
                             /* quality = */ 100,

@@ -32,7 +32,6 @@ import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.component.MeverBottomSheet
 import com.dapascript.mever.core.common.ui.component.MeverImage
 import com.dapascript.mever.core.common.ui.component.MeverRadioButton
-import com.dapascript.mever.core.common.ui.component.MeverUrlThumbnail
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp14
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp150
@@ -70,21 +69,14 @@ internal fun HandleBottomSheetDownload(
     ) {
         Column(modifier = Modifier.wrapContentSize()) {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                if (groupedContent.first().thumbnail.isEmpty()) MeverUrlThumbnail(
-                    source = if (groupedContent.isNotEmpty()) groupedContent.first().url else "",
-                    isFailedFetchImage = isFailedFetchImage,
+                MeverImage(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(Dp150)
                         .padding(bottom = Dp32, start = Dp24, end = Dp24)
-                        .clip(RoundedCornerShape(Dp12))
-                ) else MeverImage(
-                    source = groupedContent.first().thumbnail,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(Dp150)
-                        .padding(bottom = Dp32, start = Dp24, end = Dp24)
-                        .clip(RoundedCornerShape(Dp12))
+                        .clip(RoundedCornerShape(Dp12)),
+                    source = groupedContent.first().thumbnail.ifEmpty { groupedContent.first().url },
+                    isImageError = isFailedFetchImage
                 )
                 Text(
                     text = stringResource(R.string.choose_file),

@@ -42,7 +42,7 @@ import java.util.Calendar.getInstance
 import java.util.Locale.ROOT
 import java.util.Locale.getDefault
 
-suspend fun getPhotoThumbnail(url: String) = withContext(IO) {
+suspend fun fetchPhotoFromUrl(url: String) = withContext(IO) {
     try {
         decodeStream(URL(url).openStream())
     } catch (e: Exception) {
@@ -51,7 +51,7 @@ suspend fun getPhotoThumbnail(url: String) = withContext(IO) {
     }
 }
 
-suspend fun getVideoThumbnail(source: String): Bitmap? = withContext(IO) {
+suspend fun fetchVideoThumbnail(source: String): Bitmap? = withContext(IO) {
     val retriever = MediaMetadataRetriever()
     try {
         with(retriever) {

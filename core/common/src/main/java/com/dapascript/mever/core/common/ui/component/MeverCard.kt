@@ -92,15 +92,7 @@ fun MeverCard(
                     onClick = { onClickCard?.invoke() }
                 )
         ) {
-            if (status != SUCCESS && urlThumbnail.isNullOrEmpty()) MeverUrlThumbnail(
-                source = source,
-                isFailedFetchImage = status == FAILED,
-                modifier = Modifier
-                    .size(width = Dp88, height = Dp86)
-                    .clip(RoundedCornerShape(Dp8))
-                    .align(CenterVertically)
-            ) else MeverImage(
-                source = getFilePath(fileName),
+            MeverImage(
                 modifier = Modifier
                     .size(width = Dp88, height = Dp86)
                     .clip(RoundedCornerShape(Dp8))
@@ -110,7 +102,14 @@ fun MeverCard(
                         scaleY = 1.5f
                         translationX = 1.5f
                         translationY = 1.5f
-                    }
+                    },
+                source = getImageSource(
+                    status = status,
+                    source = source,
+                    fileName = fileName,
+                    urlThumbnail = urlThumbnail
+                ),
+                isImageError = status == FAILED
             )
             Column(
                 modifier = Modifier
@@ -239,6 +238,14 @@ fun MeverCard(
         }
     }
 }
+
+private fun getImageSource(
+    status: Status,
+    source: String,
+    fileName: String,
+    urlThumbnail: String?
+) = if (status != SUCCESS && urlThumbnail.isNullOrEmpty()) source
+else getFilePath(fileName)
 
 @Composable
 private fun getImagePainter(status: Status) = rememberAsyncImagePainter(
