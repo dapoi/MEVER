@@ -21,9 +21,9 @@ fun MeverDialogError(
     showDialog: Boolean,
     errorTitle: String,
     errorDescription: String,
-    errorImage: Int = R.drawable.ic_error,
     primaryButtonText: String = stringResource(R.string.retry),
     secondaryButtonText: String = stringResource(R.string.cancel),
+    errorImage: Int? = R.drawable.ic_error,
     onClickPrimary: () -> Unit,
     onClickSecondary: () -> Unit
 ) {
@@ -37,14 +37,16 @@ fun MeverDialogError(
             onClickSecondaryButton = onClickSecondary
         )
     ) {
-        Image(
-            modifier = Modifier
-                .size(Dp200)
-                .align(CenterHorizontally),
-            painter = painterResource(errorImage),
-            contentScale = Crop,
-            contentDescription = "Error Image"
-        )
+        errorImage?.let {
+            Image(
+                modifier = Modifier
+                    .size(Dp200)
+                    .align(CenterHorizontally),
+                painter = painterResource(it),
+                contentScale = Crop,
+                contentDescription = "Error Image"
+            )
+        }
         Text(
             text = errorDescription,
             textAlign = Center,

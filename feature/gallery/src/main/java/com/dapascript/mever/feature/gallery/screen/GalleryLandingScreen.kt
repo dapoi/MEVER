@@ -33,7 +33,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign.Companion.Center
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
@@ -41,14 +40,13 @@ import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Filled
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Outlined
 import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardArgs
-import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
 import com.dapascript.mever.core.common.ui.attr.MeverIconAttr.getPlatformIcon
 import com.dapascript.mever.core.common.ui.attr.MeverIconAttr.getPlatformIconBackgroundColor
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.ActionMenu
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverButton
 import com.dapascript.mever.core.common.ui.component.MeverCard
-import com.dapascript.mever.core.common.ui.component.MeverDialog
+import com.dapascript.mever.core.common.ui.component.MeverDialogError
 import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
 import com.dapascript.mever.core.common.ui.component.MeverPopupDropDownMenu
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
@@ -192,73 +190,51 @@ internal fun GalleryLandingScreen(
             }
         )
 
-        MeverDialog(
+        MeverDialogError(
             showDialog = showDeleteAllDialog,
-            meverDialogArgs = MeverDialogArgs(
-                title = stringResource(R.string.delete_all_title),
-                primaryButtonText = stringResource(R.string.delete_button),
-                onClickPrimaryButton = {
-                    scope.launch { listState.scrollToItem(0) }
-                    ketch.clearAllDb()
-                    showDeleteAllDialog = false
-                },
-                onClickSecondaryButton = { showDeleteAllDialog = false }
-            )
-        ) {
-            Text(
-                text = stringResource(R.string.delete_all_desc),
-                textAlign = Center,
-                style = typography.body1,
-                color = colorScheme.onPrimary
-            )
-        }
+            errorImage = null,
+            errorTitle = stringResource(R.string.delete_all_title),
+            errorDescription = stringResource(R.string.delete_all_desc),
+            primaryButtonText = stringResource(R.string.delete_button),
+            onClickPrimary = {
+                scope.launch { listState.scrollToItem(0) }
+                ketch.clearAllDb()
+                showDeleteAllDialog = false
+            },
+            onClickSecondary = { showDeleteAllDialog = false }
+        )
 
         showDeleteDialog?.let { id ->
-            MeverDialog(
+            MeverDialogError(
                 showDialog = true,
-                meverDialogArgs = MeverDialogArgs(
-                    title = stringResource(R.string.delete_title),
-                    primaryButtonText = stringResource(R.string.delete_button),
-                    onClickPrimaryButton = {
-                        ketch.clearDb(id)
-                        showDeleteDialog = null
-                    },
-                    onClickSecondaryButton = { showDeleteDialog = null }
-                )
-            ) {
-                Text(
-                    text = stringResource(R.string.delete_desc),
-                    textAlign = Center,
-                    style = typography.body1,
-                    color = colorScheme.onPrimary
-                )
-            }
+                errorImage = null,
+                errorTitle = stringResource(R.string.delete_title),
+                errorDescription = stringResource(R.string.delete_desc),
+                primaryButtonText = stringResource(R.string.delete_button),
+                onClickPrimary = {
+                    ketch.clearDb(id)
+                    showDeleteDialog = null
+                },
+                onClickSecondary = { showDeleteDialog = null }
+            )
         }
 
         showFailedDialog?.let { id ->
-            MeverDialog(
+            MeverDialogError(
                 showDialog = true,
-                meverDialogArgs = MeverDialogArgs(
-                    title = stringResource(R.string.download_failed_title),
-                    primaryButtonText = stringResource(R.string.delete_button),
-                    secondaryButtonText = stringResource(R.string.retry),
-                    onClickPrimaryButton = {
-                        ketch.clearDb(id)
-                        showFailedDialog = null
-                    },
-                    onClickSecondaryButton = {
-                        ketch.retry(id)
-                        showFailedDialog = null
-                    }
-                )
-            ) {
-                Text(
-                    text = stringResource(R.string.download_failed_desc),
-                    textAlign = Center,
-                    style = typography.body1,
-                    color = colorScheme.onPrimary
-                )
-            }
+                errorTitle = stringResource(R.string.download_failed_title),
+                errorDescription = stringResource(R.string.download_failed_desc),
+                primaryButtonText = stringResource(R.string.delete_button),
+                secondaryButtonText = stringResource(R.string.retry),
+                onClickPrimary = {
+                    ketch.clearDb(id)
+                    showFailedDialog = null
+                },
+                onClickSecondary = {
+                    ketch.retry(id)
+                    showFailedDialog = null
+                }
+            )
         }
     }
 }
@@ -383,7 +359,9 @@ private fun FilterContent(
                 shape = RoundedCornerShape(Dp64),
                 buttonType = getButtonType(selectedFilter == UNKNOWN),
             ) { onClickFilter(UNKNOWN) }
-            platformTypes.map { type ->
+            platformTypes
+                .filterNot { it == UNKNOWN }
+                .map { type ->
                 MeverButton(
                     title = type.platformName,
                     shape = RoundedCornerShape(Dp64),

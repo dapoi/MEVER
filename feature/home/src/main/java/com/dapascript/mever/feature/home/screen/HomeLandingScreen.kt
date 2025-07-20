@@ -141,7 +141,7 @@ import com.ketch.DownloadModel
 import com.ketch.Status.FAILED
 import com.ketch.Status.PAUSED
 import com.ketch.Status.SUCCESS
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import java.io.File
 import java.lang.System.currentTimeMillis
@@ -213,14 +213,12 @@ internal fun HomeLandingScreen(
             showBottomSheet = contents.isNotEmpty(),
             isFailedFetchImage = isNetworkAvailable != Available,
             onClickDownload = { url ->
-                scope.launch {
+                scope.launch(IO) {
                     startDownload(
                         url = url,
                         fileName = changeToCurrentDate(currentTimeMillis()) + getUrlContentType(url),
                         thumbnail = contents.firstOrNull()?.thumbnail.orEmpty()
                     )
-                    delay(500)
-                    urlSocialMediaState = TextFieldValue("")
                 }
                 contents = emptyList()
             },
@@ -477,8 +475,10 @@ private fun HomeScreenContent(
         showDeleteDialog?.let { id ->
             MeverDialogError(
                 showDialog = true,
+                errorImage = null,
                 errorTitle = stringResource(R.string.delete_title),
                 errorDescription = stringResource(R.string.delete_desc),
+                primaryButtonText = stringResource(R.string.delete_button),
                 onClickPrimary = {
                     delete(id)
                     showDeleteDialog = null

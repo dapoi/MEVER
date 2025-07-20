@@ -124,7 +124,7 @@ private fun DialogContent(
     Column(
         modifier = modifier
             .background(backgroundColor ?: colorScheme.background)
-            .padding(vertical = Dp8, horizontal = Dp16),
+            .padding(top = Dp12, start = Dp16, end = Dp16, bottom = Dp8),
         verticalArrangement = spacedBy(Dp12),
         horizontalAlignment = CenterHorizontally
     ) {
@@ -144,7 +144,7 @@ private fun DialogContent(
                     .clip(RoundedCornerShape(Dp14))
                     .onCustomClick { onClickSecondaryButton() }
                     .weight(1f)
-                    .padding(vertical = Dp16),
+                    .padding(vertical = Dp8),
                 contentAlignment = Center
             ) {
                 Text(
@@ -167,7 +167,7 @@ private fun DialogContent(
                     .clip(RoundedCornerShape(Dp14))
                     .onCustomClick { onClickPrimaryButton() }
                     .weight(1f)
-                    .padding(vertical = Dp16),
+                    .padding(vertical = Dp8),
                 contentAlignment = Center
             ) {
                 Text(

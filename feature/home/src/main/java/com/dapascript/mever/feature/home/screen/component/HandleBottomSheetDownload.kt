@@ -71,8 +71,7 @@ internal fun HandleBottomSheetDownload(
         Column(modifier = Modifier.wrapContentSize()) {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 if (groupedContent.first().thumbnail.isEmpty()) MeverUrlThumbnail(
-                    source = groupedContent.size.takeIf { it > 0 }?.let { groupedContent.first().url }
-                        ?: "",
+                    source = if (groupedContent.isNotEmpty()) groupedContent.first().url else "",
                     isFailedFetchImage = isFailedFetchImage,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -105,7 +104,7 @@ internal fun HandleBottomSheetDownload(
                                     ".jpg"
                                 }
 
-                                else -> "Video"
+                                else -> ".mp4"
                             },
                             isChoosen = chooseQualityIndex == index,
                         ) { chooseQualityIndex = index }
@@ -146,7 +145,7 @@ internal fun HandleBottomSheetDownload(
                     modifier = Modifier
                         .clip(RoundedCornerShape(Dp14))
                         .onCustomClick {
-                            if (jpgContents.size > 1) jpgContents.map { onClickDownload(it.url) }
+                            if (jpgContents.size > 1) jpgContents.forEach { onClickDownload(it.url) }
                             else onClickDownload(groupedContent[chooseQualityIndex].url)
                         }
                         .weight(1f)

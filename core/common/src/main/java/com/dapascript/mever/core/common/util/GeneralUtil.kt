@@ -76,7 +76,10 @@ suspend fun getUrlContentType(url: String) = withContext(IO) {
 
     try {
         val type = client.newCall(request).execute()
-        if (type.body?.contentType().toString() == "video/mp4") ".mp4" else ".jpg"
+        val contentType = type.body?.contentType()?.toString() ?: ""
+        if (contentType.contains("video") || contentType.contains("mp4")) {
+            ".mp4"
+        } else ".jpg"
     } catch (e: Exception) {
         e.printStackTrace()
         null
@@ -227,14 +230,15 @@ fun hideSystemBar(activity: Activity, value: Boolean) = with(activity) {
 }
 
 fun convertFilename(filename: String): String {
-    val regex = Regex("""(\d{4})\.(\d{2})\.(\d{2}) - (\d{2})_(\d{2})_(\d{2})\.(\w+)""")
+    val regex = Regex("""(\d{4})\.(\d{2})\.(\d{2}) - (\d{2})_(\d{2})_(\d{2})(?: \((\d+)\))?\.(\w+)""")
     val match = regex.find(filename)
 
     return if (match != null) {
-        val (year, month, day, hour, minute, second, ext) = match.destructured
-        val newDate = "$day.$month.$year"
+        val (year, month, day, hour, minute, second, duplicate, ext) = match.destructured
+        val newDate = "$day-$month-$year"
         val newTime = "$hour:$minute:$second"
-        "$newDate - $newTime.$ext"
+        val dupSuffix = if (duplicate.isNotEmpty()) " ($duplicate)" else ""
+        "$newDate - $newTime$dupSuffix.$ext"
     } else filename
 }
 

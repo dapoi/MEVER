@@ -74,6 +74,9 @@ class HomeLandingViewModel @Inject constructor(
                     showBadge = it.any { file ->
                         file.status in listOf(QUEUED, STARTED, PAUSED, PROGRESS)
                     }
+                    it.all { file -> file.status == SUCCESS }.let { valid ->
+                        if (valid) urlSocialMediaState = TextFieldValue("")
+                    }
                 }
                 .onEach {
                     if (it.status == SUCCESS && isAvailableOnLocal(it.fileName).not()) {
