@@ -19,7 +19,6 @@ import com.dapascript.mever.core.common.util.LocalActivity
 @SuppressLint("SourceLockedOrientationActivity")
 @Composable
 fun BaseScreen(
-    modifier: Modifier = Modifier,
     topBarArgs: TopBarArgs = TopBarArgs(),
     useCenterTopBar: Boolean = true,
     useSystemBarsPadding: Boolean = true,
@@ -37,7 +36,6 @@ fun BaseScreen(
         useSystemBarsPadding = useSystemBarsPadding,
         allowScreenOverlap = allowScreenOverlap,
         hideDefaultTopBar = hideDefaultTopBar,
-        modifier = modifier,
         content = content
     )
 }
@@ -49,12 +47,11 @@ private fun BaseScreenContent(
     useSystemBarsPadding: Boolean,
     allowScreenOverlap: Boolean,
     hideDefaultTopBar: Boolean,
-    modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
     if (allowScreenOverlap) {
         Box(
-            modifier = modifier
+            modifier = Modifier
                 .background(color = colorScheme.background)
                 .then(if (useSystemBarsPadding) Modifier.systemBarsPadding() else Modifier)
         ) {
@@ -67,7 +64,7 @@ private fun BaseScreenContent(
         }
     } else {
         Column(
-            modifier = modifier
+            modifier = Modifier
                 .background(color = colorScheme.background)
                 .padding(horizontal = Dp24)
                 .then(if (useSystemBarsPadding) Modifier.systemBarsPadding() else Modifier)

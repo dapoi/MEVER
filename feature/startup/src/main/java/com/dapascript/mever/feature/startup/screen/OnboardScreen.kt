@@ -3,7 +3,6 @@ package com.dapascript.mever.feature.startup.screen
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,6 +44,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp0
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
@@ -67,7 +67,6 @@ internal fun OnboardScreen(
     viewModel: OnboardViewModel = hiltViewModel()
 ) = with(viewModel) {
     BaseScreen(
-        modifier = Modifier.background(colorScheme.background),
         useSystemBarsPadding = false,
         allowScreenOverlap = true,
         hideDefaultTopBar = true
@@ -89,9 +88,7 @@ internal fun OnboardScreen(
                     .verticalScroll(rememberScrollState())
             ) {
                 Image(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(3f / 4f),
+                    modifier = Modifier.aspectRatio(0.9f),
                     painter = painterResource(
                         if (isSystemInDarkTheme()) R.drawable.bg_onboard_dark
                         else R.drawable.bg_onboard_light
@@ -101,7 +98,7 @@ internal fun OnboardScreen(
                 DescriptionOnboardSection(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = Dp24, bottom = buttonSize, start = Dp24, end = Dp24)
+                        .padding(top = Dp40, bottom = buttonSize, start = Dp24, end = Dp24)
                 )
             }
             ButtonOnboardSection(

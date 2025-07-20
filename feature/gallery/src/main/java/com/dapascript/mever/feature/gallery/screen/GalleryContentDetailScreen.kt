@@ -1,6 +1,6 @@
 package com.dapascript.mever.feature.gallery.screen
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -9,7 +9,6 @@ import androidx.navigation.NavController
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.component.MeverPhotoViewer
 import com.dapascript.mever.core.common.ui.component.MeverVideoPlayer
-import com.dapascript.mever.core.common.ui.theme.MeverBlack
 import com.dapascript.mever.core.common.util.isVideo
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.feature.gallery.viewmodel.GalleryPlayerViewModel
@@ -23,7 +22,6 @@ internal fun GalleryContentDetailScreen(
     val context = LocalContext.current
 
     BaseScreen(
-        modifier = Modifier.background(MeverBlack),
         useSystemBarsPadding = false,
         allowScreenOverlap = true,
         hideDefaultTopBar = true,
@@ -31,6 +29,7 @@ internal fun GalleryContentDetailScreen(
     ) {
         with(args) {
             if (isVideo(filePath)) MeverVideoPlayer(
+                modifier = Modifier.fillMaxSize(),
                 source = filePath,
                 onClickDelete = { deleteContent(id) },
                 onClickShare = {
@@ -41,6 +40,7 @@ internal fun GalleryContentDetailScreen(
                 },
                 onClickBack = { navigator.popBackStack() }
             ) else MeverPhotoViewer(
+                modifier = Modifier.fillMaxSize(),
                 source = filePath,
                 onClickDelete = { deleteContent(id) },
                 onClickShare = {

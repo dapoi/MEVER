@@ -27,7 +27,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
@@ -708,13 +707,13 @@ internal fun HomeAiSection(
         item {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = SpaceBetween
+                horizontalArrangement = spacedBy(Dp8)
             ) {
                 imagesCountGenerated.map { count ->
                     MeverButton(
                         modifier = Modifier
-                            .height(Dp40)
-                            .width(Dp80),
+                            .weight(1f)
+                            .height(Dp40),
                         title = count.toString(),
                         buttonType = if (totalImageSelected == count) Filled(
                             backgroundColor = colorScheme.primary,

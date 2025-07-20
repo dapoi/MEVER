@@ -28,7 +28,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -65,6 +64,8 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.media3.common.MediaItem.fromUri
 import androidx.media3.common.Player
+import androidx.media3.common.Player.Events
+import androidx.media3.common.Player.Listener
 import androidx.media3.common.Player.STATE_BUFFERING
 import androidx.media3.common.Player.STATE_ENDED
 import androidx.media3.exoplayer.ExoPlayer.Builder
@@ -144,9 +145,17 @@ fun MeverVideoPlayer(
         }
     }
 
+    LaunchedEffect(isVideoBuffering) {
+        if (isVideoBuffering) {
+            delay(4000)
+            player?.seekTo(player?.currentPosition?.minus(5000) ?: 0)
+            isVideoBuffering = false
+        }
+    }
+
     DisposableEffect(lifecycleOwner) {
-        val listener = object : Player.Listener {
-            override fun onEvents(player: Player, events: Player.Events) {
+        val listener = object : Listener {
+            override fun onEvents(player: Player, events: Events) {
                 super.onEvents(player, events)
                 isVideoPlaying = player.isPlaying
                 totalDuration = player.duration
@@ -188,7 +197,7 @@ fun MeverVideoPlayer(
     }
 
     VideoPlayer(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier,
         player = player ?: return,
         isVideoBuffering = isVideoBuffering,
         title = convertFilename(source.substringAfterLast("/")).ifEmpty { "Video" },
@@ -314,7 +323,6 @@ private fun VideoPlayer(
         )
     }
     AnimatedVisibility(
-        modifier = Modifier.systemBarsPadding(),
         visible = isControllerVisible,
         enter = fadeIn(),
         exit = fadeOut()
