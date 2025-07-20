@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_SENDTO
+import android.content.Intent.ACTION_VIEW
 import android.content.Intent.EXTRA_EMAIL
 import android.content.Intent.EXTRA_SUBJECT
 import android.content.Intent.EXTRA_TEXT
@@ -168,6 +169,11 @@ fun navigateToGmail(context: Context) {
     } catch (_: Exception) {
         Toast.makeText(context, R.string.gmail_not_found, LENGTH_SHORT).show()
     }
+}
+
+fun navigateToBrowser(context: Context, url: String) {
+    val intent = Intent(ACTION_VIEW, url.toUri())
+    context.startActivity(intent)
 }
 
 fun convertToTimeFormat(milliseconds: Long): String {

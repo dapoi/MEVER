@@ -1,8 +1,6 @@
 package com.dapascript.mever.feature.setting.screen
 
 import android.content.Context
-import android.content.Intent
-import android.content.Intent.ACTION_VIEW
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement.Center
@@ -17,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
@@ -25,7 +24,7 @@ import androidx.compose.ui.graphics.ColorFilter.Companion.tint
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.core.net.toUri
+import androidx.compose.ui.text.style.TextDecoration.Companion.Underline
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
@@ -42,6 +41,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp90
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.getAppVersion
+import com.dapascript.mever.core.common.util.navigateToBrowser
 import com.dapascript.mever.feature.setting.viewmodel.SettingAboutAppViewModel
 import java.time.LocalDate
 
@@ -118,10 +118,19 @@ private fun SettingAboutAppContent(
                     borderColor = MeverWhite,
                     contentColor = MeverWhite
                 )
-            ) {
-                val intent = Intent(ACTION_VIEW, "https://mever.zeabur.app/license".toUri())
-                context.startActivity(intent)
-            }
+            ) { navigateToBrowser(context, "https://mever.zeabur.app/license") }
+            Spacer(modifier = Modifier.height(Dp16))
+            TextButton(
+                onClick = { navigateToBrowser(context, "https://mever.zeabur.app/privacy-policy") },
+                content = {
+                    Text(
+                        text = stringResource(R.string.policy),
+                        style = typography.body2,
+                        color = MeverWhite,
+                        textDecoration = Underline
+                    )
+                }
+            )
         }
         Text(
             modifier = Modifier
