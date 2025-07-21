@@ -94,9 +94,9 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp5
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp75
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp90
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp14
@@ -761,16 +761,16 @@ internal fun HomeAiSection(
                 horizontalArrangement = SpaceBetween,
                 verticalAlignment = CenterVertically
             ) {
-                artStyles.forEach {
+                artStyles.map {
                     val imageSize by animateDpAsState(
-                        targetValue = if (artStyleSelected == it.styleName) Dp90 else Dp80
+                        targetValue = if (artStyleSelected == it.styleName) Dp80 else Dp75
                     )
                     Column(
                         horizontalAlignment = CenterHorizontally,
                         verticalArrangement = spacedBy(Dp4)
                     ) {
                         Box(
-                            modifier = Modifier.size(Dp90),
+                            modifier = Modifier.size(Dp80),
                             contentAlignment = Center
                         ) {
                             Image(
@@ -798,7 +798,7 @@ internal fun HomeAiSection(
                         }
                         Text(
                             text = it.styleName,
-                            style = typography.bodyBold2,
+                            style = typography.bodyBold3,
                             color = colorScheme.onPrimary
                         )
                     }
