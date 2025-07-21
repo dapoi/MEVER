@@ -7,7 +7,7 @@ plugins {
 android {
     defaultConfig {
         applicationId = "com.dapascript.mever"
-        versionCode = 20250722
+        versionCode = 20250723
         versionName = "0.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -15,7 +15,7 @@ android {
             useSupportLibrary = true
         }
         manifestPlaceholders["admobId"] = getEnvVariable("ADMOB_ID").ifEmpty {
-            "ca-app-pub-3940256099942544~3347511713" // Default AdMob ID for testing
+            "ca-app-pub-3940256099942544~3347511713"
         }
     }
 
