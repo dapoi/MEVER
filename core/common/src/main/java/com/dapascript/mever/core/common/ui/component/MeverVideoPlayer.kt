@@ -133,7 +133,7 @@ fun MeverVideoPlayer(
     LaunchedEffect(showController) {
         hideSystemBar(activity, showController.not())
         if (showController && showDropDownMenu.not()) {
-            delay(2000)
+            delay(2000L)
             showController = false
         }
     }
@@ -147,9 +147,13 @@ fun MeverVideoPlayer(
 
     LaunchedEffect(isVideoBuffering) {
         if (isVideoBuffering) {
-            delay(4000)
-            player?.seekTo(player?.currentPosition?.minus(5000) ?: 0)
+            delay(2000L)
+            player?.seekTo(player?.currentPosition?.minus(10000) ?: 0)
             isVideoBuffering = false
+            if (player?.isPlaying == false) {
+                player?.playWhenReady = true
+                isVideoPlaying = true
+            }
         }
     }
 
