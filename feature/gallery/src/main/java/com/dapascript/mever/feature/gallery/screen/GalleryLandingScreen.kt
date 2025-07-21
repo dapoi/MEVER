@@ -6,9 +6,11 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -44,6 +46,7 @@ import com.dapascript.mever.core.common.ui.attr.MeverIconAttr.getPlatformIcon
 import com.dapascript.mever.core.common.ui.attr.MeverIconAttr.getPlatformIconBackgroundColor
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.ActionMenu
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
+import com.dapascript.mever.core.common.ui.component.MeverBannerAd
 import com.dapascript.mever.core.common.ui.component.MeverButton
 import com.dapascript.mever.core.common.ui.component.MeverCard
 import com.dapascript.mever.core.common.ui.component.MeverDialogError
@@ -61,8 +64,8 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
-import com.dapascript.mever.core.common.util.PlatformType.AI
 import com.dapascript.mever.core.common.util.PlatformType
+import com.dapascript.mever.core.common.util.PlatformType.AI
 import com.dapascript.mever.core.common.util.PlatformType.ALL
 import com.dapascript.mever.core.common.util.getFilePath
 import com.dapascript.mever.core.common.util.shareContent
@@ -322,6 +325,14 @@ private fun GalleryContentSection(
                         onClickDelete = { onClickDelete(it) }
                     )
                 }
+                if (downloadList.size > 3) item {
+                    MeverBannerAd(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = Dp24)
+                    )
+                    Spacer(modifier = Modifier.size(Dp24))
+                }
             } else {
                 Column(modifier = Modifier.fillMaxSize()) {
                     Text(
@@ -362,12 +373,12 @@ private fun FilterContent(
             platformTypes
                 .filterNot { it == ALL }
                 .map { type ->
-                MeverButton(
-                    title = type.platformName,
-                    shape = RoundedCornerShape(Dp64),
-                    buttonType = getButtonType(selectedFilter == type),
-                ) { onClickFilter(type) }
-            }
+                    MeverButton(
+                        title = type.platformName,
+                        shape = RoundedCornerShape(Dp64),
+                        buttonType = getButtonType(selectedFilter == type),
+                    ) { onClickFilter(type) }
+                }
         }
     }
 }
