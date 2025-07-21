@@ -237,7 +237,7 @@ fun convertFilename(filename: String): String {
         val newDate = "$day-$month-$year"
         val newTime = "$hour:$minute:$second"
         val dupSuffix = if (duplicate.isNotEmpty()) " ($duplicate)" else ""
-        "$newDate - $newTime$dupSuffix.$ext"
+        "$newDate • $newTime$dupSuffix.$ext"
     } else filename
 }
 
