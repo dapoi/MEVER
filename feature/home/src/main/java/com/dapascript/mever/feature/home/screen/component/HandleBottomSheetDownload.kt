@@ -29,6 +29,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import com.dapascript.mever.core.common.R
+import com.dapascript.mever.core.common.ui.attr.MeverImageAttr.getBitmapFromUrl
 import com.dapascript.mever.core.common.ui.component.MeverBottomSheet
 import com.dapascript.mever.core.common.ui.component.MeverImage
 import com.dapascript.mever.core.common.ui.component.MeverRadioButton
@@ -75,7 +76,9 @@ internal fun HandleBottomSheetDownload(
                         .height(Dp150)
                         .padding(bottom = Dp32, start = Dp24, end = Dp24)
                         .clip(RoundedCornerShape(Dp12)),
-                    source = groupedContent.first().thumbnail.ifEmpty { groupedContent.first().url },
+                    source = getBitmapFromUrl(groupedContent.first().thumbnail.ifEmpty {
+                        groupedContent.first().url
+                    }),
                     isImageError = isFailedFetchImage
                 )
                 Text(

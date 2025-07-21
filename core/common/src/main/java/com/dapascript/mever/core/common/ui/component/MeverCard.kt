@@ -36,6 +36,7 @@ import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Filled
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Outlined
 import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardArgs
+import com.dapascript.mever.core.common.ui.attr.MeverImageAttr.getBitmapFromUrl
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp15
@@ -105,7 +106,7 @@ fun MeverCard(
                     },
                 source = getImageSource(
                     status = status,
-                    source = source,
+                    url = source,
                     fileName = fileName,
                     urlThumbnail = urlThumbnail
                 ),
@@ -239,13 +240,16 @@ fun MeverCard(
     }
 }
 
+@Composable
 private fun getImageSource(
     status: Status,
-    source: String,
+    url: String,
     fileName: String,
     urlThumbnail: String?
-) = if (status != SUCCESS && urlThumbnail.isNullOrEmpty()) source
-else getFilePath(fileName)
+) = when {
+    status != SUCCESS -> urlThumbnail?.takeIf { it.isNotEmpty() } ?: getBitmapFromUrl(url)
+    else -> getFilePath(fileName)
+}
 
 @Composable
 private fun getImagePainter(status: Status) = rememberAsyncImagePainter(
