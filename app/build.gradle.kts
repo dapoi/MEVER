@@ -7,7 +7,7 @@ plugins {
 android {
     defaultConfig {
         applicationId = "com.dapascript.mever"
-        versionCode = 1
+        versionCode = 20250722
         versionName = "0.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
