@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.util.PlatformType.AI
+import com.dapascript.mever.core.common.util.changeToCurrentDate
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver
 import com.dapascript.mever.core.common.util.getMeverFolder
 import com.dapascript.mever.core.common.util.state.UiState
@@ -18,6 +19,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
+import java.lang.System.currentTimeMillis
 import javax.inject.Inject
 
 @HiltViewModel
@@ -48,12 +50,9 @@ class HomeImageGeneratorResultViewModel @Inject constructor(
         onResetState = { _aiResponseState.value = StateInitial }
     )
 
-    fun startDownload(
-        url: String,
-        fileName: String
-    ) = ketch.download(
+    fun startDownload(url: String) = ketch.download(
         url = url,
-        fileName = fileName,
+        fileName = changeToCurrentDate(currentTimeMillis()) + ".jpg",
         path = meverFolder.path,
         tag = AI.platformName
     )

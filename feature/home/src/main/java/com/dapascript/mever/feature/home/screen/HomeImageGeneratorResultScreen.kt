@@ -95,12 +95,10 @@ import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType.NETWORK
 import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType.RESPONSE
 import com.dapascript.mever.core.common.util.ErrorHandle.getErrorResponseContent
 import com.dapascript.mever.core.common.util.LocalActivity
-import com.dapascript.mever.core.common.util.changeToCurrentDate
 import com.dapascript.mever.core.common.util.copyToClipboard
-import com.dapascript.mever.core.common.util.getNotificationPermission
 import com.dapascript.mever.core.common.util.fetchPhotoFromUrl
+import com.dapascript.mever.core.common.util.getNotificationPermission
 import com.dapascript.mever.core.common.util.getStoragePermission
-import com.dapascript.mever.core.common.util.getUrlContentType
 import com.dapascript.mever.core.common.util.goToSetting
 import com.dapascript.mever.core.common.util.isAndroidTiramisuAbove
 import com.dapascript.mever.core.common.util.navigateToGmail
@@ -117,7 +115,6 @@ import com.dapascript.mever.feature.home.viewmodel.HomeImageGeneratorResultViewM
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
-import java.lang.System.currentTimeMillis
 
 @Composable
 internal fun HomeImageGeneratorResultScreen(
@@ -144,14 +141,7 @@ internal fun HomeImageGeneratorResultScreen(
             isNetworkAvailable = isNetworkAvailable,
             onNetworkAvailable = {
                 if (isDownloadAllClicked) {
-                    aiImages.map { url ->
-                        scope.launch {
-                            startDownload(
-                                url = url,
-                                fileName = changeToCurrentDate(currentTimeMillis()) + ".jpg"
-                            )
-                        }
-                    }
+                    aiImages.map { url -> scope.launch { startDownload(url = url) } }
                     navController.navigateTo(
                         route = GalleryLandingRoute,
                         popUpTo = HomeImageGeneratorResultRoute::class,
@@ -159,12 +149,7 @@ internal fun HomeImageGeneratorResultScreen(
                     )
                 } else {
                     snackbarMessage.value = context.getString(R.string.image_has_been_downloaded)
-                    scope.launch {
-                        startDownload(
-                            url = imageSelected.orEmpty(),
-                            fileName = args.prompt + getUrlContentType(imageSelected.orEmpty())
-                        )
-                    }
+                    scope.launch { startDownload(url = imageSelected.orEmpty()) }
                     if (aiImages.size <= 1) navController.navigateTo(
                         route = GalleryLandingRoute,
                         popUpTo = HomeImageGeneratorResultRoute::class,
@@ -424,41 +409,43 @@ private fun ImageGeneratorResultContent(
             minFontSize = Sp14,
             maxLines = 4
         )
-        getMenuActions(context, hasCopied).map { (title, icon) ->
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .shadow(elevation = Dp2, shape = RoundedCornerShape(Dp12))
-                    .background(color = colorScheme.surface, shape = RoundedCornerShape(Dp12))
-                    .clip(RoundedCornerShape(Dp12))
-                    .onCustomClick {
-                        when (icon) {
-                            R.drawable.ic_copy -> onClickCopy()
-                            R.drawable.ic_download -> onClickDownloadAll()
-                            R.drawable.ic_report -> onClickReport()
-                            R.drawable.ic_share -> onClickShare()
+        getMenuActions(context, hasCopied)
+            .filterNot { (_, icon) -> icon == R.drawable.ic_download && aiImages.size <= 1 }
+            .map { (title, icon) ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .shadow(elevation = Dp2, shape = RoundedCornerShape(Dp12))
+                        .background(color = colorScheme.surface, shape = RoundedCornerShape(Dp12))
+                        .clip(RoundedCornerShape(Dp12))
+                        .onCustomClick {
+                            when (icon) {
+                                R.drawable.ic_copy -> onClickCopy()
+                                R.drawable.ic_download -> onClickDownloadAll()
+                                R.drawable.ic_report -> onClickReport()
+                                R.drawable.ic_share -> onClickShare()
+                            }
                         }
-                    }
-            ) {
-                Row(
-                    modifier = Modifier.padding(Dp10),
-                    horizontalArrangement = spacedBy(Dp8),
-                    verticalAlignment = CenterVertically
                 ) {
-                    Icon(
-                        modifier = Modifier.size(Dp20),
-                        imageVector = ImageVector.vectorResource(icon),
-                        tint = colorScheme.onPrimary.copy(alpha = 0.4f),
-                        contentDescription = "Copy Prompt"
-                    )
-                    Text(
-                        text = title,
-                        style = typography.bodyBold2,
-                        color = colorScheme.onPrimary
-                    )
+                    Row(
+                        modifier = Modifier.padding(Dp10),
+                        horizontalArrangement = spacedBy(Dp8),
+                        verticalAlignment = CenterVertically
+                    ) {
+                        Icon(
+                            modifier = Modifier.size(Dp20),
+                            imageVector = ImageVector.vectorResource(icon),
+                            tint = colorScheme.onPrimary.copy(alpha = 0.4f),
+                            contentDescription = "Copy Prompt"
+                        )
+                        Text(
+                            text = title,
+                            style = typography.bodyBold2,
+                            color = colorScheme.onPrimary
+                        )
+                    }
                 }
             }
-        }
         MeverBannerAd(modifier = Modifier.fillMaxWidth())
         Spacer(modifier = Modifier.height(Dp120))
     }
