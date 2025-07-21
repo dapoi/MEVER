@@ -14,11 +14,11 @@ import com.dapascript.mever.core.common.ui.component.MeverRadioButton
 @Composable
 internal fun HandleDialogYoutubeQuality(
     showDialog: Boolean,
+    qualityList: List<String>,
     onApplyQuality: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
-    val qualityList = remember { listOf("360p", "480p", "720p", "1080p") }
-    var chooseQuality by remember { mutableStateOf(qualityList[0]) }
+    var chooseQuality by remember { mutableStateOf(if (qualityList.isNotEmpty()) qualityList.first() else "") }
 
     MeverDialog(
         showDialog = showDialog,

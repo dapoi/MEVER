@@ -36,6 +36,16 @@ class MeverDataStore @Inject constructor(context: Context) {
         preferences[KEY_IS_IMAGE_AI_ENABLED] ?: true
     }
 
+    suspend fun saveYoutubeResolutions(resolutions: List<String>) {
+        dataStore.edit { preferences ->
+            preferences[KEY_RESOLUTIONS] = resolutions.joinToString(",")
+        }
+    }
+
+    val getYoutubeResolutions = dataStore.data.map { preferences ->
+        preferences[KEY_RESOLUTIONS]?.split(",") ?: listOf("360p", "480p", "720p", "1080p")
+    }
+
     suspend fun setIsOnboarded(isOnboarded: Boolean) {
         dataStore.edit { preferences ->
             preferences[KEY_IS_ONBOARDED] = isOnboarded
@@ -73,6 +83,7 @@ class MeverDataStore @Inject constructor(context: Context) {
     companion object {
         private val KEY_VERSION = stringPreferencesKey("version")
         private val KEY_IS_IMAGE_AI_ENABLED = booleanPreferencesKey("is_image_ai_enabled")
+        private val KEY_RESOLUTIONS = stringPreferencesKey("youtube_resolutions")
         private val KEY_IS_ONBOARDED = booleanPreferencesKey("is_onboarded")
         private val KEY_LANGUAGE = stringPreferencesKey("language")
         private val KEY_THEME = stringPreferencesKey("theme")

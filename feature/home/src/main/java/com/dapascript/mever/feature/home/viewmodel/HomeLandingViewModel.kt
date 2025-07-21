@@ -8,11 +8,11 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.util.PlatformType.AI
+import com.dapascript.mever.core.common.util.PlatformType.ALL
 import com.dapascript.mever.core.common.util.PlatformType.FACEBOOK
 import com.dapascript.mever.core.common.util.PlatformType.INSTAGRAM
 import com.dapascript.mever.core.common.util.PlatformType.TIKTOK
 import com.dapascript.mever.core.common.util.PlatformType.TWITTER
-import com.dapascript.mever.core.common.util.PlatformType.ALL
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver
 import com.dapascript.mever.core.common.util.getMeverFolder
@@ -97,6 +97,13 @@ class HomeLandingViewModel @Inject constructor(
             scope = viewModelScope,
             started = WhileSubscribed(),
             initialValue = true
+        )
+    val youtubeResolutions = dataStore.getYoutubeResolutions
+        .map { it.ifEmpty { listOf("360p", "480p", "720p", "1080p") } }
+        .stateIn(
+            scope = viewModelScope,
+            started = WhileSubscribed(),
+            initialValue = emptyList()
         )
 
     private val _downloaderResponseState =

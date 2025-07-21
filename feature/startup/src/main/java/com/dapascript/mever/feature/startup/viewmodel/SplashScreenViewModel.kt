@@ -51,6 +51,7 @@ class SplashScreenViewModel @Inject constructor(
                 with(dataStore) {
                     saveVersion(it.version)
                     setIsImageAiEnabled(it.isImageGeneratorFeatureActive)
+                    saveYoutubeResolutions(it.youtubeResolutions)
                 }
             }
         },

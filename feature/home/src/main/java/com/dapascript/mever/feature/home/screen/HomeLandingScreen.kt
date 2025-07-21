@@ -155,6 +155,7 @@ internal fun HomeLandingScreen(
     val downloaderResponseState = downloaderResponseState.collectAsStateValue()
     val isNetworkAvailable = isNetworkAvailable.collectAsStateValue()
     val isImageGeneratorFeatureActive = isImageGeneratorFeatureActive.collectAsStateValue()
+    val youtubeResolutions = youtubeResolutions.collectAsStateValue()
     val activity = LocalActivity.current
     val scope = rememberCoroutineScope()
     var showLoading by remember { mutableStateOf(false) }
@@ -266,6 +267,7 @@ internal fun HomeLandingScreen(
 
         HandleDialogYoutubeQuality(
             showDialog = showYoutubeChooseQualityModal,
+            qualityList = youtubeResolutions,
             onApplyQuality = { quality ->
                 showYoutubeChooseQualityModal = false
                 selectedQuality = quality
