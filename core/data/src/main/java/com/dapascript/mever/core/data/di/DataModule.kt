@@ -57,6 +57,7 @@ class DataModule {
         .connectTimeout(1, MINUTES)
         .readTimeout(1, MINUTES)
         .writeTimeout(1, MINUTES)
+        .retryOnConnectionFailure(true)
         .build()
 
     @Provides

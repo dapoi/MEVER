@@ -15,8 +15,6 @@ import com.dapascript.mever.core.common.util.state.UiState.StateInitial
 import com.dapascript.mever.core.common.util.state.UiState.StateLoading
 import com.dapascript.mever.core.common.util.state.UiState.StateSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -26,28 +24,24 @@ import javax.inject.Inject
 @HiltViewModel
 open class BaseViewModel @Inject constructor() : ViewModel() {
 
-    private var apiJob: Job? = null
     val showDialogPermission = mutableStateListOf<String>()
 
     fun <T> collectApiAsUiState(
         response: Flow<ApiState<T>>,
         updateState: (UiState<T>) -> Unit,
         onResetState: (() -> Unit)? = null
-    ) {
-        apiJob?.cancel()
-        apiJob = viewModelScope.launch(IO) {
-            response.map { apiState ->
-                when (apiState) {
-                    is Loading -> StateLoading
-                    is Success -> StateSuccess(apiState.data)
-                    is Error -> StateFailed(apiState.throwable)
-                }
-            }.collect { uiState ->
-                updateState(uiState)
-                if (uiState is StateSuccess || uiState is StateFailed) {
-                    delay(300)
-                    onResetState?.invoke()
-                }
+    ) = viewModelScope.launch {
+        response.map { apiState ->
+            when (apiState) {
+                is Loading -> StateLoading
+                is Success -> StateSuccess(apiState.data)
+                is Error -> StateFailed(apiState.throwable)
+            }
+        }.collect { uiState ->
+            updateState(uiState)
+            if (uiState is StateSuccess || uiState is StateFailed) {
+                delay(300)
+                onResetState?.invoke()
             }
         }
     }
@@ -58,19 +52,16 @@ open class BaseViewModel @Inject constructor() : ViewModel() {
         onSuccess: (T) -> Unit = {},
         onFailed: (Throwable) -> Unit = {},
         onReset: (() -> Unit)? = null
-    ) {
-        apiJob?.cancel()
-        apiJob = viewModelScope.launch(IO) {
-            response.collect { apiState ->
-                when (apiState) {
-                    is Loading -> onLoading()
-                    is Success -> apiState.data?.let { onSuccess(it) }
-                    is Error -> onFailed(apiState.throwable)
-                }
-                if (apiState is Success || apiState is Error) {
-                    delay(300)
-                    onReset?.invoke()
-                }
+    ) = viewModelScope.launch {
+        response.collect { apiState ->
+            when (apiState) {
+                is Loading -> onLoading()
+                is Success -> apiState.data?.let { onSuccess(it) }
+                is Error -> onFailed(apiState.throwable)
+            }
+            if (apiState is Success || apiState is Error) {
+                delay(300)
+                onReset?.invoke()
             }
         }
     }
@@ -106,10 +97,5 @@ open class BaseViewModel @Inject constructor() : ViewModel() {
         if (isGranted.not() && showDialogPermission.contains(permission).not()) {
             showDialogPermission.add(permission)
         } else onAction()
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        apiJob?.cancel()
     }
 }

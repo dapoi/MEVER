@@ -18,7 +18,9 @@ internal fun HandleDialogYoutubeQuality(
     onApplyQuality: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
-    var chooseQuality by remember { mutableStateOf(if (qualityList.isNotEmpty()) qualityList.first() else "") }
+    var chooseQuality by remember(qualityList) {
+        mutableStateOf(if (qualityList.isNotEmpty()) qualityList.first() else "")
+    }
 
     MeverDialog(
         showDialog = showDialog,

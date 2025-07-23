@@ -1,8 +1,12 @@
 package com.dapascript.mever.core.common.base
 
 import com.dapascript.mever.core.common.util.state.ApiState
-import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import java.io.IOException
+import java.net.SocketException
+import java.net.SocketTimeoutException
 
 open class BaseRepository {
     inline fun <T, R> collectApiResult(
@@ -14,10 +18,14 @@ open class BaseRepository {
             val response = fetchApi()
             val mappedData = transformData(response)
             emit(ApiState.Success(mappedData))
+        } catch (e: SocketTimeoutException) {
+            emit(ApiState.Error(e))
+        } catch (e: SocketException) {
+            emit(ApiState.Error(e))
+        } catch (e: IOException) {
+            emit(ApiState.Error(e))
         } catch (e: Throwable) {
             emit(ApiState.Error(e))
         }
-    }.catch { throwable ->
-        emit(ApiState.Error(throwable))
-    }
+    }.flowOn(IO)
 }

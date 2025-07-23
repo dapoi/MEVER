@@ -65,8 +65,8 @@
     <string name="painterly">Painterly</string>
     <string name="clear">Clear</string>
     <string name="generate">Generate Image</string>
-    <string name="cancel_generate_title">Cancel?</string>
-    <string name="cancel_generate_desc">Are you sure you want to exit?</string>
+    <string name="cancel_fetch_title">Exit?</string>
+    <string name="cancel_fetch_desc">Are you sure you want to exit? All processing tasks will be stopped.</string>
     <string name="yes">Yes</string>
     <string name="prompt">Your Prompt</string>
     <string name="regenerate">Re-generate</string>

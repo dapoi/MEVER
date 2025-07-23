@@ -1,6 +1,7 @@
 package com.dapascript.mever.feature.home.screen
 
 import android.content.Context
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
@@ -132,6 +133,7 @@ import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLand
 import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.getArtStyles
 import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.getInspirePrompt
 import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetDownload
+import com.dapascript.mever.feature.home.screen.component.HandleDialogExitConfirmation
 import com.dapascript.mever.feature.home.screen.component.HandleDialogYoutubeQuality
 import com.dapascript.mever.feature.home.screen.component.HandleDonationDialogOffer
 import com.dapascript.mever.feature.home.screen.component.HandleHomeDialogPermission
@@ -141,6 +143,7 @@ import com.ketch.Status.FAILED
 import com.ketch.Status.PAUSED
 import com.ketch.Status.SUCCESS
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 import java.lang.System.currentTimeMillis
@@ -159,6 +162,7 @@ internal fun HomeLandingScreen(
     val activity = LocalActivity.current
     val scope = rememberCoroutineScope()
     var showLoading by remember { mutableStateOf(false) }
+    var showCancelExitConfirmation by remember { mutableStateOf(false) }
     var showYoutubeChooseQualityModal by remember { mutableStateOf(false) }
     var showErrorModal by remember { mutableStateOf<ErrorType?>(null) }
     var randomDonateDialogOffer by remember { mutableIntStateOf(0) }
@@ -185,6 +189,8 @@ internal fun HomeLandingScreen(
         allowScreenOverlap = true,
         hideDefaultTopBar = true
     ) {
+        BackHandler(showLoading) { showCancelExitConfirmation = true }
+
         LaunchedEffect(downloaderResponseState) {
             downloaderResponseState.handleUiState(
                 onLoading = { showLoading = true },
@@ -219,10 +225,18 @@ internal fun HomeLandingScreen(
                         fileName = changeToCurrentDate(currentTimeMillis()) + getUrlContentType(url),
                         thumbnail = contents.firstOrNull()?.thumbnail.orEmpty()
                     )
+                    delay(5000)
+                    urlSocialMediaState = TextFieldValue("")
                 }
                 contents = emptyList()
             },
             onClickDismiss = { contents = emptyList() }
+        )
+
+        HandleDialogExitConfirmation(
+            showDialog = showCancelExitConfirmation,
+            onClickPrimary = { activity.finish() },
+            onClickSecondary = { showCancelExitConfirmation = false }
         )
 
         HandleDonationDialogOffer(

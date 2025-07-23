@@ -63,12 +63,10 @@ import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Filled
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Outlined
-import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverAutoSizableTextField
 import com.dapascript.mever.core.common.ui.component.MeverBannerAd
 import com.dapascript.mever.core.common.ui.component.MeverButton
-import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverDialogError
 import com.dapascript.mever.core.common.ui.component.MeverImage
 import com.dapascript.mever.core.common.ui.component.MeverSnackbar
@@ -110,6 +108,7 @@ import com.dapascript.mever.core.navigation.helper.navigateTo
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeImageGeneratorResultRoute
 import com.dapascript.mever.feature.home.screen.attr.HomeImageGeneratorResultAttr.getMenuActions
+import com.dapascript.mever.feature.home.screen.component.HandleDialogExitConfirmation
 import com.dapascript.mever.feature.home.screen.component.HandleHomeDialogPermission
 import com.dapascript.mever.feature.home.viewmodel.HomeImageGeneratorResultViewModel
 import kotlinx.coroutines.launch
@@ -203,23 +202,11 @@ internal fun HomeImageGeneratorResultScreen(
 
         BackHandler { showCancelExitConfirmation = true }
 
-        MeverDialog(
+        HandleDialogExitConfirmation(
             showDialog = showCancelExitConfirmation,
-            meverDialogArgs = MeverDialogArgs(
-                title = stringResource(R.string.cancel_generate_title),
-                onClickPrimaryButton = {
-                    showCancelExitConfirmation = false
-                    navController.popBackStack()
-                },
-                onClickSecondaryButton = { showCancelExitConfirmation = false }
-            )
-        ) {
-            Text(
-                text = stringResource(R.string.cancel_generate_desc),
-                style = typography.body1,
-                color = colorScheme.onPrimary
-            )
-        }
+            onClickPrimary = { navController.popBackStack() },
+            onClickSecondary = { showCancelExitConfirmation = false }
+        )
 
         HandleHomeDialogPermission(
             activity = activity,

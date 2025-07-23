@@ -65,8 +65,8 @@
     <string name="painterly">Lukisan</string>
     <string name="clear">Hapus</string>
     <string name="generate">Buat Gambar</string>
-    <string name="cancel_generate_title">Batalin?</string>
-    <string name="cancel_generate_desc">Yakin mau keluar?</string>
+    <string name="cancel_fetch_title">Keluar?</string>
+    <string name="cancel_fetch_desc">Yakin mau keluar? Proses yang lagi jalan bakal dibatalin nih.</string>
     <string name="yes">Ya</string>
     <string name="prompt">Prompt Kamu</string>
     <string name="regenerate">Buat Lagi</string>
