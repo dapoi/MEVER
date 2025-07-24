@@ -6,11 +6,9 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -32,6 +30,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -262,76 +261,78 @@ private fun GalleryContentSection(
 
     CompositionLocalProvider(LocalOverscrollFactory provides null) {
         downloadList?.let {
-            if (downloadList.isNotEmpty()) LazyColumn(
-                modifier = modifier,
-                state = listState
-            ) {
-                item {
-                    Text(
-                        text = stringResource(RCommon.string.gallery),
-                        style = typography.h2.copy(fontSize = Sp32),
-                        color = colorScheme.onPrimary,
-                        modifier = Modifier.padding(top = Dp16, start = Dp24, end = Dp24)
-                    )
-                }
-                stickyHeader {
-                    if (platformTypes.size > 1) FilterContent(
-                        modifier = Modifier
-                            .background(colorScheme.background)
-                            .fillMaxWidth()
-                            .horizontalScroll(rememberScrollState())
-                            .padding(start = Dp24, end = Dp24, top = Dp16, bottom = Dp24),
-                        platformTypes = platformTypes,
-                        selectedFilter = selectedFilter
-                    ) { filter -> onClickFilter(filter) }
-                    if (isExpanded.not()) {
-                        HorizontalDivider(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .shadow(Dp3),
-                            thickness = Dp1,
-                            color = colorScheme.onPrimary.copy(alpha = 0.12f)
-                        )
+            if (downloadList.isNotEmpty()) {
+                Column(modifier = modifier) {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxWidth(),
+                        state = listState
+                    ) {
+                        item {
+                            Text(
+                                text = stringResource(RCommon.string.gallery),
+                                style = typography.h2.copy(fontSize = Sp32),
+                                color = colorScheme.onPrimary,
+                                modifier = Modifier.padding(top = Dp16, start = Dp24, end = Dp24)
+                            )
+                        }
+                        stickyHeader {
+                            if (platformTypes.size > 1) FilterContent(
+                                modifier = Modifier
+                                    .background(colorScheme.background)
+                                    .fillMaxWidth()
+                                    .horizontalScroll(rememberScrollState())
+                                    .padding(start = Dp24, end = Dp24, top = Dp16, bottom = Dp24),
+                                platformTypes = platformTypes,
+                                selectedFilter = selectedFilter
+                            ) { filter -> onClickFilter(filter) }
+                            if (isExpanded.not()) {
+                                HorizontalDivider(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .shadow(Dp3),
+                                    thickness = Dp1,
+                                    color = colorScheme.onPrimary.copy(alpha = 0.12f)
+                                )
+                            }
+                        }
+                        items(
+                            items = downloadList,
+                            key = { it.id }
+                        ) {
+                            MeverCard(
+                                modifier = Modifier
+                                    .padding(horizontal = Dp24)
+                                    .animateItem(),
+                                cardArgs = MeverCardArgs(
+                                    source = it.url,
+                                    tag = it.tag,
+                                    fileName = it.fileName,
+                                    status = it.status,
+                                    progress = it.progress,
+                                    total = it.total,
+                                    path = it.path,
+                                    urlThumbnail = it.metaData,
+                                    icon = if (it.tag.isNotEmpty() && it.tag != AI.platformName) {
+                                        getPlatformIcon(it.tag)
+                                    } else null,
+                                    iconBackgroundColor = getPlatformIconBackgroundColor(
+                                        it.tag
+                                    ),
+                                    iconSize = Dp24,
+                                    iconPadding = Dp5
+                                ),
+                                onClickCard = { onClickCard(it) },
+                                onClickShare = { onClickShare(it) },
+                                onClickDelete = { onClickDelete(it) }
+                            )
+                        }
                     }
-                }
-                items(
-                    items = downloadList,
-                    key = { it.id }
-                ) {
-                    MeverCard(
-                        modifier = Modifier
-                            .padding(horizontal = Dp24)
-                            .animateItem(),
-                        cardArgs = MeverCardArgs(
-                            source = it.url,
-                            tag = it.tag,
-                            fileName = it.fileName,
-                            status = it.status,
-                            progress = it.progress,
-                            total = it.total,
-                            path = it.path,
-                            urlThumbnail = it.metaData,
-                            icon = if (it.tag.isNotEmpty() && it.tag != AI.platformName) {
-                                getPlatformIcon(it.tag)
-                            } else null,
-                            iconBackgroundColor = getPlatformIconBackgroundColor(
-                                it.tag
-                            ),
-                            iconSize = Dp24,
-                            iconPadding = Dp5
-                        ),
-                        onClickCard = { onClickCard(it) },
-                        onClickShare = { onClickShare(it) },
-                        onClickDelete = { onClickDelete(it) }
-                    )
-                }
-                if (downloadList.size > 3) item {
-                    MeverBannerAd(
+                    if (downloadList.size > 3) MeverBannerAd(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = Dp24)
+                            .clipToBounds()
                     )
-                    Spacer(modifier = Modifier.size(Dp24))
                 }
             } else {
                 Column(modifier = Modifier.fillMaxSize()) {

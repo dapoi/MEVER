@@ -54,6 +54,7 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
@@ -533,135 +534,137 @@ internal fun HomeDownloaderSection(
     onClickDownload: () -> Unit,
     onClickViewAll: () -> Unit
 ) = CompositionLocalProvider(LocalOverscrollFactory provides null) {
-    LazyColumn(modifier = modifier) {
-        item {
-            Text(
-                text = stringResource(R.string.downloader_title),
-                style = typography.h2.copy(fontSize = Sp22),
-                color = colorScheme.onPrimary
-            )
-        }
-        item {
-            Spacer(modifier = Modifier.size(Dp16))
-            Text(
-                text = stringResource(R.string.downloader_desc),
-                style = typography.body2,
-                color = colorScheme.secondary
-            )
-        }
-        item {
-            Spacer(modifier = Modifier.size(Dp24))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = SpaceBetween
-            ) {
-                PlatformType.entries.filter {
-                    it.platformName !in listOf(AI.platformName, ALL.platformName)
-                }.map {
-                    MeverIcon(
-                        icon = getPlatformIcon(it.platformName),
-                        iconBackgroundColor = getPlatformIconBackgroundColor(it.platformName),
-                        iconSize = Dp48,
-                        iconPadding = Dp10
-                    )
-                }
-            }
-        }
-        item {
-            Spacer(modifier = Modifier.size(Dp24))
-            MeverTextField(
-                modifier = Modifier.fillMaxWidth(),
-                context = context,
-                webDomainValue = urlSocialMediaState,
-                onValueChange = { onValueChange(it) }
-            )
-        }
-        item {
-            Spacer(modifier = Modifier.size(Dp10))
-            MeverButton(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(Dp40),
-                title = stringResource(R.string.download),
-                buttonType = Filled(
-                    backgroundColor = colorScheme.primary,
-                    contentColor = MeverWhite
-                ),
-                isEnabled = getPlatformType(urlSocialMediaState.text.trim()) != ALL,
-                isLoading = isLoading
-            ) { onClickDownload() }
-            Spacer(modifier = Modifier.size(Dp24))
-        }
-        stickyHeader {
-            Row(
-                modifier = Modifier
-                    .background(color = colorScheme.background)
-                    .fillMaxWidth()
-                    .padding(top = Dp16),
-                verticalAlignment = CenterVertically,
-                horizontalArrangement = SpaceBetween
-            ) {
+    Column(modifier = modifier) {
+        LazyColumn(modifier = Modifier.fillMaxWidth()) {
+            item {
                 Text(
-                    text = stringResource(R.string.recently_downloaded),
-                    style = typography.bodyBold1,
+                    text = stringResource(R.string.downloader_title),
+                    style = typography.h2.copy(fontSize = Sp22),
                     color = colorScheme.onPrimary
                 )
-                if (downloadList.isNullOrEmpty().not()) Text(
-                    text = stringResource(R.string.view_all),
+            }
+            item {
+                Spacer(modifier = Modifier.size(Dp16))
+                Text(
+                    text = stringResource(R.string.downloader_desc),
                     style = typography.body2,
-                    color = colorScheme.primary,
-                    modifier = Modifier
-                        .animateItem()
-                        .clip(RoundedCornerShape(Dp8))
-                        .onCustomClick { onClickViewAll() }
+                    color = colorScheme.secondary
                 )
             }
-        }
-        downloadList?.let { files ->
-            if (files.isNotEmpty()) {
-                items(
-                    items = files.toMutableStateList().apply { if (size > 5) removeRange(5, size) },
-                    key = { it.id }
+            item {
+                Spacer(modifier = Modifier.size(Dp24))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = SpaceBetween
                 ) {
-                    MeverCard(
-                        modifier = Modifier.animateItem(),
-                        cardArgs = MeverCardArgs(
-                            source = it.url,
-                            tag = it.tag,
-                            fileName = it.fileName,
-                            status = it.status,
-                            progress = it.progress,
-                            total = it.total,
-                            path = it.path,
-                            urlThumbnail = it.metaData,
-                            icon = if (it.tag.isNotEmpty() && it.tag != AI.platformName) {
-                                getPlatformIcon(it.tag)
-                            } else null,
-                            iconBackgroundColor = getPlatformIconBackgroundColor(it.tag),
-                            iconSize = Dp24,
-                            iconPadding = Dp5
-                        ),
-                        onClickCard = { onClickCard(it) },
-                        onClickShare = { onClickShare(it) },
-                        onClickDelete = { onClickDelete(it) }
-                    )
+                    PlatformType.entries.filter {
+                        it.platformName !in listOf(AI.platformName, ALL.platformName)
+                    }.map {
+                        MeverIcon(
+                            icon = getPlatformIcon(it.platformName),
+                            iconBackgroundColor = getPlatformIconBackgroundColor(it.platformName),
+                            iconSize = Dp48,
+                            iconPadding = Dp10
+                        )
+                    }
                 }
-                item {
-                    MeverBannerAd(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = Dp16)
-                    )
-                }
-            } else item {
-                MeverEmptyItem(
-                    image = R.drawable.ic_not_found,
-                    size = Dp150.plus(Dp16),
-                    description = stringResource(R.string.empty_list_desc)
+            }
+            item {
+                Spacer(modifier = Modifier.size(Dp24))
+                MeverTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    context = context,
+                    webDomainValue = urlSocialMediaState,
+                    onValueChange = { onValueChange(it) }
                 )
             }
+            item {
+                Spacer(modifier = Modifier.size(Dp10))
+                MeverButton(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(Dp40),
+                    title = stringResource(R.string.download),
+                    buttonType = Filled(
+                        backgroundColor = colorScheme.primary,
+                        contentColor = MeverWhite
+                    ),
+                    isEnabled = getPlatformType(urlSocialMediaState.text.trim()) != ALL,
+                    isLoading = isLoading
+                ) { onClickDownload() }
+                Spacer(modifier = Modifier.size(Dp24))
+            }
+            stickyHeader {
+                Row(
+                    modifier = Modifier
+                        .background(color = colorScheme.background)
+                        .fillMaxWidth()
+                        .padding(top = Dp16),
+                    verticalAlignment = CenterVertically,
+                    horizontalArrangement = SpaceBetween
+                ) {
+                    Text(
+                        text = stringResource(R.string.recently_downloaded),
+                        style = typography.bodyBold1,
+                        color = colorScheme.onPrimary
+                    )
+                    if (downloadList.isNullOrEmpty().not()) Text(
+                        text = stringResource(R.string.view_all),
+                        style = typography.body2,
+                        color = colorScheme.primary,
+                        modifier = Modifier
+                            .animateItem()
+                            .clip(RoundedCornerShape(Dp8))
+                            .onCustomClick { onClickViewAll() }
+                    )
+                }
+            }
+            downloadList?.let { files ->
+                if (files.isNotEmpty()) {
+                    items(
+                        items = files.toMutableStateList()
+                            .apply { if (size > 3) removeRange(3, size) },
+                        key = { it.id }
+                    ) {
+                        MeverCard(
+                            modifier = Modifier.animateItem(),
+                            cardArgs = MeverCardArgs(
+                                source = it.url,
+                                tag = it.tag,
+                                fileName = it.fileName,
+                                status = it.status,
+                                progress = it.progress,
+                                total = it.total,
+                                path = it.path,
+                                urlThumbnail = it.metaData,
+                                icon = if (it.tag.isNotEmpty() && it.tag != AI.platformName) {
+                                    getPlatformIcon(it.tag)
+                                } else null,
+                                iconBackgroundColor = getPlatformIconBackgroundColor(it.tag),
+                                iconSize = Dp24,
+                                iconPadding = Dp5
+                            ),
+                            onClickCard = { onClickCard(it) },
+                            onClickShare = { onClickShare(it) },
+                            onClickDelete = { onClickDelete(it) }
+                        )
+                    }
+                } else item {
+                    MeverEmptyItem(
+                        image = R.drawable.ic_not_found,
+                        size = Dp150.plus(Dp16),
+                        description = stringResource(R.string.empty_list_desc)
+                    )
+                }
+            }
         }
-        item { Spacer(modifier = Modifier.size(Dp40)) }
+        MeverBannerAd(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = Dp8)
+                .clipToBounds()
+        )
+        Spacer(modifier = Modifier.size(Dp40))
     }
 }
 
@@ -679,150 +682,151 @@ internal fun HomeAiSection(
     val imagesCountGenerated = remember { List(4) { it + 1 } }
     val artStyles = remember { getArtStyles(context) }
 
-    LazyColumn(modifier = modifier) {
-        item {
-            Text(
-                modifier = Modifier.padding(bottom = Dp16),
-                text = stringResource(R.string.image_generator),
-                style = typography.h2.copy(fontSize = Sp22),
-                color = colorScheme.onPrimary
-            )
-        }
-        item {
-            Text(
-                modifier = Modifier.padding(bottom = Dp24),
-                text = stringResource(R.string.image_generator_desc),
-                style = typography.body2,
-                color = colorScheme.secondary
-            )
-        }
-        item {
-            MeverAutoSizableTextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(Dp150),
-                value = prompt,
-                fontSize = Sp18,
-                minFontSize = Sp14,
-                maxLines = 4,
-                onClickInspire = { onPromptChange(getInspirePrompt()) },
-                onValueChange = { onPromptChange(it) }
-            )
-        }
-        item {
-            Text(
-                modifier = Modifier.padding(vertical = Dp24),
-                text = stringResource(R.string.total_images),
-                style = typography.bodyBold1,
-                color = colorScheme.onPrimary
-            )
-        }
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = spacedBy(Dp8)
-            ) {
-                imagesCountGenerated.map { count ->
-                    MeverButton(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(Dp40),
-                        title = count.toString(),
-                        buttonType = if (totalImageSelected == count) Filled(
-                            backgroundColor = colorScheme.primary,
-                            contentColor = MeverWhite
-                        ) else Outlined(
-                            borderColor = colorScheme.primary,
-                            contentColor = colorScheme.primary
-                        ),
-                        shape = RoundedCornerShape(Dp12)
-                    ) { if (totalImageSelected != count) onImageCountSelected(count) }
-                }
-            }
-        }
-        item {
-            Row(modifier = Modifier.padding(vertical = Dp24)) {
+    Column(modifier = modifier) {
+        LazyColumn(modifier = Modifier.fillMaxWidth()) {
+            item {
                 Text(
-                    text = stringResource(R.string.art_style),
+                    modifier = Modifier.padding(bottom = Dp16),
+                    text = stringResource(R.string.image_generator),
+                    style = typography.h2.copy(fontSize = Sp22),
+                    color = colorScheme.onPrimary
+                )
+            }
+            item {
+                Text(
+                    modifier = Modifier.padding(bottom = Dp24),
+                    text = stringResource(R.string.image_generator_desc),
+                    style = typography.body2,
+                    color = colorScheme.secondary
+                )
+            }
+            item {
+                MeverAutoSizableTextField(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(Dp150),
+                    value = prompt,
+                    fontSize = Sp18,
+                    minFontSize = Sp14,
+                    maxLines = 4,
+                    onClickInspire = { onPromptChange(getInspirePrompt()) },
+                    onValueChange = { onPromptChange(it) }
+                )
+            }
+            item {
+                Text(
+                    modifier = Modifier.padding(vertical = Dp24),
+                    text = stringResource(R.string.total_images),
                     style = typography.bodyBold1,
                     color = colorScheme.onPrimary
                 )
-                Spacer(modifier = Modifier.size(Dp4))
-                Text(
-                    text = stringResource(R.string.optional),
-                    style = typography.body2,
-                    color = colorScheme.onPrimary
-                )
-                if (artStyleSelected.isNotEmpty()) Box(modifier = Modifier.weight(1f)) {
-                    Text(
-                        modifier = Modifier
-                            .align(CenterEnd)
-                            .clip(RoundedCornerShape(Dp12))
-                            .onCustomClick { onArtStyleSelected("", "") },
-                        text = stringResource(R.string.clear),
-                        style = typography.bodyBold2,
-                        color = colorScheme.primary
-                    )
+            }
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = spacedBy(Dp8)
+                ) {
+                    imagesCountGenerated.map { count ->
+                        MeverButton(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(Dp40),
+                            title = count.toString(),
+                            buttonType = if (totalImageSelected == count) Filled(
+                                backgroundColor = colorScheme.primary,
+                                contentColor = MeverWhite
+                            ) else Outlined(
+                                borderColor = colorScheme.primary,
+                                contentColor = colorScheme.primary
+                            ),
+                            shape = RoundedCornerShape(Dp12)
+                        ) { if (totalImageSelected != count) onImageCountSelected(count) }
+                    }
                 }
             }
-        }
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = SpaceBetween,
-                verticalAlignment = CenterVertically
-            ) {
-                artStyles.map {
-                    val imageSize by animateDpAsState(
-                        targetValue = if (artStyleSelected == it.styleName) Dp80 else Dp75
+            item {
+                Row(modifier = Modifier.padding(vertical = Dp24)) {
+                    Text(
+                        text = stringResource(R.string.art_style),
+                        style = typography.bodyBold1,
+                        color = colorScheme.onPrimary
                     )
-                    Column(
-                        horizontalAlignment = CenterHorizontally,
-                        verticalArrangement = spacedBy(Dp4)
-                    ) {
-                        Box(
-                            modifier = Modifier.size(Dp80),
-                            contentAlignment = Center
-                        ) {
-                            Image(
-                                modifier = Modifier
-                                    .size(imageSize)
-                                    .clip(RoundedCornerShape(Dp12))
-                                    .then(
-                                        if (artStyleSelected == it.styleName) Modifier
-                                            .border(
-                                                width = Dp4,
-                                                color = colorScheme.primary,
-                                                shape = RoundedCornerShape(Dp12)
-                                            )
-                                        else Modifier
-                                    )
-                                    .onCustomClick {
-                                        if (artStyleSelected != it.styleName) {
-                                            onArtStyleSelected(it.styleName, it.promptKeywords)
-                                        }
-                                    },
-                                painter = painterResource(it.image),
-                                contentScale = Crop,
-                                contentDescription = it.styleName
-                            )
-                        }
+                    Spacer(modifier = Modifier.size(Dp4))
+                    Text(
+                        text = stringResource(R.string.optional),
+                        style = typography.body2,
+                        color = colorScheme.onPrimary
+                    )
+                    if (artStyleSelected.isNotEmpty()) Box(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = it.styleName,
-                            style = typography.bodyBold3,
-                            color = colorScheme.onPrimary
+                            modifier = Modifier
+                                .align(CenterEnd)
+                                .clip(RoundedCornerShape(Dp12))
+                                .onCustomClick { onArtStyleSelected("", "") },
+                            text = stringResource(R.string.clear),
+                            style = typography.bodyBold2,
+                            color = colorScheme.primary
                         )
                     }
                 }
             }
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = SpaceBetween,
+                    verticalAlignment = CenterVertically
+                ) {
+                    artStyles.map {
+                        val imageSize by animateDpAsState(
+                            targetValue = if (artStyleSelected == it.styleName) Dp80 else Dp75
+                        )
+                        Column(
+                            horizontalAlignment = CenterHorizontally,
+                            verticalArrangement = spacedBy(Dp4)
+                        ) {
+                            Box(
+                                modifier = Modifier.size(Dp80),
+                                contentAlignment = Center
+                            ) {
+                                Image(
+                                    modifier = Modifier
+                                        .size(imageSize)
+                                        .clip(RoundedCornerShape(Dp12))
+                                        .then(
+                                            if (artStyleSelected == it.styleName) Modifier
+                                                .border(
+                                                    width = Dp4,
+                                                    color = colorScheme.primary,
+                                                    shape = RoundedCornerShape(Dp12)
+                                                )
+                                            else Modifier
+                                        )
+                                        .onCustomClick {
+                                            if (artStyleSelected != it.styleName) {
+                                                onArtStyleSelected(it.styleName, it.promptKeywords)
+                                            }
+                                        },
+                                    painter = painterResource(it.image),
+                                    contentScale = Crop,
+                                    contentDescription = it.styleName
+                                )
+                            }
+                            Text(
+                                text = it.styleName,
+                                style = typography.bodyBold3,
+                                color = colorScheme.onPrimary
+                            )
+                        }
+                    }
+                }
+            }
         }
-        item {
-            MeverBannerAd(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = Dp16)
-            )
-        }
+        MeverBannerAd(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = Dp8)
+                .clipToBounds()
+        )
     }
 }
 
