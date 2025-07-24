@@ -143,7 +143,6 @@ import com.ketch.Status.FAILED
 import com.ketch.Status.PAUSED
 import com.ketch.Status.SUCCESS
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 import java.lang.System.currentTimeMillis
@@ -225,8 +224,6 @@ internal fun HomeLandingScreen(
                         fileName = changeToCurrentDate(currentTimeMillis()) + getUrlContentType(url),
                         thumbnail = contents.firstOrNull()?.thumbnail.orEmpty()
                     )
-                    delay(5000)
-                    urlSocialMediaState = TextFieldValue("")
                 }
                 contents = emptyList()
             },
