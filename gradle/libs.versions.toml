@@ -8,15 +8,15 @@ androidxNavigation = "2.9.2"
 appCompat = "1.7.1"
 appUpdate = "2.1.0"
 chucker = "4.2.0"
-coil = "3.2.0"
+coil = "3.3.0"
 coreKtxVersion = "1.16.0"
 dataStorePreferences = "1.1.7"
 espressoCore = "3.6.1"
-firebaseCrashlytics = "19.4.4"
+firebaseCrashlytics = "20.0.0"
 googleGmsGoogleServices = "4.4.3"
-googleFirebaseCrashlytics = "3.0.4"
-hilt = "2.56.2"
-hiltNavigation = "1.2.0"
+googleFirebaseCrashlytics = "3.0.5"
+hilt = "2.57"
+hilt-common = "1.2.0"
 interceptor = "5.1.0"
 junit = "1.2.1"
 ketch = "2.0.5"
@@ -26,6 +26,7 @@ ksp = "2.2.0-2.0.2"
 media3 = "1.7.1"
 retrofit = "3.0.0"
 timber = "5.0.1"
+workRuntime = "2.10.2"
 
 [libraries]
 ads = { group = "com.google.android.gms", name = "play-services-ads", version.ref = "ads" }
@@ -49,8 +50,10 @@ firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashly
 google-play-update-core = { group = "com.google.android.play", name = "app-update", version.ref = "appUpdate" }
 google-play-update-ktx = { group = "com.google.android.play", name = "app-update-ktx", version.ref = "appUpdate" }
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
-hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
-hilt-navigation = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigation" }
+hilt-compiler-google = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
+hilt-compiler-ext = { group = "androidx.hilt", name = "hilt-compiler", version.ref = "hilt-common" }
+hilt-navigation = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hilt-common" }
+hilt-work = { group = "androidx.hilt", name = "hilt-work", version.ref = "hilt-common" }
 ketch = { group = "com.github.khushpanchal", name = "Ketch", version.ref = "ketch" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 media3-exoplayer = { group = "androidx.media3", name = "media3-exoplayer", version.ref = "media3" }
@@ -60,6 +63,7 @@ okhttp-interceptor = { group = "com.squareup.okhttp3", name = "logging-intercept
 retrofit-lib = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 retrofit-converter = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
+work-runtime = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workRuntime" }
 
 # Dependencies of the included build-logic gradle files
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }

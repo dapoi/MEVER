@@ -70,6 +70,11 @@
                 android:resource="@xml/provider_paths" />
         </provider>
 
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            tools:node="remove" />
+
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="${admobId}" />
