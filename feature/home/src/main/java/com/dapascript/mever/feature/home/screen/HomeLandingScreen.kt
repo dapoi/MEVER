@@ -658,7 +658,7 @@ internal fun HomeDownloaderSection(
                 }
             }
         }
-        MeverBannerAd(
+       if (downloadList.isNullOrEmpty().not()) MeverBannerAd(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = Dp8)
