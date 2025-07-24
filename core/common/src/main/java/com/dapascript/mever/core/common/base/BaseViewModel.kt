@@ -3,6 +3,15 @@ package com.dapascript.mever.core.common.base
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.Constraints
+import androidx.work.Data
+import androidx.work.ListenableWorker
+import androidx.work.NetworkType.CONNECTED
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkInfo.State.FAILED
+import androidx.work.WorkInfo.State.SUCCEEDED
+import androidx.work.WorkManager
+import androidx.work.workDataOf
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.NetworkStatus
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.NetworkStatus.Available
 import com.dapascript.mever.core.common.util.state.ApiState
@@ -17,7 +26,6 @@ import com.dapascript.mever.core.common.util.state.UiState.StateSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -26,22 +34,28 @@ open class BaseViewModel @Inject constructor() : ViewModel() {
 
     val showDialogPermission = mutableStateListOf<String>()
 
-    fun <T> collectApiAsUiState(
-        response: Flow<ApiState<T>>,
+    fun <T> collectApiAsUiStateWithWorker(
+        workManager: WorkManager,
+        workerClass: Class<out ListenableWorker>,
+        inputData: Data = workDataOf(),
+        constraints: Constraints = Constraints.Builder()
+            .setRequiredNetworkType(CONNECTED)
+            .build(),
         updateState: (UiState<T>) -> Unit,
-        onResetState: (() -> Unit)? = null
-    ) = viewModelScope.launch {
-        response.map { apiState ->
-            when (apiState) {
-                is Loading -> StateLoading
-                is Success -> StateSuccess(apiState.data)
-                is Error -> StateFailed(apiState.throwable)
-            }
-        }.collect { uiState ->
-            updateState(uiState)
-            if (uiState is StateSuccess || uiState is StateFailed) {
-                delay(300)
-                onResetState?.invoke()
+        transformResponses: (Data) -> T
+    ) {
+        val request = OneTimeWorkRequest.Builder(workerClass)
+            .setInputData(inputData)
+            .setConstraints(constraints)
+            .build()
+        workManager.enqueue(request)
+        viewModelScope.launch {
+            workManager.getWorkInfoByIdFlow(request.id).collect { workInfo ->
+                when (workInfo?.state) {
+                    SUCCEEDED -> updateState(StateSuccess(data = transformResponses(workInfo.outputData)))
+                    FAILED -> updateState(StateFailed(throwable = Throwable()))
+                    else -> updateState(StateLoading)
+                }
             }
         }
     }
@@ -65,7 +79,6 @@ open class BaseViewModel @Inject constructor() : ViewModel() {
             }
         }
     }
-
 
     fun <T> UiState<T>.handleUiState(
         onSuccess: (T) -> Unit = {},

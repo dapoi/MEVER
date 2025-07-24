@@ -39,6 +39,7 @@ object CollectionLibs {
             implementation(libs.retrofit.lib.get())
             implementation(libs.retrofit.converter.get())
             implementation(libs.timber.get())
+            implementation(libs.work.runtime.get())
             debugImplementation(libs.chucker.debug.get())
             releaseImplementation(libs.chucker.release.get())
         }

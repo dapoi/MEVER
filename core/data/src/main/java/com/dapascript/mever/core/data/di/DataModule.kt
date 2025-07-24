@@ -1,6 +1,7 @@
 package com.dapascript.mever.core.data.di
 
 import android.content.Context
+import androidx.work.WorkManager
 import com.chuckerteam.chucker.api.ChuckerCollector
 import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.dapascript.mever.core.data.BuildConfig
@@ -73,4 +74,9 @@ class DataModule {
 
     @Provides
     fun provideMeverRepository(repo: MeverRepositoryImpl): MeverRepository = repo
+
+    @Provides
+    fun provideWorkManager(
+        @ApplicationContext context: Context
+    ) = WorkManager.getInstance(context)
 }

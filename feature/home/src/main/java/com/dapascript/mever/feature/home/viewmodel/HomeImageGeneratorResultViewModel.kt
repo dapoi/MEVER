@@ -3,6 +3,8 @@ package com.dapascript.mever.feature.home.viewmodel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import androidx.work.WorkManager
+import androidx.work.workDataOf
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.util.PlatformType.AI
 import com.dapascript.mever.core.common.util.changeToCurrentDate
@@ -10,8 +12,11 @@ import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver
 import com.dapascript.mever.core.common.util.getMeverFolder
 import com.dapascript.mever.core.common.util.state.UiState
 import com.dapascript.mever.core.common.util.state.UiState.StateInitial
+import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_REQUEST_PROMPT
+import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_RESPONSE_IMAGES
+import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_RESPONSE_PROMPT
 import com.dapascript.mever.core.data.model.local.ImageAiEntity
-import com.dapascript.mever.core.data.repository.MeverRepository
+import com.dapascript.mever.core.data.work.ImageGeneratorWorker
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeImageGeneratorResultRoute
 import com.ketch.Ketch
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,8 +31,8 @@ import javax.inject.Inject
 class HomeImageGeneratorResultViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     connectivityObserver: ConnectivityObserver,
-    private val repository: MeverRepository,
-    private val ketch: Ketch
+    private val ketch: Ketch,
+    private val workManager: WorkManager
 ) : BaseViewModel() {
     private val meverFolder by lazy { getMeverFolder() }
     val args by lazy { savedStateHandle.toRoute<HomeImageGeneratorResultRoute>() }
@@ -42,12 +47,19 @@ class HomeImageGeneratorResultViewModel @Inject constructor(
     private val _aiResponseState = MutableStateFlow<UiState<ImageAiEntity>>(StateInitial)
     val aiResponseState = _aiResponseState.asStateFlow()
 
-    fun getImageAiGenerator() = collectApiAsUiState(
-        response = repository.getImageAiGenerator(
-            query = "${args.prompt}. Style of images are ${args.artStyle}"
-        ),
+    fun getImageAiGenerator() = collectApiAsUiStateWithWorker(
+        workManager = workManager,
+        workerClass = ImageGeneratorWorker::class.java,
         updateState = { _aiResponseState.value = it },
-        onResetState = { _aiResponseState.value = StateInitial }
+        inputData = workDataOf(
+            KEY_REQUEST_PROMPT to "${args.prompt}. Style of images are ${args.artStyle}"
+        ),
+        transformResponses = {
+            ImageAiEntity(
+                prompt = it.getString(KEY_RESPONSE_PROMPT).orEmpty(),
+                imagesUrl = it.getStringArray(KEY_RESPONSE_IMAGES)?.toList() ?: emptyList()
+            )
+        }
     )
 
     fun startDownload(url: String) = ketch.download(
