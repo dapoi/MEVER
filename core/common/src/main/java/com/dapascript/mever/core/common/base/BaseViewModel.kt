@@ -60,6 +60,33 @@ open class BaseViewModel @Inject constructor() : ViewModel() {
         }
     }
 
+    fun collectApiAsUiStateWithWorker(
+        workManager: WorkManager,
+        workerClass: Class<out ListenableWorker>,
+        inputData: Data = workDataOf(),
+        constraints: Constraints = Constraints.Builder()
+            .setRequiredNetworkType(CONNECTED)
+            .build(),
+        onLoading: () -> Unit = {},
+        onSuccess: (Data) -> Unit = {},
+        onFailed: (Throwable) -> Unit = {}
+    ) {
+        val request = OneTimeWorkRequest.Builder(workerClass)
+            .setInputData(inputData)
+            .setConstraints(constraints)
+            .build()
+        workManager.enqueue(request)
+        viewModelScope.launch {
+            workManager.getWorkInfoByIdFlow(request.id).collect { workInfo ->
+                when (workInfo?.state) {
+                    SUCCEEDED -> onSuccess(workInfo.outputData)
+                    FAILED -> onFailed(Throwable())
+                    else -> onLoading()
+                }
+            }
+        }
+    }
+
     fun <T> collectApiAsUiState(
         response: Flow<ApiState<T>>,
         onLoading: () -> Unit = {},

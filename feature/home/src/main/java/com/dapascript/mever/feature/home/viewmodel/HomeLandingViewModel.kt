@@ -6,14 +6,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
+import androidx.work.WorkManager
+import androidx.work.workDataOf
 import com.dapascript.mever.core.common.base.BaseViewModel
-import com.dapascript.mever.core.common.util.PlatformType.AI
-import com.dapascript.mever.core.common.util.PlatformType.ALL
-import com.dapascript.mever.core.common.util.PlatformType.FACEBOOK
-import com.dapascript.mever.core.common.util.PlatformType.INSTAGRAM
-import com.dapascript.mever.core.common.util.PlatformType.TIKTOK
-import com.dapascript.mever.core.common.util.PlatformType.TWITTER
-import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver
 import com.dapascript.mever.core.common.util.getMeverFolder
 import com.dapascript.mever.core.common.util.getPlatformType
@@ -23,9 +18,13 @@ import com.dapascript.mever.core.common.util.state.UiState.StateFailed
 import com.dapascript.mever.core.common.util.state.UiState.StateInitial
 import com.dapascript.mever.core.common.util.state.UiState.StateLoading
 import com.dapascript.mever.core.common.util.state.UiState.StateSuccess
+import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_REQUEST_SELECTED_QUALITY
+import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_REQUEST_URL
+import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_RESPONSE_CONTENTS
 import com.dapascript.mever.core.data.model.local.ContentEntity
-import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.source.local.MeverDataStore
+import com.dapascript.mever.core.data.util.GsonHelper.fromJson
+import com.dapascript.mever.core.data.worker.DownloaderWorker
 import com.ketch.Ketch
 import com.ketch.Status.PAUSED
 import com.ketch.Status.PROGRESS
@@ -45,8 +44,8 @@ import javax.inject.Inject
 class HomeLandingViewModel @Inject constructor(
     connectivityObserver: ConnectivityObserver,
     dataStore: MeverDataStore,
-    private val repository: MeverRepository,
-    private val ketch: Ketch
+    private val ketch: Ketch,
+    private val workManager: WorkManager
 ) : BaseViewModel() {
     private val meverFolder by lazy { getMeverFolder() }
 
@@ -107,15 +106,21 @@ class HomeLandingViewModel @Inject constructor(
         MutableStateFlow<UiState<List<ContentEntity>>>(StateInitial)
     val downloaderResponseState = _downloaderResponseState.asStateFlow()
 
-    fun getApiDownloader() = collectApiAsUiState(
-        response = repository.getApiDownloader(urlSocialMediaState.text),
+    fun getApiDownloader() = collectApiAsUiStateWithWorker(
+        workManager = workManager,
+        workerClass = DownloaderWorker::class.java,
+        inputData = workDataOf(
+            KEY_REQUEST_URL to urlSocialMediaState.text,
+            KEY_REQUEST_SELECTED_QUALITY to selectedQuality
+        ),
         onLoading = { _downloaderResponseState.value = StateLoading },
         onSuccess = {
-            _downloaderResponseState.value = StateSuccess(it)
-            contents = it
+            val data = it.getString(KEY_RESPONSE_CONTENTS).orEmpty()
+            val response = data.fromJson<List<ContentEntity>>()
+            _downloaderResponseState.value = StateSuccess(response)
+            contents = response
         },
-        onFailed = { _downloaderResponseState.value = StateFailed(it) },
-        onReset = { _downloaderResponseState.value = StateInitial }
+        onFailed = { _downloaderResponseState.value = StateFailed(it) }
     )
 
     fun startDownload(
@@ -137,18 +142,4 @@ class HomeLandingViewModel @Inject constructor(
     fun retryDownload(id: Int) = ketch.retry(id)
 
     fun delete(id: Int) = ketch.clearDb(id)
-
-    private fun MeverRepository.getApiDownloader(url: String) = when (getPlatformType(url)) {
-        FACEBOOK -> getFacebookDownloader(url)
-        INSTAGRAM -> getInstagramDownloader(url)
-        TIKTOK -> getTiktokDownloader(url)
-        TWITTER -> getTwitterDownloader(url)
-        YOUTUBE -> getYoutubeDownloader(url, selectedQuality)
-        AI, ALL -> {
-            _downloaderResponseState.value = StateFailed(
-                Throwable("Platform not supported")
-            )
-            throw Throwable("Platform not supported")
-        }
-    }
 }

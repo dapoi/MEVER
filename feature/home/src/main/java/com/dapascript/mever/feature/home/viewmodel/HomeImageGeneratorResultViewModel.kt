@@ -13,10 +13,10 @@ import com.dapascript.mever.core.common.util.getMeverFolder
 import com.dapascript.mever.core.common.util.state.UiState
 import com.dapascript.mever.core.common.util.state.UiState.StateInitial
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_REQUEST_PROMPT
-import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_RESPONSE_IMAGES
-import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_RESPONSE_PROMPT
+import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_RESPONSE_AI_IMAGES
 import com.dapascript.mever.core.data.model.local.ImageAiEntity
-import com.dapascript.mever.core.data.work.ImageGeneratorWorker
+import com.dapascript.mever.core.data.util.GsonHelper.fromJson
+import com.dapascript.mever.core.data.worker.ImageGeneratorWorker
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeImageGeneratorResultRoute
 import com.ketch.Ketch
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -55,9 +55,11 @@ class HomeImageGeneratorResultViewModel @Inject constructor(
             KEY_REQUEST_PROMPT to "${args.prompt}. Style of images are ${args.artStyle}"
         ),
         transformResponses = {
+            val data = it.getString(KEY_RESPONSE_AI_IMAGES).orEmpty()
+            val response = data.fromJson<ImageAiEntity>()
             ImageAiEntity(
-                prompt = it.getString(KEY_RESPONSE_PROMPT).orEmpty(),
-                imagesUrl = it.getStringArray(KEY_RESPONSE_IMAGES)?.toList() ?: emptyList()
+                prompt = response.prompt,
+                imagesUrl = response.imagesUrl
             )
         }
     )

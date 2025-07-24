@@ -534,137 +534,128 @@ internal fun HomeDownloaderSection(
     onClickDownload: () -> Unit,
     onClickViewAll: () -> Unit
 ) = CompositionLocalProvider(LocalOverscrollFactory provides null) {
-    Column(modifier = modifier) {
-        LazyColumn(modifier = Modifier.fillMaxWidth()) {
-            item {
-                Text(
-                    text = stringResource(R.string.downloader_title),
-                    style = typography.h2.copy(fontSize = Sp22),
-                    color = colorScheme.onPrimary
-                )
-            }
-            item {
-                Spacer(modifier = Modifier.size(Dp16))
-                Text(
-                    text = stringResource(R.string.downloader_desc),
-                    style = typography.body2,
-                    color = colorScheme.secondary
-                )
-            }
-            item {
-                Spacer(modifier = Modifier.size(Dp24))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = SpaceBetween
-                ) {
-                    PlatformType.entries.filter {
-                        it.platformName !in listOf(AI.platformName, ALL.platformName)
-                    }.map {
-                        MeverIcon(
-                            icon = getPlatformIcon(it.platformName),
-                            iconBackgroundColor = getPlatformIconBackgroundColor(it.platformName),
-                            iconSize = Dp48,
-                            iconPadding = Dp10
-                        )
-                    }
-                }
-            }
-            item {
-                Spacer(modifier = Modifier.size(Dp24))
-                MeverTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    context = context,
-                    webDomainValue = urlSocialMediaState,
-                    onValueChange = { onValueChange(it) }
-                )
-            }
-            item {
-                Spacer(modifier = Modifier.size(Dp10))
-                MeverButton(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(Dp40),
-                    title = stringResource(R.string.download),
-                    buttonType = Filled(
-                        backgroundColor = colorScheme.primary,
-                        contentColor = MeverWhite
-                    ),
-                    isEnabled = getPlatformType(urlSocialMediaState.text.trim()) != ALL,
-                    isLoading = isLoading
-                ) { onClickDownload() }
-                Spacer(modifier = Modifier.size(Dp24))
-            }
-            stickyHeader {
-                Row(
-                    modifier = Modifier
-                        .background(color = colorScheme.background)
-                        .fillMaxWidth()
-                        .padding(top = Dp16),
-                    verticalAlignment = CenterVertically,
-                    horizontalArrangement = SpaceBetween
-                ) {
-                    Text(
-                        text = stringResource(R.string.recently_downloaded),
-                        style = typography.bodyBold1,
-                        color = colorScheme.onPrimary
-                    )
-                    if (downloadList.isNullOrEmpty().not()) Text(
-                        text = stringResource(R.string.view_all),
-                        style = typography.body2,
-                        color = colorScheme.primary,
-                        modifier = Modifier
-                            .animateItem()
-                            .clip(RoundedCornerShape(Dp8))
-                            .onCustomClick { onClickViewAll() }
-                    )
-                }
-            }
-            downloadList?.let { files ->
-                if (files.isNotEmpty()) {
-                    items(
-                        items = files.toMutableStateList()
-                            .apply { if (size > 3) removeRange(3, size) },
-                        key = { it.id }
-                    ) {
-                        MeverCard(
-                            modifier = Modifier.animateItem(),
-                            cardArgs = MeverCardArgs(
-                                source = it.url,
-                                tag = it.tag,
-                                fileName = it.fileName,
-                                status = it.status,
-                                progress = it.progress,
-                                total = it.total,
-                                path = it.path,
-                                urlThumbnail = it.metaData,
-                                icon = if (it.tag.isNotEmpty() && it.tag != AI.platformName) {
-                                    getPlatformIcon(it.tag)
-                                } else null,
-                                iconBackgroundColor = getPlatformIconBackgroundColor(it.tag),
-                                iconSize = Dp24,
-                                iconPadding = Dp5
-                            ),
-                            onClickCard = { onClickCard(it) },
-                            onClickShare = { onClickShare(it) },
-                            onClickDelete = { onClickDelete(it) }
-                        )
-                    }
-                } else item {
-                    MeverEmptyItem(
-                        image = R.drawable.ic_not_found,
-                        size = Dp150.plus(Dp16),
-                        description = stringResource(R.string.empty_list_desc)
+    LazyColumn(modifier = modifier) {
+        item {
+            Text(
+                text = stringResource(R.string.downloader_title),
+                style = typography.h2.copy(fontSize = Sp22),
+                color = colorScheme.onPrimary
+            )
+        }
+        item {
+            Spacer(modifier = Modifier.size(Dp16))
+            Text(
+                text = stringResource(R.string.downloader_desc),
+                style = typography.body2,
+                color = colorScheme.secondary
+            )
+        }
+        item {
+            Spacer(modifier = Modifier.size(Dp24))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = SpaceBetween
+            ) {
+                PlatformType.entries.filter {
+                    it.platformName !in listOf(AI.platformName, ALL.platformName)
+                }.map {
+                    MeverIcon(
+                        icon = getPlatformIcon(it.platformName),
+                        iconBackgroundColor = getPlatformIconBackgroundColor(it.platformName),
+                        iconSize = Dp48,
+                        iconPadding = Dp10
                     )
                 }
             }
         }
-       if (downloadList.isNullOrEmpty().not()) MeverBannerAd(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = Dp8)
-                .clipToBounds()
-        )
-        Spacer(modifier = Modifier.size(Dp40))
+        item {
+            Spacer(modifier = Modifier.size(Dp24))
+            MeverTextField(
+                modifier = Modifier.fillMaxWidth(),
+                context = context,
+                webDomainValue = urlSocialMediaState,
+                onValueChange = { onValueChange(it) }
+            )
+        }
+        item {
+            Spacer(modifier = Modifier.size(Dp10))
+            MeverButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(Dp40),
+                title = stringResource(R.string.download),
+                buttonType = Filled(
+                    backgroundColor = colorScheme.primary,
+                    contentColor = MeverWhite
+                ),
+                isEnabled = getPlatformType(urlSocialMediaState.text.trim()) != ALL,
+                isLoading = isLoading
+            ) { onClickDownload() }
+            Spacer(modifier = Modifier.size(Dp24))
+        }
+        stickyHeader {
+            Row(
+                modifier = Modifier
+                    .background(color = colorScheme.background)
+                    .fillMaxWidth()
+                    .padding(top = Dp16),
+                verticalAlignment = CenterVertically,
+                horizontalArrangement = SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(R.string.recently_downloaded),
+                    style = typography.bodyBold1,
+                    color = colorScheme.onPrimary
+                )
+                if (downloadList.isNullOrEmpty().not()) Text(
+                    text = stringResource(R.string.view_all),
+                    style = typography.body2,
+                    color = colorScheme.primary,
+                    modifier = Modifier
+                        .animateItem()
+                        .clip(RoundedCornerShape(Dp8))
+                        .onCustomClick { onClickViewAll() }
+                )
+            }
+        }
+        downloadList?.let { files ->
+            if (files.isNotEmpty()) {
+                items(
+                    items = files.toMutableStateList().apply { if (size > 5) removeRange(5, size) },
+                    key = { it.id }
+                ) {
+                    MeverCard(
+                        modifier = Modifier.animateItem(),
+                        cardArgs = MeverCardArgs(
+                            source = it.url,
+                            tag = it.tag,
+                            fileName = it.fileName,
+                            status = it.status,
+                            progress = it.progress,
+                            total = it.total,
+                            path = it.path,
+                            urlThumbnail = it.metaData,
+                            icon = if (it.tag.isNotEmpty() && it.tag != AI.platformName) {
+                                getPlatformIcon(it.tag)
+                            } else null,
+                            iconBackgroundColor = getPlatformIconBackgroundColor(it.tag),
+                            iconSize = Dp24,
+                            iconPadding = Dp5
+                        ),
+                        onClickCard = { onClickCard(it) },
+                        onClickShare = { onClickShare(it) },
+                        onClickDelete = { onClickDelete(it) }
+                    )
+                }
+                item { Spacer(modifier = Modifier.size(Dp40)) }
+            } else item {
+                MeverEmptyItem(
+                    image = R.drawable.ic_not_found,
+                    size = Dp150.plus(Dp16),
+                    description = stringResource(R.string.empty_list_desc)
+                )
+            }
+        }
     }
 }
 
