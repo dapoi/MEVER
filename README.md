@@ -24,19 +24,16 @@ Built with modern Android tech:
 - **Storage:** DataStore
 
 ## 📸 Screenshots
-<!-- Baris 1 -->
-<img src="https://github.com/user-attachments/assets/cd9a947e-f474-420a-bb40-c681b1df8ac3" alt="MEVER 1" width="24%" style="margin-right:1%" />
-<img src="https://github.com/user-attachments/assets/952772fb-b635-4fc6-9348-2e25d3ad24df" alt="MEVER 2" width="24%" style="margin-right:1%" />
-<img src="https://github.com/user-attachments/assets/519667e7-bd0b-47b2-a010-23fb362ef805" alt="MEVER 3" width="24%" style="margin-right:1%" />
-<img src="https://github.com/user-attachments/assets/836136be-db24-4361-9c94-8403349f3be5" alt="MEVER 4" width="24%" />
-
-<br/><br/>
-
-<!-- Baris 2 -->
-<img src="https://github.com/user-attachments/assets/340a451f-b83e-4c9b-bce3-907e0bf55066" alt="MEVER 5" width="24%" style="margin-right:1%" />
-<img src="https://github.com/user-attachments/assets/3ac0eb8c-8ff4-443c-86a0-30aaac802f3a" alt="MEVER 6" width="24%" style="margin-right:1%" />
-<img src="https://github.com/user-attachments/assets/b12161f2-73e5-4922-bd52-151cf6939c5a" alt="MEVER 7" width="24%" style="margin-right:1%" />
-<img src="https://github.com/user-attachments/assets/598629b8-9092-4cb2-aefa-c32ba5503a3d" alt="MEVER 8" width="24%" />
+<div style="display: flex; flex-wrap: wrap; gap: 1%;">
+  <img src="https://github.com/user-attachments/assets/cd9a947e-f474-420a-bb40-c681b1df8ac3" alt="MEVER 1" width="24%" />
+  <img src="https://github.com/user-attachments/assets/952772fb-b635-4fc6-9348-2e25d3ad24df" alt="MEVER 2" width="24%" />
+  <img src="https://github.com/user-attachments/assets/519667e7-bd0b-47b2-a010-23fb362ef805" alt="MEVER 3" width="24%" />
+  <img src="https://github.com/user-attachments/assets/836136be-db24-4361-9c94-8403349f3be5" alt="MEVER 4" width="24%" />
+  <img src="https://github.com/user-attachments/assets/340a451f-b83e-4c9b-bce3-907e0bf55066" alt="MEVER 5" width="24%" />
+  <img src="https://github.com/user-attachments/assets/3ac0eb8c-8ff4-443c-86a0-30aaac802f3a" alt="MEVER 6" width="24%" />
+  <img src="https://github.com/user-attachments/assets/b12161f2-73e5-4922-bd52-151cf6939c5a" alt="MEVER 7" width="24%" />
+  <img src="https://github.com/user-attachments/assets/598629b8-9092-4cb2-aefa-c32ba5503a3d" alt="MEVER 8" width="24%" />
+</div>
 
 ## 🚀 Installation
 
