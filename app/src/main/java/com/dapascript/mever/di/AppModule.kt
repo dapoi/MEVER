@@ -27,8 +27,8 @@ class AppModule {
         )
         .setDownloadConfig(
             DownloadConfig(
-                connectTimeOutInMs = 10000,
-                readTimeOutInMs = 10000
+                connectTimeOutInMs = 30000,
+                readTimeOutInMs = 30000
             )
         )
         .enableLogs(true)
