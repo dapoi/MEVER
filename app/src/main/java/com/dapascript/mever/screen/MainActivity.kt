@@ -5,7 +5,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -13,6 +12,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import com.dapascript.mever.core.common.ui.theme.MeverTheme
 import com.dapascript.mever.core.common.ui.theme.ThemeType.Dark
@@ -31,7 +31,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class MainActivity : FragmentActivity() {
 
     @Inject
     lateinit var navGraphs: Set<@JvmSuppressWildcards BaseNavGraph>
