@@ -93,6 +93,7 @@ import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.convertFilename
 import com.dapascript.mever.core.common.util.convertToTimeFormat
 import com.dapascript.mever.core.common.util.hideSystemBar
+import com.dapascript.mever.core.common.util.isSystemBarVisible
 import com.dapascript.mever.core.common.util.onCustomClick
 import kotlinx.coroutines.delay
 
@@ -180,13 +181,8 @@ fun MeverVideoPlayer(
                     }
                     player?.addListener(listener)
                 }
-
                 ON_START -> if (player?.isPlaying == false) player?.play()
-                ON_STOP -> {
-                    hideSystemBar(activity, false)
-                    player?.pause()
-                }
-
+                ON_STOP -> player?.pause()
                 else -> Unit
             }
         }
@@ -197,6 +193,8 @@ fun MeverVideoPlayer(
             lifecycleOwner.lifecycle.removeObserver(observer)
             player?.removeListener(listener)
             player?.release()
+            player = null
+            hideSystemBar(activity, isSystemBarVisible(activity).not())
         }
     }
 

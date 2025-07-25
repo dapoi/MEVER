@@ -228,6 +228,11 @@ fun hideSystemBar(activity: Activity, value: Boolean) = with(activity) {
     if (value) insetsController.hide(systemBars()) else insetsController.show(systemBars())
 }
 
+fun isSystemBarVisible(activity: Activity): Boolean {
+    val insetsController = getInsetsController(activity.window, activity.window.decorView)
+    return insetsController.systemBarsBehavior and systemBars() != 0
+}
+
 fun convertFilename(filename: String): String {
     val regex = Regex("""(\d{4})\.(\d{2})\.(\d{2}) - (\d{2})_(\d{2})_(\d{2})(?: \((\d+)\))?\.(\w+)""")
     val match = regex.find(filename)

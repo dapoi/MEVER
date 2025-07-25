@@ -43,6 +43,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.convertFilename
 import com.dapascript.mever.core.common.util.hideSystemBar
+import com.dapascript.mever.core.common.util.isSystemBarVisible
 
 @Composable
 fun MeverPhotoViewer(
@@ -58,7 +59,9 @@ fun MeverPhotoViewer(
     var showDropDownMenu by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
-    DisposableEffect(lifecycleOwner) { onDispose { hideSystemBar(activity, false) } }
+    DisposableEffect(lifecycleOwner) {
+        onDispose { hideSystemBar(activity, isSystemBarVisible(activity).not()) }
+    }
 
     LaunchedEffect(isPhotoTouched) { hideSystemBar(activity, isPhotoTouched) }
 
