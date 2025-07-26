@@ -140,7 +140,7 @@ internal fun HandleBottomSheetDownload(
                     modifier = Modifier
                         .clip(RoundedCornerShape(Dp14))
                         .onCustomClick {
-                            if (jpgContents.size > 1) jpgContents.forEach { onClickDownload(it.url) }
+                            if (jpgContents.size > 1) jpgContents.map { onClickDownload(it.url) }
                             else onClickDownload(groupedContent[chooseQualityIndex].url)
                         }
                         .weight(1f)

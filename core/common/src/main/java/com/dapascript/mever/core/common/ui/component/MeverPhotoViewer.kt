@@ -7,7 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBarsPadding
@@ -28,6 +28,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale.Companion.Fit
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
@@ -226,8 +227,13 @@ private fun PhotoViewer(
     ) {
         Box(
             modifier = Modifier
-                .aspectRatio(1f)
+                .fillMaxWidth()
                 .clipToBounds()
-        ) { MeverImage(source = image) }
+        ) {
+            MeverImage(
+                source = image,
+                contentScale = Fit
+            )
+        }
     }
 }
