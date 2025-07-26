@@ -1,6 +1,5 @@
 package com.dapascript.mever.core.common.base
 
-import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.Constraints
@@ -31,8 +30,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 open class BaseViewModel @Inject constructor() : ViewModel() {
-
-    val showDialogPermission = mutableStateListOf<String>()
 
     fun <T> collectApiAsUiStateWithWorker(
         workManager: WorkManager,
@@ -125,17 +122,4 @@ open class BaseViewModel @Inject constructor() : ViewModel() {
         onNetworkAvailable: () -> Unit,
         onNetworkUnavailable: () -> Unit
     ) = if (isNetworkAvailable == Available) onNetworkAvailable() else onNetworkUnavailable()
-
-
-    fun dismissDialog() = showDialogPermission.removeRange(0, showDialogPermission.size)
-
-    fun onPermissionResult(
-        permission: String,
-        isGranted: Boolean,
-        onAction: () -> Unit = {}
-    ) {
-        if (isGranted.not() && showDialogPermission.contains(permission).not()) {
-            showDialogPermission.add(permission)
-        } else onAction()
-    }
 }

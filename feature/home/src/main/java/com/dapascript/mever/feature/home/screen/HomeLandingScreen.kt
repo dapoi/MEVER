@@ -121,6 +121,7 @@ import com.dapascript.mever.core.common.util.goToSetting
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
+import com.dapascript.mever.core.common.util.syncFileToGallery
 import com.dapascript.mever.core.navigation.helper.navigateTo
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute
@@ -314,6 +315,12 @@ private fun HomeScreenContent(
         var showDeleteDialog by remember { mutableStateOf<Int?>(null) }
         var showFailedDialog by remember { mutableStateOf<Int?>(null) }
         var generateButtonHeight by remember { mutableIntStateOf(0) }
+
+        LaunchedEffect(downloadList) {
+            downloadList?.map {
+                if (it.status == SUCCESS) syncFileToGallery(context, it.fileName)
+            }
+        }
 
         Column(
             modifier = Modifier

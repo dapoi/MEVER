@@ -11,6 +11,7 @@ import android.content.Intent.EXTRA_TEXT
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory.decodeStream
 import android.media.MediaMetadataRetriever
+import android.media.MediaScannerConnection
 import android.os.Environment.DIRECTORY_DOWNLOADS
 import android.os.Environment.getExternalStoragePublicDirectory
 import android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS
@@ -25,11 +26,12 @@ import androidx.core.net.toUri
 import androidx.core.view.WindowCompat.getInsetsController
 import androidx.core.view.WindowInsetsCompat.Type.systemBars
 import com.dapascript.mever.core.common.R
+import com.dapascript.mever.core.common.util.PlatformType.ALL
 import com.dapascript.mever.core.common.util.PlatformType.FACEBOOK
 import com.dapascript.mever.core.common.util.PlatformType.INSTAGRAM
+import com.dapascript.mever.core.common.util.PlatformType.PINTEREST
 import com.dapascript.mever.core.common.util.PlatformType.TIKTOK
 import com.dapascript.mever.core.common.util.PlatformType.TWITTER
-import com.dapascript.mever.core.common.util.PlatformType.ALL
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
@@ -124,6 +126,16 @@ fun getMeverFiles(): List<File>? {
 
 fun getFilePath(fileName: String) = getMeverFiles()?.find { it.name == fileName }?.path.orEmpty()
 
+fun syncFileToGallery(context: Context, fileName: String) {
+    val file = File(getFilePath(fileName))
+    if (file.exists()) MediaScannerConnection.scanFile(
+        context,
+        arrayOf(file.absolutePath),
+        null,
+        null
+    )
+}
+
 fun isAvailableOnLocal(fileName: String) = getMeverFiles()?.any {
     it.name == fileName
 } ?: false
@@ -201,6 +213,7 @@ fun getPlatformType(url: String): PlatformType {
     val listTwitterUrl = listOf("x.com", "twitter.com", "t.co", "mobile.twitter.com")
     val listTiktokUrl = listOf("tiktok.com", "tiktokv.com", "tiktokcdn.com")
     val listYouTubeUrl = listOf("youtube.com", "youtu.be", "m.youtube.com", "yt.com")
+    val listPinterestUrl = listOf("pinterest.com", "pin.it", "pinterest.co.uk")
 
     return when {
         listFbUrl.any { url.contains(it) } -> FACEBOOK
@@ -208,6 +221,7 @@ fun getPlatformType(url: String): PlatformType {
         listTwitterUrl.any { url.contains(it) } -> TWITTER
         listTiktokUrl.any { url.contains(it) } -> TIKTOK
         listYouTubeUrl.any { url.contains(it) } -> YOUTUBE
+        listPinterestUrl.any { url.contains(it) } -> PINTEREST
         else -> ALL
     }
 }
@@ -234,7 +248,8 @@ fun isSystemBarVisible(activity: Activity): Boolean {
 }
 
 fun convertFilename(filename: String): String {
-    val regex = Regex("""(\d{4})\.(\d{2})\.(\d{2}) - (\d{2})_(\d{2})_(\d{2})(?: \((\d+)\))?\.(\w+)""")
+    val regex =
+        Regex("""(\d{4})\.(\d{2})\.(\d{2}) - (\d{2})_(\d{2})_(\d{2})(?: \((\d+)\))?\.(\w+)""")
     val match = regex.find(filename)
 
     return if (match != null) {
