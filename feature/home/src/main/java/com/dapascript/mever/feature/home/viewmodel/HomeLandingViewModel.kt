@@ -38,6 +38,7 @@ import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -68,15 +69,11 @@ class HomeLandingViewModel @Inject constructor(
     val downloadList = ketch.observeDownloads()
         .map { downloads ->
             downloads
+                .filter { isAvailableOnLocal(it.fileName) }
                 .sortedByDescending { it.timeQueued }
                 .also {
                     showBadge = it.any { file ->
                         file.status in listOf(QUEUED, STARTED, PAUSED, PROGRESS)
-                    }
-                }
-                .onEach {
-                    if (it.status == SUCCESS && isAvailableOnLocal(it.fileName).not()) {
-                        ketch.clearDb(it.id)
                     }
                 }
         }
@@ -142,4 +139,15 @@ class HomeLandingViewModel @Inject constructor(
     fun retryDownload(id: Int) = ketch.retry(id)
 
     fun delete(id: Int) = ketch.clearDb(id)
+
+    fun refreshDatabase() {
+        viewModelScope.launch {
+            val currentDownloads = downloadList.value
+            currentDownloads?.forEach { download ->
+                if (download.status == SUCCESS && isAvailableOnLocal(download.fileName).not()) {
+                    ketch.clearDb(download.id)
+                }
+            }
+        }
+    }
 }

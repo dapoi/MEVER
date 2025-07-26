@@ -27,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
@@ -35,6 +36,9 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle.State.RESUMED
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
@@ -95,6 +99,7 @@ internal fun GalleryLandingScreen(
     val downloadList = downloadList.collectAsStateValue()
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
+    val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
     val isExpanded by remember { derivedStateOf { listState.firstVisibleItemIndex < 1 } }
     var showFailedDialog by remember { mutableStateOf<Int?>(null) }
     var showDeleteDialog by remember { mutableStateOf<Int?>(null) }
@@ -114,6 +119,19 @@ internal fun GalleryLandingScreen(
         ),
         allowScreenOverlap = true
     ) {
+        LaunchedEffect(lifecycleOwner) {
+            lifecycleOwner.value.lifecycle.repeatOnLifecycle(RESUMED) { refreshDatabase() }
+        }
+
+        LaunchedEffect(selectedFilter, downloadList) {
+            if (selectedFilter != ALL && downloadList?.isEmpty() == true) {
+                scope.launch {
+                    listState.animateScrollToItem(0)
+                    if (listState.firstVisibleItemIndex == 0) selectedFilter = ALL
+                }
+            }
+        }
+
         MeverPopupDropDownMenu(
             modifier = Modifier.padding(top = Dp64, end = Dp24),
             listDropDown = listDropDown.filter {
@@ -183,13 +201,7 @@ internal fun GalleryLandingScreen(
                     file = File(getFilePath(it.fileName))
                 )
             },
-            onClickDelete = { showDeleteDialog = it.id },
-            onChangeFilter = {
-                scope.launch {
-                    listState.animateScrollToItem(0)
-                    if (listState.firstVisibleItemIndex == 0) selectedFilter = it
-                }
-            }
+            onClickDelete = { showDeleteDialog = it.id }
         )
 
         MeverDialogError(
@@ -252,13 +264,8 @@ private fun GalleryContentSection(
     onClickFilter: (PlatformType) -> Unit,
     onClickCard: (DownloadModel) -> Unit,
     onClickShare: (DownloadModel) -> Unit,
-    onClickDelete: (DownloadModel) -> Unit,
-    onChangeFilter: (PlatformType) -> Unit
+    onClickDelete: (DownloadModel) -> Unit
 ) {
-    LaunchedEffect(selectedFilter, downloadList) {
-        if (selectedFilter != ALL && downloadList?.isEmpty() == true) onChangeFilter(ALL)
-    }
-
     CompositionLocalProvider(LocalOverscrollFactory provides null) {
         downloadList?.let {
             if (downloadList.isNotEmpty()) {

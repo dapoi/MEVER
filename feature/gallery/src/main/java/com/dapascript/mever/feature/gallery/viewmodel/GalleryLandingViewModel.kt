@@ -14,6 +14,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted.Companion.Lazily
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -39,4 +40,15 @@ class GalleryLandingViewModel @Inject constructor(
                 }
         }
         .stateIn(viewModelScope, Lazily, null)
+
+    fun refreshDatabase() {
+        viewModelScope.launch {
+            val currentDownloads = downloadList.value
+            currentDownloads?.forEach { download ->
+                if (download.status == SUCCESS && isAvailableOnLocal(download.fileName).not()) {
+                    ketch.clearDb(download.id)
+                }
+            }
+        }
+    }
 }

@@ -42,6 +42,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment.Companion.BottomCenter
@@ -64,6 +65,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle.State.RESUMED
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
@@ -156,6 +160,7 @@ internal fun HomeLandingScreen(
     val isImageGeneratorFeatureActive = isImageGeneratorFeatureActive.collectAsStateValue()
     val youtubeResolutions = youtubeResolutions.collectAsStateValue()
     val activity = LocalActivity.current
+    val lifecycleOwner = rememberUpdatedState( LocalLifecycleOwner.current)
     val scope = rememberCoroutineScope()
     var showLoading by remember { mutableStateOf(false) }
     var showCancelExitConfirmation by remember { mutableStateOf(false) }
@@ -169,6 +174,30 @@ internal fun HomeLandingScreen(
         allowScreenOverlap = true,
         hideDefaultTopBar = true
     ) {
+        LaunchedEffect(lifecycleOwner) {
+            lifecycleOwner.value.lifecycle.repeatOnLifecycle(RESUMED) { refreshDatabase() }
+        }
+
+        LaunchedEffect(downloaderResponseState) {
+            downloaderResponseState.handleUiState(
+                onLoading = { showLoading = true },
+                onSuccess = { showLoading = false },
+                onFailed = {
+                    showLoading = false
+                    showErrorModal = RESPONSE
+                }
+            )
+        }
+
+        LaunchedEffect(randomDonateDialogOffer, showDonationDialog) {
+            if (showDonationDialog) {
+                (0..5).random(Random).also { randomValue ->
+                    randomDonateDialogOffer = randomValue
+                    showDonationDialog = false
+                }
+            }
+        }
+
         if (setStoragePermission.isNotEmpty()) {
             MeverPermissionHandler(
                 permissions = setStoragePermission,
@@ -199,26 +228,6 @@ internal fun HomeLandingScreen(
         }
 
         BackHandler(showLoading) { showCancelExitConfirmation = true }
-
-        LaunchedEffect(downloaderResponseState) {
-            downloaderResponseState.handleUiState(
-                onLoading = { showLoading = true },
-                onSuccess = { showLoading = false },
-                onFailed = {
-                    showLoading = false
-                    showErrorModal = RESPONSE
-                }
-            )
-        }
-
-        LaunchedEffect(randomDonateDialogOffer, showDonationDialog) {
-            if (showDonationDialog) {
-                (0..5).random(Random).also { randomValue ->
-                    randomDonateDialogOffer = randomValue
-                    showDonationDialog = false
-                }
-            }
-        }
 
         HandleBottomSheetDownload(
             modifier = Modifier
