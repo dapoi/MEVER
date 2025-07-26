@@ -5,9 +5,6 @@ import android.graphics.Bitmap.CompressFormat.PNG
 import android.os.Handler
 import android.os.Looper.getMainLooper
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions
-import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.fadeIn
@@ -69,6 +66,7 @@ import com.dapascript.mever.core.common.ui.component.MeverBannerAd
 import com.dapascript.mever.core.common.ui.component.MeverButton
 import com.dapascript.mever.core.common.ui.component.MeverDialogError
 import com.dapascript.mever.core.common.ui.component.MeverImage
+import com.dapascript.mever.core.common.ui.component.MeverPermissionHandler
 import com.dapascript.mever.core.common.ui.component.MeverSnackbar
 import com.dapascript.mever.core.common.ui.component.meverShimmer
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp10
@@ -95,10 +93,8 @@ import com.dapascript.mever.core.common.util.ErrorHandle.getErrorResponseContent
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.copyToClipboard
 import com.dapascript.mever.core.common.util.fetchPhotoFromUrl
-import com.dapascript.mever.core.common.util.getNotificationPermission
 import com.dapascript.mever.core.common.util.getStoragePermission
 import com.dapascript.mever.core.common.util.goToSetting
-import com.dapascript.mever.core.common.util.isAndroidTiramisuAbove
 import com.dapascript.mever.core.common.util.navigateToGmail
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.shareContent
@@ -134,38 +130,7 @@ internal fun HomeImageGeneratorResultScreen(
     var isDownloadAllClicked by remember { mutableStateOf(false) }
     var imageSelected by remember(aiImages) { mutableStateOf(aiImages.firstOrNull()) }
     val snackbarMessage = remember { mutableStateOf("") }
-    val storagePermLauncher = rememberLauncherForActivityResult(RequestMultiplePermissions()) {
-        val allGranted = getStoragePermission.all { permissions -> it[permissions] == true }
-        if (allGranted) getNetworkStatus(
-            isNetworkAvailable = isNetworkAvailable,
-            onNetworkAvailable = {
-                if (isDownloadAllClicked) {
-                    aiImages.map { url -> scope.launch { startDownload(url = url) } }
-                    navController.navigateTo(
-                        route = GalleryLandingRoute,
-                        popUpTo = HomeImageGeneratorResultRoute::class,
-                        inclusive = true
-                    )
-                } else {
-                    snackbarMessage.value = context.getString(R.string.image_has_been_downloaded)
-                    scope.launch { startDownload(url = imageSelected.orEmpty()) }
-                    if (aiImages.size <= 1) navController.navigateTo(
-                        route = GalleryLandingRoute,
-                        popUpTo = HomeImageGeneratorResultRoute::class,
-                        inclusive = true
-                    ) else aiImages = aiImages.toMutableStateList().apply {
-                        removeAt(aiImages.indexOf(imageSelected))
-                    }
-                }
-            },
-            onNetworkUnavailable = { showErrorModal = NETWORK }
-        ) else getStoragePermission.forEach { permission ->
-            onPermissionResult(permission, isGranted = it[permission] == true)
-        }
-    }
-    val notifPermLauncher = rememberLauncherForActivityResult(RequestPermission()) {
-        storagePermLauncher.launch(getStoragePermission)
-    }
+    var setStoragePermission by remember { mutableStateOf<List<String>>(emptyList()) }
 
     BaseScreen(
         topBarArgs = TopBarArgs(
@@ -208,19 +173,47 @@ internal fun HomeImageGeneratorResultScreen(
             onClickSecondary = { showCancelExitConfirmation = false }
         )
 
-        HandleHomeDialogPermission(
-            activity = activity,
-            permission = showDialogPermission,
-            onGoToSetting = {
-                dismissDialog()
-                activity.goToSetting()
+        MeverPermissionHandler(
+            permissions = setStoragePermission,
+            onGranted = {
+                setStoragePermission = emptyList()
+                getNetworkStatus(
+                    isNetworkAvailable = isNetworkAvailable,
+                    onNetworkAvailable = {
+                        if (isDownloadAllClicked) {
+                            aiImages.map { url -> scope.launch { startDownload(url = url) } }
+                            navController.navigateTo(
+                                route = GalleryLandingRoute,
+                                popUpTo = HomeImageGeneratorResultRoute::class,
+                                inclusive = true
+                            )
+                        } else {
+                            snackbarMessage.value =
+                                context.getString(R.string.image_has_been_downloaded)
+                            scope.launch { startDownload(url = imageSelected.orEmpty()) }
+                            if (aiImages.size <= 1) navController.navigateTo(
+                                route = GalleryLandingRoute,
+                                popUpTo = HomeImageGeneratorResultRoute::class,
+                                inclusive = true
+                            ) else aiImages = aiImages.toMutableStateList().apply {
+                                removeAt(aiImages.indexOf(imageSelected))
+                            }
+                        }
+                    },
+                    onNetworkUnavailable = { showErrorModal = NETWORK }
+                )
             },
-            onAllow = {
-                dismissDialog()
-                if (isAndroidTiramisuAbove()) notifPermLauncher.launch(getNotificationPermission)
-                else storagePermLauncher.launch(getStoragePermission)
-            },
-            onDismiss = ::dismissDialog
+            onDenied = { isPermanentlyDeclined, retry ->
+                HandleHomeDialogPermission(
+                    isPermissionsDeclined = isPermanentlyDeclined,
+                    onGoToSetting = {
+                        setStoragePermission = emptyList()
+                        activity.goToSetting()
+                    },
+                    onRetry = { retry },
+                    onDismiss = { setStoragePermission = emptyList() }
+                )
+            }
         )
 
         getErrorResponseContent(showErrorModal)?.let { (title, desc) ->
@@ -270,7 +263,7 @@ internal fun HomeImageGeneratorResultScreen(
                 },
                 onClickDownloadAll = {
                     isDownloadAllClicked = true
-                    storagePermLauncher.launch(getStoragePermission)
+                    setStoragePermission = getStoragePermission.toList()
                 },
                 onClickReport = { navigateToGmail(context) },
                 onClickShare = {
@@ -301,10 +294,7 @@ internal fun HomeImageGeneratorResultScreen(
                     aiImages = emptyList()
                     getImageAiGenerator()
                 },
-                onClickDownload = {
-                    if (isAndroidTiramisuAbove()) notifPermLauncher.launch(getNotificationPermission)
-                    else storagePermLauncher.launch(getStoragePermission)
-                }
+                onClickDownload = { setStoragePermission = getStoragePermission.toList() }
             )
         }
     }

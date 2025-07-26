@@ -1,8 +1,7 @@
 package com.dapascript.mever.feature.setting.screen
 
 import android.content.Context
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
+import android.content.pm.PackageManager.PERMISSION_GRANTED
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -26,6 +25,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
@@ -45,6 +45,7 @@ import com.dapascript.mever.core.common.ui.attr.MeverMenuItemAttr.MenuItemArgs
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverMenuItem
+import com.dapascript.mever.core.common.ui.component.MeverPermissionHandler
 import com.dapascript.mever.core.common.ui.component.rememberInterstitialAd
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
@@ -86,12 +87,8 @@ internal fun SettingLandingScreen(
     val scrollState = rememberScrollState()
     val showInterstitialAd = rememberInterstitialAd()
     val showAppreciateDialog = remember { mutableStateOf<AppreciateType?>(null) }
-    val showNotificationPermissionDialog = remember { mutableStateOf(false) }
     val isExpanded by remember { derivedStateOf { scrollState.value <= titleHeight } }
-    val notifPermLauncher = rememberLauncherForActivityResult(RequestPermission()) { isGranted ->
-        if (isGranted) navigateToNotificationSettings(context)
-        else showNotificationPermissionDialog.value = true
-    }
+    var setRequestPermission by remember { mutableStateOf<List<String>>(emptyList()) }
 
     BaseScreen(
         topBarArgs = TopBarArgs(
@@ -100,24 +97,37 @@ internal fun SettingLandingScreen(
         ),
         allowScreenOverlap = true
     ) {
-        MeverDialog(
-            showDialog = showNotificationPermissionDialog.value,
-            meverDialogArgs = MeverDialogArgs(
-                title = stringResource(R.string.permission_request_title),
-                primaryButtonText = stringResource(R.string.go_to_settings),
-                onClickPrimaryButton = {
-                    showNotificationPermissionDialog.value = false
-                    navigateToNotificationSettings(context)
-                },
-                onClickSecondaryButton = { showNotificationPermissionDialog.value = false }
-            )
-        ) {
-            Text(
-                text = stringResource(R.string.permission_request_notification),
-                textAlign = Center,
-                style = typography.body1,
-                color = colorScheme.onPrimary,
-                modifier = Modifier.padding(vertical = Dp8)
+        if (setRequestPermission.isNotEmpty()) {
+            MeverPermissionHandler(
+                permissions = setRequestPermission,
+                onGranted = { setRequestPermission = emptyList() },
+                onDenied = { isPermanentlyDeclined, onRetry ->
+                    MeverDialog(
+                        showDialog = true,
+                        meverDialogArgs = MeverDialogArgs(
+                            title = stringResource(R.string.permission_request_title),
+                            primaryButtonText = stringResource(
+                                if (isPermanentlyDeclined) R.string.go_to_settings
+                                else R.string.allow
+                            ),
+                            onClickPrimaryButton = {
+                                if (isPermanentlyDeclined) {
+                                    setRequestPermission = emptyList()
+                                    navigateToNotificationSettings(context)
+                                } else onRetry()
+                            },
+                            onClickSecondaryButton = { setRequestPermission = emptyList() }
+                        )
+                    ) {
+                        Text(
+                            text = stringResource(R.string.permission_request_notification),
+                            textAlign = Center,
+                            style = typography.body1,
+                            color = colorScheme.onPrimary,
+                            modifier = Modifier.padding(vertical = Dp8)
+                        )
+                    }
+                }
             )
         }
 
@@ -139,7 +149,9 @@ internal fun SettingLandingScreen(
                 navController.navigateTo(SettingLanguageRoute(LanguageData(it)))
             },
             onClickNotificationPermission = {
-                if (isAndroidTiramisuAbove()) notifPermLauncher.launch(getNotificationPermission)
+                if (isAndroidTiramisuAbove() &&
+                    context.checkSelfPermission(getNotificationPermission.first()) != PERMISSION_GRANTED
+                ) setRequestPermission = getNotificationPermission
                 else navigateToNotificationSettings(context)
             },
             onClickChangeTheme = { navController.navigate(SettingScreenRoute.SettingThemeRoute(it)) },

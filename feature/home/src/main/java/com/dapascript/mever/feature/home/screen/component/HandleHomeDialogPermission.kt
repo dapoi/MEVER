@@ -1,12 +1,10 @@
 package com.dapascript.mever.feature.home.screen.component
 
-import android.app.Activity
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign.Companion.Center
-import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
 import com.dapascript.mever.core.common.ui.component.MeverDialog
@@ -14,13 +12,11 @@ import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 
 @Composable
 internal fun HandleHomeDialogPermission(
-    activity: Activity,
-    permission: List<String>,
+    isPermissionsDeclined: Boolean,
     onGoToSetting: () -> Unit,
-    onAllow: () -> Unit,
+    onRetry: () -> Unit,
     onDismiss: () -> Unit
-) = permission.firstOrNull()?.let {
-    val isPermissionsDeclined = shouldShowRequestPermissionRationale(activity, it).not()
+) {
     MeverDialog(
         showDialog = true,
         meverDialogArgs = MeverDialogArgs(
@@ -28,7 +24,7 @@ internal fun HandleHomeDialogPermission(
             primaryButtonText = stringResource(
                 if (isPermissionsDeclined) R.string.go_to_settings else R.string.allow
             ),
-            onClickPrimaryButton = if (isPermissionsDeclined) onGoToSetting else onAllow,
+            onClickPrimaryButton = if (isPermissionsDeclined) onGoToSetting else onRetry,
             onClickSecondaryButton = onDismiss
         )
     ) {

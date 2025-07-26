@@ -2,9 +2,6 @@ package com.dapascript.mever.feature.home.screen
 
 import android.content.Context
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions
-import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.fadeIn
@@ -84,6 +81,7 @@ import com.dapascript.mever.core.common.ui.component.MeverCard
 import com.dapascript.mever.core.common.ui.component.MeverDialogError
 import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
 import com.dapascript.mever.core.common.ui.component.MeverIcon
+import com.dapascript.mever.core.common.ui.component.MeverPermissionHandler
 import com.dapascript.mever.core.common.ui.component.MeverTabs
 import com.dapascript.mever.core.common.ui.component.MeverTextField
 import com.dapascript.mever.core.common.ui.component.MeverTopBar
@@ -116,12 +114,10 @@ import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
 import com.dapascript.mever.core.common.util.changeToCurrentDate
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.NetworkStatus.Available
 import com.dapascript.mever.core.common.util.getFilePath
-import com.dapascript.mever.core.common.util.getNotificationPermission
 import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.getStoragePermission
 import com.dapascript.mever.core.common.util.getUrlContentType
 import com.dapascript.mever.core.common.util.goToSetting
-import com.dapascript.mever.core.common.util.isAndroidTiramisuAbove
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
@@ -166,29 +162,42 @@ internal fun HomeLandingScreen(
     var showYoutubeChooseQualityModal by remember { mutableStateOf(false) }
     var showErrorModal by remember { mutableStateOf<ErrorType?>(null) }
     var randomDonateDialogOffer by remember { mutableIntStateOf(0) }
-    val storagePermLauncher = rememberLauncherForActivityResult(RequestMultiplePermissions()) {
-        val allGranted = getStoragePermission.all { permissions -> it[permissions] == true }
-        if (allGranted) getNetworkStatus(
-            isNetworkAvailable = isNetworkAvailable,
-            onNetworkAvailable = {
-                if (getPlatformType(urlSocialMediaState.text) == YOUTUBE) {
-                    showYoutubeChooseQualityModal = true
-                } else getApiDownloader()
-            },
-            onNetworkUnavailable = { showErrorModal = NETWORK }
-        ) else getStoragePermission.forEach { permission ->
-            onPermissionResult(permission, isGranted = it[permission] == true)
-        }
-    }
-    val notifPermLauncher = rememberLauncherForActivityResult(RequestPermission()) {
-        storagePermLauncher.launch(getStoragePermission)
-    }
+    var setStoragePermission by remember { mutableStateOf<List<String>>(emptyList()) }
 
     BaseScreen(
         useSystemBarsPadding = true,
         allowScreenOverlap = true,
         hideDefaultTopBar = true
     ) {
+        if (setStoragePermission.isNotEmpty()) {
+            MeverPermissionHandler(
+                permissions = setStoragePermission,
+                onGranted = {
+                    setStoragePermission = emptyList()
+                    getNetworkStatus(
+                        isNetworkAvailable = isNetworkAvailable,
+                        onNetworkAvailable = {
+                            if (getPlatformType(urlSocialMediaState.text) == YOUTUBE) {
+                                showYoutubeChooseQualityModal = true
+                            } else getApiDownloader()
+                        },
+                        onNetworkUnavailable = { showErrorModal = NETWORK }
+                    )
+                },
+                onDenied = { isPermanentlyDeclined, retry ->
+                    HandleHomeDialogPermission(
+                        isPermissionsDeclined = isPermanentlyDeclined,
+                        onGoToSetting = {
+                            setStoragePermission = emptyList()
+                            activity.goToSetting()
+                        },
+                        onRetry = { retry() },
+                        onDismiss = { setStoragePermission = emptyList() }
+                    )
+                }
+            )
+        }
+
         BackHandler(showLoading) { showCancelExitConfirmation = true }
 
         LaunchedEffect(downloaderResponseState) {
@@ -263,20 +272,6 @@ internal fun HomeLandingScreen(
             )
         }
 
-        HandleHomeDialogPermission(
-            activity = activity,
-            permission = showDialogPermission,
-            onGoToSetting = {
-                dismissDialog()
-                activity.goToSetting()
-            },
-            onAllow = {
-                dismissDialog()
-                storagePermLauncher.launch(getStoragePermission)
-            },
-            onDismiss = ::dismissDialog
-        )
-
         HandleDialogYoutubeQuality(
             showDialog = showYoutubeChooseQualityModal,
             qualityList = youtubeResolutions,
@@ -296,10 +291,7 @@ internal fun HomeLandingScreen(
             navController = navController,
             isImageGeneratorFeatureActive = isImageGeneratorFeatureActive,
             isLoading = showLoading
-        ) {
-            if (isAndroidTiramisuAbove()) notifPermLauncher.launch(getNotificationPermission)
-            else storagePermLauncher.launch(getStoragePermission)
-        }
+        ) { setStoragePermission = getStoragePermission }
     }
 }
 

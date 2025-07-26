@@ -1,7 +1,5 @@
 package com.dapascript.mever.feature.startup.screen
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
@@ -40,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.dapascript.mever.core.common.base.BaseScreen
+import com.dapascript.mever.core.common.ui.component.MeverPermissionHandler
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp0
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
@@ -72,9 +71,21 @@ internal fun OnboardScreen(
         hideDefaultTopBar = true
     ) {
         var buttonSize by remember { mutableStateOf(Dp0) }
+        var setRequestPermission by remember { mutableStateOf<List<String>>(emptyList()) }
         val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
-        val notifPermissionLauncher = rememberLauncherForActivityResult(RequestPermission()) {
-            navController.navigateClearBackStack(HomeLandingRoute)
+
+        if (setRequestPermission.isNotEmpty()) {
+            MeverPermissionHandler(
+                permissions = setRequestPermission,
+                onGranted = {
+                    setRequestPermission = emptyList()
+                    navController.navigateClearBackStack(HomeLandingRoute)
+                },
+                onDenied = { _, _ ->
+                    setRequestPermission = emptyList()
+                    navController.navigateClearBackStack(HomeLandingRoute)
+                }
+            )
         }
 
         Box(
@@ -110,10 +121,9 @@ internal fun OnboardScreen(
                     .onGloballyPositioned { buttonSize = it.size.height.dp }
             ) {
                 setIsOnboarded(true)
-                if (isAndroidTiramisuAbove()) notifPermissionLauncher.launch(
-                    getNotificationPermission
-                )
-                else navController.navigateClearBackStack(HomeLandingRoute)
+                if (isAndroidTiramisuAbove()) {
+                    setRequestPermission = getNotificationPermission
+                } else navController.navigateClearBackStack(HomeLandingRoute)
             }
         }
     }

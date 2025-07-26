@@ -14,18 +14,18 @@ import androidx.annotation.RequiresApi
 
 val getStoragePermission = when {
     isAndroidUpSideDownCake() -> {
-        arrayOf(READ_MEDIA_VIDEO, READ_MEDIA_IMAGES, READ_MEDIA_VISUAL_USER_SELECTED)
+        listOf(READ_MEDIA_VIDEO, READ_MEDIA_IMAGES, READ_MEDIA_VISUAL_USER_SELECTED)
     }
 
     isAndroidTiramisuAbove() -> {
-        arrayOf(READ_MEDIA_VIDEO, READ_MEDIA_IMAGES)
+        listOf(READ_MEDIA_VIDEO, READ_MEDIA_IMAGES)
     }
 
-    else -> arrayOf(WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE)
+    else -> listOf(WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE)
 }
 
 @RequiresApi(TIRAMISU)
-val getNotificationPermission = POST_NOTIFICATIONS
+val getNotificationPermission = listOf(POST_NOTIFICATIONS)
 
 @ChecksSdkIntAtLeast(api = TIRAMISU)
 fun isAndroidTiramisuAbove() = SDK_INT >= TIRAMISU
