@@ -37,13 +37,10 @@ interface ApiService {
     @GET("youtube")
     suspend fun getYoutubeDownloader(
         @Query("url") url: String,
-        @Query("quality") quality: String
+        @Query("quality") quality: String,
+        @Query("type") type: String = "video"
     ): YouTubeDownloaderResponse
 
     @GET("meta")
-    suspend fun getImageAiGenerator(
-        @Query("q") query: String,
-        @Query("session") session: String = "bb286368-37d4-485d-9522-fb88ee8f92b4",
-        @Query("lang") lang: String = "en"
-    ): ImageAiResponse
+    suspend fun getImageAiGenerator(@Query("q") query: String): ImageAiResponse
 }

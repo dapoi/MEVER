@@ -39,16 +39,34 @@ internal fun Project.configAndroid(
                 "AD_INTERSTITIAL_UNIT_ID",
                 "\"${getEnvVariable("AD_INTERSTITIAL_UNIT_ID")}\""
             )
-            buildConfigField(
-                "String",
-                "API_KEY",
-                "\"${getEnvVariable("API_KEY")}\""
-            )
-            buildConfigField(
-                "String",
-                "BASE_URL",
-                "\"${getEnvVariable("BASE_URL")}\""
-            )
+        }
+
+        buildTypes {
+            getByName("debug") {
+                buildConfigField(
+                    "String",
+                    "API_KEY",
+                    "\"${getEnvVariable("API_KEY_DEBUG")}\""
+                )
+                buildConfigField(
+                    "String",
+                    "BASE_URL",
+                    "\"${getEnvVariable("BASE_URL_DEBUG")}\""
+                )
+            }
+
+            getByName("release") {
+                buildConfigField(
+                    "String",
+                    "API_KEY",
+                    "\"\""
+                )
+                buildConfigField(
+                    "String",
+                    "BASE_URL",
+                    "\"${getEnvVariable("BASE_URL_RELEASE")}\""
+                )
+            }
         }
 
         buildFeatures {

@@ -139,7 +139,6 @@ import com.ketch.DownloadModel
 import com.ketch.Status.FAILED
 import com.ketch.Status.PAUSED
 import com.ketch.Status.SUCCESS
-import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import java.io.File
 import java.lang.System.currentTimeMillis
@@ -228,14 +227,14 @@ internal fun HomeLandingScreen(
             showBottomSheet = contents.isNotEmpty(),
             isFailedFetchImage = isNetworkAvailable != Available,
             onClickDownload = { url ->
-                scope.launch(IO) {
+                scope.launch {
                     startDownload(
                         url = url,
                         fileName = changeToCurrentDate(currentTimeMillis()) + getUrlContentType(url),
                         thumbnail = contents.firstOrNull()?.thumbnail.orEmpty()
                     )
+                    contents = emptyList()
                 }
-                contents = emptyList()
             },
             onClickDismiss = { contents = emptyList() }
         )

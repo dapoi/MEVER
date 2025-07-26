@@ -173,7 +173,7 @@ internal fun HomeImageGeneratorResultScreen(
             onClickSecondary = { showCancelExitConfirmation = false }
         )
 
-        MeverPermissionHandler(
+        if (setStoragePermission.isNotEmpty()) MeverPermissionHandler(
             permissions = setStoragePermission,
             onGranted = {
                 setStoragePermission = emptyList()
@@ -263,7 +263,7 @@ internal fun HomeImageGeneratorResultScreen(
                 },
                 onClickDownloadAll = {
                     isDownloadAllClicked = true
-                    setStoragePermission = getStoragePermission.toList()
+                    setStoragePermission = getStoragePermission
                 },
                 onClickReport = { navigateToGmail(context) },
                 onClickShare = {
@@ -294,7 +294,7 @@ internal fun HomeImageGeneratorResultScreen(
                     aiImages = emptyList()
                     getImageAiGenerator()
                 },
-                onClickDownload = { setStoragePermission = getStoragePermission.toList() }
+                onClickDownload = { setStoragePermission = getStoragePermission }
             )
         }
     }

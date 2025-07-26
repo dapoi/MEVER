@@ -64,10 +64,17 @@ class HomeImageGeneratorResultViewModel @Inject constructor(
         }
     )
 
-    fun startDownload(url: String) = ketch.download(
-        url = url,
-        fileName = changeToCurrentDate(currentTimeMillis()) + ".jpg",
-        path = meverFolder.path,
-        tag = AI.platformName
-    )
+    fun startDownload(url: String) {
+        if (url.isBlank()) {
+            // Log or handle the error case where URL is empty
+            return
+        }
+
+        ketch.download(
+            url = url,
+            fileName = changeToCurrentDate(currentTimeMillis()) + ".jpg",
+            path = meverFolder.path,
+            tag = AI.platformName
+        )
+    }
 }

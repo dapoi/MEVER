@@ -5,7 +5,6 @@ import androidx.work.WorkManager
 import com.chuckerteam.chucker.api.ChuckerCollector
 import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.dapascript.mever.core.data.BuildConfig
-import com.dapascript.mever.core.data.BuildConfig.API_KEY
 import com.dapascript.mever.core.data.BuildConfig.BASE_URL
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.repository.MeverRepositoryImpl
@@ -33,7 +32,7 @@ class DataModule {
         retrofit.create(ApiService::class.java)
 
     @Provides
-    fun provideApiKeyInterceptor(): ApiKeyInterceptor = ApiKeyInterceptor(API_KEY)
+    fun provideApiKeyInterceptor(): ApiKeyInterceptor = ApiKeyInterceptor()
 
     @Provides
     fun provideApiService(
