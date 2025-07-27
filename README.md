@@ -66,7 +66,7 @@ Want to contribute? Let’s go!
 2. Clone & create an `env.properties` file like this:  
    <img src="https://github.com/user-attachments/assets/b478861f-a72d-4c63-8841-70e2d85f8b26" width="500" />
 3. Add your `BASE_URL` & `API_KEY` (get it from [api neoxr](https://api.neoxr.eu/))  
-   <img src="https://github.com/user-attachments/assets/27991dfa-9029-4f89-95cf-b9b2970c1cb7" width="500" />
+   <img src="https://github.com/user-attachments/assets/f660e61a-bb37-415c-b41d-32126adef5be" width="500" />
 4. Create a new branch, commit & push:
    ```bash
    git checkout -b feature/awesome-stuff
