@@ -10,12 +10,13 @@ interface MeverRepository {
     fun getAppConfig(): Flow<ApiState<AppConfigEntity>>
     fun getFacebookDownloader(url: String): Flow<ApiState<List<ContentEntity>>>
     fun getInstagramDownloader(url: String): Flow<ApiState<List<ContentEntity>>>
+    fun getPinterestDownloader(url: String): Flow<ApiState<List<ContentEntity>>>
+    fun getTeraboxDownloader(url: String): Flow<ApiState<List<ContentEntity>>>
     fun getTiktokDownloader(url: String): Flow<ApiState<List<ContentEntity>>>
     fun getTwitterDownloader(url: String): Flow<ApiState<List<ContentEntity>>>
     fun getYoutubeDownloader(
         url: String,
         quality: String
     ): Flow<ApiState<List<ContentEntity>>>
-    fun getPinterestDownloader(url: String): Flow<ApiState<List<ContentEntity>>>
     fun getImageAiGenerator(prompt: String): Flow<ApiState<ImageAiEntity>>
 }

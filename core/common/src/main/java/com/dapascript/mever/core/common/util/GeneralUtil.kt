@@ -11,7 +11,6 @@ import android.content.Intent.EXTRA_TEXT
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory.decodeStream
 import android.media.MediaMetadataRetriever
-import android.media.MediaScannerConnection
 import android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS
 import android.provider.Settings.EXTRA_APP_PACKAGE
 import android.util.Patterns.WEB_URL
@@ -28,10 +27,10 @@ import com.dapascript.mever.core.common.util.PlatformType.ALL
 import com.dapascript.mever.core.common.util.PlatformType.FACEBOOK
 import com.dapascript.mever.core.common.util.PlatformType.INSTAGRAM
 import com.dapascript.mever.core.common.util.PlatformType.PINTEREST
+import com.dapascript.mever.core.common.util.PlatformType.TERABOX
 import com.dapascript.mever.core.common.util.PlatformType.TIKTOK
 import com.dapascript.mever.core.common.util.PlatformType.TWITTER
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
-import com.dapascript.mever.core.common.util.storage.StorageUtil.getFilePath
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -178,18 +177,20 @@ fun convertToTimeFormat(milliseconds: Long): String {
 fun getPlatformType(url: String): PlatformType {
     val listFbUrl = listOf("facebook.com", "fb.com", "m.facebook.com", "fb.watch")
     val listInstagramUrl = listOf("instagram.com", "instagr.am", "ig.com")
-    val listTwitterUrl = listOf("x.com", "twitter.com", "t.co", "mobile.twitter.com")
-    val listTiktokUrl = listOf("tiktok.com", "tiktokv.com", "tiktokcdn.com")
-    val listYouTubeUrl = listOf("youtube.com", "youtu.be", "m.youtube.com", "yt.com")
     val listPinterestUrl = listOf("pinterest.com", "pin.it", "pinterest.co.uk")
+    val listTeraboxUrl = listOf("terabox.com", "terabox.co", "terabox.net")
+    val listTiktokUrl = listOf("tiktok.com", "tiktokv.com", "tiktokcdn.com")
+    val listTwitterUrl = listOf("x.com", "twitter.com", "t.co", "mobile.twitter.com")
+    val listYouTubeUrl = listOf("youtube.com", "youtu.be", "m.youtube.com", "yt.com")
 
     return when {
         listFbUrl.any { url.contains(it) } -> FACEBOOK
         listInstagramUrl.any { url.contains(it) } -> INSTAGRAM
-        listTwitterUrl.any { url.contains(it) } -> TWITTER
-        listTiktokUrl.any { url.contains(it) } -> TIKTOK
-        listYouTubeUrl.any { url.contains(it) } -> YOUTUBE
         listPinterestUrl.any { url.contains(it) } -> PINTEREST
+        listTeraboxUrl.any { url.contains(it) } -> TERABOX
+        listTiktokUrl.any { url.contains(it) } -> TIKTOK
+        listTwitterUrl.any { url.contains(it) } -> TWITTER
+        listYouTubeUrl.any { url.contains(it) } -> YOUTUBE
         else -> ALL
     }
 }

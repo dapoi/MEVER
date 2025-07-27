@@ -22,6 +22,16 @@ class MeverRepositoryImpl @Inject constructor(
         transformData = { it.mapToEntity() }
     )
 
+    override fun getPinterestDownloader(url: String) = collectApiResult(
+        fetchApi = { apiService.getPinterestDownloader(url) },
+        transformData = { it.mapToEntity() }
+    )
+
+    override fun getTeraboxDownloader(url: String) = collectApiResult(
+        fetchApi = { apiService.getTeraBoxDownloader(url) },
+        transformData = { it.mapToEntity() }
+    )
+
     override fun getTiktokDownloader(url: String) = collectApiResult(
         fetchApi = { apiService.getTiktokDownloader(url) },
         transformData = { it.mapToEntity() }
@@ -40,10 +50,6 @@ class MeverRepositoryImpl @Inject constructor(
         transformData = { it.mapToEntity() }
     )
 
-    override fun getPinterestDownloader(url: String) = collectApiResult(
-        fetchApi = { apiService.getPinterestDownloader(url) },
-        transformData = { it.mapToEntity() }
-    )
 
     override fun getImageAiGenerator(prompt: String) = collectApiResult(
         fetchApi = { apiService.getImageAiGenerator(prompt) },

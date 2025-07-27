@@ -5,6 +5,7 @@ import com.dapascript.mever.core.data.model.remote.FacebookDownloaderResponse
 import com.dapascript.mever.core.data.model.remote.ImageAiResponse
 import com.dapascript.mever.core.data.model.remote.InstagramDownloaderResponse
 import com.dapascript.mever.core.data.model.remote.PinterestDownloaderResponse
+import com.dapascript.mever.core.data.model.remote.TeraboxDownloaderResponse
 import com.dapascript.mever.core.data.model.remote.TiktokDownloaderResponse
 import com.dapascript.mever.core.data.model.remote.TwitterDownloaderResponse
 import com.dapascript.mever.core.data.model.remote.YouTubeDownloaderResponse
@@ -25,6 +26,16 @@ interface ApiService {
         @Query("url") url: String
     ): InstagramDownloaderResponse
 
+    @GET("pin-v2")
+    suspend fun getPinterestDownloader(
+        @Query("url") url: String
+    ): PinterestDownloaderResponse
+
+    @GET("terabox")
+    suspend fun getTeraBoxDownloader(
+        @Query("url") url: String
+    ): TeraboxDownloaderResponse
+
     @GET("tiktok")
     suspend fun getTiktokDownloader(
         @Query("url") url: String
@@ -41,11 +52,6 @@ interface ApiService {
         @Query("quality") quality: String,
         @Query("type") type: String = "video"
     ): YouTubeDownloaderResponse
-
-    @GET("pin-v2")
-    suspend fun getPinterestDownloader(
-        @Query("url") url: String
-    ): PinterestDownloaderResponse
 
     @GET("genimg")
     suspend fun getImageAiGenerator(@Query("prompt") prompt: String): ImageAiResponse
