@@ -8,16 +8,15 @@ import javax.inject.Inject
 
 class ApiKeyInterceptor @Inject constructor() : Interceptor {
     override fun intercept(chain: Chain) = chain.request().let { request ->
+        val builder = request
+            .newBuilder()
+            .addHeader("X-Package-Name", "com.dapascript.mever")
         if (DEBUG && API_KEY.isNotEmpty()) {
-            val url = request.url.newBuilder()
+            val url = chain.request().url.newBuilder()
                 .addQueryParameter("apikey", API_KEY)
                 .build()
-            val newRequest = request.newBuilder()
-                .url(url)
-                .build()
-            chain.proceed(newRequest)
-        } else {
-            chain.proceed(request)
+            builder.url(url)
         }
+        chain.proceed(builder.build())
     }
 }
