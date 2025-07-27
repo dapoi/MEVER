@@ -117,7 +117,6 @@ import com.dapascript.mever.core.common.util.PlatformType.ALL
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
 import com.dapascript.mever.core.common.util.changeToCurrentDate
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.NetworkStatus.Available
-import com.dapascript.mever.core.common.util.getFilePath
 import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.getStoragePermission
 import com.dapascript.mever.core.common.util.getUrlContentType
@@ -125,7 +124,8 @@ import com.dapascript.mever.core.common.util.goToSetting
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
-import com.dapascript.mever.core.common.util.syncFileToGallery
+import com.dapascript.mever.core.common.util.storage.StorageUtil.getFilePath
+import com.dapascript.mever.core.common.util.storage.StorageUtil.syncFileToGallery
 import com.dapascript.mever.core.navigation.helper.navigateTo
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute

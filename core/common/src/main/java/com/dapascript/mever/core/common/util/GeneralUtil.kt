@@ -12,8 +12,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory.decodeStream
 import android.media.MediaMetadataRetriever
 import android.media.MediaScannerConnection
-import android.os.Environment.DIRECTORY_DOWNLOADS
-import android.os.Environment.getExternalStoragePublicDirectory
 import android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS
 import android.provider.Settings.EXTRA_APP_PACKAGE
 import android.util.Patterns.WEB_URL
@@ -33,6 +31,7 @@ import com.dapascript.mever.core.common.util.PlatformType.PINTEREST
 import com.dapascript.mever.core.common.util.PlatformType.TIKTOK
 import com.dapascript.mever.core.common.util.PlatformType.TWITTER
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
+import com.dapascript.mever.core.common.util.storage.StorageUtil.getFilePath
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -108,37 +107,6 @@ fun getContentType(path: String) = when {
 
 fun getContentTypeFromFile(file: File) =
     getSingleton().getMimeTypeFromExtension(file.extension.lowercase())
-
-fun getMeverFolder(): File {
-    val folder = File(getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS), "MEVER")
-    if (folder.exists().not()) folder.mkdirs()
-    return folder
-}
-
-fun getMeverFiles(): List<File>? {
-    val meverFolder = getMeverFolder()
-    return if (meverFolder.exists() && meverFolder.isDirectory) {
-        meverFolder.listFiles { file ->
-            file.isFile && file.extension.lowercase() in listOf("mp4", "jpg")
-        }?.toList()
-    } else emptyList()
-}
-
-fun getFilePath(fileName: String) = getMeverFiles()?.find { it.name == fileName }?.path.orEmpty()
-
-fun syncFileToGallery(context: Context, fileName: String) {
-    val file = File(getFilePath(fileName))
-    if (file.exists()) MediaScannerConnection.scanFile(
-        context,
-        arrayOf(file.absolutePath),
-        null,
-        null
-    )
-}
-
-fun isAvailableOnLocal(fileName: String) = getMeverFiles()?.any {
-    it.name == fileName
-} ?: false
 
 fun shareContent(context: Context, file: File) {
     try {

@@ -10,14 +10,14 @@ import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver
-import com.dapascript.mever.core.common.util.getMeverFolder
 import com.dapascript.mever.core.common.util.getPlatformType
-import com.dapascript.mever.core.common.util.isAvailableOnLocal
 import com.dapascript.mever.core.common.util.state.UiState
 import com.dapascript.mever.core.common.util.state.UiState.StateFailed
 import com.dapascript.mever.core.common.util.state.UiState.StateInitial
 import com.dapascript.mever.core.common.util.state.UiState.StateLoading
 import com.dapascript.mever.core.common.util.state.UiState.StateSuccess
+import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFolder
+import com.dapascript.mever.core.common.util.storage.StorageUtil.isAvailableOnLocal
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_REQUEST_SELECTED_QUALITY
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_REQUEST_URL
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_RESPONSE_CONTENTS
@@ -69,7 +69,6 @@ class HomeLandingViewModel @Inject constructor(
     val downloadList = ketch.observeDownloads()
         .map { downloads ->
             downloads
-                .filter { isAvailableOnLocal(it.fileName) }
                 .sortedByDescending { it.timeQueued }
                 .also {
                     showBadge = it.any { file ->

@@ -57,9 +57,9 @@ import com.dapascript.mever.core.common.util.calculateDownloadPercentage
 import com.dapascript.mever.core.common.util.calculateDownloadedMegabytes
 import com.dapascript.mever.core.common.util.convertFilename
 import com.dapascript.mever.core.common.util.getContentType
-import com.dapascript.mever.core.common.util.getFilePath
 import com.dapascript.mever.core.common.util.getTwoDecimals
 import com.dapascript.mever.core.common.util.onCustomClick
+import com.dapascript.mever.core.common.util.storage.StorageUtil.getFilePath
 import com.ketch.Status
 import com.ketch.Status.FAILED
 import com.ketch.Status.PAUSED

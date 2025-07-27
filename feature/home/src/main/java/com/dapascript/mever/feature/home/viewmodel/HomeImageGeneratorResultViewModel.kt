@@ -9,9 +9,9 @@ import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.util.PlatformType.AI
 import com.dapascript.mever.core.common.util.changeToCurrentDate
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver
-import com.dapascript.mever.core.common.util.getMeverFolder
 import com.dapascript.mever.core.common.util.state.UiState
 import com.dapascript.mever.core.common.util.state.UiState.StateInitial
+import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFolder
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_REQUEST_PROMPT
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_RESPONSE_AI_IMAGES
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_TOTAL_IMAGES

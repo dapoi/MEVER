@@ -7,7 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.util.PlatformType
 import com.dapascript.mever.core.common.util.PlatformType.ALL
-import com.dapascript.mever.core.common.util.isAvailableOnLocal
+import com.dapascript.mever.core.common.util.storage.StorageUtil.isAvailableOnLocal
 import com.ketch.Ketch
 import com.ketch.Status.SUCCESS
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -31,11 +31,6 @@ class GalleryLandingViewModel @Inject constructor(
                 .also {
                     platformTypes = PlatformType.entries.filter { type ->
                         it.any { model -> model.tag == type.platformName }
-                    }
-                }
-                .onEach {
-                    if (it.status == SUCCESS && isAvailableOnLocal(it.fileName).not()) {
-                        ketch.clearDb(it.id)
                     }
                 }
         }

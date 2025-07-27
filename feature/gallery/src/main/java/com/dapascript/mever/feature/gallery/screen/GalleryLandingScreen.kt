@@ -70,9 +70,10 @@ import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.util.PlatformType
 import com.dapascript.mever.core.common.util.PlatformType.AI
 import com.dapascript.mever.core.common.util.PlatformType.ALL
-import com.dapascript.mever.core.common.util.getFilePath
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
+import com.dapascript.mever.core.common.util.storage.StorageUtil.getFilePath
+import com.dapascript.mever.core.common.util.storage.StorageUtil.syncFileToGallery
 import com.dapascript.mever.core.navigation.helper.navigateTo
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.DELETE_ALL
@@ -119,6 +120,11 @@ internal fun GalleryLandingScreen(
         ),
         allowScreenOverlap = true
     ) {
+        LaunchedEffect(downloadList) {
+            downloadList?.map {
+                if (it.status == SUCCESS) syncFileToGallery(context, it.fileName)
+            }
+        }
         LaunchedEffect(lifecycleOwner) {
             lifecycleOwner.value.lifecycle.repeatOnLifecycle(RESUMED) { refreshDatabase() }
         }
