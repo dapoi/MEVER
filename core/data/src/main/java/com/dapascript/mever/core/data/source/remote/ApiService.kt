@@ -47,6 +47,6 @@ interface ApiService {
         @Query("url") url: String
     ): PinterestDownloaderResponse
 
-    @GET("meta")
-    suspend fun getImageAiGenerator(@Query("q") query: String): ImageAiResponse
+    @GET("genimg")
+    suspend fun getImageAiGenerator(@Query("prompt") prompt: String): ImageAiResponse
 }

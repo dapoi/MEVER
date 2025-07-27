@@ -17,5 +17,5 @@ interface MeverRepository {
         quality: String
     ): Flow<ApiState<List<ContentEntity>>>
     fun getPinterestDownloader(url: String): Flow<ApiState<List<ContentEntity>>>
-    fun getImageAiGenerator(query: String): Flow<ApiState<ImageAiEntity>>
+    fun getImageAiGenerator(prompt: String): Flow<ApiState<ImageAiEntity>>
 }

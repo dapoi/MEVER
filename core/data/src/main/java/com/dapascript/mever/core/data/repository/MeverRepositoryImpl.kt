@@ -45,8 +45,8 @@ class MeverRepositoryImpl @Inject constructor(
         transformData = { it.mapToEntity() }
     )
 
-    override fun getImageAiGenerator(query: String) = collectApiResult(
-        fetchApi = { apiService.getImageAiGenerator(query) },
+    override fun getImageAiGenerator(prompt: String) = collectApiResult(
+        fetchApi = { apiService.getImageAiGenerator(prompt) },
         transformData = { it.mapToEntity() }
     )
 }

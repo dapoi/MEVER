@@ -14,6 +14,7 @@ import com.dapascript.mever.core.common.util.state.UiState
 import com.dapascript.mever.core.common.util.state.UiState.StateInitial
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_REQUEST_PROMPT
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_RESPONSE_AI_IMAGES
+import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_TOTAL_IMAGES
 import com.dapascript.mever.core.data.model.local.ImageAiEntity
 import com.dapascript.mever.core.data.util.GsonHelper.fromJson
 import com.dapascript.mever.core.data.worker.ImageGeneratorWorker
@@ -52,7 +53,8 @@ class HomeImageGeneratorResultViewModel @Inject constructor(
         workerClass = ImageGeneratorWorker::class.java,
         updateState = { _aiResponseState.value = it },
         inputData = workDataOf(
-            KEY_REQUEST_PROMPT to "${args.prompt}. Style of images are ${args.artStyle}"
+            KEY_REQUEST_PROMPT to "${args.prompt}. Style of images are ${args.artStyle}",
+            KEY_TOTAL_IMAGES to args.totalImages
         ),
         transformResponses = {
             val data = it.getString(KEY_RESPONSE_AI_IMAGES).orEmpty()
@@ -65,11 +67,7 @@ class HomeImageGeneratorResultViewModel @Inject constructor(
     )
 
     fun startDownload(url: String) {
-        if (url.isBlank()) {
-            // Log or handle the error case where URL is empty
-            return
-        }
-
+        if (url.isBlank()) return
         ketch.download(
             url = url,
             fileName = changeToCurrentDate(currentTimeMillis()) + ".jpg",
