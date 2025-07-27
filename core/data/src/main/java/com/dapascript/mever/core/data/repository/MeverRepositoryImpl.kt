@@ -40,6 +40,11 @@ class MeverRepositoryImpl @Inject constructor(
         transformData = { it.mapToEntity() }
     )
 
+    override fun getPinterestDownloader(url: String) = collectApiResult(
+        fetchApi = { apiService.getPinterestDownloader(url) },
+        transformData = { it.mapToEntity() }
+    )
+
     override fun getImageAiGenerator(query: String) = collectApiResult(
         fetchApi = { apiService.getImageAiGenerator(query) },
         transformData = { it.mapToEntity() }

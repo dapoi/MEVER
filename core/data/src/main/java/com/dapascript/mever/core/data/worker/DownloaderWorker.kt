@@ -9,6 +9,7 @@ import com.dapascript.mever.core.common.util.PlatformType.AI
 import com.dapascript.mever.core.common.util.PlatformType.ALL
 import com.dapascript.mever.core.common.util.PlatformType.FACEBOOK
 import com.dapascript.mever.core.common.util.PlatformType.INSTAGRAM
+import com.dapascript.mever.core.common.util.PlatformType.PINTEREST
 import com.dapascript.mever.core.common.util.PlatformType.TIKTOK
 import com.dapascript.mever.core.common.util.PlatformType.TWITTER
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
@@ -66,6 +67,7 @@ class DownloaderWorker @AssistedInject constructor(
         TIKTOK -> getTiktokDownloader(url)
         TWITTER -> getTwitterDownloader(url)
         YOUTUBE -> getYoutubeDownloader(url, selectedQuality)
+        PINTEREST -> getPinterestDownloader(url)
         AI, ALL -> throw Throwable("Platform not supported")
     }
 }
