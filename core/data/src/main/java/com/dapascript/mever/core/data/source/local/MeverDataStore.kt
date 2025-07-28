@@ -3,6 +3,7 @@ package com.dapascript.mever.core.data.source.local
 import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.dapascript.mever.core.common.ui.theme.ThemeType
@@ -80,6 +81,17 @@ class MeverDataStore @Inject constructor(context: Context) {
         }
     }
 
+    suspend fun incrementClickCount() {
+        dataStore.edit { preferences ->
+            val currentCount = preferences[KEY_CLICK_COUNT] ?: 1
+            preferences[KEY_CLICK_COUNT] = if (currentCount == 3) 1 else currentCount + 1
+        }
+    }
+
+    val clickCount = dataStore.data.map { preferences ->
+        preferences[KEY_CLICK_COUNT] ?: 1
+    }
+
     companion object {
         private val KEY_VERSION = stringPreferencesKey("version")
         private val KEY_IS_IMAGE_AI_ENABLED = booleanPreferencesKey("is_image_ai_enabled")
@@ -87,5 +99,6 @@ class MeverDataStore @Inject constructor(context: Context) {
         private val KEY_IS_ONBOARDED = booleanPreferencesKey("is_onboarded")
         private val KEY_LANGUAGE = stringPreferencesKey("language")
         private val KEY_THEME = stringPreferencesKey("theme")
+        private val KEY_CLICK_COUNT = intPreferencesKey("click_count")
     }
 }

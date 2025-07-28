@@ -1,5 +1,6 @@
 package com.dapascript.mever.feature.setting.screen
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -35,7 +36,15 @@ import com.dapascript.mever.feature.setting.screen.component.HandleAppreciateDia
 @Composable
 internal fun SettingAppreciateScreen(navController: NavController) {
     val context = LocalContext.current
-    val showInterstitialAd = rememberInterstitialAd()
+    val interstitialController = rememberInterstitialAd(
+        onAdFailToLoad = {
+            Toast.makeText(
+                context,
+                context.getString(R.string.unknown_error_desc),
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    )
     var showAppreciateDialog by remember { mutableStateOf<AppreciateType?>(null) }
 
     BaseScreen(
@@ -74,7 +83,7 @@ internal fun SettingAppreciateScreen(navController: NavController) {
                     when (it.leadingTitle) {
                         R.string.bitcoin -> showAppreciateDialog = BITCOIN
                         R.string.paypal -> showAppreciateDialog = PAYPAL
-                        R.string.ads -> showInterstitialAd()
+                        R.string.ads -> interstitialController.showAd()
                     }
                 }
             }

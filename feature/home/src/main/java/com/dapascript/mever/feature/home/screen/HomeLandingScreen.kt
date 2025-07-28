@@ -89,6 +89,7 @@ import com.dapascript.mever.core.common.ui.component.MeverPermissionHandler
 import com.dapascript.mever.core.common.ui.component.MeverTabs
 import com.dapascript.mever.core.common.ui.component.MeverTextField
 import com.dapascript.mever.core.common.ui.component.MeverTopBar
+import com.dapascript.mever.core.common.ui.component.rememberInterstitialAd
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp10
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp150
@@ -160,7 +161,7 @@ internal fun HomeLandingScreen(
     val isImageGeneratorFeatureActive = isImageGeneratorFeatureActive.collectAsStateValue()
     val youtubeResolutions = youtubeResolutions.collectAsStateValue()
     val activity = LocalActivity.current
-    val lifecycleOwner = rememberUpdatedState( LocalLifecycleOwner.current)
+    val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
     val scope = rememberCoroutineScope()
     var showLoading by remember { mutableStateOf(false) }
     var showCancelExitConfirmation by remember { mutableStateOf(false) }
@@ -191,7 +192,7 @@ internal fun HomeLandingScreen(
 
         LaunchedEffect(randomDonateDialogOffer, showDonationDialog) {
             if (showDonationDialog) {
-                (0..5).random(Random).also { randomValue ->
+                (0..3).random(Random).also { randomValue ->
                     randomDonateDialogOffer = randomValue
                     showDonationDialog = false
                 }
@@ -316,6 +317,7 @@ private fun HomeScreenContent(
     BoxWithConstraints(modifier = modifier) {
         val context = LocalContext.current
         val downloadList = downloadList.collectAsStateValue()
+        val getButtonClickCount = getButtonClickCount.collectAsStateValue()
         val getListActionMenu = remember { getListActionMenu(context) }
         val tabItems = remember { tabItems(context) }
         val pagerState = rememberPagerState(pageCount = { tabItems.size })
@@ -324,6 +326,15 @@ private fun HomeScreenContent(
         var showDeleteDialog by remember { mutableStateOf<Int?>(null) }
         var showFailedDialog by remember { mutableStateOf<Int?>(null) }
         var generateButtonHeight by remember { mutableIntStateOf(0) }
+        val buttonAction = {
+            if (pagerState.currentPage == 0) requestStoragePermissionLauncher()
+            else navController.navigateTo(HomeImageGeneratorResultRoute)
+        }
+        val interstitialController = rememberInterstitialAd(
+            onAdFailToLoad = buttonAction,
+            onAdFailOrDismissed = buttonAction
+        )
+
 
         LaunchedEffect(downloadList) {
             downloadList?.map {
@@ -419,7 +430,16 @@ private fun HomeScreenContent(
                                     },
                                     onValueChange = { urlSocialMediaState = it },
                                     onClickDownload = {
-                                        if (isLoading.not()) requestStoragePermissionLauncher()
+                                        handleClickButton(
+                                            buttonClickCount = getButtonClickCount,
+                                            onIncrementClickCount = { incrementClickCount() },
+                                            onShowAds = { interstitialController.showAd() },
+                                            onClickAction = {
+                                                if (isLoading.not()) {
+                                                    requestStoragePermissionLauncher()
+                                                }
+                                            }
+                                        )
                                     },
                                     onClickViewAll = { navController.navigateToGalleryScreen() }
                                 )
@@ -481,12 +501,19 @@ private fun HomeScreenContent(
                         contentColor = MeverWhite
                     )
                 ) {
-                    navController.navigateTo(
-                        HomeImageGeneratorResultRoute(
-                            prompt = promptState.text,
-                            artStyle = selectedArtStyle.second,
-                            totalImages = selectedImageCount
-                        )
+                    handleClickButton(
+                        buttonClickCount = getButtonClickCount,
+                        onIncrementClickCount = { incrementClickCount() },
+                        onShowAds = { interstitialController.showAd() },
+                        onClickAction = {
+                            navController.navigateTo(
+                                HomeImageGeneratorResultRoute(
+                                    prompt = promptState.text,
+                                    artStyle = selectedArtStyle.second,
+                                    totalImages = selectedImageCount
+                                )
+                            )
+                        }
                     )
                 }
             }
@@ -850,3 +877,20 @@ private fun handleClickActionMenu(context: Context, navController: NavController
 private fun NavController.navigateToGalleryScreen() = navigateTo(GalleryLandingRoute)
 
 private fun NavController.navigateToSettingScreen() = navigateTo(SettingLandingRoute)
+
+fun handleClickButton(
+    buttonClickCount: Int,
+    onIncrementClickCount: () -> Unit,
+    onShowAds: () -> Unit,
+    onClickAction: () -> Unit
+) = when {
+    buttonClickCount % 3 == 0 -> {
+        onShowAds()
+        onIncrementClickCount()
+    }
+
+    else -> {
+        onClickAction()
+        onIncrementClickCount()
+    }
+}

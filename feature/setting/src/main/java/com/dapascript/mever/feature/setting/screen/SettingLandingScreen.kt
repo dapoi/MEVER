@@ -2,6 +2,7 @@ package com.dapascript.mever.feature.setting.screen
 
 import android.content.Context
 import android.content.pm.PackageManager.PERMISSION_GRANTED
+import android.widget.Toast
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -85,10 +86,18 @@ internal fun SettingLandingScreen(
     val themeType = themeType.collectAsStateValue()
     val context = LocalContext.current
     val scrollState = rememberScrollState()
-    val showInterstitialAd = rememberInterstitialAd()
     val showAppreciateDialog = remember { mutableStateOf<AppreciateType?>(null) }
     val isExpanded by remember { derivedStateOf { scrollState.value <= titleHeight } }
     var setRequestPermission by remember { mutableStateOf<List<String>>(emptyList()) }
+    val interstitialController = rememberInterstitialAd(
+        onAdFailToLoad = {
+            Toast.makeText(
+                context,
+                context.getString(R.string.unknown_error_desc),
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    )
 
     BaseScreen(
         topBarArgs = TopBarArgs(
@@ -156,7 +165,7 @@ internal fun SettingLandingScreen(
             },
             onClickChangeTheme = { navController.navigate(SettingScreenRoute.SettingThemeRoute(it)) },
             onClickDonate = { showAppreciateDialog.value = it },
-            onClickWatchAds = { showInterstitialAd() },
+            onClickWatchAds = { interstitialController.showAd() },
             onClickContact = { navigateToGmail(context) },
             onClickAbout = { navController.navigateTo(SettingAboutAppRoute) }
         )

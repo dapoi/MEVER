@@ -44,7 +44,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeLandingViewModel @Inject constructor(
     connectivityObserver: ConnectivityObserver,
-    dataStore: MeverDataStore,
+    private val dataStore: MeverDataStore,
     private val ketch: Ketch,
     private val workManager: WorkManager
 ) : BaseViewModel() {
@@ -97,6 +97,12 @@ class HomeLandingViewModel @Inject constructor(
             started = WhileSubscribed(),
             initialValue = emptyList()
         )
+    val getButtonClickCount = dataStore.clickCount
+        .stateIn(
+            scope = viewModelScope,
+            started = WhileSubscribed(),
+            initialValue = 1
+        )
 
     private val _downloaderResponseState =
         MutableStateFlow<UiState<List<ContentEntity>>>(StateInitial)
@@ -148,5 +154,9 @@ class HomeLandingViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun incrementClickCount() = viewModelScope.launch {
+        dataStore.incrementClickCount()
     }
 }

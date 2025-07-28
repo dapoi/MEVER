@@ -9,6 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import com.dapascript.mever.core.common.BuildConfig.AD_INTERSTITIAL_UNIT_ID
+import com.dapascript.mever.core.common.ui.attr.MeverInterstitialAdAttr.InterstitialAdController
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
@@ -18,15 +19,21 @@ import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 
 @Composable
-fun rememberInterstitialAd(): () -> Unit {
+fun rememberInterstitialAd(
+    onAdFailToLoad: (() -> Unit)? = null,
+    onAdFailOrDismissed: (() -> Unit)? = null
+): InterstitialAdController {
     val context = LocalContext.current
     val activity = LocalActivity.current
     var interstitialAd by remember { mutableStateOf<InterstitialAd?>(null) }
     var adIsLoading by remember { mutableStateOf(false) }
+    val isAdReadyState = remember { mutableStateOf(false) }
+    var isUserTriggered by remember { mutableStateOf(false) }
 
     fun loadAd() {
         if (adIsLoading || interstitialAd != null) return
         adIsLoading = true
+
         val adRequest = AdRequest.Builder().build()
         InterstitialAd.load(
             context,
@@ -36,35 +43,54 @@ fun rememberInterstitialAd(): () -> Unit {
                 override fun onAdLoaded(ad: InterstitialAd) {
                     interstitialAd = ad
                     adIsLoading = false
+                    isAdReadyState.value = true
+                    isUserTriggered = false
                 }
 
                 override fun onAdFailedToLoad(error: LoadAdError) {
                     interstitialAd = null
                     adIsLoading = false
+                    isAdReadyState.value = false
+                    if (isUserTriggered) {
+                        onAdFailToLoad?.invoke()
+                        isUserTriggered = false
+                    }
                 }
             }
         )
     }
 
-    LaunchedEffect(Unit) { loadAd() }
-
     DisposableEffect(Unit) {
-        onDispose { interstitialAd = null }
+        onDispose {
+            interstitialAd = null
+            isAdReadyState.value = false
+        }
     }
 
-    return {
-        if (setOf(interstitialAd, activity).any { it != null }) {
+    val showAd = {
+        if (interstitialAd != null) {
             interstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
                 override fun onAdDismissedFullScreenContent() {
                     interstitialAd = null
+                    isAdReadyState.value = false
                     loadAd()
+                    onAdFailOrDismissed?.invoke()
                 }
 
                 override fun onAdFailedToShowFullScreenContent(p0: AdError) {
                     interstitialAd = null
+                    isAdReadyState.value = false
+                    onAdFailOrDismissed?.invoke()
                 }
             }
             interstitialAd?.show(activity)
-        } else loadAd()
+        } else {
+            isUserTriggered = true
+            loadAd()
+        }
     }
+
+    LaunchedEffect(Unit) { loadAd() }
+
+    return InterstitialAdController(isAdReadyState) { showAd() }
 }
