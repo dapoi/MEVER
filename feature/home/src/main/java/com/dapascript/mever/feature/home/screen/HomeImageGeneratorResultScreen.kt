@@ -128,6 +128,7 @@ internal fun HomeImageGeneratorResultScreen(
     var showErrorModal by remember { mutableStateOf<ErrorType?>(null) }
     var showCancelExitConfirmation by remember { mutableStateOf(false) }
     var isDownloadAllClicked by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
     var imageSelected by remember(aiImages) { mutableStateOf(aiImages.firstOrNull()) }
     val snackbarMessage = remember { mutableStateOf("") }
     var setStoragePermission by remember { mutableStateOf<List<String>>(emptyList()) }
@@ -157,10 +158,11 @@ internal fun HomeImageGeneratorResultScreen(
                     showShimmer = false
                     aiImages = result.imagesUrl.take(args.totalImages)
                 },
-                onFailed = {
+                onFailed = { message ->
                     showShimmer = false
                     aiImages = emptyList()
                     showErrorModal = RESPONSE
+                    errorMessage = message ?: context.getString(R.string.unknown_error_desc)
                 }
             )
         }
@@ -216,11 +218,15 @@ internal fun HomeImageGeneratorResultScreen(
             }
         )
 
-        getErrorResponseContent(showErrorModal)?.let { (title, desc) ->
+        getErrorResponseContent(
+            context = context,
+            errorType = showErrorModal,
+            message = errorMessage,
+        )?.let { (title, desc) ->
             MeverDialogError(
                 showDialog = true,
                 errorTitle = stringResource(title),
-                errorDescription = stringResource(desc),
+                errorDescription = desc,
                 onClickPrimary = {
                     showErrorModal = null
                     getNetworkStatus(

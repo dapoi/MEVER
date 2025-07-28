@@ -72,7 +72,10 @@ class DataModule {
     fun provideMeverDataStore(@ApplicationContext context: Context) = MeverDataStore(context)
 
     @Provides
-    fun provideMeverRepository(repo: MeverRepositoryImpl): MeverRepository = repo
+    fun provideMeverRepository(
+        apiService: ApiService,
+        @ApplicationContext context: Context
+    ): MeverRepository = MeverRepositoryImpl(apiService, context)
 
     @Provides
     fun provideWorkManager(

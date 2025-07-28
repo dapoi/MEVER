@@ -1,12 +1,14 @@
 package com.dapascript.mever.core.data.repository
 
-import com.dapascript.mever.core.common.base.BaseRepository
+import android.content.Context
+import com.dapascript.mever.core.data.repository.base.BaseRepository
 import com.dapascript.mever.core.data.source.remote.ApiService
 import javax.inject.Inject
 
 class MeverRepositoryImpl @Inject constructor(
-    private val apiService: ApiService
-) : MeverRepository, BaseRepository() {
+    private val apiService: ApiService,
+    override val context: Context
+) : MeverRepository, BaseRepository(context) {
     override fun getAppConfig() = collectApiResult(
         fetchApi = { apiService.getAppConfig() },
         transformData = { it.mapToEntity() }

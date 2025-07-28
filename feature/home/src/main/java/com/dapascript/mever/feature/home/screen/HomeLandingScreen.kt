@@ -161,6 +161,7 @@ internal fun HomeLandingScreen(
     val isImageGeneratorFeatureActive = isImageGeneratorFeatureActive.collectAsStateValue()
     val youtubeResolutions = youtubeResolutions.collectAsStateValue()
     val activity = LocalActivity.current
+    val context = LocalContext.current
     val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
     val scope = rememberCoroutineScope()
     var showLoading by remember { mutableStateOf(false) }
@@ -169,6 +170,7 @@ internal fun HomeLandingScreen(
     var showErrorModal by remember { mutableStateOf<ErrorType?>(null) }
     var randomDonateDialogOffer by remember { mutableIntStateOf(0) }
     var setStoragePermission by remember { mutableStateOf<List<String>>(emptyList()) }
+    var errorMessage by remember { mutableStateOf("") }
 
     BaseScreen(
         useSystemBarsPadding = true,
@@ -183,9 +185,10 @@ internal fun HomeLandingScreen(
             downloaderResponseState.handleUiState(
                 onLoading = { showLoading = true },
                 onSuccess = { showLoading = false },
-                onFailed = {
+                onFailed = { message ->
                     showLoading = false
                     showErrorModal = RESPONSE
+                    errorMessage = message ?: context.getString(R.string.unknown_error_desc)
                 }
             )
         }
@@ -265,11 +268,15 @@ internal fun HomeLandingScreen(
             onClickSecondaryButton = { randomDonateDialogOffer = 0 }
         )
 
-        getErrorResponseContent(showErrorModal)?.let { (title, desc) ->
+        getErrorResponseContent(
+            context = context,
+            errorType = showErrorModal,
+            message = errorMessage,
+        )?.let { (title, desc) ->
             MeverDialogError(
                 showDialog = true,
                 errorTitle = stringResource(title),
-                errorDescription = stringResource(desc),
+                errorDescription = desc,
                 onClickPrimary = {
                     showErrorModal = null
                     getNetworkStatus(
@@ -278,7 +285,10 @@ internal fun HomeLandingScreen(
                         onNetworkUnavailable = { showErrorModal = NETWORK }
                     )
                 },
-                onClickSecondary = { showErrorModal = null }
+                onClickSecondary = {
+                    showErrorModal = null
+                    errorMessage = ""
+                }
             )
         }
 
@@ -298,6 +308,7 @@ internal fun HomeLandingScreen(
                 .fillMaxSize()
                 .systemBarsPadding(),
             viewModel = this,
+            context = context,
             navController = navController,
             isImageGeneratorFeatureActive = isImageGeneratorFeatureActive,
             isLoading = showLoading
@@ -308,6 +319,7 @@ internal fun HomeLandingScreen(
 @Composable
 private fun HomeScreenContent(
     viewModel: HomeLandingViewModel,
+    context: Context,
     navController: NavController,
     isLoading: Boolean,
     isImageGeneratorFeatureActive: Boolean,
@@ -315,7 +327,6 @@ private fun HomeScreenContent(
     requestStoragePermissionLauncher: () -> Unit
 ) = with(viewModel) {
     BoxWithConstraints(modifier = modifier) {
-        val context = LocalContext.current
         val downloadList = downloadList.collectAsStateValue()
         val getButtonClickCount = getButtonClickCount.collectAsStateValue()
         val getListActionMenu = remember { getListActionMenu(context) }
@@ -704,7 +715,7 @@ internal fun HomeAiSection(
     onImageCountSelected: (Int) -> Unit,
     onArtStyleSelected: (String, String) -> Unit
 ) = CompositionLocalProvider(LocalOverscrollFactory provides null) {
-    val imagesCountGenerated = remember { List(4) { it + 1 } }
+    val imagesCountGenerated = remember { listOf(1, 2) }
     val artStyles = remember { getArtStyles(context) }
 
     Column(modifier = modifier) {

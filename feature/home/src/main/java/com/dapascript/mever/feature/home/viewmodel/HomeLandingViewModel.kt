@@ -122,7 +122,8 @@ class HomeLandingViewModel @Inject constructor(
             _downloaderResponseState.value = StateSuccess(response)
             contents = response
         },
-        onFailed = { _downloaderResponseState.value = StateFailed(it) }
+        onFailed = { _downloaderResponseState.value = StateFailed(it) },
+        onReset = { _downloaderResponseState.value = StateInitial }
     )
 
     fun startDownload(

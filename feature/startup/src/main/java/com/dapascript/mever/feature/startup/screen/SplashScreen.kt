@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter.Companion.tint
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -72,10 +73,12 @@ internal fun SplashScreen(
         val appConfigState = appConfigState.collectAsStateValue()
         val isNetworkAvailable = isNetworkAvailable.collectAsStateValue()
         val activity = LocalActivity.current
+        val context = LocalContext.current
         val scope = rememberCoroutineScope()
         val lifecycleOwner by rememberUpdatedState(LocalLifecycleOwner.current)
         var showLogo by remember { mutableStateOf(false) }
         var showErrorModal by remember { mutableStateOf<ErrorType?>(null) }
+        var errorMessage by remember { mutableStateOf("") }
 
         LaunchedEffect(Unit) { ::getAppConfig }
 
@@ -92,7 +95,10 @@ internal fun SplashScreen(
                         )
                     }
                 },
-                onFailed = { showErrorModal = RESPONSE }
+                onFailed = { message ->
+                    showErrorModal = RESPONSE
+                    errorMessage = message ?: context.getString(R.string.unknown_error_desc)
+                }
             )
         }
 
@@ -104,11 +110,15 @@ internal fun SplashScreen(
             )
         }
 
-        getErrorResponseContent(showErrorModal)?.let { (title, desc) ->
+        getErrorResponseContent(
+            context = context,
+            errorType = showErrorModal,
+            message = errorMessage,
+        )?.let { (title, desc) ->
             MeverDialogError(
                 showDialog = true,
                 errorTitle = stringResource(title),
-                errorDescription = stringResource(desc),
+                errorDescription = desc,
                 onClickPrimary = {
                     showErrorModal = null
                     getNetworkStatus(

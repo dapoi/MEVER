@@ -49,14 +49,14 @@ class DownloaderWorker @AssistedInject constructor(
             }
 
             is ApiState.Error -> {
-                val error = state.throwable.message ?: "Unknown error"
+                val error = state.throwable.message
                 Result.failure(workDataOf(KEY_ERROR to error))
             }
 
             else -> Result.failure(workDataOf(KEY_ERROR to "Unexpected state"))
         }
-    } catch (e: Exception) {
-        Result.failure(workDataOf(KEY_ERROR to e.message.orEmpty()))
+    } catch (e: Throwable) {
+        Result.failure(workDataOf(KEY_ERROR to e.message))
     }
 
     private fun MeverRepository.getApiDownloader(

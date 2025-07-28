@@ -40,7 +40,7 @@ class ImageGeneratorWorker @AssistedInject constructor(
                 }
 
                 is Error -> {
-                    val error = state.throwable.message ?: "Unknown error occurred"
+                    val error = state.throwable.message
                     Result.failure(workDataOf(KEY_ERROR to error))
                 }
 
@@ -48,12 +48,13 @@ class ImageGeneratorWorker @AssistedInject constructor(
             }
         }
         if (images.isEmpty()) {
-            Result.failure(workDataOf(KEY_ERROR to "No images generated"))
+            Result.failure(workDataOf(KEY_ERROR to null))
+        } else {
+            val response = ImageAiEntity(prompt = prompt, imagesUrl = images)
+            val json = response.toJson()
+            Result.success(workDataOf(KEY_RESPONSE_AI_IMAGES to json))
         }
-        val response = ImageAiEntity(prompt = prompt, imagesUrl = images)
-        val json = response.toJson()
-        Result.success(workDataOf(KEY_RESPONSE_AI_IMAGES to json))
     } catch (e: Exception) {
-        Result.failure(workDataOf(KEY_ERROR to e.message.orEmpty()))
+        Result.failure(workDataOf(KEY_ERROR to e.message))
     }
 }

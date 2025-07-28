@@ -22,6 +22,7 @@ import com.dapascript.mever.core.common.util.state.UiState.StateFailed
 import com.dapascript.mever.core.common.util.state.UiState.StateInitial
 import com.dapascript.mever.core.common.util.state.UiState.StateLoading
 import com.dapascript.mever.core.common.util.state.UiState.StateSuccess
+import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_ERROR
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -38,6 +39,7 @@ open class BaseViewModel @Inject constructor() : ViewModel() {
         constraints: Constraints = Constraints.Builder()
             .setRequiredNetworkType(CONNECTED)
             .build(),
+        resetState: Boolean = true,
         updateState: (UiState<T>) -> Unit,
         transformResponses: (Data) -> T
     ) {
@@ -49,8 +51,24 @@ open class BaseViewModel @Inject constructor() : ViewModel() {
         viewModelScope.launch {
             workManager.getWorkInfoByIdFlow(request.id).collect { workInfo ->
                 when (workInfo?.state) {
-                    SUCCEEDED -> updateState(StateSuccess(data = transformResponses(workInfo.outputData)))
-                    FAILED -> updateState(StateFailed(throwable = Throwable()))
+                    SUCCEEDED -> {
+                        updateState(StateSuccess(data = transformResponses(workInfo.outputData)))
+                        if (resetState) {
+                            delay(300)
+                            updateState(StateInitial)
+                        }
+                    }
+
+                    FAILED -> {
+                        updateState(
+                            StateFailed(message = workInfo.outputData.getString(KEY_ERROR))
+                        )
+                        if (resetState) {
+                            delay(300)
+                            updateState(StateInitial)
+                        }
+                    }
+
                     else -> updateState(StateLoading)
                 }
             }
@@ -66,7 +84,8 @@ open class BaseViewModel @Inject constructor() : ViewModel() {
             .build(),
         onLoading: () -> Unit = {},
         onSuccess: (Data) -> Unit = {},
-        onFailed: (Throwable) -> Unit = {}
+        onFailed: (String?) -> Unit = {},
+        onReset: (() -> Unit)? = null
     ) {
         val request = OneTimeWorkRequest.Builder(workerClass)
             .setInputData(inputData)
@@ -76,8 +95,18 @@ open class BaseViewModel @Inject constructor() : ViewModel() {
         viewModelScope.launch {
             workManager.getWorkInfoByIdFlow(request.id).collect { workInfo ->
                 when (workInfo?.state) {
-                    SUCCEEDED -> onSuccess(workInfo.outputData)
-                    FAILED -> onFailed(Throwable())
+                    SUCCEEDED -> {
+                        onSuccess(workInfo.outputData)
+                        delay(300)
+                        onReset?.invoke()
+                    }
+
+                    FAILED -> {
+                        onFailed(workInfo.outputData.getString(KEY_ERROR))
+                        delay(300)
+                        onReset?.invoke()
+                    }
+
                     else -> onLoading()
                 }
             }
@@ -88,14 +117,14 @@ open class BaseViewModel @Inject constructor() : ViewModel() {
         response: Flow<ApiState<T>>,
         onLoading: () -> Unit = {},
         onSuccess: (T) -> Unit = {},
-        onFailed: (Throwable) -> Unit = {},
+        onFailed: (String) -> Unit = {},
         onReset: (() -> Unit)? = null
     ) = viewModelScope.launch {
         response.collect { apiState ->
             when (apiState) {
                 is Loading -> onLoading()
                 is Success -> apiState.data?.let { onSuccess(it) }
-                is Error -> onFailed(apiState.throwable)
+                is Error -> onFailed(apiState.throwable.message.orEmpty())
             }
             if (apiState is Success || apiState is Error) {
                 delay(300)
@@ -107,14 +136,12 @@ open class BaseViewModel @Inject constructor() : ViewModel() {
     fun <T> UiState<T>.handleUiState(
         onSuccess: (T) -> Unit = {},
         onLoading: () -> Unit = {},
-        onFailed: (Throwable) -> Unit = {}
-    ) {
-        when (this) {
-            is StateSuccess -> data?.let { onSuccess(it) }
-            is StateLoading -> onLoading()
-            is StateFailed -> onFailed(throwable)
-            is StateInitial -> Unit
-        }
+        onFailed: (String?) -> Unit = {}
+    ) = when (this) {
+        is StateSuccess -> data?.let { onSuccess(it) }
+        is StateLoading -> onLoading()
+        is StateFailed -> onFailed(message)
+        is StateInitial -> Unit
     }
 
     fun getNetworkStatus(
