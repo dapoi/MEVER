@@ -24,7 +24,7 @@ import coil3.compose.AsyncImagePainter.State.Success
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.dapascript.mever.core.common.R
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.MeverLightGray
 
 @Composable
@@ -45,7 +45,7 @@ fun MeverImage(
         )
         Image(
             modifier = Modifier
-                .size(Dp48)
+                .size(Dp40)
                 .align(Center),
             imageVector = ImageVector.vectorResource(R.drawable.ic_broken_image),
             contentDescription = "Error Image"
