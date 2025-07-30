@@ -6,11 +6,13 @@ import com.google.gson.annotations.SerializedName
 data class AppConfigResponse(
     @SerializedName("version") val version: String,
     @SerializedName("isImageGeneratorFeatureActive") val isImageGeneratorFeatureActive: Boolean,
-    @SerializedName("youtubeResolutions") val youtubeResolutions: List<String>
+    @SerializedName("youtubeResolutions") val youtubeResolutions: List<String>,
+    @SerializedName("maintenanceDay") val maintenanceDay: String? = null
 ) {
     fun mapToEntity() = AppConfigEntity(
         version = version,
         isImageGeneratorFeatureActive = isImageGeneratorFeatureActive,
-        youtubeResolutions = youtubeResolutions
+        youtubeResolutions = youtubeResolutions,
+        maintenanceDay = maintenanceDay
     )
 }

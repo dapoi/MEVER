@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -27,9 +29,11 @@ import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter.Companion.tint
+import androidx.compose.ui.layout.ContentScale.Companion.Crop
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle.Event.ON_STOP
 import androidx.lifecycle.LifecycleEventObserver
@@ -37,8 +41,11 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
+import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
+import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverDialogError
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp189
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp200
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp72
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
@@ -77,16 +84,17 @@ internal fun SplashScreen(
         val scope = rememberCoroutineScope()
         val lifecycleOwner by rememberUpdatedState(LocalLifecycleOwner.current)
         var showLogo by remember { mutableStateOf(false) }
+        var showMaintenanceModal by remember { mutableStateOf(false) }
         var showErrorModal by remember { mutableStateOf<ErrorType?>(null) }
         var errorMessage by remember { mutableStateOf("") }
-
-        LaunchedEffect(Unit) { ::getAppConfig }
 
         LaunchedEffect(appConfigState) {
             appConfigState.handleUiState(
                 onLoading = { showLogo = true },
-                onSuccess = {
-                    scope.launch {
+                onSuccess = { response ->
+                    if (response.maintenanceDay != null && today == response.maintenanceDay) {
+                        showMaintenanceModal = true
+                    } else scope.launch {
                         delay(1000)
                         showLogo = false
                         delay(250)
@@ -107,6 +115,29 @@ internal fun SplashScreen(
                 isNetworkAvailable = isNetworkAvailable,
                 onNetworkAvailable = ::getAppConfig,
                 onNetworkUnavailable = { showErrorModal = NETWORK }
+            )
+        }
+
+        MeverDialog(
+            showDialog = showMaintenanceModal,
+            meverDialogArgs = MeverDialogArgs(
+                title = stringResource(R.string.maintenance_title)
+            ),
+            hideInteractionButton = true
+        ) {
+            Image(
+                modifier = Modifier
+                    .size(Dp200)
+                    .align(CenterHorizontally),
+                painter = painterResource(R.drawable.ic_coffee),
+                contentScale = Crop,
+                contentDescription = "Maintenance Image"
+            )
+            Text(
+                text = stringResource(R.string.maintenance_message, today),
+                textAlign = TextAlign.Center,
+                style = typography.body1,
+                color = colorScheme.onPrimary
             )
         }
 

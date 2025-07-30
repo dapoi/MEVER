@@ -86,4 +86,6 @@
     <string name="license">Lisensi</string>
     <string name="ads">Tonton Iklan</string>
     <string name="policy">Kebijakan Privasi</string>
+    <string name="maintenance_title">Sementara Tidak Tersedia</string>
+    <string name="maintenance_message">Aplikasi ini tidak tersedia karena sedang dalam pemeliharaan rutin. Kami mohon maaf atas ketidaknyamanan ini 🙏 Kami akan segera kembali!</string>
 </resources>

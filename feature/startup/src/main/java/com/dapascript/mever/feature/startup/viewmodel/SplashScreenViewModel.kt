@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -28,6 +29,11 @@ class SplashScreenViewModel @Inject constructor(
     private val dataStore: MeverDataStore,
     private val meverRepository: MeverRepository
 ) : BaseViewModel() {
+
+    val today by lazy {
+        LocalDate.now().dayOfWeek.name.lowercase().replaceFirstChar { it.uppercase() }
+    }
+
     val isNetworkAvailable = connectivityObserver
         .observe()
         .stateIn(
@@ -44,6 +50,10 @@ class SplashScreenViewModel @Inject constructor(
     private val _appConfigState = MutableStateFlow<UiState<AppConfigEntity>>(StateInitial)
     val appConfigState = _appConfigState.asStateFlow()
 
+    init {
+        viewModelScope.launch { getAppConfig() }
+    }
+
     fun getAppConfig() {
         if (DEBUG) {
             _appConfigState.value = StateLoading
@@ -52,7 +62,8 @@ class SplashScreenViewModel @Inject constructor(
                 val mockAppConfig = AppConfigEntity(
                     version = "1.0.0",
                     isImageGeneratorFeatureActive = true,
-                    youtubeResolutions = listOf("360p", "480p", "720p")
+                    youtubeResolutions = listOf("360p", "480p", "720p"),
+                    maintenanceDay = null
                 )
                 _appConfigState.value = StateSuccess(mockAppConfig)
                 with(dataStore) {
