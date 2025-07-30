@@ -1,5 +1,5 @@
 [versions]
-ads = "24.4.0"
+ads = "24.5.0"
 androidGradlePlugin = "8.11.1"
 androidTools = "31.11.1"
 androidxActivity = "1.10.1"
