@@ -1,26 +1,25 @@
 package com.dapascript.mever.core.data.model.remote
 
 import com.dapascript.mever.core.data.model.local.ContentEntity
-import com.google.gson.JsonElement
-import com.google.gson.annotations.SerializedName
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
+@JsonClass(generateAdapter = true)
 data class TiktokDownloaderResponse(
-    @SerializedName("data") val data: DataContent
+    val data: DataContent
 ) {
+    @JsonClass(generateAdapter = true)
     data class DataContent(
-        @SerializedName("photo") val rawPhoto: JsonElement?,
-        @SerializedName("video") val rawVideo: JsonElement?
+        @Json(name = "photo") val rawPhoto: Any?,
+        @Json(name = "video") val rawVideo: Any?
     ) {
         val photos: List<String>?
-            get() = if (rawPhoto?.isJsonArray == true) {
-                rawPhoto.asJsonArray.mapNotNull {
-                    if (it.isJsonPrimitive && it.asJsonPrimitive.isString) it.asString else null
-                }
+            get() = if (rawPhoto is List<*>) {
+                rawPhoto.mapNotNull { it as? String }
             } else null
+
         val video: String?
-            get() = if (rawVideo?.isJsonPrimitive == true && rawVideo.asJsonPrimitive.isString) {
-                rawVideo.asString
-            } else null
+            get() = rawVideo as? String
     }
 
     fun mapToEntity(): List<ContentEntity> {

@@ -1,13 +1,14 @@
 package com.dapascript.mever.core.data.model.remote
 
 import com.dapascript.mever.core.data.model.local.AppConfigEntity
-import com.google.gson.annotations.SerializedName
+import com.squareup.moshi.JsonClass
 
+@JsonClass(generateAdapter = true)
 data class AppConfigResponse(
-    @SerializedName("version") val version: String,
-    @SerializedName("isImageGeneratorFeatureActive") val isImageGeneratorFeatureActive: Boolean,
-    @SerializedName("youtubeResolutions") val youtubeResolutions: List<String>,
-    @SerializedName("maintenanceDay") val maintenanceDay: String? = null
+    val version: String,
+    val isImageGeneratorFeatureActive: Boolean,
+    val youtubeResolutions: List<String>,
+    val maintenanceDay: String? = null
 ) {
     fun mapToEntity() = AppConfigEntity(
         version = version,

@@ -1,12 +1,14 @@
 package com.dapascript.mever.core.data.model.remote
 
 import com.dapascript.mever.core.data.model.local.ImageAiEntity
-import com.google.gson.annotations.SerializedName
+import com.squareup.moshi.JsonClass
 
-data class ImageAiResponse(@SerializedName("data") val data: ImageAiData) {
+@JsonClass(generateAdapter = true)
+data class ImageAiResponse(val data: ImageAiData) {
+    @JsonClass(generateAdapter = true)
     data class ImageAiData(
-        @SerializedName("prompt") val prompt: String,
-        @SerializedName("url") val url: String
+        val prompt: String,
+        val url: String
     )
 
     fun mapToEntity() = ImageAiEntity(

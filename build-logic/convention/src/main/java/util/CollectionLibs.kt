@@ -2,6 +2,7 @@ package util
 
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.dependencies
+import util.ConstantLibs.KSP
 import util.ConstantLibs.coreModules
 
 object CollectionLibs {
@@ -35,11 +36,13 @@ object CollectionLibs {
         dependencies {
             implementation(project(coreModules[1]))
             implementation(libs.dataStorePreferences.get())
+            implementation(libs.moshi.kotlin.get())
             implementation(libs.okhttp.interceptor.get())
             implementation(libs.retrofit.lib.get())
-            implementation(libs.retrofit.converter.get())
+            implementation(libs.retrofit.moshi.get())
             implementation(libs.timber.get())
             implementation(libs.work.runtime.get())
+            add(KSP, libs.moshi.codegen.get())
             debugImplementation(libs.chucker.debug.get())
             releaseImplementation(libs.chucker.release.get())
         }

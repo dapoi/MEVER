@@ -8,9 +8,9 @@ import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import util.ConstantLibs.BASE_NAME
-import util.ConstantLibs.FREE_COMPILER
 import util.ConstantLibs.MAX_SDK_VERSION
 import util.ConstantLibs.MIN_SDK_VERSION
+import util.ConstantLibs.freeCompiler
 
 internal fun Project.configAndroid(
     commonExtension: CommonExtension<*, *, *, *, *, *>,
@@ -82,7 +82,7 @@ internal fun Project.configAndroid(
     tasks.withType<KotlinCompile>().configureEach {
         compilerOptions {
             jvmTarget.set(JVM_21)
-            freeCompilerArgs.add(FREE_COMPILER)
+            freeCompilerArgs.addAll(freeCompiler)
         }
     }
 }

@@ -57,7 +57,10 @@ internal fun HandleBottomSheetDownload(
     onClickDismiss: () -> Unit
 ) {
     var chooseQualityIndex by remember { mutableIntStateOf(0) }
-    val jpgContents = remember(listContent) { listContent.filter { it.type.contains("jpg") } }
+    val jpgContents = remember(listContent) {
+        listContent // 1. Buang semua item yang null dari list
+            .filter { it.type.contains("jpg") } // 2. Lakukan filter yang aman
+    }
     val groupedContent = remember(listContent) {
         if (jpgContents.size > 1) {
             listContent.filterNot { it.type.contains("jpg") } + jpgContents.first()

@@ -11,6 +11,9 @@ import com.dapascript.mever.core.data.repository.MeverRepositoryImpl
 import com.dapascript.mever.core.data.source.local.MeverDataStore
 import com.dapascript.mever.core.data.source.remote.ApiService
 import com.dapascript.mever.core.data.util.ApiKeyInterceptor
+import com.dapascript.mever.core.data.util.MoshiHelper
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -21,34 +24,36 @@ import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.logging.HttpLoggingInterceptor.Level.BODY
 import okhttp3.logging.HttpLoggingInterceptor.Level.NONE
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.moshi.MoshiConverterFactory
 import java.util.concurrent.TimeUnit.MINUTES
 
 @Module
 @InstallIn(SingletonComponent::class)
 class DataModule {
+
     @Provides
-    fun provideRetrofitService(retrofit: Retrofit): ApiService =
-        retrofit.create(ApiService::class.java)
+    fun provideMoshi(): Moshi = Moshi.Builder()
+        .add(KotlinJsonAdapterFactory())
+        .build()
+
+    @Provides
+    fun provideMoshiHelper(moshi: Moshi) = MoshiHelper(moshi)
 
     @Provides
     fun provideApiKeyInterceptor(): ApiKeyInterceptor = ApiKeyInterceptor()
 
     @Provides
-    fun provideApiService(
-        okHttpClient: OkHttpClient,
-        gsonConverterFactory: GsonConverterFactory
-    ): Retrofit = Retrofit.Builder()
-        .baseUrl("$BASE_URL/api/")
-        .addConverterFactory(gsonConverterFactory)
-        .client(okHttpClient)
+    fun provideChuckerInterceptor(
+        @ApplicationContext context: Context
+    ): ChuckerInterceptor = ChuckerInterceptor.Builder(context)
+        .collector(ChuckerCollector(context))
         .build()
 
     @Provides
     fun provideOkHttpClient(
         apiKeyInterceptor: ApiKeyInterceptor,
         chuckerInterceptor: ChuckerInterceptor
-    ) = OkHttpClient.Builder()
+    ): OkHttpClient = OkHttpClient.Builder()
         .addInterceptor(HttpLoggingInterceptor().apply {
             level = if (BuildConfig.DEBUG) BODY else NONE
         })
@@ -61,15 +66,23 @@ class DataModule {
         .build()
 
     @Provides
-    fun provideGsonConverterFactory(): GsonConverterFactory = GsonConverterFactory.create()
+    fun provideRetrofit(
+        okHttpClient: OkHttpClient,
+        moshi: Moshi
+    ): Retrofit = Retrofit.Builder()
+        .baseUrl("$BASE_URL/api/")
+        .addConverterFactory(MoshiConverterFactory.create(moshi))
+        .client(okHttpClient)
+        .build()
 
     @Provides
-    fun provideChuckerInterceptor(
+    fun provideRetrofitService(retrofit: Retrofit): ApiService =
+        retrofit.create(ApiService::class.java)
+
+    @Provides
+    fun provideMeverDataStore(
         @ApplicationContext context: Context
-    ) = ChuckerInterceptor.Builder(context).collector(ChuckerCollector(context)).build()
-
-    @Provides
-    fun provideMeverDataStore(@ApplicationContext context: Context) = MeverDataStore(context)
+    ): MeverDataStore = MeverDataStore(context)
 
     @Provides
     fun provideMeverRepository(
@@ -80,5 +93,5 @@ class DataModule {
     @Provides
     fun provideWorkManager(
         @ApplicationContext context: Context
-    ) = WorkManager.getInstance(context)
+    ): WorkManager = WorkManager.getInstance(context)
 }

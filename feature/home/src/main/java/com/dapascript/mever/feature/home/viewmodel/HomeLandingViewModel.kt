@@ -23,7 +23,7 @@ import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_REQUEST_U
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_RESPONSE_CONTENTS
 import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.dapascript.mever.core.data.source.local.MeverDataStore
-import com.dapascript.mever.core.data.util.GsonHelper.fromJson
+import com.dapascript.mever.core.data.util.MoshiHelper
 import com.dapascript.mever.core.data.worker.DownloaderWorker
 import com.ketch.Ketch
 import com.ketch.Status.PAUSED
@@ -46,7 +46,8 @@ class HomeLandingViewModel @Inject constructor(
     connectivityObserver: ConnectivityObserver,
     private val dataStore: MeverDataStore,
     private val ketch: Ketch,
-    private val workManager: WorkManager
+    private val workManager: WorkManager,
+    private val moshiHelper: MoshiHelper
 ) : BaseViewModel() {
     private val meverFolder by lazy { getMeverFolder() }
 
@@ -118,7 +119,7 @@ class HomeLandingViewModel @Inject constructor(
         onLoading = { _downloaderResponseState.value = StateLoading },
         onSuccess = {
             val data = it.getString(KEY_RESPONSE_CONTENTS).orEmpty()
-            val response = data.fromJson<List<ContentEntity>>()
+            val response = moshiHelper.fromJson<List<ContentEntity>>(data) ?: emptyList()
             _downloaderResponseState.value = StateSuccess(response)
             contents = response
         },

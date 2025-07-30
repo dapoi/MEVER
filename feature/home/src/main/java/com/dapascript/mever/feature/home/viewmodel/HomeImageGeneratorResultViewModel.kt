@@ -16,7 +16,7 @@ import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_REQUEST_P
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_RESPONSE_AI_IMAGES
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_TOTAL_IMAGES
 import com.dapascript.mever.core.data.model.local.ImageAiEntity
-import com.dapascript.mever.core.data.util.GsonHelper.fromJson
+import com.dapascript.mever.core.data.util.MoshiHelper
 import com.dapascript.mever.core.data.worker.ImageGeneratorWorker
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeImageGeneratorResultRoute
 import com.ketch.Ketch
@@ -33,7 +33,8 @@ class HomeImageGeneratorResultViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     connectivityObserver: ConnectivityObserver,
     private val ketch: Ketch,
-    private val workManager: WorkManager
+    private val workManager: WorkManager,
+    private val moshiHelper: MoshiHelper
 ) : BaseViewModel() {
     private val meverFolder by lazy { getMeverFolder() }
     val args by lazy { savedStateHandle.toRoute<HomeImageGeneratorResultRoute>() }
@@ -58,10 +59,10 @@ class HomeImageGeneratorResultViewModel @Inject constructor(
         ),
         transformResponses = {
             val data = it.getString(KEY_RESPONSE_AI_IMAGES).orEmpty()
-            val response = data.fromJson<ImageAiEntity>()
+            val response = moshiHelper.fromJson<ImageAiEntity>(data)
             ImageAiEntity(
-                prompt = response.prompt,
-                imagesUrl = response.imagesUrl
+                prompt = response?.prompt.orEmpty(),
+                imagesUrl = response?.imagesUrl.orEmpty()
             )
         }
     )

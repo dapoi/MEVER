@@ -1,15 +1,17 @@
 package com.dapascript.mever.core.data.model.remote
 
 import com.dapascript.mever.core.data.model.local.ContentEntity
-import com.google.gson.annotations.SerializedName
+import com.squareup.moshi.JsonClass
 
+@JsonClass(generateAdapter = true)
 data class YouTubeDownloaderResponse(
-    @SerializedName("data") val data: DataContent,
-    @SerializedName("thumbnail") val thumbnail: String? = null
+    val data: DataContent,
+    val thumbnail: String? = null
 ) {
+    @JsonClass(generateAdapter = true)
     data class DataContent(
-        @SerializedName("url") val url: String? = null,
-        @SerializedName("quality") val quality: String? = null
+        val url: String? = null,
+        val quality: String? = null
     )
 
     fun mapToEntity() = listOf(

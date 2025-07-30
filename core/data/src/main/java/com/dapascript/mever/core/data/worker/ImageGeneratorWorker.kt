@@ -14,7 +14,7 @@ import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_RESPONSE_
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_TOTAL_IMAGES
 import com.dapascript.mever.core.data.model.local.ImageAiEntity
 import com.dapascript.mever.core.data.repository.MeverRepository
-import com.dapascript.mever.core.data.util.GsonHelper.toJson
+import com.dapascript.mever.core.data.util.MoshiHelper
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.first
@@ -23,7 +23,8 @@ import kotlinx.coroutines.flow.first
 class ImageGeneratorWorker @AssistedInject constructor(
     @Assisted private val context: Context,
     @Assisted workerParameters: WorkerParameters,
-    private val repository: MeverRepository
+    private val repository: MeverRepository,
+    private val moshiHelper: MoshiHelper
 ) : CoroutineWorker(context, workerParameters) {
     override suspend fun doWork(): Result = try {
         val prompt = inputData.getString(KEY_REQUEST_PROMPT).orEmpty()
@@ -51,7 +52,7 @@ class ImageGeneratorWorker @AssistedInject constructor(
             Result.failure(workDataOf(KEY_ERROR to null))
         } else {
             val response = ImageAiEntity(prompt = prompt, imagesUrl = images)
-            val json = response.toJson()
+            val json = moshiHelper.toJson(response)
             Result.success(workDataOf(KEY_RESPONSE_AI_IMAGES to json))
         }
     } catch (e: Exception) {

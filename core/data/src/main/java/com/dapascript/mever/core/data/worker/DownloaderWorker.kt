@@ -22,7 +22,7 @@ import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_REQUEST_S
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_REQUEST_URL
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_RESPONSE_CONTENTS
 import com.dapascript.mever.core.data.repository.MeverRepository
-import com.dapascript.mever.core.data.util.GsonHelper.toJson
+import com.dapascript.mever.core.data.util.MoshiHelper
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.first
@@ -31,7 +31,8 @@ import kotlinx.coroutines.flow.first
 class DownloaderWorker @AssistedInject constructor(
     @Assisted context: Context,
     @Assisted workerParameters: WorkerParameters,
-    private val repository: MeverRepository
+    private val repository: MeverRepository,
+    private val moshiHelper: MoshiHelper
 ) : CoroutineWorker(context, workerParameters) {
     override suspend fun doWork() = try {
         val link = inputData.getString(KEY_REQUEST_URL).orEmpty()
@@ -41,9 +42,7 @@ class DownloaderWorker @AssistedInject constructor(
         }
         when (state) {
             is ApiState.Success -> {
-                val response = state.data?.toJson() ?: Result.failure(
-                    workDataOf(KEY_ERROR to "No contents found")
-                )
+                val response = moshiHelper.toJson(state.data.orEmpty())
                 val data = workDataOf(KEY_RESPONSE_CONTENTS to response)
                 Result.success(data)
             }

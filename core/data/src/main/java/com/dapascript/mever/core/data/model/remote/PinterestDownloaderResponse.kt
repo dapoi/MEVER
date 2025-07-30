@@ -1,18 +1,22 @@
 package com.dapascript.mever.core.data.model.remote
 
 import com.dapascript.mever.core.data.model.local.ContentEntity
-import com.google.gson.annotations.SerializedName
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
+@JsonClass(generateAdapter = true)
 data class PinterestDownloaderResponse(
-    @SerializedName("data") val data: DataContent
+    val data: DataContent
 ) {
+    @JsonClass(generateAdapter = true)
     data class DataContent(
-        @SerializedName("is_video") val isVideo: Boolean? = null,
-        @SerializedName("content") val contents: List<Contents>? = null
+        @Json(name = "is_video") val isVideo: Boolean? = null,
+        @Json(name = "content") val contents: List<Contents>? = null
     ) {
+        @JsonClass(generateAdapter = true)
         data class Contents(
-            @SerializedName("url") val url: String? = null,
-            @SerializedName("thumbnail") val thumbnail: String? = null
+            val url: String? = null,
+            val thumbnail: String? = null
         )
     }
 

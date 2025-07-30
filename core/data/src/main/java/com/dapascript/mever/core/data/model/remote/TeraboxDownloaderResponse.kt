@@ -1,17 +1,19 @@
 package com.dapascript.mever.core.data.model.remote
 
 import com.dapascript.mever.core.data.model.local.ContentEntity
-import com.google.gson.annotations.SerializedName
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
+@JsonClass(generateAdapter = true)
 data class TeraboxDownloaderResponse(
-    @SerializedName("data") val data: List<DataContent>? = null
+    val data: List<DataContent>? = null
 ) {
     data class DataContent(
-        @SerializedName("thumbs") val thumbs: Thumbs? = null,
-        @SerializedName("url" ) val url: String? = null
+        val thumbs: Thumbs? = null,
+        val url: String? = null
     ) {
         data class Thumbs(
-            @SerializedName("url1") val thumbnail: String? = null
+            @Json(name = "url1") val thumbnail: String? = null
         )
     }
 

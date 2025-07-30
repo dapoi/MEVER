@@ -3,11 +3,9 @@ package com.dapascript.mever.core.data.repository.base
 import android.content.Context
 import com.dapascript.mever.core.common.util.state.ApiState
 import com.dapascript.mever.core.data.R
-import com.google.gson.JsonParseException
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import org.json.JSONException
 import retrofit2.HttpException
 import java.io.IOException
 import java.net.SocketTimeoutException
@@ -32,7 +30,6 @@ open class BaseRepository @Inject constructor(
                 is UnknownHostException -> context.getString(R.string.error_no_host)
                 is IOException -> context.getString(R.string.error_io)
                 is HttpException -> context.getString(R.string.error_http, e.code())
-                is JsonParseException, is JSONException -> context.getString(R.string.error_parse)
                 else -> context.getString(R.string.error_unknown)
             }
             emit(ApiState.Error(Throwable(errorMessage)))
