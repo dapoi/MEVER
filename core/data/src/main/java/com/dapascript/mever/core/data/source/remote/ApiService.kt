@@ -53,6 +53,10 @@ interface ApiService {
         @Query("type") type: String = "video"
     ): YouTubeDownloaderResponse
 
-    @GET("genimg")
-    suspend fun getImageAiGenerator(@Query("prompt") prompt: String): ImageAiResponse
+    @GET("meta")
+    suspend fun getImageAiGenerator(
+        @Query("q") prompt: String,
+        @Query("session") session: String = "bb286368-37d4-485d-9522-fb88ee8f92b4",
+        @Query("lang") lang: String = "id"
+    ): ImageAiResponse
 }

@@ -13,7 +13,6 @@ object WorkerConstant {
      */
     const val KEY_REQUEST_PROMPT = "prompt"
     const val KEY_RESPONSE_AI_IMAGES= "images"
-    const val KEY_TOTAL_IMAGES = "total_images"
 
     /**
      * Error Handling

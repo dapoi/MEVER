@@ -8,11 +8,14 @@ data class ImageAiResponse(val data: ImageAiData) {
     @JsonClass(generateAdapter = true)
     data class ImageAiData(
         val prompt: String,
-        val url: String
-    )
+        val media: List<ImageAiMedia>,
+    ) {
+        @JsonClass(generateAdapter = true)
+        data class ImageAiMedia(val uri: String)
+    }
 
     fun mapToEntity() = ImageAiEntity(
         prompt = data.prompt,
-        imagesUrl = listOf(data.url)
+        imagesUrl = data.media.map { it.uri }
     )
 }
