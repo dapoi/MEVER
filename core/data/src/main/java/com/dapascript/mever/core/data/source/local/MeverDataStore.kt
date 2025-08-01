@@ -84,7 +84,7 @@ class MeverDataStore @Inject constructor(context: Context) {
     suspend fun incrementClickCount() {
         dataStore.edit { preferences ->
             val currentCount = preferences[KEY_CLICK_COUNT] ?: 1
-            preferences[KEY_CLICK_COUNT] = if (currentCount == 3) 1 else currentCount + 1
+            preferences[KEY_CLICK_COUNT] = if (currentCount == 4) 1 else currentCount + 1
         }
     }
 

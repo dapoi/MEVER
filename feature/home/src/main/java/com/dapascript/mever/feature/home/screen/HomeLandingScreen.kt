@@ -715,7 +715,7 @@ internal fun HomeAiSection(
     onImageCountSelected: (Int) -> Unit,
     onArtStyleSelected: (String, String) -> Unit
 ) = CompositionLocalProvider(LocalOverscrollFactory provides null) {
-    val imagesCountGenerated = remember { listOf(1, 2) }
+    val imagesCountGenerated = remember { List(4) { it + 1 } }
     val artStyles = remember { getArtStyles(context) }
 
     Column(modifier = modifier) {
@@ -895,7 +895,7 @@ fun handleClickButton(
     onShowAds: () -> Unit,
     onClickAction: () -> Unit
 ) = when {
-    buttonClickCount % 3 == 0 -> {
+    buttonClickCount % 4 == 0 -> {
         onShowAds()
         onIncrementClickCount()
     }
