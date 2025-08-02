@@ -1,5 +1,6 @@
 package com.dapascript.mever.screen
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -53,6 +54,7 @@ class MainActivity : FragmentActivity() {
         enableEdgeToEdge()
         setLanguage()
         setContent {
+            handleShareIntent(intent)?.let { viewModel.saveUrlIntent(it) }
             val themeType = viewModel.themeType.collectAsState()
             MeverTheme(
                 darkTheme = when (themeType.value) {
@@ -70,6 +72,11 @@ class MainActivity : FragmentActivity() {
         }
     }
 
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleShareIntent(intent)?.let { viewModel.saveUrlIntent(it) }
+    }
+
     private fun setLanguage() = lifecycleScope.launch {
         viewModel.getLanguage.collect { languageCode ->
             changeLanguage(
@@ -78,6 +85,10 @@ class MainActivity : FragmentActivity() {
             )
         }
     }
+
+    private fun handleShareIntent(intent: Intent?) = intent?.takeIf {
+        it.action == Intent.ACTION_SEND && it.type == "text/plain"
+    }?.getStringExtra(Intent.EXTRA_TEXT)
 
     override fun onResume() {
         super.onResume()

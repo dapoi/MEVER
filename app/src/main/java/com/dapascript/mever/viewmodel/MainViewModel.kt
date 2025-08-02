@@ -33,4 +33,10 @@ class MainViewModel @Inject constructor(
             }.collect()
         }
     }
+
+    fun saveUrlIntent(url: String) {
+        viewModelScope.launch {
+            dataStore.saveUrlIntent(url)
+        }
+    }
 }

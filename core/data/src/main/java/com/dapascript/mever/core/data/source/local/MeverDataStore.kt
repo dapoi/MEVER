@@ -92,6 +92,16 @@ class MeverDataStore @Inject constructor(context: Context) {
         preferences[KEY_CLICK_COUNT] ?: 1
     }
 
+    suspend fun saveUrlIntent(url: String) {
+        dataStore.edit { preferences ->
+            preferences[KEY_URL_INTENT] = url
+        }
+    }
+
+    val getUrlIntent = dataStore.data.map { preferences ->
+        preferences[KEY_URL_INTENT] ?: ""
+    }
+
     companion object {
         private val KEY_VERSION = stringPreferencesKey("version")
         private val KEY_IS_IMAGE_AI_ENABLED = booleanPreferencesKey("is_image_ai_enabled")
@@ -100,5 +110,6 @@ class MeverDataStore @Inject constructor(context: Context) {
         private val KEY_LANGUAGE = stringPreferencesKey("language")
         private val KEY_THEME = stringPreferencesKey("theme")
         private val KEY_CLICK_COUNT = intPreferencesKey("click_count")
+        private val KEY_URL_INTENT = stringPreferencesKey("url_intent")
     }
 }

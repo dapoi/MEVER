@@ -104,6 +104,12 @@ class HomeLandingViewModel @Inject constructor(
             started = WhileSubscribed(),
             initialValue = 1
         )
+    val getUrlIntent = dataStore.getUrlIntent
+        .stateIn(
+            scope = viewModelScope,
+            started = WhileSubscribed(),
+            initialValue = ""
+        )
 
     private val _downloaderResponseState =
         MutableStateFlow<UiState<List<ContentEntity>>>(StateInitial)
@@ -160,5 +166,9 @@ class HomeLandingViewModel @Inject constructor(
 
     fun incrementClickCount() = viewModelScope.launch {
         dataStore.incrementClickCount()
+    }
+
+    fun resetUrlIntent() = viewModelScope.launch {
+        dataStore.saveUrlIntent("")
     }
 }

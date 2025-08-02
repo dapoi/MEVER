@@ -145,6 +145,7 @@ import com.ketch.DownloadModel
 import com.ketch.Status.FAILED
 import com.ketch.Status.PAUSED
 import com.ketch.Status.SUCCESS
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 import java.lang.System.currentTimeMillis
@@ -329,6 +330,7 @@ private fun HomeScreenContent(
     BoxWithConstraints(modifier = modifier) {
         val downloadList = downloadList.collectAsStateValue()
         val getButtonClickCount = getButtonClickCount.collectAsStateValue()
+        val urlIntent = getUrlIntent.collectAsStateValue()
         val getListActionMenu = remember { getListActionMenu(context) }
         val tabItems = remember { tabItems(context) }
         val pagerState = rememberPagerState(pageCount = { tabItems.size })
@@ -350,6 +352,14 @@ private fun HomeScreenContent(
         LaunchedEffect(downloadList) {
             downloadList?.map {
                 if (it.status == SUCCESS) syncFileToGallery(context, it.fileName)
+            }
+        }
+
+        LaunchedEffect(urlIntent) {
+            if (urlIntent.isNotEmpty()) {
+                urlSocialMediaState = TextFieldValue(urlIntent)
+                delay(1000)
+                resetUrlIntent()
             }
         }
 
