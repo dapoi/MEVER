@@ -129,6 +129,7 @@ import com.dapascript.mever.core.common.util.storage.StorageUtil.getFilePath
 import com.dapascript.mever.core.common.util.storage.StorageUtil.syncFileToGallery
 import com.dapascript.mever.core.navigation.helper.navigateTo
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
+import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute.Content
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeImageGeneratorResultRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingAppreciateRoute
@@ -431,8 +432,13 @@ private fun HomeScreenContent(
                                             when (status) {
                                                 SUCCESS -> navController.navigateTo(
                                                     GalleryContentDetailRoute(
-                                                        id = id,
-                                                        filePath = getFilePath(fileName)
+                                                        contents = downloadList?.map {
+                                                            Content(
+                                                                id = it.id,
+                                                                filePath = getFilePath(it.fileName)
+                                                            )
+                                                        } ?: emptyList(),
+                                                        initialIndex = downloadList?.indexOf(model) ?: 0
                                                     )
                                                 )
 

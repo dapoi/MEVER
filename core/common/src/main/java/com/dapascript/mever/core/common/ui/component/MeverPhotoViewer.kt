@@ -1,13 +1,17 @@
 package com.dapascript.mever.core.common.ui.component
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.detectTransformGestures
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.calculatePan
+import androidx.compose.foundation.gestures.calculateZoom
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBarsPadding
@@ -25,7 +29,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale.Companion.Fit
@@ -56,7 +59,7 @@ fun MeverPhotoViewer(
 ) {
     val activity = LocalActivity.current
     val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
-    var isPhotoTouched by remember { mutableStateOf(false) }
+    var isPhotoTouched by remember { mutableStateOf(true) }
     var showDropDownMenu by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
@@ -64,7 +67,7 @@ fun MeverPhotoViewer(
         onDispose { hideSystemBar(activity, isSystemBarVisible(activity).not()) }
     }
 
-    LaunchedEffect(isPhotoTouched) { hideSystemBar(activity, isPhotoTouched) }
+    LaunchedEffect(isPhotoTouched.not()) { hideSystemBar(activity, isPhotoTouched) }
 
     Box(modifier = modifier.background(MeverBlack)) {
         PhotoViewer(
@@ -101,24 +104,23 @@ fun MeverPhotoViewer(
                 useCenterTopBar = false
             )
         }
-    }
-
-    MeverPopupDropDownMenu(
-        modifier = Modifier
-            .padding(top = Dp64, end = Dp24)
-            .then(Modifier.statusBarsPadding()),
-        listDropDown = listOf("Delete", "Share"),
-        showDropDownMenu = showDropDownMenu,
-        backgroundColor = MeverDark,
-        textColor = MeverWhite,
-        onDismissDropDownMenu = { showDropDownMenu = false },
-        onClick = { item ->
-            when (item) {
-                "Delete" -> showDeleteDialog = true
-                "Share" -> onClickShare()
+        MeverPopupDropDownMenu(
+            modifier = Modifier
+                .padding(PaddingValues(top = Dp64, end = Dp24))
+                .statusBarsPadding(),
+            listDropDown = listOf("Delete", "Share"),
+            showDropDownMenu = showDropDownMenu,
+            backgroundColor = MeverDark,
+            textColor = MeverWhite,
+            onDismissDropDownMenu = { showDropDownMenu = false },
+            onClick = { item ->
+                when (item) {
+                    "Delete" -> showDeleteDialog = true
+                    "Share" -> onClickShare()
+                }
             }
-        }
-    )
+        )
+    }
 
     MeverDialog(
         meverDialogArgs = MeverDialogArgs(
@@ -157,66 +159,73 @@ private fun PhotoViewer(
     var scale by remember { mutableFloatStateOf(1f) }
     var offsetX by remember { mutableFloatStateOf(0f) }
     var offsetY by remember { mutableFloatStateOf(0f) }
-    // Remember the initial offset
-    var initialOffset by remember { mutableStateOf(Offset(0f, 0f)) }
-    // Coefficient for slowing down movement
-    val slowMovement = 0.5f
     val minScale = 1f
     val maxScale = 4f
 
-    // Box composable containing the image
     Box(
         modifier = modifier
+            .clipToBounds()
             .pointerInput(Unit) {
-                detectTransformGestures { _, pan, zoom, _ ->
-                    // Update scale with the zoom
-                    val newScale = scale * zoom
-                    scale = newScale.coerceIn(minScale, maxScale)
+                awaitEachGesture {
+                    awaitFirstDown()
 
-                    // Calculate new offsets based on zoom and pan
-                    val centerX = size.width / 2
-                    val centerY = size.height / 2
-                    val offsetXChange = (centerX - offsetX) * (newScale / scale - 1)
-                    val offsetYChange = (centerY - offsetY) * (newScale / scale - 1)
+                    val longPressTimeout = viewConfiguration.longPressTimeoutMillis
+                    val doubleTapTimeout = viewConfiguration.doubleTapTimeoutMillis
 
-                    // Calculate min and max offsets
-                    val maxOffsetX = (size.width / 2) * (scale - 1)
-                    val minOffsetX = -maxOffsetX
-                    val maxOffsetY = (size.height / 2) * (scale - 1)
-                    val minOffsetY = -maxOffsetY
-
-                    // Update offsets while ensuring they stay within bounds
-                    if (scale * zoom <= maxScale) {
-                        offsetX = (offsetX + pan.x * scale * slowMovement + offsetXChange)
-                            .coerceIn(minOffsetX, maxOffsetX)
-                        offsetY = (offsetY + pan.y * scale * slowMovement + offsetYChange)
-                            .coerceIn(minOffsetY, maxOffsetY)
+                    val firstTapUp = withTimeoutOrNull(longPressTimeout) {
+                        waitForUpOrCancellation()
                     }
 
-                    // Store initial offset on pan
-                    if (pan != Offset(0f, 0f) && initialOffset == Offset(0f, 0f)) {
-                        initialOffset = Offset(offsetX, offsetY)
-                    }
-
-                    // set photo touched state based on scale
-                    onPhotoTouched(scale > 1f)
-                }
-            }
-            .pointerInput(isPhotoTouched) {
-                detectTapGestures(
-                    onTap = { onPhotoTouched(isPhotoTouched.not()) },
-                    onDoubleTap = {
-                        if (scale != 1f) {
-                            scale = 1f
-                            offsetX = 0f
-                            offsetY = 0f
-                            onPhotoTouched(false)
-                        } else {
-                            scale = 2f
-                            onPhotoTouched(true)
+                    if (firstTapUp != null) {
+                        val secondTapDown = withTimeoutOrNull(doubleTapTimeout) {
+                            awaitFirstDown()
                         }
+
+                        if (secondTapDown != null) {
+                            if (scale != 1f) {
+                                scale = 1f
+                                offsetX = 0f
+                                offsetY = 0f
+                                onPhotoTouched(false)
+                            } else {
+                                scale = 2f
+                                onPhotoTouched(true)
+                            }
+                            secondTapDown.consume()
+                        } else {
+                            onPhotoTouched(isPhotoTouched.not())
+                        }
+                    } else {
+                        do {
+                            val event = awaitPointerEvent()
+                            val zoom = event.calculateZoom()
+                            val pan = event.calculatePan()
+
+                            if (scale > 1f) {
+                                val newScale = (scale * zoom).coerceIn(minScale, maxScale)
+                                val maxOffsetX = (size.width / 2f) * (newScale - 1)
+                                val minOffsetX = -maxOffsetX
+                                val maxOffsetY = (size.height / 2f) * (newScale - 1)
+                                val minOffsetY = -maxOffsetY
+
+                                offsetX = (offsetX + pan.x).coerceIn(minOffsetX, maxOffsetX)
+                                offsetY = (offsetY + pan.y).coerceIn(minOffsetY, maxOffsetY)
+                                scale = newScale
+
+                                onPhotoTouched(true)
+
+                                event.changes.forEach { it.consume() }
+                            } else if (zoom != 1f) {
+                                val newScale = (scale * zoom).coerceIn(minScale, maxScale)
+                                scale = newScale
+
+                                onPhotoTouched(true)
+
+                                event.changes.forEach { it.consume() }
+                            }
+                        } while (event.changes.any { it.pressed })
                     }
-                )
+                }
             }
             .graphicsLayer {
                 scaleX = scale
@@ -225,15 +234,9 @@ private fun PhotoViewer(
                 translationY = offsetY
             }
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clipToBounds()
-        ) {
-            MeverImage(
-                source = image,
-                contentScale = Fit
-            )
-        }
+        MeverImage(
+            source = image,
+            contentScale = Fit
+        )
     }
 }

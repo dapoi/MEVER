@@ -34,11 +34,12 @@
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:enableOnBackInvokedCallback="false"
         android:theme="@style/Theme.MEVER"
         tools:targetApi="36">
         <activity
             android:name=".screen.MainActivity"
-            android:configChanges="locale|orientation|screenSize|layoutDirection|keyboardHidden"
+            android:configChanges="locale|orientation|screenSize|layoutDirection|keyboardHidden|screenLayout"
             android:exported="true"
             android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
             android:windowSoftInputMode="adjustResize">

@@ -76,6 +76,7 @@ import com.dapascript.mever.core.common.util.storage.StorageUtil.getFilePath
 import com.dapascript.mever.core.common.util.storage.StorageUtil.syncFileToGallery
 import com.dapascript.mever.core.navigation.helper.navigateTo
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
+import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute.Content
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.DELETE_ALL
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.MORE
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.PAUSE_ALL
@@ -188,12 +189,19 @@ internal fun GalleryLandingScreen(
             onClickCard = { model ->
                 with(model) {
                     when (status) {
-                        SUCCESS -> navController.navigateTo(
-                            GalleryContentDetailRoute(
-                                id = id,
-                                filePath = getFilePath(fileName)
+                        SUCCESS -> {
+                            navController.navigateTo(
+                                GalleryContentDetailRoute(
+                                    contents = downloadList?.map {
+                                        Content(
+                                            id = it.id,
+                                            filePath = getFilePath(it.fileName)
+                                        )
+                                    } ?: emptyList(),
+                                    initialIndex = downloadList?.indexOf(model) ?: 0
+                                )
                             )
-                        )
+                        }
 
                         FAILED -> showFailedDialog = id
                         PAUSED -> ketch.resume(id)

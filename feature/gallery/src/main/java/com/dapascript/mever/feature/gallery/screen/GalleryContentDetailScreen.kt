@@ -1,18 +1,25 @@
 package com.dapascript.mever.feature.gallery.screen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.util.lerp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.component.MeverPhotoViewer
 import com.dapascript.mever.core.common.ui.component.MeverVideoPlayer
+import com.dapascript.mever.core.common.ui.theme.MeverBlack
 import com.dapascript.mever.core.common.util.isVideo
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.feature.gallery.viewmodel.GalleryPlayerViewModel
 import java.io.File
+import kotlin.math.absoluteValue
 
 @Composable
 internal fun GalleryContentDetailScreen(
@@ -20,6 +27,7 @@ internal fun GalleryContentDetailScreen(
     viewModel: GalleryPlayerViewModel = hiltViewModel()
 ) = with(viewModel) {
     val context = LocalContext.current
+    val pagerState = rememberPagerState(args.initialIndex) { args.contents.size }
 
     BaseScreen(
         useSystemBarsPadding = false,
@@ -27,30 +35,72 @@ internal fun GalleryContentDetailScreen(
         hideDefaultTopBar = true,
         lockOrientation = false
     ) {
-        with(args) {
-            if (isVideo(filePath)) MeverVideoPlayer(
-                modifier = Modifier.fillMaxSize(),
-                source = filePath,
-                onClickDelete = { deleteContent(id) },
-                onClickShare = {
-                    shareContent(
-                        context = context,
-                        file = File(filePath)
-                    )
-                },
-                onClickBack = { navigator.popBackStack() }
-            ) else MeverPhotoViewer(
-                modifier = Modifier.fillMaxSize(),
-                source = filePath,
-                onClickDelete = { deleteContent(id) },
-                onClickShare = {
-                    shareContent(
-                        context = context,
-                        file = File(filePath)
-                    )
-                },
-                onClickBack = { navigator.popBackStack() }
-            )
+        HorizontalPager(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MeverBlack),
+            state = pagerState,
+            key = { page -> args.contents[page].id }
+        ) { page ->
+            val pageOffset = (
+                    (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction)
+                .absoluteValue
+            val content = args.contents[page]
+
+            with(content) {
+                if (isVideo(filePath)) MeverVideoPlayer(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .graphicsLayer {
+                            alpha = lerp(
+                                start = 1f,
+                                stop = 0.5f,
+                                fraction = pageOffset.coerceIn(0f, 1f)
+                            )
+                            scaleY = lerp(
+                                start = 1f,
+                                stop = 0.8f,
+                                fraction = pageOffset.coerceIn(0f, 1f)
+                            )
+                        },
+                    source = filePath,
+                    index = page,
+                    initialIndex = args.initialIndex,
+                    page = pagerState.currentPage,
+                    onClickDelete = { deleteContent(id) },
+                    onClickShare = {
+                        shareContent(
+                            context = context,
+                            file = File(filePath)
+                        )
+                    },
+                    onClickBack = { navigator.popBackStack() }
+                ) else MeverPhotoViewer(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .graphicsLayer {
+                            alpha = lerp(
+                                start = 1f,
+                                stop = 0.5f,
+                                fraction = pageOffset.coerceIn(0f, 1f)
+                            )
+                            scaleY = lerp(
+                                start = 1f,
+                                stop = 0.8f,
+                                fraction = pageOffset.coerceIn(0f, 1f)
+                            )
+                        },
+                    source = filePath,
+                    onClickDelete = { deleteContent(id) },
+                    onClickShare = {
+                        shareContent(
+                            context = context,
+                            file = File(filePath)
+                        )
+                    },
+                    onClickBack = { navigator.popBackStack() }
+                )
+            }
         }
     }
 }

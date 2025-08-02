@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.Arrangement.SpaceEvenly
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -58,7 +59,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle.Event.ON_CREATE
-import androidx.lifecycle.Lifecycle.Event.ON_START
 import androidx.lifecycle.Lifecycle.Event.ON_STOP
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -101,6 +101,9 @@ import kotlinx.coroutines.delay
 @Composable
 fun MeverVideoPlayer(
     source: String,
+    index: Int,
+    initialIndex: Int,
+    page: Int,
     modifier: Modifier = Modifier,
     onClickDelete: () -> Unit,
     onClickShare: () -> Unit,
@@ -119,6 +122,7 @@ fun MeverVideoPlayer(
     var showDropDownMenu by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var isVideoBuffering by remember { mutableStateOf(false) }
+    var hasAutoplayed by remember { mutableStateOf(false) }
 
     val enterFullScreen = {
         isFullScreen = true
@@ -131,9 +135,19 @@ fun MeverVideoPlayer(
 
     BackHandler(isFullScreen) { exitFullScreen() }
 
+    LaunchedEffect(page, player) {
+        if (player == null) return@LaunchedEffect
+
+        val isMyPageVisible = page == index
+        val amITheInitialPage = index == initialIndex
+
+        if (isMyPageVisible && amITheInitialPage && hasAutoplayed.not()) player?.play()
+        else player?.pause()
+    }
+
     LaunchedEffect(showController) {
         hideSystemBar(activity, showController.not())
-        if (showController && showDropDownMenu.not()) {
+        if (showController && showDropDownMenu) {
             delay(2000L)
             showController = false
         }
@@ -181,7 +195,7 @@ fun MeverVideoPlayer(
                     }
                     player?.addListener(listener)
                 }
-                ON_START -> if (player?.isPlaying == false) player?.play()
+
                 ON_STOP -> player?.pause()
                 else -> Unit
             }
@@ -198,63 +212,64 @@ fun MeverVideoPlayer(
         }
     }
 
-    VideoPlayer(
-        modifier = modifier,
-        player = player ?: return,
-        isVideoBuffering = isVideoBuffering,
-        title = convertFilename(source.substringAfterLast("/")).ifEmpty { "Video" },
-        iconPlayOrPause = if (isVideoPlaying == true) R.drawable.ic_pause else R.drawable.ic_play,
-        isControllerVisible = showController,
-        isFullScreen = isFullScreen,
-        videoTimer = videoTimer,
-        totalDuration = totalDuration,
-        bufferProgress = player?.bufferedPosition?.toFloat() ?: 0f,
-        onClickAny = { showController = showController.not() },
-        onClickRewind = {
-            player?.seekTo(player?.currentPosition?.minus(5000) ?: 0)
-            showController = true
-        },
-        onClickPlayOrPause = {
-            when {
-                player?.isPlaying == true -> player?.pause()
-                player?.isPlaying == false && playbackState == STATE_ENDED -> {
-                    player?.seekTo(0, 0)
-                    player?.playWhenReady = true
+    Box(modifier = modifier) {
+        VideoPlayer(
+            modifier = Modifier.fillMaxSize(),
+            player = player ?: return,
+            isVideoBuffering = isVideoBuffering,
+            title = convertFilename(source.substringAfterLast("/")).ifEmpty { "Video" },
+            iconPlayOrPause = if (isVideoPlaying == true) R.drawable.ic_pause else R.drawable.ic_play,
+            isControllerVisible = showController,
+            isFullScreen = isFullScreen,
+            videoTimer = videoTimer,
+            totalDuration = totalDuration.coerceAtLeast(0L),
+            bufferProgress = player?.bufferedPosition?.toFloat() ?: 0f,
+            onClickAny = { showController = showController.not() },
+            onClickRewind = {
+                player?.seekTo(player?.currentPosition?.minus(5000) ?: 0)
+                showController = true
+            },
+            onClickPlayOrPause = {
+                when {
+                    player?.isPlaying == true -> player?.pause()
+                    player?.isPlaying == false && playbackState == STATE_ENDED -> {
+                        player?.seekTo(0, 0)
+                        player?.playWhenReady = true
+                    }
+
+                    else -> player?.play()
                 }
-
-                else -> player?.play()
+                isVideoPlaying = isVideoPlaying?.not()
+            },
+            onClickForward = {
+                player?.seekTo(player?.currentPosition?.plus(5000) ?: 0)
+                showController = true
+            },
+            onClickFullScreen = { if (isFullScreen) exitFullScreen() else enterFullScreen() },
+            onClickActionMenu = { showDropDownMenu = showDropDownMenu.not() },
+            onClickBack = if (isFullScreen) exitFullScreen else onClickBack,
+            onChangeSeekbar = { position ->
+                player?.seekTo(position.toLong())
+                showController = true
             }
-            isVideoPlaying = isVideoPlaying?.not()
-        },
-        onClickForward = {
-            player?.seekTo(player?.currentPosition?.plus(5000) ?: 0)
-            showController = true
-        },
-        onClickFullScreen = { if (isFullScreen) exitFullScreen() else enterFullScreen() },
-        onClickActionMenu = { showDropDownMenu = showDropDownMenu.not() },
-        onClickBack = if (isFullScreen) exitFullScreen else onClickBack,
-        onChangeSeekbar = { position ->
-            player?.seekTo(position.toLong())
-            showController = true
-        }
-    )
-
-    MeverPopupDropDownMenu(
-        modifier = Modifier
-            .padding(top = Dp64, end = Dp24)
-            .then(Modifier.statusBarsPadding()),
-        listDropDown = listOf("Delete", "Share"),
-        showDropDownMenu = showDropDownMenu,
-        backgroundColor = MeverDark,
-        textColor = MeverWhite,
-        onDismissDropDownMenu = { showDropDownMenu = false },
-        onClick = { item ->
-            when (item) {
-                "Delete" -> showDeleteDialog = true
-                "Share" -> onClickShare()
+        )
+        MeverPopupDropDownMenu(
+            modifier = Modifier
+                .padding(PaddingValues(top = Dp64, end = Dp24))
+                .statusBarsPadding(),
+            listDropDown = listOf("Delete", "Share"),
+            showDropDownMenu = showDropDownMenu,
+            backgroundColor = MeverDark,
+            textColor = MeverWhite,
+            onDismissDropDownMenu = { showDropDownMenu = false },
+            onClick = { item ->
+                when (item) {
+                    "Delete" -> showDeleteDialog = true
+                    "Share" -> onClickShare()
+                }
             }
-        }
-    )
+        )
+    }
 
     MeverDialog(
         meverDialogArgs = MeverDialogArgs(
@@ -323,56 +338,56 @@ private fun VideoPlayer(
                 }
             }
         )
-    }
-    AnimatedVisibility(
-        visible = isControllerVisible,
-        enter = fadeIn(),
-        exit = fadeOut()
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MeverBlack.copy(alpha = 0.7f))
+        AnimatedVisibility(
+            visible = isControllerVisible,
+            enter = fadeIn(),
+            exit = fadeOut()
         ) {
-            MeverTopBar(
-                modifier = Modifier.padding(horizontal = Dp24),
-                topBarArgs = TopBarArgs(
-                    actionMenus = listOf(
-                        ActionMenu(
-                            icon = R.drawable.ic_more,
-                            nameIcon = "More",
-                            onClickActionMenu = onClickActionMenu
-                        )
-                    ),
-                    title = title,
-                    topBarColor = MeverTransparent,
-                    titleColor = MeverWhite,
-                    iconBackColor = MeverWhite,
-                    actionMenusColor = MeverWhite,
-                    onClickBack = onClickBack
-                ),
-                useCenterTopBar = false
-            )
-            VideoCenterControlSection(
-                modifier = Modifier.align(Center),
-                isVideoBuffering = isVideoBuffering,
-                iconPlayOrPause = iconPlayOrPause,
-                onClickRewind = onClickRewind,
-                onClickPlay = onClickPlayOrPause,
-                onClickForward = onClickForward
-            )
-            VideoBottomControlSection(
+            Box(
                 modifier = Modifier
-                    .padding(horizontal = Dp24)
-                    .navigationBarsPadding()
-                    .align(BottomCenter),
-                videoTimer = videoTimer,
-                totalDuration = totalDuration,
-                isFullScreen = isFullScreen,
-                bufferProgress = bufferProgress,
-                onChangeSeekbar = onChangeSeekbar,
-                onClickFullScreen = onClickFullScreen
-            )
+                    .fillMaxSize()
+                    .background(MeverBlack.copy(alpha = 0.7f))
+            ) {
+                MeverTopBar(
+                    modifier = Modifier.padding(horizontal = Dp24),
+                    topBarArgs = TopBarArgs(
+                        actionMenus = listOf(
+                            ActionMenu(
+                                icon = R.drawable.ic_more,
+                                nameIcon = "More",
+                                onClickActionMenu = onClickActionMenu
+                            )
+                        ),
+                        title = title,
+                        topBarColor = MeverTransparent,
+                        titleColor = MeverWhite,
+                        iconBackColor = MeverWhite,
+                        actionMenusColor = MeverWhite,
+                        onClickBack = onClickBack
+                    ),
+                    useCenterTopBar = false
+                )
+                VideoCenterControlSection(
+                    modifier = Modifier.align(Center),
+                    isVideoBuffering = isVideoBuffering,
+                    iconPlayOrPause = iconPlayOrPause,
+                    onClickRewind = onClickRewind,
+                    onClickPlay = onClickPlayOrPause,
+                    onClickForward = onClickForward
+                )
+                VideoBottomControlSection(
+                    modifier = Modifier
+                        .padding(horizontal = Dp24)
+                        .navigationBarsPadding()
+                        .align(BottomCenter),
+                    videoTimer = videoTimer,
+                    totalDuration = totalDuration,
+                    isFullScreen = isFullScreen,
+                    bufferProgress = bufferProgress,
+                    onChangeSeekbar = onChangeSeekbar,
+                    onClickFullScreen = onClickFullScreen
+                )
+            }
         }
     }
 }

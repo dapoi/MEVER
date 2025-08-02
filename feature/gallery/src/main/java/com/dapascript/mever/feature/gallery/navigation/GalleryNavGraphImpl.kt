@@ -25,6 +25,7 @@ class GalleryNavGraphImpl @Inject constructor() : BaseNavGraph {
     ) = with(navGraphBuilder) {
         composableScreen<GalleryLandingRoute> { GalleryLandingScreen(navController) }
         composableScreen<GalleryContentDetailRoute>(
+            customArgs = GalleryContentDetailRoute.typeMap,
             enterTransition = fadeIn(spring(stiffness = StiffnessHigh)) + scaleIn(
                 initialScale = .8f,
                 animationSpec = spring(
