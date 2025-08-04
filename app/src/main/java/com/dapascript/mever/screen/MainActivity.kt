@@ -2,6 +2,8 @@ package com.dapascript.mever.screen
 
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.SystemBarStyle.Companion.dark
+import androidx.activity.SystemBarStyle.Companion.light
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult
@@ -10,17 +12,22 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
+import com.dapascript.mever.core.common.ui.theme.MeverDark
 import com.dapascript.mever.core.common.ui.theme.MeverTheme
+import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.ThemeType.Dark
 import com.dapascript.mever.core.common.ui.theme.ThemeType.Light
 import com.dapascript.mever.core.common.util.InAppUpdateManager
 import com.dapascript.mever.core.common.util.LanguageManager.changeLanguage
 import com.dapascript.mever.core.common.util.LocalActivity
+import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.navigation.base.BaseNavGraph
 import com.dapascript.mever.navigation.MainNavigation
 import com.dapascript.mever.viewmodel.MainViewModel
@@ -51,18 +58,17 @@ class MainActivity : FragmentActivity() {
             updateAvailability = UPDATE_AVAILABLE,
             launcher = updateLauncher
         )
-        enableEdgeToEdge()
         setLanguage()
         setContent {
             handleShareIntent(intent)?.let { viewModel.saveUrlIntent(it) }
-            val themeType = viewModel.themeType.collectAsState()
-            MeverTheme(
-                darkTheme = when (themeType.value) {
-                    Light -> false
-                    Dark -> true
-                    else -> isSystemInDarkTheme()
-                }
-            ) {
+            val themeType = viewModel.themeType.collectAsStateValue()
+            val darkTheme = when (themeType) {
+                Light -> false
+                Dark -> true
+                else -> isSystemInDarkTheme()
+            }
+            MeverTheme(darkTheme = darkTheme) {
+                ApplyEdgeToEdgeSystemBars(darkTheme)
                 Surface(modifier = Modifier.fillMaxSize(), color = colorScheme.background) {
                     CompositionLocalProvider(LocalActivity provides this) {
                         MainNavigation(navGraphs = navGraphs)
@@ -76,6 +82,31 @@ class MainActivity : FragmentActivity() {
         super.onNewIntent(intent)
         handleShareIntent(intent)?.let { viewModel.saveUrlIntent(it) }
     }
+
+    @Composable
+    private fun ApplyEdgeToEdgeSystemBars(darkTheme: Boolean) {
+        LaunchedEffect(darkTheme) {
+            enableEdgeToEdge(
+                statusBarStyle = if (darkTheme) {
+                    dark(MeverDark.toArgb())
+                } else {
+                    light(
+                        scrim = MeverTransparent.toArgb(),
+                        darkScrim = MeverDark.toArgb()
+                    )
+                },
+                navigationBarStyle = if (darkTheme) {
+                    dark(MeverDark.toArgb())
+                } else {
+                    light(
+                        scrim = MeverTransparent.toArgb(),
+                        darkScrim = MeverDark.toArgb()
+                    )
+                }
+            )
+        }
+    }
+
 
     private fun setLanguage() = lifecycleScope.launch {
         viewModel.getLanguage.collect { languageCode ->
