@@ -88,6 +88,9 @@ fun NavController.navigateClearBackStack(route: Any) {
     }
 }
 
+fun NavController.getCurrentRoute() =
+    currentBackStackEntry?.destination?.route?.substringAfterLast(".")
+
 inline fun <reified T> NavController.setPopBackStackWithCustomArgs(
     key: String,
     value: T

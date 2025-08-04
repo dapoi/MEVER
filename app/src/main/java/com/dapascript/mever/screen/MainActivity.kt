@@ -1,6 +1,8 @@
 package com.dapascript.mever.screen
 
 import android.content.Intent
+import android.content.Intent.ACTION_SEND
+import android.content.Intent.EXTRA_TEXT
 import android.os.Bundle
 import androidx.activity.SystemBarStyle.Companion.dark
 import androidx.activity.SystemBarStyle.Companion.light
@@ -59,8 +61,8 @@ class MainActivity : FragmentActivity() {
             launcher = updateLauncher
         )
         setLanguage()
+        handleShareIntent(intent)
         setContent {
-            handleShareIntent(intent)?.let { viewModel.saveUrlIntent(it) }
             val themeType = viewModel.themeType.collectAsStateValue()
             val darkTheme = when (themeType) {
                 Light -> false
@@ -71,7 +73,7 @@ class MainActivity : FragmentActivity() {
                 ApplyEdgeToEdgeSystemBars(darkTheme)
                 Surface(modifier = Modifier.fillMaxSize(), color = colorScheme.background) {
                     CompositionLocalProvider(LocalActivity provides this) {
-                        MainNavigation(navGraphs = navGraphs)
+                        MainNavigation(navGraphs = navGraphs, viewModel = viewModel)
                     }
                 }
             }
@@ -80,7 +82,8 @@ class MainActivity : FragmentActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        handleShareIntent(intent)?.let { viewModel.saveUrlIntent(it) }
+        setIntent(intent)
+        handleShareIntent(intent)
     }
 
     @Composable
@@ -107,7 +110,6 @@ class MainActivity : FragmentActivity() {
         }
     }
 
-
     private fun setLanguage() = lifecycleScope.launch {
         viewModel.getLanguage.collect { languageCode ->
             changeLanguage(
@@ -117,9 +119,14 @@ class MainActivity : FragmentActivity() {
         }
     }
 
-    private fun handleShareIntent(intent: Intent?) = intent?.takeIf {
-        it.action == Intent.ACTION_SEND && it.type == "text/plain"
-    }?.getStringExtra(Intent.EXTRA_TEXT)
+    private fun handleShareIntent(intent: Intent?) {
+        if (intent?.action == ACTION_SEND && intent.type == "text/plain") {
+            intent.getStringExtra(EXTRA_TEXT)?.let { url ->
+                viewModel.saveUrlIntent(url)
+                this.intent.action = ""
+            }
+        }
+    }
 
     override fun onResume() {
         super.onResume()
