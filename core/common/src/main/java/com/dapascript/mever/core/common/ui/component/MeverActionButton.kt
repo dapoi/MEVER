@@ -29,8 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.res.painterResource
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp15
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
@@ -71,7 +70,7 @@ fun MeverActionButton(
                 modifier = Modifier
                     .size(animateIconSize)
                     .showGraphicLayer(state = showBadge, value = animateIconVibrate),
-                imageVector = ImageVector.vectorResource(resource),
+                painter = painterResource(id = resource),
                 contentDescription = "Action Button"
             )
         }

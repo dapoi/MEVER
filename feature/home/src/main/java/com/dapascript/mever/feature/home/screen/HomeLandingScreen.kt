@@ -333,7 +333,12 @@ private fun HomeScreenContent(
         val downloadList = downloadList.collectAsStateValue()
         val getButtonClickCount = getButtonClickCount.collectAsStateValue()
         val urlIntent = getUrlIntent.collectAsStateValue()
-        val getListActionMenu = remember { getListActionMenu(context) }
+        val getListActionMenu = remember(downloadList) {
+            getListActionMenu(
+                context = context,
+                hasDownloadProgress = downloadList?.find { it.progress < 100 } != null
+            )
+        }
         val tabItems = remember { tabItems(context) }
         val pagerState = rememberPagerState(pageCount = { tabItems.size })
         val scrollState = rememberScrollState()
@@ -349,7 +354,6 @@ private fun HomeScreenContent(
             onAdFailToLoad = buttonAction,
             onAdFailOrDismissed = buttonAction
         )
-
 
         LaunchedEffect(downloadList) {
             downloadList?.map {
@@ -439,7 +443,8 @@ private fun HomeScreenContent(
                                                                 filePath = getFilePath(it.fileName)
                                                             )
                                                         } ?: emptyList(),
-                                                        initialIndex = downloadList?.indexOf(model) ?: 0
+                                                        initialIndex = downloadList?.indexOf(model)
+                                                            ?: 0
                                                     )
                                                 )
 
@@ -883,8 +888,9 @@ internal fun HomeAiSection(
     }
 }
 
-private fun getListActionMenu(context: Context) = listOf(
-    context.getString(R.string.gallery) to FeatureHomeR.drawable.ic_explore,
+private fun getListActionMenu(context: Context, hasDownloadProgress: Boolean) = listOf(
+    context.getString(R.string.gallery) to if (hasDownloadProgress) FeatureHomeR.drawable.ic_notification
+    else FeatureHomeR.drawable.ic_explore,
     context.getString(R.string.settings) to FeatureHomeR.drawable.ic_setting
 )
 
