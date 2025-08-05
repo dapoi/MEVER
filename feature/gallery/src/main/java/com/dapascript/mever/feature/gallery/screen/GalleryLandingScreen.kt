@@ -1,5 +1,6 @@
 package com.dapascript.mever.feature.gallery.screen
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
@@ -28,6 +29,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
@@ -78,9 +80,11 @@ import com.dapascript.mever.core.navigation.helper.navigateTo
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute.Content
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.DELETE_ALL
+import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.HIDE_FILTER
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.MORE
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.PAUSE_ALL
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.RESUME_ALL
+import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.SHOW_FILTER
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.listDropDown
 import com.dapascript.mever.feature.gallery.viewmodel.GalleryLandingViewModel
 import com.ketch.DownloadModel
@@ -107,6 +111,7 @@ internal fun GalleryLandingScreen(
     var showDeleteDialog by remember { mutableStateOf<Int?>(null) }
     var showDeleteAllDialog by remember { mutableStateOf(false) }
     var showDropDownMenu by remember { mutableStateOf(false) }
+    var showFilter by rememberSaveable { mutableStateOf(true) }
     val downloadFilter = remember(downloadList, selectedFilter) {
         downloadList?.filter { downloadItem ->
             selectedFilter == ALL || downloadItem.tag == selectedFilter.platformName
@@ -152,6 +157,8 @@ internal fun GalleryLandingScreen(
                         model.progress < model.total && model.status == PAUSED
                     } == true
 
+                    HIDE_FILTER -> showFilter && selectedFilter == ALL
+                    SHOW_FILTER -> showFilter.not()
                     else -> false
                 }
             },
@@ -161,6 +168,8 @@ internal fun GalleryLandingScreen(
                 when (item) {
                     DELETE_ALL -> showDeleteAllDialog = true
                     PAUSE_ALL -> ketch.pauseAll()
+                    HIDE_FILTER -> showFilter = false
+                    SHOW_FILTER -> showFilter = true
                     else -> downloadList?.filter { model -> model.status == PAUSED }?.map { model ->
                         ketch.resume(model.id)
                     }
@@ -172,7 +181,7 @@ internal fun GalleryLandingScreen(
             selectedFilter = selectedFilter,
             listState = listState,
             isExpanded = isExpanded,
-            platformTypes = platformTypes,
+            platformTypes = if (showFilter) platformTypes else emptyList(),
             downloadList = downloadFilter,
             modifier = Modifier
                 .fillMaxSize()
@@ -295,15 +304,22 @@ private fun GalleryContentSection(
                             )
                         }
                         stickyHeader {
-                            if (platformTypes.size > 1) FilterContent(
-                                modifier = Modifier
-                                    .background(colorScheme.background)
-                                    .fillMaxWidth()
-                                    .horizontalScroll(rememberScrollState())
-                                    .padding(start = Dp24, end = Dp24, top = Dp16, bottom = Dp24),
-                                platformTypes = platformTypes,
-                                selectedFilter = selectedFilter
-                            ) { filter -> onClickFilter(filter) }
+                            AnimatedVisibility(platformTypes.size > 1) {
+                                FilterContent(
+                                    modifier = Modifier
+                                        .background(colorScheme.background)
+                                        .fillMaxWidth()
+                                        .horizontalScroll(rememberScrollState())
+                                        .padding(
+                                            start = Dp24,
+                                            end = Dp24,
+                                            top = Dp16,
+                                            bottom = Dp24
+                                        ),
+                                    platformTypes = platformTypes,
+                                    selectedFilter = selectedFilter
+                                ) { filter -> onClickFilter(filter) }
+                            }
                             if (isExpanded.not()) {
                                 HorizontalDivider(
                                     modifier = Modifier
