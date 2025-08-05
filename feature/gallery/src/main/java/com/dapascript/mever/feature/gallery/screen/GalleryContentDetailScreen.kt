@@ -5,6 +5,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
@@ -28,6 +32,7 @@ internal fun GalleryContentDetailScreen(
 ) = with(viewModel) {
     val context = LocalContext.current
     val pagerState = rememberPagerState(args.initialIndex) { args.contents.size }
+    var isFullScreen by rememberSaveable { mutableStateOf(false) }
 
     BaseScreen(
         useSystemBarsPadding = false,
@@ -40,33 +45,38 @@ internal fun GalleryContentDetailScreen(
                 .fillMaxSize()
                 .background(MeverBlack),
             state = pagerState,
+            userScrollEnabled = isFullScreen.not(),
             key = { page -> args.contents[page].id }
         ) { page ->
-            val pageOffset = (
-                    (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction)
-                .absoluteValue
+            val pageOffset =
+                ((pagerState.currentPage - page) + pagerState.currentPageOffsetFraction).absoluteValue
+            val itemModifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer {
+                    val scale = lerp(
+                        start = 1f,
+                        stop = 0.85f,
+                        fraction = pageOffset.coerceIn(0f, 1f)
+                    )
+                    scaleX = scale
+                    scaleY = scale
+                    alpha = lerp(
+                        start = 1f,
+                        stop = 0.5f,
+                        fraction = pageOffset.coerceIn(0f, 1f)
+                    )
+                }
             val content = args.contents[page]
 
             with(content) {
                 if (isVideo(filePath)) MeverVideoPlayer(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .graphicsLayer {
-                            alpha = lerp(
-                                start = 1f,
-                                stop = 0.5f,
-                                fraction = pageOffset.coerceIn(0f, 1f)
-                            )
-                            scaleY = lerp(
-                                start = 1f,
-                                stop = 0.8f,
-                                fraction = pageOffset.coerceIn(0f, 1f)
-                            )
-                        },
+                    modifier = itemModifier,
                     source = filePath,
+                    currentPage = pagerState.currentPage,
                     index = page,
                     initialIndex = args.initialIndex,
-                    page = pagerState.currentPage,
+                    isFullScreen = isFullScreen,
+                    onFullScreenChange = { isFullScreen = it },
                     onClickDelete = { deleteContent(id) },
                     onClickShare = {
                         shareContent(
@@ -76,20 +86,7 @@ internal fun GalleryContentDetailScreen(
                     },
                     onClickBack = { navigator.popBackStack() }
                 ) else MeverPhotoViewer(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .graphicsLayer {
-                            alpha = lerp(
-                                start = 1f,
-                                stop = 0.5f,
-                                fraction = pageOffset.coerceIn(0f, 1f)
-                            )
-                            scaleY = lerp(
-                                start = 1f,
-                                stop = 0.8f,
-                                fraction = pageOffset.coerceIn(0f, 1f)
-                            )
-                        },
+                    modifier = itemModifier,
                     source = filePath,
                     onClickDelete = { deleteContent(id) },
                     onClickShare = {

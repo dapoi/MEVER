@@ -5,7 +5,6 @@ import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
 import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.Spring.DampingRatioLowBouncy
 import androidx.compose.animation.core.Spring.DampingRatioNoBouncy
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -43,10 +42,12 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.Center
@@ -58,7 +59,6 @@ import androidx.compose.ui.graphics.ColorFilter.Companion.tint
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.lifecycle.Lifecycle.Event.ON_CREATE
 import androidx.lifecycle.Lifecycle.Event.ON_STOP
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -68,7 +68,7 @@ import androidx.media3.common.Player.Events
 import androidx.media3.common.Player.Listener
 import androidx.media3.common.Player.STATE_BUFFERING
 import androidx.media3.common.Player.STATE_ENDED
-import androidx.media3.exoplayer.ExoPlayer.Builder
+import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
@@ -96,116 +96,119 @@ import com.dapascript.mever.core.common.util.hideSystemBar
 import com.dapascript.mever.core.common.util.isSystemBarVisible
 import com.dapascript.mever.core.common.util.onCustomClick
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 
 @SuppressLint("SourceLockedOrientationActivity")
 @Composable
 fun MeverVideoPlayer(
-    source: String,
+    currentPage: Int,
     index: Int,
     initialIndex: Int,
-    page: Int,
+    isFullScreen: Boolean,
+    source: String,
     modifier: Modifier = Modifier,
     onClickDelete: () -> Unit,
     onClickShare: () -> Unit,
-    onClickBack: () -> Unit
+    onClickBack: () -> Unit,
+    onFullScreenChange: (Boolean) -> Unit
 ) {
     val context = LocalContext.current
     val activity = LocalActivity.current
     val lifecycleOwner by rememberUpdatedState(LocalLifecycleOwner.current)
+
+    // State
+    var totalDuration by rememberSaveable { mutableLongStateOf(0L) }
     var player by remember { mutableStateOf<Player?>(null) }
-    var isFullScreen by remember { mutableStateOf(false) }
-    var isVideoPlaying by remember { mutableStateOf(player?.isPlaying) }
-    var playbackState by remember { mutableStateOf(player?.playbackState) }
     var videoTimer by remember { mutableLongStateOf(0L) }
-    var totalDuration by remember { mutableLongStateOf(0L) }
-    var showController by remember { mutableStateOf(false) }
+    var isVideoPlaying by remember { mutableStateOf(false) }
+    var playbackState by remember { mutableStateOf<Int?>(null) }
+    var isVideoBuffering by remember { mutableStateOf(false) }
+
+    // UI State
+    var hasAutoplayed by rememberSaveable { mutableStateOf(false) }
+    var showController by remember { mutableStateOf(true) }
     var showDropDownMenu by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
-    var isVideoBuffering by remember { mutableStateOf(false) }
-    var hasAutoplayed by remember { mutableStateOf(false) }
 
+    // Fullscreen Handlers
     val enterFullScreen = {
-        isFullScreen = true
+        onFullScreenChange(true)
         activity.requestedOrientation = SCREEN_ORIENTATION_USER_LANDSCAPE
     }
     val exitFullScreen = {
-        isFullScreen = false
+        onFullScreenChange(false)
         activity.requestedOrientation = SCREEN_ORIENTATION_USER_PORTRAIT
     }
 
     BackHandler(isFullScreen) { exitFullScreen() }
 
-    LaunchedEffect(page, player) {
-        if (player == null) return@LaunchedEffect
+    LaunchedEffect(currentPage, initialIndex) {
+        val isMyPageVisible = currentPage == index
 
-        val isMyPageVisible = page == index
-        val amITheInitialPage = index == initialIndex
+        if (isMyPageVisible) {
+            delay(300L)
+            if (player == null) {
+                player = ExoPlayer.Builder(context).build().apply {
+                    setMediaItem(fromUri(source))
+                    addListener(object : Listener {
+                        override fun onEvents(player: Player, events: Events) {
+                            super.onEvents(player, events)
+                            totalDuration = player.duration.coerceAtLeast(0L)
+                            isVideoPlaying = player.isPlaying
+                            playbackState = player.playbackState
+                        }
 
-        if (isMyPageVisible && amITheInitialPage && hasAutoplayed.not()) player?.play()
-        else player?.pause()
+                        override fun onPlaybackStateChanged(state: Int) {
+                            super.onPlaybackStateChanged(state)
+                            playbackState = state
+                            isVideoBuffering = state == STATE_BUFFERING
+                        }
+                    })
+                    prepare()
+                }
+            }
+            val amITheInitialPage = index == initialIndex
+            if (amITheInitialPage && hasAutoplayed.not()) {
+                player?.play()
+                showController = true
+                hasAutoplayed = true
+            }
+        } else {
+            player?.pause()
+        }
     }
 
-    LaunchedEffect(showController) {
-        hideSystemBar(activity, showController.not())
-        if (showController && showDropDownMenu) {
-            delay(2000L)
+    LaunchedEffect(showController, showDropDownMenu, isFullScreen) {
+        hideSystemBar(activity, showController.not() && isFullScreen)
+        if (showController && showDropDownMenu.not()) {
+            delay(3000L)
             showController = false
         }
     }
 
     LaunchedEffect(player) {
-        while (true) {
+        while (isActive) {
             videoTimer = player?.currentPosition ?: 0
-            delay(200L)
+            delay(300L)
         }
     }
 
     LaunchedEffect(isVideoBuffering) {
         if (isVideoBuffering) {
-            delay(2000L)
-            player?.seekTo(player?.currentPosition?.minus(10000) ?: 0)
-            isVideoBuffering = false
-            if (player?.isPlaying == false) {
-                player?.playWhenReady = true
-                isVideoPlaying = true
-            }
+            delay(3000L)
+            val currentPosition = player?.currentPosition ?: 0L
+            val seekBackPosition = (currentPosition - 10000L).coerceAtLeast(0L)
+            player?.seekTo(seekBackPosition)
+            player?.playWhenReady = true
         }
     }
 
     DisposableEffect(lifecycleOwner) {
-        val listener = object : Listener {
-            override fun onEvents(player: Player, events: Events) {
-                super.onEvents(player, events)
-                isVideoPlaying = player.isPlaying
-                totalDuration = player.duration
-                playbackState = player.playbackState
-            }
-
-            override fun onPlaybackStateChanged(playbackState: Int) {
-                super.onPlaybackStateChanged(playbackState)
-                isVideoBuffering = playbackState == STATE_BUFFERING
-            }
-        }
-        val observer = LifecycleEventObserver { _, event ->
-            when (event) {
-                ON_CREATE -> {
-                    player = Builder(context).build().apply {
-                        setMediaItem(fromUri(source))
-                        prepare()
-                    }
-                    player?.addListener(listener)
-                }
-
-                ON_STOP -> player?.pause()
-                else -> Unit
-            }
-        }
-
+        val observer = LifecycleEventObserver { _, event -> if (event == ON_STOP) player?.pause() }
         lifecycleOwner.lifecycle.addObserver(observer)
 
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
-            player?.removeListener(listener)
             player?.release()
             player = null
             hideSystemBar(activity, isSystemBarVisible(activity).not())
@@ -218,7 +221,7 @@ fun MeverVideoPlayer(
             player = player ?: return,
             isVideoBuffering = isVideoBuffering,
             title = convertFilename(source.substringAfterLast("/")).ifEmpty { "Video" },
-            iconPlayOrPause = if (isVideoPlaying == true) R.drawable.ic_pause else R.drawable.ic_play,
+            iconPlayOrPause = if (isVideoPlaying) R.drawable.ic_pause else R.drawable.ic_play,
             isControllerVisible = showController,
             isFullScreen = isFullScreen,
             videoTimer = videoTimer,
@@ -239,7 +242,7 @@ fun MeverVideoPlayer(
 
                     else -> player?.play()
                 }
-                isVideoPlaying = isVideoPlaying?.not()
+                isVideoPlaying = isVideoPlaying.not()
             },
             onClickForward = {
                 player?.seekTo(player?.currentPosition?.plus(5000) ?: 0)
@@ -468,14 +471,15 @@ private fun VideoBottomControlSection(
     onChangeSeekbar: (Float) -> Unit,
     onClickFullScreen: () -> Unit
 ) {
-    val animatedValue by animateFloatAsState(
-        targetValue = videoTimer.toFloat().coerceIn(0f, totalDuration.toFloat()),
-        animationSpec = spring(
-            dampingRatio = DampingRatioLowBouncy
-        ),
-        label = "animated value"
-    )
+    var sliderPosition by remember { mutableFloatStateOf(0f) }
+    var isSeeking by remember { mutableStateOf(false) }
     val interactionSource = remember { MutableInteractionSource() }
+
+    LaunchedEffect(videoTimer) {
+        if (!isSeeking) {
+            sliderPosition = videoTimer.toFloat()
+        }
+    }
 
     Column(
         modifier = modifier,
@@ -484,10 +488,17 @@ private fun VideoBottomControlSection(
         CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp0) {
             Slider(
                 modifier = Modifier.fillMaxWidth(),
-                value = animatedValue,
+                value = sliderPosition.coerceIn(0f, totalDuration.toFloat()),
                 interactionSource = interactionSource,
                 valueRange = 0f..totalDuration.toFloat(),
-                onValueChange = { onChangeSeekbar(it) },
+                onValueChange = {
+                    isSeeking = true
+                    sliderPosition = it
+                },
+                onValueChangeFinished = {
+                    onChangeSeekbar(sliderPosition)
+                    isSeeking = false
+                },
                 track = { sliderState ->
                     Box(
                         modifier = Modifier
@@ -531,7 +542,11 @@ private fun VideoBottomControlSection(
         ) {
             Text(
                 modifier = Modifier.padding(start = Dp12),
-                text = "${convertToTimeFormat(videoTimer)} / ${convertToTimeFormat(totalDuration)}",
+                text = "${convertToTimeFormat(sliderPosition.toLong())} / ${
+                    convertToTimeFormat(
+                        totalDuration
+                    )
+                }",
                 style = typography.body1,
                 color = MeverWhite
             )

@@ -107,6 +107,9 @@ internal fun GalleryLandingScreen(
     var showDeleteDialog by remember { mutableStateOf<Int?>(null) }
     var showDeleteAllDialog by remember { mutableStateOf(false) }
     var showDropDownMenu by remember { mutableStateOf(false) }
+    val downloadFilter = remember(downloadList, selectedFilter) {
+        downloadList?.filter { it.tag == selectedFilter.platformName || selectedFilter == ALL }
+    }
 
     BaseScreen(
         topBarArgs = TopBarArgs(
@@ -173,9 +176,7 @@ internal fun GalleryLandingScreen(
             listState = listState,
             isExpanded = isExpanded,
             platformTypes = platformTypes,
-            downloadList = downloadList?.filter { download ->
-                selectedFilter == ALL || download.tag == selectedFilter.platformName
-            },
+            downloadList = downloadFilter,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = Dp64)
@@ -192,7 +193,7 @@ internal fun GalleryLandingScreen(
                         SUCCESS -> {
                             navController.navigateTo(
                                 GalleryContentDetailRoute(
-                                    contents = downloadList?.map {
+                                    contents = downloadFilter?.map {
                                         Content(
                                             id = it.id,
                                             filePath = getFilePath(it.fileName)
