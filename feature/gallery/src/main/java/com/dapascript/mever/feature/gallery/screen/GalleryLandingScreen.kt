@@ -108,7 +108,9 @@ internal fun GalleryLandingScreen(
     var showDeleteAllDialog by remember { mutableStateOf(false) }
     var showDropDownMenu by remember { mutableStateOf(false) }
     val downloadFilter = remember(downloadList, selectedFilter) {
-        downloadList?.filter { it.tag == selectedFilter.platformName || selectedFilter == ALL }
+        downloadList?.filter { downloadItem ->
+            selectedFilter == ALL || downloadItem.tag == selectedFilter.platformName
+        }
     }
 
     BaseScreen(
@@ -133,13 +135,8 @@ internal fun GalleryLandingScreen(
             lifecycleOwner.value.lifecycle.repeatOnLifecycle(RESUMED) { refreshDatabase() }
         }
 
-        LaunchedEffect(selectedFilter, downloadList) {
-            if (selectedFilter != ALL && downloadList?.isEmpty() == true) {
-                scope.launch {
-                    listState.animateScrollToItem(0)
-                    if (listState.firstVisibleItemIndex == 0) selectedFilter = ALL
-                }
-            }
+        LaunchedEffect(selectedFilter, downloadFilter) {
+            if (selectedFilter != ALL && downloadFilter?.isEmpty() == true) selectedFilter = ALL
         }
 
         MeverPopupDropDownMenu(
