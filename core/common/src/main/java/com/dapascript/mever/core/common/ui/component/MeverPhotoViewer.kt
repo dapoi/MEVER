@@ -58,7 +58,7 @@ fun MeverPhotoViewer(
 ) {
     val activity = LocalActivity.current
     val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
-    var isPhotoTouched by remember { mutableStateOf(true) }
+    var isPhotoTouched by remember { mutableStateOf(false) }
     var showDropDownMenu by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
