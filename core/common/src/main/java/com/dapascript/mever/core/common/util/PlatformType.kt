@@ -6,6 +6,7 @@ enum class PlatformType(val platformName: String) {
     INSTAGRAM("Instagram"),
     PINTEREST("Pinterest"),
     TERABOX("Terabox"),
+    THREADS("Threads"),
     TIKTOK("TikTok"),
     TWITTER("Twitter"),
     YOUTUBE("YouTube"),

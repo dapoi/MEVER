@@ -34,6 +34,11 @@ class MeverRepositoryImpl @Inject constructor(
         transformData = { it.mapToEntity() }
     )
 
+    override fun getThreadsDownloader(url: String) = collectApiResult(
+        fetchApi = { apiService.getThreadsDownloader(url) },
+        transformData = { it.mapToEntity() }
+    )
+
     override fun getTiktokDownloader(url: String) = collectApiResult(
         fetchApi = { apiService.getTiktokDownloader(url) },
         transformData = { it.mapToEntity() }

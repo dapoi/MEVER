@@ -6,6 +6,7 @@ import com.dapascript.mever.core.data.model.remote.ImageAiResponse
 import com.dapascript.mever.core.data.model.remote.InstagramDownloaderResponse
 import com.dapascript.mever.core.data.model.remote.PinterestDownloaderResponse
 import com.dapascript.mever.core.data.model.remote.TeraboxDownloaderResponse
+import com.dapascript.mever.core.data.model.remote.ThreadsDownloaderResponse
 import com.dapascript.mever.core.data.model.remote.TiktokDownloaderResponse
 import com.dapascript.mever.core.data.model.remote.TwitterDownloaderResponse
 import com.dapascript.mever.core.data.model.remote.YouTubeDownloaderResponse
@@ -35,6 +36,11 @@ interface ApiService {
     suspend fun getTeraBoxDownloader(
         @Query("url") url: String
     ): TeraboxDownloaderResponse
+
+    @GET("threads")
+    suspend fun getThreadsDownloader(
+        @Query("url") url: String
+    ): ThreadsDownloaderResponse
 
     @GET("tiktok")
     suspend fun getTiktokDownloader(

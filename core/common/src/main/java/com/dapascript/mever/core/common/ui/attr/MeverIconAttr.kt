@@ -2,6 +2,7 @@ package com.dapascript.mever.core.common.ui.attr
 
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.theme.MeverCreamPink
+import com.dapascript.mever.core.common.ui.theme.MeverGreen
 import com.dapascript.mever.core.common.ui.theme.MeverLightBlue
 import com.dapascript.mever.core.common.ui.theme.MeverLightGray
 import com.dapascript.mever.core.common.ui.theme.MeverLightGreen
@@ -12,6 +13,7 @@ import com.dapascript.mever.core.common.util.PlatformType.FACEBOOK
 import com.dapascript.mever.core.common.util.PlatformType.INSTAGRAM
 import com.dapascript.mever.core.common.util.PlatformType.PINTEREST
 import com.dapascript.mever.core.common.util.PlatformType.TERABOX
+import com.dapascript.mever.core.common.util.PlatformType.THREADS
 import com.dapascript.mever.core.common.util.PlatformType.TIKTOK
 import com.dapascript.mever.core.common.util.PlatformType.TWITTER
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
@@ -22,6 +24,7 @@ object MeverIconAttr {
         platform.contains(INSTAGRAM.platformName) -> R.drawable.ic_instagram
         platform.contains(PINTEREST.platformName) -> R.drawable.ic_pinterest
         platform.contains(TERABOX.platformName) -> R.drawable.ic_tiktok
+        platform.contains(THREADS.platformName) -> R.drawable.ic_threads
         platform.contains(TIKTOK.platformName) -> R.drawable.ic_tiktok
         platform.contains(TWITTER.platformName) -> R.drawable.ic_twitter
         platform.contains(YOUTUBE.platformName) -> R.drawable.ic_youtube
@@ -33,6 +36,7 @@ object MeverIconAttr {
         platform.contains(INSTAGRAM.platformName) -> MeverCreamPink
         platform.contains(PINTEREST.platformName) -> MeverLightPink
         platform.contains(TERABOX.platformName) -> MeverLightGray
+        platform.contains(THREADS.platformName) -> MeverGreen
         platform.contains(TIKTOK.platformName) -> MeverLightGreen
         platform.contains(TWITTER.platformName) -> MeverLightPurple
         platform.contains(YOUTUBE.platformName) -> MeverPink

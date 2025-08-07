@@ -11,6 +11,7 @@ import com.dapascript.mever.core.common.util.PlatformType.FACEBOOK
 import com.dapascript.mever.core.common.util.PlatformType.INSTAGRAM
 import com.dapascript.mever.core.common.util.PlatformType.PINTEREST
 import com.dapascript.mever.core.common.util.PlatformType.TERABOX
+import com.dapascript.mever.core.common.util.PlatformType.THREADS
 import com.dapascript.mever.core.common.util.PlatformType.TIKTOK
 import com.dapascript.mever.core.common.util.PlatformType.TWITTER
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
@@ -66,6 +67,7 @@ class DownloaderWorker @AssistedInject constructor(
         INSTAGRAM -> getInstagramDownloader(url)
         PINTEREST -> getPinterestDownloader(url)
         TERABOX -> getTeraboxDownloader(url)
+        THREADS -> getThreadsDownloader(url)
         TIKTOK -> getTiktokDownloader(url)
         TWITTER -> getTwitterDownloader(url)
         YOUTUBE -> getYoutubeDownloader(url, selectedQuality)
