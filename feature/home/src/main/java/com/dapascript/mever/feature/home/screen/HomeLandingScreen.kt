@@ -10,6 +10,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
@@ -31,7 +32,13 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.InlineTextContent
+import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -57,12 +64,19 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale.Companion.Crop
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.Placeholder
+import androidx.compose.ui.text.PlaceholderVerticalAlign
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle.State.RESUMED
@@ -74,6 +88,7 @@ import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Filled
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Outlined
 import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardArgs
+import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
 import com.dapascript.mever.core.common.ui.attr.MeverIconAttr.getPlatformIcon
 import com.dapascript.mever.core.common.ui.attr.MeverIconAttr.getPlatformIconBackgroundColor
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.ActionMenu
@@ -83,6 +98,7 @@ import com.dapascript.mever.core.common.ui.component.MeverBannerAd
 import com.dapascript.mever.core.common.ui.component.MeverButton
 import com.dapascript.mever.core.common.ui.component.MeverCard
 import com.dapascript.mever.core.common.ui.component.MeverDeclinedPermission
+import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverDialogError
 import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
 import com.dapascript.mever.core.common.ui.component.MeverIcon
@@ -93,6 +109,7 @@ import com.dapascript.mever.core.common.ui.component.MeverTopBar
 import com.dapascript.mever.core.common.ui.component.rememberInterstitialAd
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp10
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp14
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp150
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
@@ -116,6 +133,10 @@ import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.PlatformType
 import com.dapascript.mever.core.common.util.PlatformType.AI
 import com.dapascript.mever.core.common.util.PlatformType.ALL
+import com.dapascript.mever.core.common.util.PlatformType.FACEBOOK
+import com.dapascript.mever.core.common.util.PlatformType.INSTAGRAM
+import com.dapascript.mever.core.common.util.PlatformType.TIKTOK
+import com.dapascript.mever.core.common.util.PlatformType.TWITTER
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
 import com.dapascript.mever.core.common.util.changeToCurrentDate
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.NetworkStatus.Available
@@ -345,6 +366,7 @@ private fun HomeScreenContent(
         val scope = rememberCoroutineScope()
         var showDeleteDialog by remember { mutableStateOf<Int?>(null) }
         var showFailedDialog by remember { mutableStateOf<Int?>(null) }
+        var showPlatformSupportDialog by remember { mutableStateOf(false) }
         var generateButtonHeight by remember { mutableIntStateOf(0) }
         val buttonAction = {
             if (pagerState.currentPage == 0) requestStoragePermissionLauncher()
@@ -366,6 +388,38 @@ private fun HomeScreenContent(
                 urlSocialMediaState = TextFieldValue(urlIntent)
                 delay(1000)
                 resetUrlIntent()
+            }
+        }
+
+        MeverDialog(
+            showDialog = showPlatformSupportDialog,
+            meverDialogArgs = MeverDialogArgs(
+                title = stringResource(R.string.platforms_supported)
+            ),
+            hideInteractionButton = true
+        ) {
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                text = PlatformType.entries
+                    .filter { it != AI && it != ALL }
+                    .joinToString(separator = ", ") { it.platformName },
+                textAlign = TextAlign.Center,
+                style = typography.body1,
+                color = colorScheme.onPrimary
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(Dp14))
+                    .onCustomClick { showPlatformSupportDialog = false }
+                    .padding(vertical = Dp8),
+                contentAlignment = Center
+            ) {
+                Text(
+                    text = stringResource(R.string.close),
+                    style = typography.bodyBold2,
+                    color = colorScheme.primary
+                )
             }
         }
 
@@ -474,6 +528,7 @@ private fun HomeScreenContent(
                                             }
                                         )
                                     },
+                                    onClickPlatformSupport = { showPlatformSupportDialog = true },
                                     onClickViewAll = { navController.navigateToGalleryScreen() }
                                 )
                             }
@@ -599,6 +654,7 @@ internal fun HomeDownloaderSection(
     onClickShare: (DownloadModel) -> Unit,
     onValueChange: (TextFieldValue) -> Unit,
     onClickDownload: () -> Unit,
+    onClickPlatformSupport: () -> Unit,
     onClickViewAll: () -> Unit
 ) = CompositionLocalProvider(LocalOverscrollFactory provides null) {
     LazyColumn(modifier = modifier) {
@@ -611,11 +667,7 @@ internal fun HomeDownloaderSection(
         }
         item {
             Spacer(modifier = Modifier.size(Dp16))
-            Text(
-                text = stringResource(R.string.downloader_desc),
-                style = typography.body2,
-                color = colorScheme.secondary
-            )
+            DescriptionDownloaderSection(context) { onClickPlatformSupport() }
         }
         item {
             Spacer(modifier = Modifier.size(Dp24))
@@ -624,7 +676,7 @@ internal fun HomeDownloaderSection(
                 horizontalArrangement = SpaceBetween
             ) {
                 PlatformType.entries.filter {
-                    it.platformName !in listOf(AI.platformName, ALL.platformName)
+                    it in listOf(FACEBOOK, INSTAGRAM, TIKTOK, TWITTER, YOUTUBE)
                 }.map {
                     MeverIcon(
                         icon = getPlatformIcon(it.platformName),
@@ -688,7 +740,8 @@ internal fun HomeDownloaderSection(
         downloadList?.let { files ->
             if (files.isNotEmpty()) {
                 items(
-                    items = files.toMutableStateList().apply { if (size > 5) removeRange(5, size) },
+                    items = files.toMutableStateList()
+                        .apply { if (size > 5) removeRange(5, size) },
                     key = { it.id }
                 ) {
                     MeverCard(
@@ -886,6 +939,71 @@ internal fun HomeAiSection(
                 .clipToBounds()
         )
     }
+}
+
+@Composable
+private fun DescriptionDownloaderSection(
+    context: Context,
+    onClick: () -> Unit
+) {
+    val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
+    val baseStyle = SpanStyle(
+        fontSize = typography.bodyBold2.fontSize,
+        fontFamily = typography.bodyBold2.fontFamily,
+        fontWeight = typography.bodyBold2.fontWeight
+    )
+    val annotatedString = buildAnnotatedString {
+        append(context.getString(R.string.downloader_desc))
+        append(" ")
+        pushStringAnnotation(
+            tag = "infoIcon",
+            annotation = "clickable_info_icon"
+        )
+        pushStyle(
+            SpanStyle(
+                fontSize = baseStyle.fontSize,
+                fontFamily = baseStyle.fontFamily,
+                fontWeight = baseStyle.fontWeight,
+                color = colorScheme.primary
+            )
+        )
+        append(context.getString(R.string.see_all_supported_platforms))
+        append(" ")
+        pop()
+        appendInlineContent("infoIcon", "[icon]")
+    }
+    val inlineContent = mapOf(
+        "infoIcon" to InlineTextContent(
+            Placeholder(
+                width = Sp14,
+                height = Sp14,
+                placeholderVerticalAlign = PlaceholderVerticalAlign.Center
+            )
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Info,
+                tint = colorScheme.primary,
+                contentDescription = "Info"
+            )
+        }
+    )
+    BasicText(
+        modifier = Modifier.pointerInput(Unit) {
+            detectTapGestures { offset ->
+                val layoutResult = layoutResult.value ?: return@detectTapGestures
+                val position = layoutResult.getOffsetForPosition(offset)
+                val annotations = annotatedString.getStringAnnotations(
+                    "infoIcon", position, position
+                )
+
+                if (annotations.isNotEmpty()) onClick()
+            }
+        },
+        onTextLayout = { layoutResult.value = it },
+        text = annotatedString,
+        inlineContent = inlineContent,
+        style = typography.body2.copy(color = colorScheme.secondary)
+    )
 }
 
 private fun getListActionMenu(context: Context, hasDownloadProgress: Boolean) = listOf(
