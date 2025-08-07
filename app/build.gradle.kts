@@ -7,8 +7,8 @@ plugins {
 android {
     defaultConfig {
         applicationId = "com.dapascript.mever"
-        versionCode = 20250727
-        versionName = "1.0.1"
+        versionCode = 20250817
+        versionName = "1.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
