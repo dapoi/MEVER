@@ -169,7 +169,6 @@ import com.ketch.DownloadModel
 import com.ketch.Status.FAILED
 import com.ketch.Status.PAUSED
 import com.ketch.Status.SUCCESS
-import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
@@ -267,7 +266,7 @@ internal fun HomeLandingScreen(
             showBottomSheet = contents.isNotEmpty(),
             isFailedFetchImage = isNetworkAvailable != Available,
             onClickDownload = { url ->
-                scope.launch(IO) {
+                scope.launch {
                     startDownload(
                         url = url,
                         fileName = contents.firstOrNull()?.fileName.orEmpty().ifEmpty {
@@ -356,6 +355,7 @@ private fun HomeScreenContent(
 ) = with(viewModel) {
     BoxWithConstraints(modifier = modifier) {
         val downloadList = downloadList.collectAsStateValue()
+        val showBadge = showBadge.collectAsStateValue()
         val getButtonClickCount = getButtonClickCount.collectAsStateValue()
         val urlIntent = getUrlIntent.collectAsStateValue()
         val getListActionMenu = remember(downloadList) {
@@ -443,7 +443,7 @@ private fun HomeScreenContent(
                         ActionMenu(
                             icon = resource,
                             nameIcon = name,
-                            showBadge = showBadge && name == stringResource(R.string.gallery),
+                            showBadge = showBadge == true && name == stringResource(R.string.gallery),
                         ) { handleClickActionMenu(context, navController)(name) }
                     }
                 )
@@ -723,7 +723,9 @@ internal fun HomeDownloaderSection(
                     backgroundColor = colorScheme.primary,
                     contentColor = MeverWhite
                 ),
-                isEnabled = getPlatformType(urlSocialMediaState.text.trim()) != ALL,
+                isEnabled = getPlatformType(
+                    urlSocialMediaState.text.trim()
+                ) != ALL && isLoading.not(),
                 isLoading = isLoading
             ) { onClickDownload() }
             Spacer(modifier = Modifier.size(Dp24))
@@ -783,7 +785,7 @@ internal fun HomeDownloaderSection(
                         onClickDelete = { onClickDelete(it) }
                     )
                 }
-                item { Spacer(modifier = Modifier.size(Dp40)) }
+                item { Spacer(modifier = Modifier.size(Dp24)) }
             } else item {
                 MeverEmptyItem(
                     image = R.drawable.ic_not_found,

@@ -60,6 +60,7 @@ class MainActivity : FragmentActivity() {
             updateAvailability = UPDATE_AVAILABLE,
             launcher = updateLauncher
         )
+        enableEdgeToEdge()
         setLanguage()
         handleShareIntent(intent)
         setContent {

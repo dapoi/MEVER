@@ -34,8 +34,8 @@ import com.ketch.Status.QUEUED
 import com.ketch.Status.STARTED
 import com.ketch.Status.SUCCESS
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted.Companion.Lazily
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
@@ -58,7 +58,6 @@ class HomeLandingViewModel @Inject constructor(
      */
     var urlSocialMediaState by mutableStateOf(TextFieldValue(""))
     var selectedQuality by mutableStateOf("")
-    var showBadge by mutableStateOf(false)
     var showDonationDialog by mutableStateOf(true)
     var contents by mutableStateOf<List<ContentEntity>>(emptyList())
 
@@ -70,16 +69,19 @@ class HomeLandingViewModel @Inject constructor(
     var selectedArtStyle by mutableStateOf(Pair("", ""))
 
     val downloadList = ketch.observeDownloads()
-        .map { downloads ->
-            downloads
-                .sortedByDescending { it.timeQueued }
-                .also {
-                    showBadge = it.any { file ->
-                        file.status in listOf(QUEUED, STARTED, PAUSED, PROGRESS)
-                    }
-                }
+        .map { downloads -> downloads.sortedByDescending { it.timeQueued } }
+        .stateIn(viewModelScope, WhileSubscribed(5000), null)
+    val showBadge = downloadList
+        .map { list ->
+            list?.any { file ->
+                file.status in listOf(QUEUED, STARTED, PAUSED, PROGRESS)
+            }
         }
-        .stateIn(viewModelScope, Lazily, null)
+        .stateIn(
+            scope = viewModelScope,
+            started = WhileSubscribed(5000),
+            initialValue = false
+        )
     val isNetworkAvailable = connectivityObserver
         .observe()
         .stateIn(
@@ -158,7 +160,7 @@ class HomeLandingViewModel @Inject constructor(
     fun delete(id: Int) = ketch.clearDb(id)
 
     fun refreshDatabase() {
-        viewModelScope.launch {
+        viewModelScope.launch(IO) {
             val currentDownloads = downloadList.value
             currentDownloads?.forEach { download ->
                 if (download.status == SUCCESS && isAvailableOnLocal(download.fileName).not()) {

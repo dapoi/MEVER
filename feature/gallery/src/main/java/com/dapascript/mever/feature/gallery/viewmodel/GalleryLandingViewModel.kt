@@ -11,7 +11,9 @@ import com.dapascript.mever.core.common.util.storage.StorageUtil.isAvailableOnLo
 import com.ketch.Ketch
 import com.ketch.Status.SUCCESS
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.SharingStarted.Companion.Lazily
+import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -23,21 +25,20 @@ class GalleryLandingViewModel @Inject constructor(
 ) : BaseViewModel() {
 
     var selectedFilter by mutableStateOf(ALL)
-    var platformTypes by mutableStateOf(listOf(ALL))
+
     val downloadList = ketch.observeDownloads()
-        .map { downloads ->
-            downloads
-                .sortedByDescending { it.timeQueued }
-                .also {
-                    platformTypes = PlatformType.entries.filter { type ->
-                        it.any { model -> model.tag == type.platformName }
-                    }
-                }
+        .map { downloads -> downloads.sortedByDescending { it.timeQueued } }
+        .stateIn(viewModelScope, WhileSubscribed(5000), null)
+    val platformTypes = downloadList
+        .map { list ->
+            PlatformType.entries.filter { type ->
+                list?.any { model -> model.tag == type.platformName } ?: false
+            }
         }
-        .stateIn(viewModelScope, Lazily, null)
+        .stateIn(viewModelScope, Lazily, listOf(ALL))
 
     fun refreshDatabase() {
-        viewModelScope.launch {
+        viewModelScope.launch(IO) {
             val currentDownloads = downloadList.value
             currentDownloads?.forEach { download ->
                 if (download.status == SUCCESS && isAvailableOnLocal(download.fileName).not()) {

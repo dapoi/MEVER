@@ -105,6 +105,7 @@ internal fun GalleryLandingScreen(
 ) = with(viewModel) {
     val context = LocalContext.current
     val downloadList = downloadList.collectAsStateValue()
+    val platformTypes = platformTypes.collectAsStateValue()
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
     val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
