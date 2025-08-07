@@ -7,8 +7,10 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -33,7 +35,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -51,7 +52,6 @@ import com.dapascript.mever.core.common.ui.attr.MeverIconAttr.getPlatformIcon
 import com.dapascript.mever.core.common.ui.attr.MeverIconAttr.getPlatformIconBackgroundColor
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.ActionMenu
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
-import com.dapascript.mever.core.common.ui.component.MeverBannerAd
 import com.dapascript.mever.core.common.ui.component.MeverButton
 import com.dapascript.mever.core.common.ui.component.MeverCard
 import com.dapascript.mever.core.common.ui.component.MeverDialogError
@@ -189,7 +189,7 @@ internal fun GalleryLandingScreen(
                 .systemBarsPadding(),
             onClickFilter = {
                 scope.launch {
-                    listState.animateScrollToItem(0)
+                    listState.scrollToItem(0)
                     if (listState.firstVisibleItemIndex == 0) selectedFilter = it
                 }
             },
@@ -361,13 +361,8 @@ private fun GalleryContentSection(
                                 onClickDelete = { onClickDelete(it) }
                             )
                         }
+                        item { Spacer(modifier = Modifier.height(Dp80)) }
                     }
-                    if (downloadList.size > 3) MeverBannerAd(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = Dp24)
-                            .clipToBounds()
-                    )
                 }
             } else {
                 Column(modifier = Modifier.fillMaxSize()) {
