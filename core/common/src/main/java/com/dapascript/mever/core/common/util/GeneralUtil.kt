@@ -1,6 +1,7 @@
 package com.dapascript.mever.core.common.util
 
 import android.app.Activity
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_SENDTO
@@ -9,8 +10,14 @@ import android.content.Intent.EXTRA_EMAIL
 import android.content.Intent.EXTRA_SUBJECT
 import android.content.Intent.EXTRA_TEXT
 import android.graphics.Bitmap
+import android.graphics.Bitmap.CompressFormat.JPEG
 import android.graphics.BitmapFactory.decodeStream
 import android.media.MediaMetadataRetriever
+import android.os.Environment.DIRECTORY_PICTURES
+import android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+import android.provider.MediaStore.MediaColumns.DISPLAY_NAME
+import android.provider.MediaStore.MediaColumns.MIME_TYPE
+import android.provider.MediaStore.MediaColumns.RELATIVE_PATH
 import android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS
 import android.provider.Settings.EXTRA_APP_PACKAGE
 import android.util.Patterns.WEB_URL
@@ -36,6 +43,7 @@ import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.File
+import java.io.OutputStream
 import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.Calendar.getInstance
@@ -82,6 +90,34 @@ suspend fun getUrlContentType(url: String) = withContext(IO) {
     } catch (e: Exception) {
         e.printStackTrace()
         null
+    }
+}
+
+suspend fun saveBitmapToStorage(
+    context: Context,
+    bitmap: Bitmap,
+    fileName: String
+) = withContext(IO) {
+    val values = ContentValues().apply {
+        put(DISPLAY_NAME, fileName)
+        put(MIME_TYPE, "image/jpeg")
+        if (isAndroidQAbove()) put(RELATIVE_PATH, DIRECTORY_PICTURES)
+    }
+
+    val resolver = context.contentResolver
+    val uri = resolver.insert(EXTERNAL_CONTENT_URI, values)
+
+    try {
+        uri?.let {
+            val outputStream: OutputStream? = resolver.openOutputStream(it)
+            outputStream?.use { stream ->
+                bitmap.compress(JPEG, 100, stream)
+            }
+            true
+        } ?: false
+    } catch (e: Exception) {
+        e.printStackTrace()
+        false
     }
 }
 

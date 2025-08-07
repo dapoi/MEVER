@@ -64,6 +64,7 @@ import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverAutoSizableTextField
 import com.dapascript.mever.core.common.ui.component.MeverBannerAd
 import com.dapascript.mever.core.common.ui.component.MeverButton
+import com.dapascript.mever.core.common.ui.component.MeverDeclinedPermission
 import com.dapascript.mever.core.common.ui.component.MeverDialogError
 import com.dapascript.mever.core.common.ui.component.MeverImage
 import com.dapascript.mever.core.common.ui.component.MeverPermissionHandler
@@ -105,7 +106,6 @@ import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLand
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeImageGeneratorResultRoute
 import com.dapascript.mever.feature.home.screen.attr.HomeImageGeneratorResultAttr.getMenuActions
 import com.dapascript.mever.feature.home.screen.component.HandleDialogExitConfirmation
-import com.dapascript.mever.feature.home.screen.component.HandleHomeDialogPermission
 import com.dapascript.mever.feature.home.viewmodel.HomeImageGeneratorResultViewModel
 import kotlinx.coroutines.launch
 import java.io.File
@@ -206,13 +206,13 @@ internal fun HomeImageGeneratorResultScreen(
                 )
             },
             onDenied = { isPermanentlyDeclined, retry ->
-                HandleHomeDialogPermission(
+                MeverDeclinedPermission(
                     isPermissionsDeclined = isPermanentlyDeclined,
                     onGoToSetting = {
                         setStoragePermission = emptyList()
                         activity.goToSetting()
                     },
-                    onRetry = { retry },
+                    onRetry = { retry() },
                     onDismiss = { setStoragePermission = emptyList() }
                 )
             }

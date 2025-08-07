@@ -82,6 +82,7 @@ import com.dapascript.mever.core.common.ui.component.MeverAutoSizableTextField
 import com.dapascript.mever.core.common.ui.component.MeverBannerAd
 import com.dapascript.mever.core.common.ui.component.MeverButton
 import com.dapascript.mever.core.common.ui.component.MeverCard
+import com.dapascript.mever.core.common.ui.component.MeverDeclinedPermission
 import com.dapascript.mever.core.common.ui.component.MeverDialogError
 import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
 import com.dapascript.mever.core.common.ui.component.MeverIcon
@@ -140,7 +141,6 @@ import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetDownl
 import com.dapascript.mever.feature.home.screen.component.HandleDialogExitConfirmation
 import com.dapascript.mever.feature.home.screen.component.HandleDialogYoutubeQuality
 import com.dapascript.mever.feature.home.screen.component.HandleDonationDialogOffer
-import com.dapascript.mever.feature.home.screen.component.HandleHomeDialogPermission
 import com.dapascript.mever.feature.home.viewmodel.HomeLandingViewModel
 import com.ketch.DownloadModel
 import com.ketch.Status.FAILED
@@ -221,7 +221,7 @@ internal fun HomeLandingScreen(
                     )
                 },
                 onDenied = { isPermanentlyDeclined, retry ->
-                    HandleHomeDialogPermission(
+                    MeverDeclinedPermission(
                         isPermissionsDeclined = isPermanentlyDeclined,
                         onGoToSetting = {
                             setStoragePermission = emptyList()
