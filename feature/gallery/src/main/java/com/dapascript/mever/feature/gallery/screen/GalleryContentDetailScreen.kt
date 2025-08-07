@@ -46,6 +46,7 @@ internal fun GalleryContentDetailScreen(
                 .background(MeverBlack),
             state = pagerState,
             userScrollEnabled = isFullScreen.not(),
+            beyondViewportPageCount = 1,
             key = { page -> args.contents[page].id }
         ) { page ->
             val pageOffset =
@@ -72,9 +73,9 @@ internal fun GalleryContentDetailScreen(
                 if (isVideo(filePath)) MeverVideoPlayer(
                     modifier = itemModifier,
                     source = filePath,
-                    currentPage = pagerState.currentPage,
-                    index = page,
-                    initialIndex = args.initialIndex,
+                    isScrolling = pagerState.isScrollInProgress,
+                    isPageVisible = pagerState.currentPage == page,
+                    isInitialIndex = args.initialIndex == page,
                     isFullScreen = isFullScreen,
                     onFullScreenChange = { isFullScreen = it },
                     onClickDelete = { deleteContent(id) },

@@ -49,6 +49,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterVertically
@@ -96,15 +97,16 @@ import com.dapascript.mever.core.common.util.hideSystemBar
 import com.dapascript.mever.core.common.util.isSystemBarVisible
 import com.dapascript.mever.core.common.util.onCustomClick
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 
 @SuppressLint("SourceLockedOrientationActivity")
 @Composable
 fun MeverVideoPlayer(
-    currentPage: Int,
-    index: Int,
-    initialIndex: Int,
+    isInitialIndex: Boolean,
+    isPageVisible: Boolean,
     isFullScreen: Boolean,
+    isScrolling: Boolean,
     source: String,
     modifier: Modifier = Modifier,
     onClickDelete: () -> Unit,
@@ -114,11 +116,11 @@ fun MeverVideoPlayer(
 ) {
     val context = LocalContext.current
     val activity = LocalActivity.current
+    val player = remember(context) { ExoPlayer.Builder(context).build() }
     val lifecycleOwner by rememberUpdatedState(LocalLifecycleOwner.current)
 
     // State
     var totalDuration by rememberSaveable { mutableLongStateOf(0L) }
-    var player by remember { mutableStateOf<Player?>(null) }
     var videoTimer by remember { mutableLongStateOf(0L) }
     var isVideoPlaying by remember { mutableStateOf(false) }
     var playbackState by remember { mutableStateOf<Int?>(null) }
@@ -126,7 +128,7 @@ fun MeverVideoPlayer(
 
     // UI State
     var hasAutoplayed by rememberSaveable { mutableStateOf(false) }
-    var showController by remember { mutableStateOf(true) }
+    var showController by remember { mutableStateOf(false) }
     var showDropDownMenu by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
@@ -142,53 +144,30 @@ fun MeverVideoPlayer(
 
     BackHandler(isFullScreen) { exitFullScreen() }
 
-    LaunchedEffect(currentPage, initialIndex) {
-        val isMyPageVisible = currentPage == index
-
-        if (isMyPageVisible) {
-            delay(300L)
-            if (player == null) {
-                player = ExoPlayer.Builder(context).build().apply {
-                    setMediaItem(fromUri(source))
-                    addListener(object : Listener {
-                        override fun onEvents(player: Player, events: Events) {
-                            super.onEvents(player, events)
-                            totalDuration = player.duration.coerceAtLeast(0L)
-                            isVideoPlaying = player.isPlaying
-                            playbackState = player.playbackState
-                        }
-
-                        override fun onPlaybackStateChanged(state: Int) {
-                            super.onPlaybackStateChanged(state)
-                            playbackState = state
-                            isVideoBuffering = state == STATE_BUFFERING
-                        }
-                    })
-                    prepare()
-                }
-            }
-            val amITheInitialPage = index == initialIndex
-            if (amITheInitialPage && hasAutoplayed.not()) {
-                player?.play()
+    LaunchedEffect(isPageVisible, isInitialIndex, isScrolling) {
+        if (isPageVisible) {
+            snapshotFlow { isScrolling }.first { it.not() }
+            if (isInitialIndex && hasAutoplayed.not()) {
+                player.play()
                 showController = true
                 hasAutoplayed = true
             }
         } else {
-            player?.pause()
+            player.pause()
         }
     }
 
     LaunchedEffect(showController, showDropDownMenu, isFullScreen) {
         hideSystemBar(activity, showController.not() && isFullScreen)
         if (showController && showDropDownMenu.not()) {
-            delay(3000L)
+            delay(2000L)
             showController = false
         }
     }
 
     LaunchedEffect(player) {
         while (isActive) {
-            videoTimer = player?.currentPosition ?: 0
+            videoTimer = player.currentPosition
             delay(300L)
         }
     }
@@ -196,29 +175,51 @@ fun MeverVideoPlayer(
     LaunchedEffect(isVideoBuffering) {
         if (isVideoBuffering) {
             delay(3000L)
-            val currentPosition = player?.currentPosition ?: 0L
+            val currentPosition = player.currentPosition
             val seekBackPosition = (currentPosition - 10000L).coerceAtLeast(0L)
-            player?.seekTo(seekBackPosition)
-            player?.playWhenReady = true
+            player.seekTo(seekBackPosition)
+            player.playWhenReady = true
         }
     }
 
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event -> if (event == ON_STOP) player?.pause() }
+    DisposableEffect(source) {
+        val listener = object : Listener {
+            override fun onEvents(player: Player, events: Events) {
+                super.onEvents(player, events)
+                totalDuration = player.duration.coerceAtLeast(0L)
+                isVideoPlaying = player.isPlaying
+                playbackState = player.playbackState
+            }
+
+            override fun onPlaybackStateChanged(state: Int) {
+                super.onPlaybackStateChanged(state)
+                playbackState = state
+                isVideoBuffering = state == STATE_BUFFERING
+            }
+        }
+        player.addListener(listener)
+
+        val observer = LifecycleEventObserver { _, event -> if (event == ON_STOP) player.pause() }
         lifecycleOwner.lifecycle.addObserver(observer)
+
+        player.setMediaItem(fromUri(source))
+        player.prepare()
 
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
-            player?.release()
-            player = null
+            player.removeListener(listener)
+            player.stop()
+            player.clearMediaItems()
             hideSystemBar(activity, isSystemBarVisible(activity).not())
         }
     }
 
+    DisposableEffect(Unit) { onDispose { player.release() } }
+
     Box(modifier = modifier) {
         VideoPlayer(
             modifier = Modifier.fillMaxSize(),
-            player = player ?: return,
+            player = player,
             isVideoBuffering = isVideoBuffering,
             title = convertFilename(source.substringAfterLast("/")).ifEmpty { "Video" },
             iconPlayOrPause = if (isVideoPlaying) R.drawable.ic_pause else R.drawable.ic_play,
@@ -226,33 +227,32 @@ fun MeverVideoPlayer(
             isFullScreen = isFullScreen,
             videoTimer = videoTimer,
             totalDuration = totalDuration.coerceAtLeast(0L),
-            bufferProgress = player?.bufferedPosition?.toFloat() ?: 0f,
+            bufferProgress = player.bufferedPosition.toFloat(),
             onClickAny = { showController = showController.not() },
             onClickRewind = {
-                player?.seekTo(player?.currentPosition?.minus(5000) ?: 0)
+                player.seekTo(player.currentPosition.minus(5000))
                 showController = true
             },
             onClickPlayOrPause = {
                 when {
-                    player?.isPlaying == true -> player?.pause()
-                    player?.isPlaying == false && playbackState == STATE_ENDED -> {
-                        player?.seekTo(0, 0)
-                        player?.playWhenReady = true
+                    player.isPlaying -> player.pause()
+                    player.isPlaying.not() && playbackState == STATE_ENDED -> {
+                        player.seekTo(0, 0)
+                        player.playWhenReady = true
                     }
 
-                    else -> player?.play()
+                    else -> player.play()
                 }
-                isVideoPlaying = isVideoPlaying.not()
             },
             onClickForward = {
-                player?.seekTo(player?.currentPosition?.plus(5000) ?: 0)
+                player.seekTo(player.currentPosition.plus(5000))
                 showController = true
             },
             onClickFullScreen = { if (isFullScreen) exitFullScreen() else enterFullScreen() },
             onClickActionMenu = { showDropDownMenu = showDropDownMenu.not() },
             onClickBack = if (isFullScreen) exitFullScreen else onClickBack,
             onChangeSeekbar = { position ->
-                player?.seekTo(position.toLong())
+                player.seekTo(position.toLong())
                 showController = true
             }
         )
