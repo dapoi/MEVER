@@ -9,6 +9,7 @@ import com.dapascript.mever.core.data.model.remote.TeraboxDownloaderResponse
 import com.dapascript.mever.core.data.model.remote.ThreadsDownloaderResponse
 import com.dapascript.mever.core.data.model.remote.TiktokDownloaderResponse
 import com.dapascript.mever.core.data.model.remote.TwitterDownloaderResponse
+import com.dapascript.mever.core.data.model.remote.VideyDownloaderResponse
 import com.dapascript.mever.core.data.model.remote.YouTubeDownloaderResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -51,6 +52,11 @@ interface ApiService {
     suspend fun getTwitterDownloader(
         @Query("url") url: String
     ): TwitterDownloaderResponse
+
+    @GET("videy")
+    suspend fun getVideyDownloader(
+        @Query("url") url: String
+    ): VideyDownloaderResponse
 
     @GET("youtube")
     suspend fun getYoutubeDownloader(

@@ -9,6 +9,7 @@ enum class PlatformType(val platformName: String) {
     THREADS("Threads"),
     TIKTOK("TikTok"),
     TWITTER("Twitter"),
+    VIDEY("Videy"),
     YOUTUBE("YouTube"),
     ALL("All")
 }

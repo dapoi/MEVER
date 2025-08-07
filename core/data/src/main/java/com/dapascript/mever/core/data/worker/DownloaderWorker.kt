@@ -14,6 +14,7 @@ import com.dapascript.mever.core.common.util.PlatformType.TERABOX
 import com.dapascript.mever.core.common.util.PlatformType.THREADS
 import com.dapascript.mever.core.common.util.PlatformType.TIKTOK
 import com.dapascript.mever.core.common.util.PlatformType.TWITTER
+import com.dapascript.mever.core.common.util.PlatformType.VIDEY
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
 import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.state.ApiState
@@ -70,6 +71,7 @@ class DownloaderWorker @AssistedInject constructor(
         THREADS -> getThreadsDownloader(url)
         TIKTOK -> getTiktokDownloader(url)
         TWITTER -> getTwitterDownloader(url)
+        VIDEY -> getVideyDownloader(url)
         YOUTUBE -> getYoutubeDownloader(url, selectedQuality)
         AI, ALL -> throw Throwable("Platform not supported")
     }

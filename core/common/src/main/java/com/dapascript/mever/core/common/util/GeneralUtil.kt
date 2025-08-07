@@ -38,6 +38,7 @@ import com.dapascript.mever.core.common.util.PlatformType.TERABOX
 import com.dapascript.mever.core.common.util.PlatformType.THREADS
 import com.dapascript.mever.core.common.util.PlatformType.TIKTOK
 import com.dapascript.mever.core.common.util.PlatformType.TWITTER
+import com.dapascript.mever.core.common.util.PlatformType.VIDEY
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
@@ -219,6 +220,7 @@ fun getPlatformType(url: String): PlatformType {
     val listThreadsUrl = listOf("threads.net", "threadsthis.com", "threadsthis.net", "threads.com")
     val listTiktokUrl = listOf("tiktok.com", "tiktokv.com", "tiktokcdn.com")
     val listTwitterUrl = listOf("x.com", "twitter.com", "t.co", "mobile.twitter.com")
+    val listVideyUrl = listOf("videy.com", "videy.net", "videy.co")
     val listYouTubeUrl = listOf("youtube.com", "youtu.be", "m.youtube.com", "yt.com")
 
     return when {
@@ -229,6 +231,7 @@ fun getPlatformType(url: String): PlatformType {
         listThreadsUrl.any { url.contains(it) } -> THREADS
         listTiktokUrl.any { url.contains(it) } -> TIKTOK
         listTwitterUrl.any { url.contains(it) } -> TWITTER
+        listVideyUrl.any { url.contains(it) } -> VIDEY
         listYouTubeUrl.any { url.contains(it) } -> YOUTUBE
         else -> ALL
     }

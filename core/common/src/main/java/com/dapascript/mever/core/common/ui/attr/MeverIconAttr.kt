@@ -9,6 +9,8 @@ import com.dapascript.mever.core.common.ui.theme.MeverLightGreen
 import com.dapascript.mever.core.common.ui.theme.MeverLightPink
 import com.dapascript.mever.core.common.ui.theme.MeverLightPurple
 import com.dapascript.mever.core.common.ui.theme.MeverPink
+import com.dapascript.mever.core.common.ui.theme.MeverSoftGray
+import com.dapascript.mever.core.common.ui.theme.MeverSoftWhite
 import com.dapascript.mever.core.common.util.PlatformType.FACEBOOK
 import com.dapascript.mever.core.common.util.PlatformType.INSTAGRAM
 import com.dapascript.mever.core.common.util.PlatformType.PINTEREST
@@ -16,6 +18,7 @@ import com.dapascript.mever.core.common.util.PlatformType.TERABOX
 import com.dapascript.mever.core.common.util.PlatformType.THREADS
 import com.dapascript.mever.core.common.util.PlatformType.TIKTOK
 import com.dapascript.mever.core.common.util.PlatformType.TWITTER
+import com.dapascript.mever.core.common.util.PlatformType.VIDEY
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
 
 object MeverIconAttr {
@@ -23,10 +26,11 @@ object MeverIconAttr {
         platform.contains(FACEBOOK.platformName) -> R.drawable.ic_facebook
         platform.contains(INSTAGRAM.platformName) -> R.drawable.ic_instagram
         platform.contains(PINTEREST.platformName) -> R.drawable.ic_pinterest
-        platform.contains(TERABOX.platformName) -> R.drawable.ic_tiktok
+        platform.contains(TERABOX.platformName) -> R.drawable.ic_terabox
         platform.contains(THREADS.platformName) -> R.drawable.ic_threads
         platform.contains(TIKTOK.platformName) -> R.drawable.ic_tiktok
         platform.contains(TWITTER.platformName) -> R.drawable.ic_twitter
+        platform.contains(VIDEY.platformName) -> R.drawable.ic_videy
         platform.contains(YOUTUBE.platformName) -> R.drawable.ic_youtube
         else -> R.drawable.ic_broken_image
     }
@@ -35,10 +39,11 @@ object MeverIconAttr {
         platform.contains(FACEBOOK.platformName) -> MeverLightBlue
         platform.contains(INSTAGRAM.platformName) -> MeverCreamPink
         platform.contains(PINTEREST.platformName) -> MeverLightPink
-        platform.contains(TERABOX.platformName) -> MeverLightGray
+        platform.contains(TERABOX.platformName) -> MeverSoftWhite
         platform.contains(THREADS.platformName) -> MeverGreen
         platform.contains(TIKTOK.platformName) -> MeverLightGreen
         platform.contains(TWITTER.platformName) -> MeverLightPurple
+        platform.contains(VIDEY.platformName) -> MeverSoftGray
         platform.contains(YOUTUBE.platformName) -> MeverPink
         else -> MeverLightGray
     }

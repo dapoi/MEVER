@@ -49,6 +49,11 @@ class MeverRepositoryImpl @Inject constructor(
         transformData = { it.mapToEntity() }
     )
 
+    override fun getVideyDownloader(url: String) = collectApiResult(
+        fetchApi = { apiService.getVideyDownloader(url) },
+        transformData = { it.mapToEntity() }
+    )
+
     override fun getYoutubeDownloader(
         url: String,
         quality: String
@@ -56,7 +61,6 @@ class MeverRepositoryImpl @Inject constructor(
         fetchApi = { apiService.getYoutubeDownloader(url, quality) },
         transformData = { it.mapToEntity() }
     )
-
 
     override fun getImageAiGenerator(prompt: String) = collectApiResult(
         fetchApi = { apiService.getImageAiGenerator(prompt) },
