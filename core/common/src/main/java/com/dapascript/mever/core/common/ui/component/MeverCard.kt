@@ -58,6 +58,7 @@ import com.dapascript.mever.core.common.util.calculateDownloadedMegabytes
 import com.dapascript.mever.core.common.util.convertFilename
 import com.dapascript.mever.core.common.util.getContentType
 import com.dapascript.mever.core.common.util.getTwoDecimals
+import com.dapascript.mever.core.common.util.isMusic
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getFilePath
 import com.ketch.Status
@@ -104,7 +105,8 @@ fun MeverCard(
                         translationX = 1.5f
                         translationY = 1.5f
                     },
-                source = getImageSource(
+                source = if (isMusic(fileName)) R.drawable.ic_music
+                else getImageSource(
                     status = status,
                     url = source,
                     fileName = fileName,
@@ -145,7 +147,8 @@ fun MeverCard(
                 Text(
                     text = stringResource(
                         R.string.type,
-                        getContentType(getFilePath(fileName))
+                        if (isMusic(fileName)) "music/mp3"
+                        else getContentType(getFilePath(fileName))
                     ),
                     style = typography.label2,
                     color = MeverGray,

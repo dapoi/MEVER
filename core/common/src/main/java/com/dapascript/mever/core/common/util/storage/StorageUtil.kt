@@ -38,7 +38,7 @@ object StorageUtil {
         val meverFolder = getMeverFolder()
         return if (meverFolder.exists() && meverFolder.isDirectory) {
             meverFolder.listFiles { file ->
-                file.isFile && file.extension.lowercase() in listOf("mp4", "jpg")
+                file.isFile && file.extension.lowercase() in listOf("mp4", "mp3", "jpg")
             }?.toList()
         } else emptyList()
     }

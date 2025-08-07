@@ -7,6 +7,7 @@ object WorkerConstant {
     const val KEY_REQUEST_URL = "url"
     const val KEY_REQUEST_SELECTED_QUALITY = "selected_quality"
     const val KEY_RESPONSE_CONTENTS = "contents"
+    const val KEY_RESPONSE_TYPE = "type"
 
     /**
      * AI Image Generator Worker

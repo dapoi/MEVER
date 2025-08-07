@@ -16,6 +16,7 @@ import com.dapascript.mever.core.common.util.PlatformType.TIKTOK
 import com.dapascript.mever.core.common.util.PlatformType.TWITTER
 import com.dapascript.mever.core.common.util.PlatformType.VIDEY
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
+import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE_MUSIC
 import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.state.ApiState
 import com.dapascript.mever.core.common.util.state.ApiState.Loading
@@ -23,6 +24,7 @@ import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_ERROR
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_REQUEST_SELECTED_QUALITY
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_REQUEST_URL
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_RESPONSE_CONTENTS
+import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_RESPONSE_TYPE
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.util.MoshiHelper
 import dagger.assisted.Assisted
@@ -39,7 +41,8 @@ class DownloaderWorker @AssistedInject constructor(
     override suspend fun doWork() = try {
         val link = inputData.getString(KEY_REQUEST_URL).orEmpty()
         val selectedQuality = inputData.getString(KEY_REQUEST_SELECTED_QUALITY).orEmpty()
-        val state = repository.getApiDownloader(link, selectedQuality).first {
+        val type = inputData.getString(KEY_RESPONSE_TYPE) ?: "video"
+        val state = repository.getApiDownloader(link, selectedQuality, type).first {
             it !is Loading
         }
         when (state) {
@@ -62,8 +65,9 @@ class DownloaderWorker @AssistedInject constructor(
 
     private fun MeverRepository.getApiDownloader(
         url: String,
-        selectedQuality: String
-    ) = when (getPlatformType(url)) {
+        selectedQuality: String,
+        type: String
+    ) = when (getPlatformType(url, type)) {
         FACEBOOK -> getFacebookDownloader(url)
         INSTAGRAM -> getInstagramDownloader(url)
         PINTEREST -> getPinterestDownloader(url)
@@ -72,7 +76,7 @@ class DownloaderWorker @AssistedInject constructor(
         TIKTOK -> getTiktokDownloader(url)
         TWITTER -> getTwitterDownloader(url)
         VIDEY -> getVideyDownloader(url)
-        YOUTUBE -> getYoutubeDownloader(url, selectedQuality)
+        YOUTUBE, YOUTUBE_MUSIC -> getYoutubeDownloader(url, selectedQuality, type)
         AI, ALL -> throw Throwable("Platform not supported")
     }
 }

@@ -37,13 +37,13 @@ class MeverDataStore @Inject constructor(context: Context) {
         preferences[KEY_IS_IMAGE_AI_ENABLED] ?: true
     }
 
-    suspend fun saveYoutubeResolutions(resolutions: List<String>) {
+    suspend fun saveYoutubeVideoAndAudioQuality(qualities: Map<String, List<String>>) {
         dataStore.edit { preferences ->
-            preferences[KEY_RESOLUTIONS] = resolutions.joinToString(",")
+            preferences[KEY_RESOLUTIONS] = qualities.values.flatten().joinToString(",")
         }
     }
 
-    val getYoutubeResolutions = dataStore.data.map { preferences ->
+    val getYoutubeVideoAndAudioQuality = dataStore.data.map { preferences ->
         preferences[KEY_RESOLUTIONS]?.split(",") ?: listOf("360p", "480p", "720p", "1080p")
     }
 

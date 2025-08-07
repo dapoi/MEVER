@@ -72,6 +72,8 @@ import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.util.PlatformType
 import com.dapascript.mever.core.common.util.PlatformType.AI
 import com.dapascript.mever.core.common.util.PlatformType.ALL
+import com.dapascript.mever.core.common.util.isMusic
+import com.dapascript.mever.core.common.util.navigateToMusic
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getFilePath
@@ -197,17 +199,26 @@ internal fun GalleryLandingScreen(
                 with(model) {
                     when (status) {
                         SUCCESS -> {
-                            navController.navigateTo(
+                            if (isMusic(model.fileName).not()) navController.navigateTo(
                                 GalleryContentDetailRoute(
-                                    contents = downloadFilter?.map {
+                                    contents = downloadFilter?.filterNot {
+                                        isMusic(it.fileName)
+                                    }?.map {
                                         Content(
                                             id = it.id,
                                             filePath = getFilePath(it.fileName)
                                         )
                                     } ?: emptyList(),
-                                    initialIndex = downloadList?.indexOf(model) ?: 0
+                                    initialIndex = downloadList?.filterNot {
+                                        isMusic(it.fileName)
+                                    }?.indexOfFirst { it.id == id } ?: 0
                                 )
-                            )
+                            ) else {
+                                navigateToMusic(
+                                    context = context,
+                                    file = File(getFilePath(fileName))
+                                )
+                            }
                         }
 
                         FAILED -> showFailedDialog = id

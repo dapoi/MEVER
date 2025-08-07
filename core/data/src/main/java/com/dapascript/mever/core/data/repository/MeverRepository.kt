@@ -18,7 +18,8 @@ interface MeverRepository {
     fun getVideyDownloader(url: String): Flow<ApiState<List<ContentEntity>>>
     fun getYoutubeDownloader(
         url: String,
-        quality: String
+        quality: String,
+        type: String
     ): Flow<ApiState<List<ContentEntity>>>
     fun getImageAiGenerator(prompt: String): Flow<ApiState<ImageAiEntity>>
 }

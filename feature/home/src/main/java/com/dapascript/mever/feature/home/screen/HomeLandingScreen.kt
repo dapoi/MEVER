@@ -144,6 +144,8 @@ import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.getStoragePermission
 import com.dapascript.mever.core.common.util.getUrlContentType
 import com.dapascript.mever.core.common.util.goToSetting
+import com.dapascript.mever.core.common.util.isMusic
+import com.dapascript.mever.core.common.util.navigateToMusic
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
@@ -159,8 +161,8 @@ import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLand
 import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.getArtStyles
 import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.getInspirePrompt
 import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetDownload
+import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetYouTubeQuality
 import com.dapascript.mever.feature.home.screen.component.HandleDialogExitConfirmation
-import com.dapascript.mever.feature.home.screen.component.HandleDialogYoutubeQuality
 import com.dapascript.mever.feature.home.screen.component.HandleDonationDialogOffer
 import com.dapascript.mever.feature.home.viewmodel.HomeLandingViewModel
 import com.ketch.DownloadModel
@@ -268,7 +270,9 @@ internal fun HomeLandingScreen(
                 scope.launch(IO) {
                     startDownload(
                         url = url,
-                        fileName = changeToCurrentDate(currentTimeMillis()) + getUrlContentType(url),
+                        fileName = contents.firstOrNull()?.fileName.orEmpty().ifEmpty {
+                            changeToCurrentDate(currentTimeMillis()) + getUrlContentType(url)
+                        },
                         thumbnail = contents.firstOrNull()?.thumbnail.orEmpty()
                     )
                     contents = emptyList()
@@ -316,8 +320,8 @@ internal fun HomeLandingScreen(
             )
         }
 
-        HandleDialogYoutubeQuality(
-            showDialog = showYoutubeChooseQualityModal,
+        HandleBottomSheetYouTubeQuality(
+            showBottomSheet = showYoutubeChooseQualityModal,
             qualityList = youtubeResolutions,
             onApplyQuality = { quality ->
                 showYoutubeChooseQualityModal = false
@@ -489,18 +493,30 @@ private fun HomeScreenContent(
                                     onClickCard = { model ->
                                         with(model) {
                                             when (status) {
-                                                SUCCESS -> navController.navigateTo(
-                                                    GalleryContentDetailRoute(
-                                                        contents = downloadList?.map {
-                                                            Content(
-                                                                id = it.id,
-                                                                filePath = getFilePath(it.fileName)
+                                                SUCCESS -> {
+                                                    if (isMusic(model.fileName).not()) {
+                                                        navController.navigateTo(
+                                                            GalleryContentDetailRoute(
+                                                                contents = downloadList?.filterNot {
+                                                                    isMusic(it.fileName)
+                                                                }?.map {
+                                                                    Content(
+                                                                        id = it.id,
+                                                                        filePath = getFilePath(it.fileName)
+                                                                    )
+                                                                } ?: emptyList(),
+                                                                initialIndex = downloadList?.filterNot {
+                                                                    isMusic(it.fileName)
+                                                                }?.indexOfFirst { it.id == id } ?: 0
                                                             )
-                                                        } ?: emptyList(),
-                                                        initialIndex = downloadList?.indexOf(model)
-                                                            ?: 0
-                                                    )
-                                                )
+                                                        )
+                                                    } else {
+                                                        navigateToMusic(
+                                                            context = context,
+                                                            file = File(getFilePath(fileName))
+                                                        )
+                                                    }
+                                                }
 
                                                 FAILED -> showFailedDialog = id
                                                 PAUSED -> resumeDownload(id)

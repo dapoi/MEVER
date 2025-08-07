@@ -40,6 +40,7 @@ import com.dapascript.mever.core.common.util.PlatformType.TIKTOK
 import com.dapascript.mever.core.common.util.PlatformType.TWITTER
 import com.dapascript.mever.core.common.util.PlatformType.VIDEY
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
+import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE_MUSIC
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -86,9 +87,11 @@ suspend fun getUrlContentType(url: String) = withContext(IO) {
     try {
         val type = client.newCall(request).execute()
         val contentType = type.body?.contentType()?.toString() ?: ""
-        if (contentType.contains("video") || contentType.contains("mp4")) {
-            ".mp4"
-        } else ".jpg"
+        when {
+            contentType.contains("video") || contentType.contains("mp4") -> ".mp4"
+            contentType.contains("audio") -> ".mp3"
+            else -> ".jpg"
+        }
     } catch (e: Exception) {
         e.printStackTrace()
         null
@@ -163,6 +166,23 @@ fun shareContent(context: Context, file: File) {
     }
 }
 
+fun navigateToMusic(context: Context, file: File) {
+    try {
+        val uri = getUriForFile(
+            context,
+            "${context.packageName}.fileprovider",
+            file
+        )
+        val intent = Intent(ACTION_VIEW).apply {
+            setDataAndType(uri, getContentTypeFromFile(file))
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        context.startActivity(intent)
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+}
+
 fun navigateToNotificationSettings(context: Context) {
     try {
         context.startActivity(
@@ -212,7 +232,7 @@ fun convertToTimeFormat(milliseconds: Long): String {
     }
 }
 
-fun getPlatformType(url: String): PlatformType {
+fun getPlatformType(url: String, type: String = "video"): PlatformType {
     val listFbUrl = listOf("facebook.com", "fb.com", "m.facebook.com", "fb.watch")
     val listInstagramUrl = listOf("instagram.com", "instagr.am", "ig.com")
     val listPinterestUrl = listOf("pinterest.com", "pin.it", "pinterest.co.uk")
@@ -224,6 +244,7 @@ fun getPlatformType(url: String): PlatformType {
     val listYouTubeUrl = listOf("youtube.com", "youtu.be", "m.youtube.com", "yt.com")
 
     return when {
+        listYouTubeUrl.any { url.contains(it) } && type.contains("audio") -> YOUTUBE_MUSIC
         listFbUrl.any { url.contains(it) } -> FACEBOOK
         listInstagramUrl.any { url.contains(it) } -> INSTAGRAM
         listPinterestUrl.any { url.contains(it) } -> PINTEREST
@@ -240,6 +261,8 @@ fun getPlatformType(url: String): PlatformType {
 fun isValidUrl(url: String) = WEB_URL.matcher(url).matches()
 
 fun isVideo(path: String) = path.endsWith(".mp4")
+
+fun isMusic(path: String) = path.endsWith(".mp3")
 
 fun changeToCurrentDate(date: Long): String {
     val calendar = getInstance()

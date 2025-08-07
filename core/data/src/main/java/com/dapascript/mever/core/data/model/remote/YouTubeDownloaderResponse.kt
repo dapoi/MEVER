@@ -11,13 +11,17 @@ data class YouTubeDownloaderResponse(
     @JsonClass(generateAdapter = true)
     data class DataContent(
         val url: String? = null,
-        val quality: String? = null
+        val filename: String? = null,
+        val quality: String? = null,
+        val extension: String? = null
     )
 
     fun mapToEntity() = listOf(
         ContentEntity(
             url = data.url.orEmpty(),
+            fileName = data.filename.orEmpty(),
             quality = data.quality.orEmpty(),
+            type = data.extension.orEmpty(),
             thumbnail = thumbnail.orEmpty()
         )
     )

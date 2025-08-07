@@ -58,8 +58,7 @@ internal fun HandleBottomSheetDownload(
 ) {
     var chooseQualityIndex by remember { mutableIntStateOf(0) }
     val jpgContents = remember(listContent) {
-        listContent // 1. Buang semua item yang null dari list
-            .filter { it.type.contains("jpg") } // 2. Lakukan filter yang aman
+        listContent.filter { it.type.contains("jpg") }
     }
     val groupedContent = remember(listContent) {
         if (jpgContents.size > 1) {
@@ -100,6 +99,10 @@ internal fun HandleBottomSheetDownload(
 
                                 content.type.contains("jpg") -> {
                                     ".jpg"
+                                }
+
+                                content.type.contains("mp3") -> {
+                                    ".mp3"
                                 }
 
                                 else -> ".mp4"

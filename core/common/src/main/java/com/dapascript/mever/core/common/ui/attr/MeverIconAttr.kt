@@ -20,6 +20,7 @@ import com.dapascript.mever.core.common.util.PlatformType.TIKTOK
 import com.dapascript.mever.core.common.util.PlatformType.TWITTER
 import com.dapascript.mever.core.common.util.PlatformType.VIDEY
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
+import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE_MUSIC
 
 object MeverIconAttr {
     fun getPlatformIcon(platform: String) = when {
@@ -32,6 +33,7 @@ object MeverIconAttr {
         platform.contains(TWITTER.platformName) -> R.drawable.ic_twitter
         platform.contains(VIDEY.platformName) -> R.drawable.ic_videy
         platform.contains(YOUTUBE.platformName) -> R.drawable.ic_youtube
+        platform.contains(YOUTUBE_MUSIC.platformName) -> R.drawable.ic_yt_music
         else -> R.drawable.ic_broken_image
     }
 
@@ -45,6 +47,7 @@ object MeverIconAttr {
         platform.contains(TWITTER.platformName) -> MeverLightPurple
         platform.contains(VIDEY.platformName) -> MeverSoftGray
         platform.contains(YOUTUBE.platformName) -> MeverPink
+        platform.contains(YOUTUBE_MUSIC.platformName) -> MeverPink
         else -> MeverLightGray
     }
 }

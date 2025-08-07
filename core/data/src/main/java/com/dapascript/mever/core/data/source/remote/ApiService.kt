@@ -62,7 +62,7 @@ interface ApiService {
     suspend fun getYoutubeDownloader(
         @Query("url") url: String,
         @Query("quality") quality: String,
-        @Query("type") type: String = "video"
+        @Query("type") type: String
     ): YouTubeDownloaderResponse
 
     @GET("meta")

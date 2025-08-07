@@ -56,9 +56,10 @@ class MeverRepositoryImpl @Inject constructor(
 
     override fun getYoutubeDownloader(
         url: String,
-        quality: String
+        quality: String,
+        type: String
     ) = collectApiResult(
-        fetchApi = { apiService.getYoutubeDownloader(url, quality) },
+        fetchApi = { apiService.getYoutubeDownloader(url, quality, type) },
         transformData = { it.mapToEntity() }
     )
 

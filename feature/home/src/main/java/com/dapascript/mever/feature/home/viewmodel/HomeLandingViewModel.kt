@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.dapascript.mever.core.common.base.BaseViewModel
+import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE_MUSIC
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver
 import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.state.UiState
@@ -21,6 +22,7 @@ import com.dapascript.mever.core.common.util.storage.StorageUtil.isAvailableOnLo
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_REQUEST_SELECTED_QUALITY
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_REQUEST_URL
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_RESPONSE_CONTENTS
+import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_RESPONSE_TYPE
 import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.dapascript.mever.core.data.source.local.MeverDataStore
 import com.dapascript.mever.core.data.util.MoshiHelper
@@ -91,7 +93,7 @@ class HomeLandingViewModel @Inject constructor(
             started = WhileSubscribed(),
             initialValue = true
         )
-    val youtubeResolutions = dataStore.getYoutubeResolutions
+    val youtubeResolutions = dataStore.getYoutubeVideoAndAudioQuality
         .map { it.ifEmpty { listOf("360p", "480p", "720p", "1080p") } }
         .stateIn(
             scope = viewModelScope,
@@ -120,7 +122,8 @@ class HomeLandingViewModel @Inject constructor(
         workerClass = DownloaderWorker::class.java,
         inputData = workDataOf(
             KEY_REQUEST_URL to urlSocialMediaState.text,
-            KEY_REQUEST_SELECTED_QUALITY to selectedQuality
+            KEY_REQUEST_SELECTED_QUALITY to selectedQuality,
+            KEY_RESPONSE_TYPE to if (selectedQuality.contains("kbps", true)) "audio" else "video"
         ),
         onLoading = { _downloaderResponseState.value = StateLoading },
         onSuccess = {
@@ -141,7 +144,8 @@ class HomeLandingViewModel @Inject constructor(
         url = url,
         path = meverFolder.path,
         fileName = fileName,
-        tag = getPlatformType(urlSocialMediaState.text).platformName,
+        tag = if (selectedQuality.contains("kbps")) YOUTUBE_MUSIC.platformName
+        else getPlatformType(urlSocialMediaState.text).platformName,
         metaData = thumbnail
     )
 

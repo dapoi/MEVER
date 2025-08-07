@@ -12,8 +12,8 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.SecureFlagPolicy.SecureOn
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp96
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -35,7 +35,7 @@ fun MeverBottomSheet(
             ),
             dragHandle = {
                 HorizontalDivider(
-                    thickness = Dp4,
+                    thickness = Dp2,
                     color = colorScheme.onPrimary,
                     modifier = Modifier
                         .width(Dp96)

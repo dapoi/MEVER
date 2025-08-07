@@ -11,5 +11,6 @@ enum class PlatformType(val platformName: String) {
     TWITTER("Twitter"),
     VIDEY("Videy"),
     YOUTUBE("YouTube"),
+    YOUTUBE_MUSIC("YT Music"),
     ALL("All")
 }

@@ -54,7 +54,7 @@
     <string name="type">Type: %1$s</string>
     <string name="all">All</string>
     <string name="gmail_not_found">Gmail app not found</string>
-    <string name="choose_quality">Choose quality</string>
+    <string name="choose_quality">Choose Quality</string>
     <string name="type_anything">Type anything…</string>
     <string name="image_generator">Image Generator</string>
     <string name="image_generator_desc">Easily generate images from text prompts using the latest AI technology.</string>

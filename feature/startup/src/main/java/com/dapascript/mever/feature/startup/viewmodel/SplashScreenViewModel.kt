@@ -62,14 +62,17 @@ class SplashScreenViewModel @Inject constructor(
                 val mockAppConfig = AppConfigEntity(
                     version = "1.0.0",
                     isImageGeneratorFeatureActive = true,
-                    youtubeResolutions = listOf("360p", "480p", "720p"),
+                    videoResolutionsAndAudioQualities = mapOf(
+                        "video" to listOf("360p", "480p", "720p"),
+                        "audio" to listOf("128kbps")
+                    ),
                     maintenanceDay = null
                 )
                 _appConfigState.value = StateSuccess(mockAppConfig)
                 with(dataStore) {
                     saveVersion(mockAppConfig.version)
                     setIsImageAiEnabled(mockAppConfig.isImageGeneratorFeatureActive)
-                    saveYoutubeResolutions(mockAppConfig.youtubeResolutions)
+                    saveYoutubeVideoAndAudioQuality(mockAppConfig.videoResolutionsAndAudioQualities)
                 }
             }
         } else {
@@ -82,7 +85,7 @@ class SplashScreenViewModel @Inject constructor(
                         with(dataStore) {
                             saveVersion(it.version)
                             setIsImageAiEnabled(it.isImageGeneratorFeatureActive)
-                            saveYoutubeResolutions(it.youtubeResolutions)
+                            saveYoutubeVideoAndAudioQuality(it.videoResolutionsAndAudioQualities)
                         }
                     }
                 },

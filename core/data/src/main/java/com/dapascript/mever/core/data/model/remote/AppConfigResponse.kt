@@ -8,12 +8,16 @@ data class AppConfigResponse(
     val version: String,
     val isImageGeneratorFeatureActive: Boolean,
     val youtubeResolutions: List<String>,
+    val audioQualities: List<String>,
     val maintenanceDay: String? = null
 ) {
     fun mapToEntity() = AppConfigEntity(
         version = version,
         isImageGeneratorFeatureActive = isImageGeneratorFeatureActive,
-        youtubeResolutions = youtubeResolutions,
+        videoResolutionsAndAudioQualities = mapOf(
+            "video" to youtubeResolutions,
+            "audio" to audioQualities
+        ),
         maintenanceDay = maintenanceDay
     )
 }
