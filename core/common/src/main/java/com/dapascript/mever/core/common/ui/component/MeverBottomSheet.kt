@@ -29,7 +29,10 @@ fun MeverBottomSheet(
             modifier = modifier,
             sheetState = sheetState,
             containerColor = colorScheme.background,
-            properties = ModalBottomSheetProperties(securePolicy = SecureOn),
+            properties = ModalBottomSheetProperties(
+                securePolicy = SecureOn,
+                shouldDismissOnBackPress = false
+            ),
             dragHandle = {
                 HorizontalDivider(
                     thickness = Dp4,

@@ -4,6 +4,8 @@
     <string name="ai_tab">AI Image</string>
     <string name="downloader_title">Media Saver</string>
     <string name="downloader_desc">Easiest way to download your favorite content from the biggest social media platforms.</string>
+    <string name="see_all_supported_platforms">Tap to see supported platforms</string>
+    <string name="platforms_supported">Supported Platforms</string>
     <string name="paste_url">Paste Link Here…</string>
     <string name="download">Download</string>
     <string name="download_all">Download All</string>
@@ -87,4 +89,5 @@
     <string name="policy">Privacy Policy</string>
     <string name="maintenance_title">Temporary Unavailable</string>
     <string name="maintenance_message">This app is unavailable due maintenance. We sincerely apologize for the inconvenience 🙏 We will be back soon!</string>
+    <string name="close">Close</string>
 </resources>
