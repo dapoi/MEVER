@@ -8,9 +8,11 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.calculatePan
 import androidx.compose.foundation.gestures.calculateZoom
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBarsPadding
@@ -31,11 +33,14 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale.Companion.Fit
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.ActionMenu
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp120
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.MeverBlack
@@ -47,6 +52,8 @@ import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.convertFilename
 import com.dapascript.mever.core.common.util.hideSystemBar
 import com.dapascript.mever.core.common.util.isSystemBarVisible
+import kotlin.math.abs
+import kotlin.math.roundToInt
 
 @Composable
 fun MeverPhotoViewer(
@@ -61,6 +68,11 @@ fun MeverPhotoViewer(
     var isPhotoTouched by remember { mutableStateOf(true) }
     var showDropDownMenu by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var isZoomed by remember { mutableStateOf(false) }
+    var dragY by remember { mutableFloatStateOf(0f) }
+    val density = LocalDensity.current
+    val dismissDistance = with(density) { Dp120.toPx() }
+    val bgAlpha = 1f - (abs(dragY) / (dismissDistance * 1.5f)).coerceIn(0f, 0.8f)
 
     DisposableEffect(lifecycleOwner) {
         onDispose { hideSystemBar(activity, isSystemBarVisible(activity).not()) }
@@ -68,14 +80,34 @@ fun MeverPhotoViewer(
 
     LaunchedEffect(isPhotoTouched.not()) { hideSystemBar(activity, isPhotoTouched) }
 
-    Box(modifier = modifier.background(MeverBlack)) {
+    Box(
+        modifier = modifier
+            .background(MeverBlack.copy(alpha = bgAlpha))
+            .offset { IntOffset(0, dragY.roundToInt()) }
+            .pointerInput(isZoomed) {
+                detectVerticalDragGestures(
+                    onDragCancel = { dragY = 0f },
+                    onDragEnd = {
+                        if (abs(dragY) > dismissDistance) onClickBack() else dragY = 0f
+                    },
+                    onVerticalDrag = { change, amount ->
+                        if (!isZoomed) {
+                            dragY += amount
+                            change.consume()
+                        }
+                    }
+                )
+            }
+    )  {
         PhotoViewer(
             modifier = Modifier
                 .wrapContentSize()
                 .align(Center),
             image = source,
-            isPhotoTouched = isPhotoTouched
-        ) { isPhotoTouched = it }
+            isPhotoTouched = isPhotoTouched,
+            onPhotoTouched = { isPhotoTouched = it },
+            onZooming = { isZoomed = it }
+        )
         AnimatedVisibility(
             visible = isPhotoTouched.not(),
             enter = fadeIn(),
@@ -153,7 +185,8 @@ private fun PhotoViewer(
     image: String,
     isPhotoTouched: Boolean,
     modifier: Modifier = Modifier,
-    onPhotoTouched: (Boolean) -> Unit
+    onPhotoTouched: (Boolean) -> Unit,
+    onZooming: (Boolean) -> Unit
 ) {
     var scale by remember { mutableFloatStateOf(1f) }
     var offsetX by remember { mutableFloatStateOf(0f) }
@@ -179,15 +212,16 @@ private fun PhotoViewer(
                         val secondTapDown = withTimeoutOrNull(doubleTapTimeout) {
                             awaitFirstDown()
                         }
-
                         if (secondTapDown != null) {
                             if (scale != 1f) {
                                 scale = 1f
                                 offsetX = 0f
                                 offsetY = 0f
+                                onZooming(false)
                                 onPhotoTouched(false)
                             } else {
                                 scale = 2f
+                                onZooming(true)
                                 onPhotoTouched(true)
                             }
                             secondTapDown.consume()
@@ -210,14 +244,13 @@ private fun PhotoViewer(
                                 offsetX = (offsetX + pan.x).coerceIn(minOffsetX, maxOffsetX)
                                 offsetY = (offsetY + pan.y).coerceIn(minOffsetY, maxOffsetY)
                                 scale = newScale
-
+                                onZooming(newScale > 1f)
                                 onPhotoTouched(true)
-
                                 event.changes.forEach { it.consume() }
                             } else if (zoom != 1f) {
                                 val newScale = (scale * zoom).coerceIn(minScale, maxScale)
                                 scale = newScale
-
+                                onZooming(newScale > 1f)
                                 onPhotoTouched(true)
 
                                 event.changes.forEach { it.consume() }
