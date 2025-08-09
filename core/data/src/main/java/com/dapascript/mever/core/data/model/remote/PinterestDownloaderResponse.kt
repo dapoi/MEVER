@@ -10,8 +10,8 @@ data class PinterestDownloaderResponse(
 ) {
     @JsonClass(generateAdapter = true)
     data class DataContent(
-        @Json(name = "is_video") val isVideo: Boolean? = null,
-        @Json(name = "content") val contents: List<Contents>? = null
+        @param:Json(name = "is_video") val isVideo: Boolean? = null,
+        @param:Json(name = "content") val contents: List<Contents>? = null
     ) {
         @JsonClass(generateAdapter = true)
         data class Contents(

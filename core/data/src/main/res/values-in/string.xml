@@ -4,6 +4,5 @@
     <string name="error_no_host">Tidak dapat menemukan server. Periksa koneksi internet kamu.</string>
     <string name="error_io">Gagal terhubung ke server. Periksa koneksi internet kamu.</string>
     <string name="error_http">Terjadi kesalahan server (%1$d).</string>
-    <string name="error_parse">Data dari server tidak bisa diproses.</string>
     <string name="error_unknown">Terjadi kesalahan yang tidak diketahui.</string>
 </resources>
