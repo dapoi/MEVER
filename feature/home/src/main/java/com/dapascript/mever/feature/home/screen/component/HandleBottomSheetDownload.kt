@@ -93,6 +93,10 @@ internal fun HandleBottomSheetDownload(
                     CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
                         MeverRadioButton(
                             value = when {
+                                content.fileName.isNotEmpty() -> {
+                                    content.fileName
+                                }
+
                                 content.quality.isNotEmpty() -> {
                                     stringResource(R.string.quality, content.quality)
                                 }

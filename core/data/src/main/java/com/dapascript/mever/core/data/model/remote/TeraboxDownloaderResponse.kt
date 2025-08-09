@@ -10,7 +10,8 @@ data class TeraboxDownloaderResponse(
 ) {
     data class DataContent(
         val thumbs: Thumbs? = null,
-        val url: String? = null
+        val url: String? = null,
+        @param:Json(name = "server_filename") val serverFileName: String? = null
     ) {
         data class Thumbs(
             @param:Json(name = "url1") val thumbnail: String? = null
@@ -20,6 +21,7 @@ data class TeraboxDownloaderResponse(
     fun mapToEntity() = data?.map {
         ContentEntity(
             url = it.url.orEmpty(),
+            fileName = it.serverFileName.orEmpty(),
             thumbnail = it.thumbs?.thumbnail.orEmpty()
         )
     }
