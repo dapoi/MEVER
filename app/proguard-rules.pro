@@ -11,11 +11,78 @@
 
 # Uncomment this to preserve the line number information for
 # debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+-keepattributes SourceFile,LineNumberTable
 
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Keep attributes needed for reflection and generics
+-keepattributes Signature,RuntimeVisibleAnnotations,AnnotationDefault
+-keepattributes InnerClasses,EnclosingMethod
+
+# Keep generic signatures for proper type casting
+-keepattributes Signature
+
+# Keep all enums
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+
+# Keep Parcelable classes
+-keep class * implements android.os.Parcelable {
+  public static final android.os.Parcelable$Creator *;
+}
+
+# Keep Serializable classes
+-keepclassmembers class * implements java.io.Serializable {
+    static final long serialVersionUID;
+    private static final java.io.ObjectStreamField[] serialPersistentFields;
+    private void writeObject(java.io.ObjectOutputStream);
+    private void readObject(java.io.ObjectInputStream);
+    java.lang.Object writeReplace();
+    java.lang.Object readResolve();
+}
+
+# Keep data classes and their constructors
+-keep class com.dapascript.mever.** { *; }
+-keepclassmembers class com.dapascript.mever.** {
+    <fields>;
+    <methods>;
+}
+
+# Keep Kotlin metadata
+-keep class kotlin.Metadata { *; }
+
+# Keep Kotlin coroutines
+-keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
+-keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}
+-keepnames class kotlinx.coroutines.android.AndroidExceptionPreHandler {}
+-keepnames class kotlinx.coroutines.android.AndroidDispatcherFactory {}
+
+# Keep Retrofit and Moshi related classes
+-dontwarn retrofit2.**
+-keep class retrofit2.** { *; }
+-keepattributes Signature
+-keepattributes Exceptions
+
+# Keep Moshi adapters
+-keep class com.squareup.moshi.** { *; }
+-keep @com.squareup.moshi.JsonQualifier interface *
+-keepclassmembers class * {
+    @com.squareup.moshi.Json <fields>;
+}
+
+# Keep Hilt/Dagger generated classes
+-keep class dagger.hilt.** { *; }
+-keep class * extends dagger.hilt.android.AndroidEntryPoint { *; }
+-keep class **_HiltModules { *; }
+-keep class **_HiltModules$* { *; }
+
+# Keep Compose classes
+-keep class androidx.compose.** { *; }
+-dontwarn androidx.compose.**
 
 # Suppress R8 warnings about kotlinx-serialization placeholder syntax
 # The warning comes from kotlinx-serialization-common.pro using "<1>$*" patterns

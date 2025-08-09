@@ -7,8 +7,8 @@ plugins {
 android {
     defaultConfig {
         applicationId = "com.dapascript.mever"
-        versionCode = 20250817
-        versionName = "1.1.0"
+        versionCode = 20250825
+        versionName = "1.1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -23,11 +23,11 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            isDebuggable = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("debug")
         }
 
         debug {
