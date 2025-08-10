@@ -14,13 +14,18 @@ import kotlinx.coroutines.delay
 
 object MeverImageAttr {
     @Composable
-    fun getBitmapFromUrl(source: String) : Bitmap? {
+    fun getBitmapFromUrl(source: String, typeContent: String): Bitmap? {
         var resultExtracted by remember(source) { mutableStateOf<Bitmap?>(null) }
 
         LaunchedEffect(source, resultExtracted) {
             while (resultExtracted == null) {
                 try {
-                    resultExtracted = if (getUrlContentType(source) == ".jpg") {
+                    resultExtracted = if (
+                        getUrlContentType(
+                            url = source,
+                            responseType = typeContent
+                        ).orEmpty().contains("jpg")
+                    ) {
                         fetchPhotoFromUrl(source)
                     } else fetchVideoThumbnail(source)
                 } catch (e: Exception) {

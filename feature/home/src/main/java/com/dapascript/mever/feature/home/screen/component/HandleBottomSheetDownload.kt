@@ -44,6 +44,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp20
+import com.dapascript.mever.core.common.util.isMusic
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.data.model.local.ContentEntity
 
@@ -78,9 +79,11 @@ internal fun HandleBottomSheetDownload(
                         .height(Dp150)
                         .padding(bottom = Dp32, start = Dp24, end = Dp24)
                         .clip(RoundedCornerShape(Dp12)),
-                    source = getBitmapFromUrl(groupedContent.first().thumbnail.ifEmpty {
-                        groupedContent.first().url
-                    }),
+                    source = if (isMusic(groupedContent.first().fileName)) R.drawable.ic_music
+                    else getBitmapFromUrl(
+                        source = groupedContent.first().thumbnail.ifEmpty { groupedContent.first().url },
+                        typeContent = groupedContent.first().type
+                    ),
                     isImageError = isFailedFetchImage
                 )
                 Text(

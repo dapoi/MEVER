@@ -270,7 +270,10 @@ internal fun HomeLandingScreen(
                     startDownload(
                         url = url,
                         fileName = contents.firstOrNull()?.fileName.orEmpty().ifEmpty {
-                            changeToCurrentDate(currentTimeMillis()) + getUrlContentType(url)
+                            changeToCurrentDate(currentTimeMillis()) + getUrlContentType(
+                                url = url,
+                                responseType = contents.firstOrNull()?.type.orEmpty()
+                            )
                         },
                         thumbnail = contents.firstOrNull()?.thumbnail.orEmpty()
                     )

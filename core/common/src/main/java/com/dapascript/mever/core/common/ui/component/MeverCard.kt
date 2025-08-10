@@ -250,7 +250,9 @@ private fun getImageSource(
     fileName: String,
     urlThumbnail: String?
 ) = when {
-    status != SUCCESS -> urlThumbnail?.takeIf { it.isNotEmpty() } ?: getBitmapFromUrl(url)
+    status != SUCCESS -> urlThumbnail?.takeIf {
+        it.isNotEmpty()
+    } ?: getBitmapFromUrl(url, fileName.substringAfterLast("."))
     else -> getFilePath(fileName)
 }
 
