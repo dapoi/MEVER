@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight.Companion.Medium
+import androidx.compose.ui.text.style.TextOverflow.Companion.Ellipsis
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.component.MeverActionButton
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
@@ -86,6 +87,8 @@ object MeverTopBarAttr {
         ) {
             Text(
                 text = screenName.orEmpty(),
+                maxLines = 1,
+                overflow = Ellipsis,
                 style = typography.h3.copy(fontWeight = Medium)
             )
         }
