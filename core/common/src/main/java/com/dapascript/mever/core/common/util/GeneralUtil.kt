@@ -295,6 +295,11 @@ fun convertFilename(filename: String): String {
     } else filename
 }
 
+fun sanitizeFilename(filename: String): String {
+    val illegalCharsRegex = Regex("[^a-zA-Z0-9 ._-]")
+    return illegalCharsRegex.replace(filename, "_")
+}
+
 fun getAppVersion(context: Context): String {
     return try {
         val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)

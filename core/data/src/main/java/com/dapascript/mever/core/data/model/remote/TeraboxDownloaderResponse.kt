@@ -1,5 +1,6 @@
 package com.dapascript.mever.core.data.model.remote
 
+import com.dapascript.mever.core.common.util.sanitizeFilename
 import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
@@ -21,7 +22,7 @@ data class TeraboxDownloaderResponse(
     fun mapToEntity() = data?.map {
         ContentEntity(
             url = it.url.orEmpty(),
-            fileName = it.serverFileName.orEmpty(),
+            fileName = sanitizeFilename(it.serverFileName.orEmpty()),
             thumbnail = it.thumbs?.thumbnail.orEmpty()
         )
     }

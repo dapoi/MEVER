@@ -1,5 +1,6 @@
 package com.dapascript.mever.core.data.model.remote
 
+import com.dapascript.mever.core.common.util.sanitizeFilename
 import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.squareup.moshi.JsonClass
 
@@ -19,7 +20,7 @@ data class YouTubeDownloaderResponse(
     fun mapToEntity() = listOf(
         ContentEntity(
             url = data.url.orEmpty(),
-            fileName = data.filename.orEmpty(),
+            fileName = sanitizeFilename(data.filename.orEmpty()),
             quality = data.quality.orEmpty(),
             type = data.extension.orEmpty(),
             thumbnail = thumbnail.orEmpty()
