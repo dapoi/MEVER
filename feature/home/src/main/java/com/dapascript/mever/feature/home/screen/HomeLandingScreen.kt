@@ -361,12 +361,6 @@ private fun HomeScreenContent(
         val showBadge = showBadge.collectAsStateValue()
         val getButtonClickCount = getButtonClickCount.collectAsStateValue()
         val urlIntent = getUrlIntent.collectAsStateValue()
-        val getListActionMenu = remember(downloadList) {
-            getListActionMenu(
-                context = context,
-                hasDownloadProgress = downloadList?.find { it.progress < 100 } != null
-            )
-        }
         val tabItems = remember { tabItems(context) }
         val pagerState = rememberPagerState(pageCount = { tabItems.size })
         val scrollState = rememberScrollState()
@@ -442,12 +436,15 @@ private fun HomeScreenContent(
                     .padding(horizontal = Dp24),
                 topBarArgs = TopBarArgs(
                     title = null,
-                    actionMenus = getListActionMenu.map { (name, resource) ->
+                    actionMenus = getListActionMenu(
+                        context = context,
+                        hasDownloadProgress = showBadge == true
+                    ).map { (name, resource) ->
                         ActionMenu(
                             icon = resource,
                             nameIcon = name,
                             showBadge = showBadge == true && name == stringResource(R.string.gallery),
-                        ) { handleClickActionMenu(context, navController)(name) }
+                        ) { navController.handleClickActionMenu(context, name) }
                     }
                 )
             )
@@ -1038,20 +1035,17 @@ private fun tabItems(context: Context) = listOf(
     context.getString(R.string.ai_tab)
 )
 
-private fun handleClickActionMenu(context: Context, navController: NavController) =
-    { name: String ->
-        when (name) {
-            context.getString(R.string.gallery) -> navController.navigateToGalleryScreen()
-            context.getString(R.string.settings) -> navController.navigateToSettingScreen()
-            else -> Unit
-        }
-    }
+private fun NavController.handleClickActionMenu(context: Context, name: String) = when (name) {
+    context.getString(R.string.gallery) -> navigateToGalleryScreen()
+    context.getString(R.string.settings) -> navigateToSettingScreen()
+    else -> Unit
+}
 
 private fun NavController.navigateToGalleryScreen() = navigateTo(GalleryLandingRoute)
 
 private fun NavController.navigateToSettingScreen() = navigateTo(SettingLandingRoute)
 
-fun handleClickButton(
+private fun handleClickButton(
     buttonClickCount: Int,
     onIncrementClickCount: () -> Unit,
     onShowAds: () -> Unit,
