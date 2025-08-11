@@ -324,7 +324,9 @@ internal fun HomeLandingScreen(
 
         HandleBottomSheetYouTubeQuality(
             showBottomSheet = showYoutubeChooseQualityModal,
-            qualityList = youtubeResolutions,
+            qualityList = youtubeResolutions.takeIf {
+                urlSocialMediaState.text.contains("music").not()
+            } ?: listOf(youtubeResolutions.lastOrNull().orEmpty()),
             onApplyQuality = { quality ->
                 showYoutubeChooseQualityModal = false
                 selectedQuality = quality
