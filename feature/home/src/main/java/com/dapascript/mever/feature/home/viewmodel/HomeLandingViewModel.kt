@@ -34,11 +34,16 @@ import com.ketch.Status.QUEUED
 import com.ketch.Status.STARTED
 import com.ketch.Status.SUCCESS
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -68,8 +73,14 @@ class HomeLandingViewModel @Inject constructor(
     var selectedImageCount by mutableIntStateOf(1)
     var selectedArtStyle by mutableStateOf(Pair("", ""))
 
+    @OptIn(FlowPreview::class)
     val downloadList = ketch.observeDownloads()
-        .map { downloads -> downloads.sortedByDescending { it.timeQueued } }
+        .map { downloads ->
+                downloads.sortedByDescending { it.timeQueued }
+        }
+        .distinctUntilChanged()
+        .sample(16)
+        .flowOn(Default)
         .stateIn(viewModelScope, WhileSubscribed(5000), null)
     val showBadge = downloadList
         .map { list ->

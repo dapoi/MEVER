@@ -115,9 +115,9 @@ internal fun GalleryLandingScreen(
     var showDeleteAllDialog by remember { mutableStateOf(false) }
     var showDropDownMenu by remember { mutableStateOf(false) }
     var showFilter by rememberSaveable { mutableStateOf(true) }
-    val downloadFilter = remember(downloadList, selectedFilter) {
-        downloadList?.filter { downloadItem ->
-            selectedFilter == ALL || downloadItem.tag == selectedFilter.platformName
+    val downloadFilter by remember(downloadList, selectedFilter) {
+        derivedStateOf {
+            downloadList?.filter { selectedFilter == ALL || it.tag == selectedFilter.platformName }
         }
     }
 
