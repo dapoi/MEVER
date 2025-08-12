@@ -17,8 +17,8 @@ import com.dapascript.mever.core.common.util.state.UiState.StateFailed
 import com.dapascript.mever.core.common.util.state.UiState.StateInitial
 import com.dapascript.mever.core.common.util.state.UiState.StateLoading
 import com.dapascript.mever.core.common.util.state.UiState.StateSuccess
+import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFiles
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFolder
-import com.dapascript.mever.core.common.util.storage.StorageUtil.isAvailableOnLocal
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_REQUEST_SELECTED_QUALITY
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_REQUEST_URL
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_RESPONSE_CONTENTS
@@ -76,7 +76,7 @@ class HomeLandingViewModel @Inject constructor(
     @OptIn(FlowPreview::class)
     val downloadList = ketch.observeDownloads()
         .map { downloads ->
-                downloads.sortedByDescending { it.timeQueued }
+            downloads.sortedByDescending { it.timeQueued }
         }
         .distinctUntilChanged()
         .sample(16)
@@ -172,10 +172,15 @@ class HomeLandingViewModel @Inject constructor(
 
     fun refreshDatabase() {
         viewModelScope.launch(IO) {
-            val currentDownloads = downloadList.value
-            currentDownloads?.forEach { download ->
-                if (download.status == SUCCESS && isAvailableOnLocal(download.fileName).not()) {
-                    ketch.clearDb(download.id)
+            val existingNames = getMeverFiles()
+                ?.map { it.name.lowercase() }
+                ?.toSet()
+                ?: emptySet()
+
+            downloadList.value?.forEach { download ->
+                if (download.status == SUCCESS) {
+                    val exists = existingNames.contains(download.fileName.lowercase())
+                    if (exists.not()) ketch.clearDb(download.id)
                 }
             }
         }

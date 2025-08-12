@@ -760,9 +760,9 @@ internal fun HomeDownloaderSection(
         downloadList?.let { files ->
             if (files.isNotEmpty()) {
                 items(
-                    items = files.toMutableStateList()
-                        .apply { if (size > 5) removeRange(5, size) },
-                    key = { it.id }
+                    items = files.toMutableStateList().apply { if (size > 5) removeRange(5, size) },
+                    key = { it.id },
+                    contentType = { it.status.name }
                 ) {
                     MeverCard(
                         modifier = Modifier.animateItem(),

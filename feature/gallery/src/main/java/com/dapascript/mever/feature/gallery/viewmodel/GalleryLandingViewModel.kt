@@ -7,7 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.util.PlatformType
 import com.dapascript.mever.core.common.util.PlatformType.ALL
-import com.dapascript.mever.core.common.util.storage.StorageUtil.isAvailableOnLocal
+import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFiles
 import com.ketch.Ketch
 import com.ketch.Status.SUCCESS
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -33,9 +33,6 @@ class GalleryLandingViewModel @Inject constructor(
 
     @OptIn(FlowPreview::class)
     val downloadList = ketch.observeDownloads()
-        .map { downloads ->
-               downloads.sortedByDescending { it.timeQueued }
-        }
         .distinctUntilChanged()
         .sample(16)
         .flowOn(Default)
@@ -50,10 +47,15 @@ class GalleryLandingViewModel @Inject constructor(
 
     fun refreshDatabase() {
         viewModelScope.launch(IO) {
-            val currentDownloads = downloadList.value
-            currentDownloads?.forEach { download ->
-                if (download.status == SUCCESS && isAvailableOnLocal(download.fileName).not()) {
-                    ketch.clearDb(download.id)
+            val existingNames = getMeverFiles()
+                ?.map { it.name.lowercase() }
+                ?.toSet()
+                ?: emptySet()
+
+            downloadList.value?.forEach { download ->
+                if (download.status == SUCCESS) {
+                    val exists = existingNames.contains(download.fileName.lowercase())
+                    if (exists.not()) ketch.clearDb(download.id)
                 }
             }
         }

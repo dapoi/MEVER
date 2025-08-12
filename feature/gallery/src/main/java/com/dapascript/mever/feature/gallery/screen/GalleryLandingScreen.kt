@@ -1,16 +1,14 @@
 package com.dapascript.mever.feature.gallery.screen
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -139,6 +137,7 @@ internal fun GalleryLandingScreen(
                 if (it.status == SUCCESS) syncFileToGallery(context, it.fileName)
             }
         }
+
         LaunchedEffect(lifecycleOwner) {
             lifecycleOwner.value.lifecycle.repeatOnLifecycle(RESUMED) { refreshDatabase() }
         }
@@ -300,12 +299,15 @@ private fun GalleryContentSection(
     onClickDelete: (DownloadModel) -> Unit
 ) {
     CompositionLocalProvider(LocalOverscrollFactory provides null) {
+        val headerScroll = rememberScrollState()
+
         downloadList?.let {
             if (downloadList.isNotEmpty()) {
                 Column(modifier = modifier) {
                     LazyColumn(
                         modifier = Modifier.fillMaxWidth(),
-                        state = listState
+                        state = listState,
+                        contentPadding = PaddingValues(bottom = Dp80)
                     ) {
                         item {
                             Text(
@@ -316,12 +318,12 @@ private fun GalleryContentSection(
                             )
                         }
                         stickyHeader {
-                            AnimatedVisibility(platformTypes.size > 1) {
+                            if (platformTypes.size > 1) {
                                 FilterContent(
                                     modifier = Modifier
                                         .background(colorScheme.background)
                                         .fillMaxWidth()
-                                        .horizontalScroll(rememberScrollState())
+                                        .horizontalScroll(headerScroll)
                                         .padding(
                                             start = Dp24,
                                             end = Dp24,
@@ -344,7 +346,8 @@ private fun GalleryContentSection(
                         }
                         items(
                             items = downloadList,
-                            key = { it.id }
+                            key = { it.id },
+                            contentType = { it.status.name }
                         ) {
                             MeverCard(
                                 modifier = Modifier
@@ -373,7 +376,6 @@ private fun GalleryContentSection(
                                 onClickDelete = { onClickDelete(it) }
                             )
                         }
-                        item { Spacer(modifier = Modifier.height(Dp80)) }
                     }
                 }
             } else {
