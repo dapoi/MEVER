@@ -95,7 +95,7 @@ internal fun SplashScreen(
                     if (response.maintenanceDay != null && today == response.maintenanceDay) {
                         showMaintenanceModal = true
                     } else scope.launch {
-                        delay(1000)
+                        delay(1500)
                         showLogo = false
                         delay(250)
                         navController.navigateClearBackStack(

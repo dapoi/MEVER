@@ -1,8 +1,12 @@
 package com.dapascript.mever.feature.setting.screen
 
 import android.content.Context
+import androidx.activity.SystemBarStyle.Companion.dark
+import androidx.activity.SystemBarStyle.Companion.light
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement.Center
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,10 +21,12 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter.Companion.tint
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -38,10 +44,16 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp52
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp90
+import com.dapascript.mever.core.common.ui.theme.MeverDark
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
+import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
+import com.dapascript.mever.core.common.ui.theme.ThemeType.Dark
+import com.dapascript.mever.core.common.ui.theme.ThemeType.Light
+import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.getAppVersion
 import com.dapascript.mever.core.common.util.navigateToBrowser
+import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.feature.setting.viewmodel.SettingAboutAppViewModel
 import java.time.LocalDate
 
@@ -50,6 +62,15 @@ internal fun SettingAboutAppScreen(
     navController: NavController,
     viewModel: SettingAboutAppViewModel = hiltViewModel()
 ) = with(viewModel) {
+    val context = LocalContext.current
+    val activity = LocalActivity.current
+    val themeType = themeType.collectAsStateValue()
+    val darkTheme = when (themeType) {
+        Light -> false
+        Dark -> true
+        else -> isSystemInDarkTheme()
+    }
+
     BaseScreen(
         useSystemBarsPadding = false,
         allowScreenOverlap = true,
@@ -59,7 +80,33 @@ internal fun SettingAboutAppScreen(
             onClickBack = { navController.popBackStack() }
         )
     ) {
-        val context = LocalContext.current
+        DisposableEffect(darkTheme) {
+            activity.enableEdgeToEdge(
+                statusBarStyle = dark(scrim = MeverTransparent.toArgb()),
+                navigationBarStyle = dark(scrim = MeverTransparent.toArgb())
+            )
+            onDispose {
+                activity.enableEdgeToEdge(
+                    statusBarStyle = if (darkTheme) {
+                        dark(scrim = MeverDark.toArgb())
+                    } else {
+                        light(
+                            scrim = MeverTransparent.toArgb(),
+                            darkScrim = MeverDark.toArgb()
+                        )
+                    },
+                    navigationBarStyle = if (darkTheme) {
+                        dark(scrim = MeverDark.toArgb())
+                    } else {
+                        light(
+                            scrim = MeverTransparent.toArgb(),
+                            darkScrim = MeverDark.toArgb()
+                        )
+                    }
+                )
+            }
+        }
+
         SettingAboutAppContent(
             context = context,
             modifier = Modifier

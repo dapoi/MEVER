@@ -92,7 +92,7 @@ class MainActivity : FragmentActivity() {
         LaunchedEffect(darkTheme) {
             enableEdgeToEdge(
                 statusBarStyle = if (darkTheme) {
-                    dark(MeverDark.toArgb())
+                    dark(scrim = MeverDark.toArgb())
                 } else {
                     light(
                         scrim = MeverTransparent.toArgb(),
@@ -100,7 +100,7 @@ class MainActivity : FragmentActivity() {
                     )
                 },
                 navigationBarStyle = if (darkTheme) {
-                    dark(MeverDark.toArgb())
+                    dark(scrim = MeverDark.toArgb())
                 } else {
                     light(
                         scrim = MeverTransparent.toArgb(),

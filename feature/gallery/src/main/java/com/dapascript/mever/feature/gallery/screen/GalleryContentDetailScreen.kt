@@ -1,16 +1,22 @@
 package com.dapascript.mever.feature.gallery.screen
 
+import androidx.activity.SystemBarStyle.Companion.dark
+import androidx.activity.SystemBarStyle.Companion.light
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.util.lerp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -19,8 +25,14 @@ import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.component.MeverPhotoViewer
 import com.dapascript.mever.core.common.ui.component.MeverVideoPlayer
 import com.dapascript.mever.core.common.ui.theme.MeverBlack
+import com.dapascript.mever.core.common.ui.theme.MeverDark
+import com.dapascript.mever.core.common.ui.theme.MeverTransparent
+import com.dapascript.mever.core.common.ui.theme.ThemeType.Dark
+import com.dapascript.mever.core.common.ui.theme.ThemeType.Light
+import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.isVideo
 import com.dapascript.mever.core.common.util.shareContent
+import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.feature.gallery.viewmodel.GalleryPlayerViewModel
 import java.io.File
 import kotlin.math.absoluteValue
@@ -30,9 +42,16 @@ internal fun GalleryContentDetailScreen(
     navigator: NavController,
     viewModel: GalleryPlayerViewModel = hiltViewModel()
 ) = with(viewModel) {
-    val context = LocalContext.current
-    val pagerState = rememberPagerState(args.initialIndex) { args.contents.size }
     var isFullScreen by rememberSaveable { mutableStateOf(false) }
+    val pagerState = rememberPagerState(args.initialIndex) { args.contents.size }
+    val context = LocalContext.current
+    val activity = LocalActivity.current
+    val themeType = themeType.collectAsStateValue()
+    val darkTheme = when (themeType) {
+        Light -> false
+        Dark -> true
+        else -> isSystemInDarkTheme()
+    }
 
     BaseScreen(
         useSystemBarsPadding = false,
@@ -40,6 +59,33 @@ internal fun GalleryContentDetailScreen(
         hideDefaultTopBar = true,
         lockOrientation = false
     ) {
+        DisposableEffect(darkTheme) {
+            activity.enableEdgeToEdge(
+                statusBarStyle = dark(scrim = MeverTransparent.toArgb()),
+                navigationBarStyle = dark(scrim = MeverTransparent.toArgb())
+            )
+            onDispose {
+                activity.enableEdgeToEdge(
+                    statusBarStyle = if (darkTheme) {
+                        dark(scrim = MeverDark.toArgb())
+                    } else {
+                        light(
+                            scrim = MeverTransparent.toArgb(),
+                            darkScrim = MeverDark.toArgb()
+                        )
+                    },
+                    navigationBarStyle = if (darkTheme) {
+                        dark(scrim = MeverDark.toArgb())
+                    } else {
+                        light(
+                            scrim = MeverTransparent.toArgb(),
+                            darkScrim = MeverDark.toArgb()
+                        )
+                    }
+                )
+            }
+        }
+
         HorizontalPager(
             modifier = Modifier
                 .fillMaxSize()
