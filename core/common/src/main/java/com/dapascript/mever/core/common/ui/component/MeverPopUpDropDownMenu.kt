@@ -18,15 +18,16 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 
 @Composable
-fun MeverPopupDropDownMenu(
-    listDropDown: List<String>,
+fun <T> MeverPopupDropDownMenu(
+    listDropDown: List<T>,
     showDropDownMenu: Boolean,
     modifier: Modifier = Modifier,
     backgroundColor: Color? = null,
     textColor: Color? = null,
     shape: Shape? = null,
-    onDismissDropDownMenu: (Boolean) -> Unit,
-    onClick: (String) -> Unit
+    label: (T) -> String,
+    onClick: (T) -> Unit,
+    onDismissDropDownMenu: (Boolean) -> Unit
 ) {
     Box(
         modifier = modifier
@@ -40,11 +41,11 @@ fun MeverPopupDropDownMenu(
             shape = shape ?: RoundedCornerShape(Dp8),
             onDismissRequest = { onDismissDropDownMenu(false) }
         ) {
-            listDropDown.map { item ->
+            listDropDown.forEach { item ->
                 DropdownMenuItem(
                     text = {
                         Text(
-                            text = item,
+                            text = label(item),
                             style = typography.body1,
                             color = textColor ?: colorScheme.onPrimary
                         )

@@ -36,6 +36,7 @@ object MeverTopBarAttr {
 
     data class TopBarArgs(
         val actionMenus: List<ActionMenu> = emptyList(),
+        val iconBack: Int? = null,
         val title: String? = null,
         val topBarColor: Color? = null,
         val titleColor: Color? = null,
@@ -46,21 +47,17 @@ object MeverTopBarAttr {
 
     @Composable
     fun navigationIcon(
-        screenName: String?,
+        icon: Int? = null,
         onClickBack: (() -> Unit)?
     ): @Composable () -> Unit = {
         Box(
-            modifier = screenName?.let {
-                Modifier
-                    .clip(CircleShape)
-                    .onCustomClick { onClickBack?.invoke() }
-            } ?: Modifier,
+            modifier = Modifier
+                .then(icon?.let { Modifier } ?: Modifier.clip(CircleShape))
+                .onCustomClick(enabled = onClickBack != null) { onClickBack?.invoke() },
             contentAlignment = Center
         ) {
             Icon(
-                imageVector = ImageVector.vectorResource(
-                    if (screenName == null) R.drawable.ic_mever else R.drawable.ic_back
-                ),
+                imageVector = ImageVector.vectorResource(icon ?: R.drawable.ic_back),
                 contentDescription = "Navigation Icon"
             )
         }

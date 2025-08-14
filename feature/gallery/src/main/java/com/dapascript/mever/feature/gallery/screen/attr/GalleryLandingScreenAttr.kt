@@ -1,12 +1,21 @@
 package com.dapascript.mever.feature.gallery.screen.attr
 
-object GalleryLandingScreenAttr {
-    const val MORE = "More"
-    const val DELETE_ALL = "Delete all"
-    const val PAUSE_ALL = "Pause all"
-    const val RESUME_ALL = "Resume all"
-    const val HIDE_FILTER = "Hide filter"
-    const val SHOW_FILTER = "Show filter"
+import android.content.Context
+import com.dapascript.mever.core.common.R
 
-    val listDropDown = listOf(DELETE_ALL, PAUSE_ALL, RESUME_ALL, HIDE_FILTER, SHOW_FILTER)
+object GalleryLandingScreenAttr {
+
+    enum class GalleryActionMenu(val resId: Int) {
+        SELECT_FILES(R.string.select_files),
+        MORE(R.string.more),
+        DELETE_ALL(R.string.delete_all),
+        DELETE_SELECTED(R.string.delete_button),
+        SHARE_SELECTED(R.string.share),
+        PAUSE_ALL(R.string.pause_all),
+        RESUME_ALL(R.string.resume_all),
+        HIDE_FILTER(R.string.hide_filter),
+        SHOW_FILTER(R.string.show_filter);
+
+        fun getText(context: Context) = context.getString(resId)
+    }
 }

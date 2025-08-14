@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -441,7 +442,7 @@ private fun HomeScreenContent(
                     .fillMaxWidth()
                     .padding(horizontal = Dp24),
                 topBarArgs = TopBarArgs(
-                    title = null,
+                    iconBack = R.drawable.ic_mever,
                     actionMenus = getListActionMenu(
                         context = context,
                         hasDownloadProgress = showBadge == true
@@ -770,6 +771,7 @@ internal fun HomeDownloaderSection(
                 ) {
                     MeverCard(
                         modifier = Modifier.animateItem(),
+                        paddingValues = PaddingValues(vertical = Dp24),
                         cardArgs = MeverCardArgs(
                             source = it.url,
                             tag = it.tag,

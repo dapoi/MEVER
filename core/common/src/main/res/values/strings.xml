@@ -90,4 +90,12 @@
     <string name="maintenance_title">Temporary Unavailable</string>
     <string name="maintenance_message">This app is unavailable due maintenance. We sincerely apologize for the inconvenience 🙏 We will be back soon!</string>
     <string name="close">Close</string>
+    <string name="total_item_selected">%1$d item(s) selected</string>
+    <string name="select_files">Select Files</string>
+    <string name="more">More</string>
+    <string name="delete_all">Delete all</string>
+    <string name="pause_all">Pause all</string>
+    <string name="resume_all">Resume all</string>
+    <string name="hide_filter">Hide filter</string>
+    <string name="show_filter">Show filter</string>
 </resources>

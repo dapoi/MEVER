@@ -148,13 +148,47 @@ fun getContentType(path: String) = when {
 fun getContentTypeFromFile(file: File) =
     getSingleton().getMimeTypeFromExtension(file.extension.lowercase())
 
+fun shareContent(context: Context, files: List<File>) {
+    try {
+        if (files.isEmpty()) return
+
+        val uris = files.map { file ->
+            getUriForFile(
+                context,
+                "${context.packageName}.fileprovider",
+                file
+            )
+        }
+        val mimes = files.map { getContentTypeFromFile(it) ?: "*/*" }.toSet()
+        val mime = if (mimes.size == 1) {
+            mimes.first()
+        } else {
+            val top = mimes.map { it.substringBefore('/') }.toSet().filter { it.isNotBlank() }
+            if (top.size == 1) "${top.first()}/*" else "*/*"
+        }
+
+        IntentBuilder(context)
+            .setType(mime)
+            .setSubject("MEVER Shared Content")
+            .setChooserTitle("Share with")
+            .apply {
+                uris.forEach { addStream(it) }
+            }
+            .startChooser()
+
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+}
+
 fun shareContent(context: Context, file: File) {
     try {
         val uri = getUriForFile(
-            /* context = */ context,
-            /* authority = */ "${context.packageName}.fileprovider",
-            /* file = */ file
+            context,
+            "${context.packageName}.fileprovider",
+            file
         )
+
         IntentBuilder(context)
             .setType(getContentTypeFromFile(file))
             .setSubject("MEVER Shared Content")

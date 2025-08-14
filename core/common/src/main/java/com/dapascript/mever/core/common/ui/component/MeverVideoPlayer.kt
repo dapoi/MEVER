@@ -59,6 +59,8 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.ColorFilter.Companion.tint
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle.Event.ON_STOP
 import androidx.lifecycle.LifecycleEventObserver
@@ -72,6 +74,9 @@ import androidx.media3.common.Player.STATE_ENDED
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import com.dapascript.mever.core.common.R
+import com.dapascript.mever.core.common.ui.attr.MeverContentViewerAttr.ContentViewerActionMenu
+import com.dapascript.mever.core.common.ui.attr.MeverContentViewerAttr.ContentViewerActionMenu.DELETE
+import com.dapascript.mever.core.common.ui.attr.MeverContentViewerAttr.ContentViewerActionMenu.SHARE
 import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.ActionMenu
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
@@ -260,15 +265,16 @@ fun MeverVideoPlayer(
             modifier = Modifier
                 .padding(PaddingValues(top = Dp64, end = Dp24))
                 .statusBarsPadding(),
-            listDropDown = listOf("Delete", "Share"),
+            listDropDown = ContentViewerActionMenu.entries,
+            label = { it.getText(context) },
             showDropDownMenu = showDropDownMenu,
             backgroundColor = MeverDark,
             textColor = MeverWhite,
             onDismissDropDownMenu = { showDropDownMenu = false },
             onClick = { item ->
                 when (item) {
-                    "Delete" -> showDeleteDialog = true
-                    "Share" -> onClickShare()
+                    DELETE -> showDeleteDialog = true
+                    SHARE -> onClickShare()
                 }
             }
         )
@@ -276,8 +282,8 @@ fun MeverVideoPlayer(
 
     MeverDialog(
         meverDialogArgs = MeverDialogArgs(
-            title = "Delete this file?",
-            primaryButtonText = "Delete",
+            title = stringResource(R.string.delete_title),
+            primaryButtonText = stringResource(R.string.delete_button),
             titleColor = MeverWhite,
             backgroundColor = MeverDark,
             secondaryButtonColor = MeverWhite,
@@ -294,7 +300,8 @@ fun MeverVideoPlayer(
         showDialog = showDeleteDialog
     ) {
         Text(
-            text = "File that has been deleted cannot be recovered",
+            text = stringResource(R.string.delete_desc),
+            textAlign = TextAlign.Center,
             style = typography.body1,
             color = MeverWhite
         )

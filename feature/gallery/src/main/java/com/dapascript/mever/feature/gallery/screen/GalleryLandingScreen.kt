@@ -79,13 +79,16 @@ import com.dapascript.mever.core.common.util.storage.StorageUtil.syncFileToGalle
 import com.dapascript.mever.core.navigation.helper.navigateTo
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute.Content
-import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.DELETE_ALL
-import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.HIDE_FILTER
-import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.MORE
-import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.PAUSE_ALL
-import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.RESUME_ALL
-import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.SHOW_FILTER
-import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.listDropDown
+import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.GalleryActionMenu
+import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.GalleryActionMenu.DELETE_ALL
+import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.GalleryActionMenu.DELETE_SELECTED
+import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.GalleryActionMenu.HIDE_FILTER
+import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.GalleryActionMenu.MORE
+import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.GalleryActionMenu.PAUSE_ALL
+import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.GalleryActionMenu.RESUME_ALL
+import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.GalleryActionMenu.SELECT_FILES
+import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.GalleryActionMenu.SHARE_SELECTED
+import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.GalleryActionMenu.SHOW_FILTER
 import com.dapascript.mever.feature.gallery.viewmodel.GalleryLandingViewModel
 import com.ketch.DownloadModel
 import com.ketch.Status.FAILED
@@ -104,16 +107,20 @@ internal fun GalleryLandingScreen(
     val context = LocalContext.current
     val downloadList = downloadList.collectAsStateValue()
     val platformTypes = platformTypes.collectAsStateValue()
+    val selectedItems = selectedItems.collectAsStateValue()
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
     val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
-    val isExpanded by remember { derivedStateOf { listState.firstVisibleItemIndex < 1 } }
     var skipRefreshDatabase by remember(lifecycleOwner.value) { mutableStateOf(true) }
+    var showSelector by remember { mutableStateOf(false) }
     var showFailedDialog by remember { mutableStateOf<Int?>(null) }
-    var showDeleteDialog by remember { mutableStateOf<Int?>(null) }
+    var showDeleteDialog by remember { mutableStateOf<List<Int>?>(null) }
     var showDeleteAllDialog by remember { mutableStateOf(false) }
     var showDropDownMenu by remember { mutableStateOf(false) }
     var showFilter by rememberSaveable { mutableStateOf(true) }
+    val isExpanded by remember {
+        derivedStateOf { listState.firstVisibleItemIndex < 1 && showSelector.not() }
+    }
     val downloadFilter by remember(downloadList, selectedFilter) {
         derivedStateOf {
             downloadList?.filter { selectedFilter == ALL || it.tag == selectedFilter.platformName }
@@ -121,15 +128,35 @@ internal fun GalleryLandingScreen(
     }
 
     BaseScreen(
+        useCenterTopBar = showSelector.not(),
         topBarArgs = TopBarArgs(
-            actionMenus = if (downloadList.isNullOrEmpty().not() && isExpanded.not()) listOf(
-                ActionMenu(
-                    icon = R.drawable.ic_more,
-                    nameIcon = MORE,
-                    onClickActionMenu = { showDropDownMenu = true }
-                )) else emptyList(),
-            title = if (isExpanded.not()) stringResource(RCommon.string.gallery) else "",
-            onClickBack = { navController.popBackStack() }
+            actionMenus = if (
+                isExpanded.not() && ((showSelector && selectedItems.isNotEmpty()) ||
+                        (showSelector.not() && downloadFilter.isNullOrEmpty().not()))
+            ) {
+                listOf(
+                    ActionMenu(
+                        icon = R.drawable.ic_more,
+                        nameIcon = MORE.getText(context),
+                        onClickActionMenu = { showDropDownMenu = showDropDownMenu.not() }
+                    )
+                )
+            } else emptyList(),
+            title = when {
+                isExpanded.not() -> stringResource(
+                    if (showSelector.not()) RCommon.string.gallery
+                    else RCommon.string.total_item_selected, selectedItems.size
+                )
+
+                else -> ""
+            },
+            iconBack = if (showSelector) R.drawable.ic_clear else null,
+            onClickBack = {
+                if (showSelector) {
+                    showSelector = false
+                    clearSelection()
+                } else navController.popBackStack()
+            },
         ),
         allowScreenOverlap = true
     ) {
@@ -152,27 +179,35 @@ internal fun GalleryLandingScreen(
 
         MeverPopupDropDownMenu(
             modifier = Modifier.padding(top = Dp64, end = Dp24),
-            listDropDown = listDropDown.filter {
-                when (it) {
-                    DELETE_ALL -> downloadList.isNullOrEmpty().not()
+            listDropDown = GalleryActionMenu.entries.filter { menu ->
+                when (menu) {
+                    SELECT_FILES -> downloadList.isNullOrEmpty().not() && showSelector.not()
+                    DELETE_ALL -> downloadList.isNullOrEmpty().not() && showSelector.not()
+                    DELETE_SELECTED -> selectedItems.isNotEmpty()
+                    SHARE_SELECTED -> selectedItems.isNotEmpty()
                     PAUSE_ALL -> downloadList?.any { model ->
                         model.status == PROGRESS
                     } == true
-
                     RESUME_ALL -> downloadList?.any { model ->
                         model.progress < model.total && model.status == PAUSED
                     } == true
-
-                    HIDE_FILTER -> showFilter && selectedFilter == ALL
-                    SHOW_FILTER -> showFilter.not()
+                    HIDE_FILTER -> showFilter && platformTypes.size > 1 && showSelector.not()
+                    SHOW_FILTER -> showFilter.not() && showSelector.not()
                     else -> false
                 }
             },
+            label = { it.getText(context) },
             showDropDownMenu = showDropDownMenu,
             onDismissDropDownMenu = { showDropDownMenu = it },
-            onClick = { item ->
-                when (item) {
+            onClick = { menu ->
+                when (menu) {
+                    SELECT_FILES -> showSelector = true
                     DELETE_ALL -> showDeleteAllDialog = true
+                    DELETE_SELECTED -> showDeleteDialog = selectedItems.map { it.id }
+                    SHARE_SELECTED -> shareContent(
+                        context = context,
+                        files = selectedItems.map { File(getFilePath(it.fileName)) }
+                    )
                     PAUSE_ALL -> ketch.pauseAll()
                     HIDE_FILTER -> showFilter = false
                     SHOW_FILTER -> showFilter = true
@@ -187,6 +222,8 @@ internal fun GalleryLandingScreen(
             selectedFilter = selectedFilter,
             listState = listState,
             isExpanded = isExpanded,
+            showSelector = showSelector,
+            selectedItems = selectedItems,
             platformTypes = if (showFilter) platformTypes else emptyList(),
             downloadList = downloadFilter,
             modifier = Modifier
@@ -237,7 +274,8 @@ internal fun GalleryLandingScreen(
                     file = File(getFilePath(it.fileName))
                 )
             },
-            onClickDelete = { showDeleteDialog = it.id }
+            onClickDelete = { showDeleteDialog = listOf(it.id) },
+            onClickSelectedItem = { toggleSelection(it) }
         )
 
         MeverDialogError(
@@ -254,7 +292,7 @@ internal fun GalleryLandingScreen(
             onClickSecondary = { showDeleteAllDialog = false }
         )
 
-        showDeleteDialog?.let { id ->
+        showDeleteDialog?.let { ids ->
             MeverDialogError(
                 showDialog = true,
                 errorImage = null,
@@ -262,8 +300,10 @@ internal fun GalleryLandingScreen(
                 errorDescription = stringResource(R.string.delete_desc),
                 primaryButtonText = stringResource(R.string.delete_button),
                 onClickPrimary = {
-                    ketch.clearDb(id)
+                    ids.forEach { ketch.clearDb(it) }
                     showDeleteDialog = null
+                    showSelector = false
+                    clearSelection()
                 },
                 onClickSecondary = { showDeleteDialog = null }
             )
@@ -294,13 +334,16 @@ private fun GalleryContentSection(
     selectedFilter: PlatformType,
     listState: LazyListState,
     isExpanded: Boolean,
+    showSelector: Boolean,
+    selectedItems: Set<DownloadModel>,
     platformTypes: List<PlatformType>,
     downloadList: List<DownloadModel>?,
     modifier: Modifier = Modifier,
     onClickFilter: (PlatformType) -> Unit,
     onClickCard: (DownloadModel) -> Unit,
     onClickShare: (DownloadModel) -> Unit,
-    onClickDelete: (DownloadModel) -> Unit
+    onClickDelete: (DownloadModel) -> Unit,
+    onClickSelectedItem: (DownloadModel) -> Unit
 ) {
     CompositionLocalProvider(LocalOverscrollFactory provides null) {
         val headerScroll = rememberScrollState()
@@ -313,16 +356,22 @@ private fun GalleryContentSection(
                         state = listState,
                         contentPadding = PaddingValues(bottom = Dp80)
                     ) {
-                        item {
-                            Text(
-                                text = stringResource(RCommon.string.gallery),
-                                style = typography.h2.copy(fontSize = Sp32),
-                                color = colorScheme.onPrimary,
-                                modifier = Modifier.padding(top = Dp16, start = Dp24, end = Dp24)
-                            )
+                        if (showSelector.not()) {
+                            item {
+                                Text(
+                                    text = stringResource(RCommon.string.gallery),
+                                    style = typography.h2.copy(fontSize = Sp32),
+                                    color = colorScheme.onPrimary,
+                                    modifier = Modifier.padding(
+                                        top = Dp16,
+                                        start = Dp24,
+                                        end = Dp24
+                                    )
+                                )
+                            }
                         }
                         stickyHeader {
-                            if (platformTypes.size > 1) {
+                            if (platformTypes.size > 1 && showSelector.not()) {
                                 FilterContent(
                                     modifier = Modifier
                                         .background(colorScheme.background)
@@ -354,9 +403,9 @@ private fun GalleryContentSection(
                             contentType = { it.status.name }
                         ) {
                             MeverCard(
-                                modifier = Modifier
-                                    .padding(horizontal = Dp24)
-                                    .animateItem(),
+                                modifier = Modifier.animateItem(),
+                                showSelector = showSelector,
+                                isSelected = it in selectedItems,
                                 cardArgs = MeverCardArgs(
                                     source = it.url,
                                     tag = it.tag,
@@ -377,7 +426,8 @@ private fun GalleryContentSection(
                                 ),
                                 onClickCard = { onClickCard(it) },
                                 onClickShare = { onClickShare(it) },
-                                onClickDelete = { onClickDelete(it) }
+                                onClickDelete = { onClickDelete(it) },
+                                onClickSelectedItem = { onClickSelectedItem(it) }
                             )
                         }
                     }

@@ -26,7 +26,7 @@ fun MeverTopBar(
             modifier = modifier,
             title = title(title),
             navigationIcon = navigationIcon(
-                screenName = title,
+                icon = iconBack,
                 onClickBack = onClickBack
             ),
             actions = actions(actionMenus),
@@ -42,7 +42,7 @@ fun MeverTopBar(
             modifier = modifier,
             title = title(title),
             navigationIcon = navigationIcon(
-                screenName = title,
+                icon = iconBack,
                 onClickBack = onClickBack
             ),
             actions = actions(actionMenus),
