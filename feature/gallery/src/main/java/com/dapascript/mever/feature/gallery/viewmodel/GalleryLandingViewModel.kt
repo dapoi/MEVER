@@ -16,10 +16,10 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.SharingStarted.Companion.Lazily
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
+import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -34,7 +34,8 @@ class GalleryLandingViewModel @Inject constructor(
     @OptIn(FlowPreview::class)
     val downloadList = ketch.observeDownloads()
         .distinctUntilChanged()
-        .sample(16)
+        .map { downloads -> downloads.sortedByDescending { it.timeQueued } }
+        .conflate()
         .flowOn(Default)
         .stateIn(viewModelScope, WhileSubscribed(5000), null)
     val platformTypes = downloadList

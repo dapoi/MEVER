@@ -108,6 +108,7 @@ internal fun GalleryLandingScreen(
     val scope = rememberCoroutineScope()
     val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
     val isExpanded by remember { derivedStateOf { listState.firstVisibleItemIndex < 1 } }
+    var skipRefreshDatabase by remember(lifecycleOwner.value) { mutableStateOf(true) }
     var showFailedDialog by remember { mutableStateOf<Int?>(null) }
     var showDeleteDialog by remember { mutableStateOf<Int?>(null) }
     var showDeleteAllDialog by remember { mutableStateOf(false) }
@@ -138,8 +139,11 @@ internal fun GalleryLandingScreen(
             }
         }
 
-        LaunchedEffect(lifecycleOwner) {
-            lifecycleOwner.value.lifecycle.repeatOnLifecycle(RESUMED) { refreshDatabase() }
+        LaunchedEffect(lifecycleOwner.value) {
+            lifecycleOwner.value.lifecycle.repeatOnLifecycle(RESUMED) {
+                if (skipRefreshDatabase) skipRefreshDatabase = false
+                else refreshDatabase()
+            }
         }
 
         LaunchedEffect(selectedFilter, downloadFilter) {

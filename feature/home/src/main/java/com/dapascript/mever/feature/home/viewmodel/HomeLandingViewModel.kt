@@ -40,10 +40,10 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -75,11 +75,9 @@ class HomeLandingViewModel @Inject constructor(
 
     @OptIn(FlowPreview::class)
     val downloadList = ketch.observeDownloads()
-        .map { downloads ->
-            downloads.sortedByDescending { it.timeQueued }
-        }
         .distinctUntilChanged()
-        .sample(16)
+        .map { downloads -> downloads.sortedByDescending { it.timeQueued } }
+        .conflate()
         .flowOn(Default)
         .stateIn(viewModelScope, WhileSubscribed(5000), null)
     val showBadge = downloadList

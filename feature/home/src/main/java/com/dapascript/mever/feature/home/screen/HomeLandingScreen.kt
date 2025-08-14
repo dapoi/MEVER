@@ -189,6 +189,7 @@ internal fun HomeLandingScreen(
     val context = LocalContext.current
     val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
     val scope = rememberCoroutineScope()
+    var skipRefreshDatabase by remember(lifecycleOwner.value) { mutableStateOf(true) }
     var showLoading by remember { mutableStateOf(false) }
     var showCancelExitConfirmation by remember { mutableStateOf(false) }
     var showYoutubeChooseQualityModal by remember { mutableStateOf(false) }
@@ -202,8 +203,11 @@ internal fun HomeLandingScreen(
         allowScreenOverlap = true,
         hideDefaultTopBar = true
     ) {
-        LaunchedEffect(lifecycleOwner) {
-            lifecycleOwner.value.lifecycle.repeatOnLifecycle(RESUMED) { refreshDatabase() }
+        LaunchedEffect(lifecycleOwner.value) {
+            lifecycleOwner.value.lifecycle.repeatOnLifecycle(RESUMED) {
+                if (skipRefreshDatabase) skipRefreshDatabase = false
+                else refreshDatabase()
+            }
         }
 
         LaunchedEffect(downloaderResponseState) {
