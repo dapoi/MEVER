@@ -1,12 +1,12 @@
 package com.dapascript.mever.core.data.repository.base
 
 import android.content.Context
-import androidx.work.Constraints
 import androidx.work.Data
 import androidx.work.Data.Companion.EMPTY
 import androidx.work.ListenableWorker
-import androidx.work.NetworkType.CONNECTED
 import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkInfo.State.BLOCKED
+import androidx.work.WorkInfo.State.CANCELLED
 import androidx.work.WorkInfo.State.FAILED
 import androidx.work.WorkInfo.State.SUCCEEDED
 import androidx.work.WorkManager
@@ -50,15 +50,11 @@ open class BaseRepository @Inject constructor() {
         workManager: WorkManager,
         workerClass: Class<out ListenableWorker>,
         inputData: Data = EMPTY,
-        constraints: Constraints = Constraints.Builder()
-            .setRequiredNetworkType(CONNECTED)
-            .build(),
         crossinline output: (Data) -> T
     ): Flow<ApiState<T>> = flow {
         emit(ApiState.Loading)
         val request = OneTimeWorkRequest.Builder(workerClass)
             .setInputData(inputData)
-            .setConstraints(constraints)
             .build()
         workManager.enqueue(request)
 
@@ -70,7 +66,7 @@ open class BaseRepository @Inject constructor() {
                     emit(ApiState.Success(result))
                 }
 
-                FAILED -> {
+                FAILED, CANCELLED, BLOCKED -> {
                     val error = workInfo.outputData.getString(KEY_ERROR)
                     emit(ApiState.Error(Throwable(error)))
                 }
