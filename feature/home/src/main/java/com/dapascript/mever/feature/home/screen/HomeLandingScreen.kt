@@ -770,7 +770,9 @@ internal fun HomeDownloaderSection(
                     contentType = { it.status.name }
                 ) {
                     MeverCard(
-                        modifier = Modifier.animateItem(),
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(Dp12))
+                            .animateItem(),
                         paddingValues = PaddingValues(vertical = Dp24),
                         cardArgs = MeverCardArgs(
                             source = it.url,

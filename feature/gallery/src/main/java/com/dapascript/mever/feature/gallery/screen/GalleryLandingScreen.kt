@@ -131,9 +131,7 @@ internal fun GalleryLandingScreen(
     BaseScreen(
         useCenterTopBar = showSelector.not(),
         topBarArgs = TopBarArgs(
-            actionMenus = if (
-                isExpanded.not() && (showSelector || downloadFilter.isNullOrEmpty().not())
-            ) {
+            actionMenus = if (isExpanded.not()) {
                 listOf(
                     ActionMenu(
                         icon = R.drawable.ic_more,
@@ -189,9 +187,11 @@ internal fun GalleryLandingScreen(
                     PAUSE_ALL -> downloadList?.any { model ->
                         model.status == PROGRESS
                     } == true
+
                     RESUME_ALL -> downloadList?.any { model ->
                         model.progress < model.total && model.status == PAUSED
                     } == true
+
                     HIDE_FILTER -> showFilter && platformTypes.size > 1 && showSelector.not()
                     SHOW_FILTER -> showFilter.not() && showSelector.not()
                     else -> false
@@ -210,6 +210,7 @@ internal fun GalleryLandingScreen(
                         context = context,
                         files = selectedItems.map { File(getFilePath(it.fileName)) }
                     )
+
                     PAUSE_ALL -> ketch.pauseAll()
                     HIDE_FILTER -> showFilter = false
                     SHOW_FILTER -> showFilter = true
