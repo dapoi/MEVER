@@ -6,8 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
-import androidx.work.WorkManager
-import androidx.work.workDataOf
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE_MUSIC
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver
@@ -19,14 +17,9 @@ import com.dapascript.mever.core.common.util.state.UiState.StateLoading
 import com.dapascript.mever.core.common.util.state.UiState.StateSuccess
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFiles
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFolder
-import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_REQUEST_SELECTED_QUALITY
-import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_REQUEST_URL
-import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_RESPONSE_CONTENTS
-import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_RESPONSE_TYPE
 import com.dapascript.mever.core.data.model.local.ContentEntity
+import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.source.local.MeverDataStore
-import com.dapascript.mever.core.data.util.MoshiHelper
-import com.dapascript.mever.core.data.worker.DownloaderWorker
 import com.ketch.Ketch
 import com.ketch.Status.PAUSED
 import com.ketch.Status.PROGRESS
@@ -53,8 +46,7 @@ class HomeLandingViewModel @Inject constructor(
     connectivityObserver: ConnectivityObserver,
     private val dataStore: MeverDataStore,
     private val ketch: Ketch,
-    private val workManager: WorkManager,
-    private val moshiHelper: MoshiHelper
+    private val repository: MeverRepository
 ) : BaseViewModel() {
     private val meverFolder by lazy { getMeverFolder() }
 
@@ -128,18 +120,13 @@ class HomeLandingViewModel @Inject constructor(
         MutableStateFlow<UiState<List<ContentEntity>>>(StateInitial)
     val downloaderResponseState = _downloaderResponseState.asStateFlow()
 
-    fun getApiDownloader() = collectApiAsUiStateWithWorker(
-        workManager = workManager,
-        workerClass = DownloaderWorker::class.java,
-        inputData = workDataOf(
-            KEY_REQUEST_URL to urlSocialMediaState.text,
-            KEY_REQUEST_SELECTED_QUALITY to selectedQuality,
-            KEY_RESPONSE_TYPE to if (selectedQuality.contains("kbps", true)) "audio" else "video"
+    fun getApiDownloader() = collectApiAsUiState(
+        response = repository.getDownloader(
+            url = urlSocialMediaState.text,
+            quality = selectedQuality
         ),
         onLoading = { _downloaderResponseState.value = StateLoading },
-        onSuccess = {
-            val data = it.getString(KEY_RESPONSE_CONTENTS).orEmpty()
-            val response = moshiHelper.fromJson<List<ContentEntity>>(data) ?: emptyList()
+        onSuccess = { response ->
             _downloaderResponseState.value = StateSuccess(response)
             contents = response
         },

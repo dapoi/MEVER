@@ -1,5 +1,6 @@
 package com.dapascript.mever.feature.startup.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver
@@ -13,6 +14,7 @@ import com.dapascript.mever.core.data.model.local.AppConfigEntity
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.source.local.MeverDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
@@ -27,7 +29,8 @@ import javax.inject.Inject
 class SplashScreenViewModel @Inject constructor(
     connectivityObserver: ConnectivityObserver,
     private val dataStore: MeverDataStore,
-    private val meverRepository: MeverRepository
+    private val meverRepository: MeverRepository,
+    @param:ApplicationContext private val context: Context
 ) : BaseViewModel() {
 
     val today by lazy {
@@ -77,7 +80,7 @@ class SplashScreenViewModel @Inject constructor(
             }
         } else {
             collectApiAsUiState(
-                response = meverRepository.getAppConfig(),
+                response = meverRepository.getAppConfig(context),
                 onLoading = { _appConfigState.value = StateLoading },
                 onSuccess = {
                     _appConfigState.value = StateSuccess(it)

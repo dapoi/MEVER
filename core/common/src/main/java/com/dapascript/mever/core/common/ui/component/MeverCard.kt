@@ -83,15 +83,16 @@ fun MeverCard(
     showSelector: Boolean = false,
     paddingValues: PaddingValues? = null,
     onClickCard: (() -> Unit)? = null,
-    onClickShare: (() -> Unit)? = null,
     onClickDelete: (() -> Unit)? = null,
+    onClickLong: (() -> Unit)? = null,
+    onClickShare: (() -> Unit)? = null,
     onClickSelectedItem: (() -> Unit)? = null
 ) = with(cardArgs) {
     Row(
         modifier = modifier
             .fillMaxWidth()
             .onCustomClick(
-                onLongClick = { if (showSelector.not()) onClickDelete?.invoke() },
+                onLongClick = { onClickLong?.invoke() },
                 onClick = { if (showSelector) onClickSelectedItem?.invoke() else onClickCard?.invoke() }
             )
             .then(

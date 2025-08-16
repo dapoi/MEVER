@@ -5,43 +5,39 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
-import com.dapascript.mever.core.common.util.state.ApiState.Error
-import com.dapascript.mever.core.common.util.state.ApiState.Loading
-import com.dapascript.mever.core.common.util.state.ApiState.Success
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_ERROR
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_REQUEST_PROMPT
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_RESPONSE_AI_IMAGES
-import com.dapascript.mever.core.data.repository.MeverRepository
+import com.dapascript.mever.core.data.R
+import com.dapascript.mever.core.data.source.remote.ApiService
 import com.dapascript.mever.core.data.util.MoshiHelper
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.flow.first
+import retrofit2.HttpException
+import java.io.IOException
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 
 @HiltWorker
 class ImageGeneratorWorker @AssistedInject constructor(
     @Assisted private val context: Context,
     @Assisted workerParameters: WorkerParameters,
-    private val repository: MeverRepository,
+    private val apiService: ApiService,
     private val moshiHelper: MoshiHelper
 ) : CoroutineWorker(context, workerParameters) {
     override suspend fun doWork(): Result = try {
         val prompt = inputData.getString(KEY_REQUEST_PROMPT).orEmpty()
-        val state = repository.getImageAiGenerator(prompt).first { it !is Loading }
-        when (state) {
-            is Success -> {
-                val response = moshiHelper.toJson(state.data)
-                val data = workDataOf(KEY_RESPONSE_AI_IMAGES to response)
-                Result.success(data)
-            }
-
-            is Error -> {
-                val error = state.throwable.message
-                Result.failure(workDataOf(KEY_ERROR to error))
-            }
-
-            else -> Result.failure(workDataOf(KEY_ERROR to "Unexpected state"))
-        }
+        val service = apiService.getImageAiGenerator(prompt).mapToEntity()
+        val response = workDataOf(KEY_RESPONSE_AI_IMAGES to moshiHelper.toJson(service))
+        Result.success(response)
     } catch (e: Exception) {
-        Result.failure(workDataOf(KEY_ERROR to e.message))
+        val errorMessage = when (e) {
+            is SocketTimeoutException -> context.getString(R.string.error_timeout)
+            is UnknownHostException -> context.getString(R.string.error_no_host)
+            is IOException -> context.getString(R.string.error_io)
+            is HttpException -> context.getString(R.string.error_http, e.code())
+            else -> context.getString(R.string.error_unknown)
+        }
+        Result.failure(workDataOf(KEY_ERROR to errorMessage))
     }
 }

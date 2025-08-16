@@ -8,12 +8,15 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.dapascript.mever.core.common.ui.theme.ThemeType
 import com.dapascript.mever.core.common.ui.theme.ThemeType.System
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 private val Context.dataStore by preferencesDataStore(name = "mever_data_store")
 
-class MeverDataStore @Inject constructor(context: Context) {
+class MeverDataStore @Inject constructor(
+    @ApplicationContext context: Context
+) {
 
     private val dataStore = context.dataStore
 

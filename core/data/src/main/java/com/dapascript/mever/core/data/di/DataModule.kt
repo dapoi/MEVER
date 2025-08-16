@@ -80,15 +80,15 @@ class DataModule {
         retrofit.create(ApiService::class.java)
 
     @Provides
-    fun provideMeverDataStore(
-        @ApplicationContext context: Context
-    ): MeverDataStore = MeverDataStore(context)
-
-    @Provides
     fun provideMeverRepository(
         apiService: ApiService,
-        @ApplicationContext context: Context
-    ): MeverRepository = MeverRepositoryImpl(apiService, context)
+        workManager: WorkManager,
+        moshiHelper: MoshiHelper
+    ): MeverRepository = MeverRepositoryImpl(
+        apiService = apiService,
+        workManager = workManager,
+        moshiHelper = moshiHelper
+    )
 
     @Provides
     fun provideWorkManager(
