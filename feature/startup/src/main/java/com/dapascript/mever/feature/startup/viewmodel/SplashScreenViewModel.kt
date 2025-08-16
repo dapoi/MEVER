@@ -1,6 +1,5 @@
 package com.dapascript.mever.feature.startup.viewmodel
 
-import android.content.Context
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver
@@ -14,7 +13,6 @@ import com.dapascript.mever.core.data.model.local.AppConfigEntity
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.source.local.MeverDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
@@ -29,8 +27,7 @@ import javax.inject.Inject
 class SplashScreenViewModel @Inject constructor(
     connectivityObserver: ConnectivityObserver,
     private val dataStore: MeverDataStore,
-    private val meverRepository: MeverRepository,
-    @param:ApplicationContext private val context: Context
+    private val meverRepository: MeverRepository
 ) : BaseViewModel() {
 
     val today by lazy {
@@ -80,16 +77,18 @@ class SplashScreenViewModel @Inject constructor(
             }
         } else {
             collectApiAsUiState(
-                response = meverRepository.getAppConfig(context),
+                response = meverRepository.getAppConfig(),
                 onLoading = { _appConfigState.value = StateLoading },
                 onSuccess = {
                     _appConfigState.value = StateSuccess(it)
                     viewModelScope.launch {
-                        with(dataStore) {
-                            saveVersion(it.version)
-                            setIsImageAiEnabled(it.isImageGeneratorFeatureActive)
-                            saveYoutubeVideoAndAudioQuality(it.videoResolutionsAndAudioQualities)
-                        }
+                       it?.let {
+                           with(dataStore) {
+                               saveVersion(it.version)
+                               setIsImageAiEnabled(it.isImageGeneratorFeatureActive)
+                               saveYoutubeVideoAndAudioQuality(it.videoResolutionsAndAudioQualities)
+                           }
+                       }
                     }
                 },
                 onFailed = { _appConfigState.value = StateFailed(it) }

@@ -2,6 +2,11 @@ package com.dapascript.mever.core.common.util.worker
 
 object WorkerConstant {
     /**
+     * App Config Worker
+     */
+    const val KEY_RESPONSE_APP_CONFIG = "app_config"
+
+    /**
      * Downloader Worker
      */
     const val KEY_REQUEST_URL = "url"

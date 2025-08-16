@@ -8,7 +8,6 @@ import com.dapascript.mever.core.data.BuildConfig
 import com.dapascript.mever.core.data.BuildConfig.BASE_URL
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.repository.MeverRepositoryImpl
-import com.dapascript.mever.core.data.source.local.MeverDataStore
 import com.dapascript.mever.core.data.source.remote.ApiService
 import com.dapascript.mever.core.data.util.ApiKeyInterceptor
 import com.dapascript.mever.core.data.util.MoshiHelper
@@ -81,11 +80,9 @@ class DataModule {
 
     @Provides
     fun provideMeverRepository(
-        apiService: ApiService,
         workManager: WorkManager,
         moshiHelper: MoshiHelper
     ): MeverRepository = MeverRepositoryImpl(
-        apiService = apiService,
         workManager = workManager,
         moshiHelper = moshiHelper
     )

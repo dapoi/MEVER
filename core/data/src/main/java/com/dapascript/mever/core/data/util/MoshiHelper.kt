@@ -6,6 +6,17 @@ import java.lang.reflect.Type
 import javax.inject.Inject
 
 class MoshiHelper @Inject constructor(val moshi: Moshi) {
+
+    fun <T> toJson(type: Type, data: T): String? {
+        return try {
+            val adapter: com.squareup.moshi.JsonAdapter<T> = moshi.adapter(type)
+            adapter.toJson(data)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
     inline fun <reified T> toJson(data: T): String? {
         return try {
             moshi.adapter<T>(resolveType<T>()).toJson(data)

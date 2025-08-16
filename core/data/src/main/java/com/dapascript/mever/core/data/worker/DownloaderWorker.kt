@@ -2,9 +2,7 @@ package com.dapascript.mever.core.data.worker
 
 import android.content.Context
 import androidx.hilt.work.HiltWorker
-import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import androidx.work.workDataOf
 import com.dapascript.mever.core.common.util.PlatformType.AI
 import com.dapascript.mever.core.common.util.PlatformType.ALL
 import com.dapascript.mever.core.common.util.PlatformType.FACEBOOK
@@ -18,44 +16,36 @@ import com.dapascript.mever.core.common.util.PlatformType.VIDEY
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE_MUSIC
 import com.dapascript.mever.core.common.util.getPlatformType
-import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_ERROR
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_REQUEST_SELECTED_QUALITY
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_REQUEST_URL
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_RESPONSE_CONTENTS
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_RESPONSE_TYPE
-import com.dapascript.mever.core.data.R
+import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.dapascript.mever.core.data.source.remote.ApiService
 import com.dapascript.mever.core.data.util.MoshiHelper
+import com.dapascript.mever.core.data.worker.base.BaseWorker
+import com.squareup.moshi.Types
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import retrofit2.HttpException
-import java.io.IOException
-import java.net.SocketTimeoutException
-import java.net.UnknownHostException
+import java.lang.reflect.Type
 
 @HiltWorker
 class DownloaderWorker @AssistedInject constructor(
-    @Assisted private val context: Context,
+    @Assisted context: Context,
     @Assisted workerParameters: WorkerParameters,
-    private val apiService: ApiService,
-    private val moshiHelper: MoshiHelper
-) : CoroutineWorker(context, workerParameters) {
-    override suspend fun doWork() = try {
+    moshiHelper: MoshiHelper,
+    private val apiService: ApiService
+) : BaseWorker<List<ContentEntity>>(context, workerParameters, moshiHelper) {
+    override val outputSuccessKey: String = KEY_RESPONSE_CONTENTS
+    override val resultType: Type = Types.newParameterizedType(
+        List::class.java, ContentEntity::class.java
+    )
+
+    override suspend fun doApiCall(): List<ContentEntity> {
         val link = inputData.getString(KEY_REQUEST_URL).orEmpty()
         val selectedQuality = inputData.getString(KEY_REQUEST_SELECTED_QUALITY).orEmpty()
         val type = inputData.getString(KEY_RESPONSE_TYPE) ?: "video"
-        val service = apiService.getApiDownloader(link, selectedQuality, type)
-        val response = workDataOf(KEY_RESPONSE_CONTENTS to moshiHelper.toJson(service))
-        Result.success(response)
-    } catch (e: Throwable) {
-        val errorMessage = when (e) {
-            is SocketTimeoutException -> context.getString(R.string.error_timeout)
-            is UnknownHostException -> context.getString(R.string.error_no_host)
-            is IOException -> context.getString(R.string.error_io)
-            is HttpException -> context.getString(R.string.error_http, e.code())
-            else -> context.getString(R.string.error_unknown)
-        }
-        Result.failure(workDataOf(KEY_ERROR to errorMessage))
+        return apiService.getApiDownloader(link, selectedQuality, type).orEmpty()
     }
 
     private suspend fun ApiService.getApiDownloader(
