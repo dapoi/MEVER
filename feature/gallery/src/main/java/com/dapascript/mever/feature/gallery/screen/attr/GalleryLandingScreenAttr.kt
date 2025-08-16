@@ -6,6 +6,7 @@ import com.dapascript.mever.core.common.R
 object GalleryLandingScreenAttr {
 
     enum class GalleryActionMenu(val resId: Int) {
+        SELECT_ALL(R.string.select_all),
         SELECT_FILES(R.string.select_files),
         MORE(R.string.more),
         DELETE_ALL(R.string.delete_all),

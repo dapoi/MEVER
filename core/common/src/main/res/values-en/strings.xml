@@ -93,9 +93,10 @@
     <string name="total_item_selected">%1$d item(s) selected</string>
     <string name="select_files">Select Files</string>
     <string name="more">More</string>
-    <string name="delete_all">Delete all</string>
-    <string name="pause_all">Pause all</string>
-    <string name="resume_all">Resume all</string>
-    <string name="hide_filter">Hide filter</string>
-    <string name="show_filter">Show filter</string>
+    <string name="delete_all">Delete All</string>
+    <string name="pause_all">Pause All</string>
+    <string name="resume_all">Resume All</string>
+    <string name="hide_filter">Hide Filter</string>
+    <string name="show_filter">Show Filter</string>
+    <string name="select_all">Select All</string>
 </resources>

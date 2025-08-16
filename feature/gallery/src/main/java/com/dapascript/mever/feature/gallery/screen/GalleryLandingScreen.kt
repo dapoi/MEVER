@@ -86,6 +86,7 @@ import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.GalleryActionMenu.MORE
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.GalleryActionMenu.PAUSE_ALL
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.GalleryActionMenu.RESUME_ALL
+import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.GalleryActionMenu.SELECT_ALL
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.GalleryActionMenu.SELECT_FILES
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.GalleryActionMenu.SHARE_SELECTED
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.GalleryActionMenu.SHOW_FILTER
@@ -131,8 +132,7 @@ internal fun GalleryLandingScreen(
         useCenterTopBar = showSelector.not(),
         topBarArgs = TopBarArgs(
             actionMenus = if (
-                isExpanded.not() && ((showSelector && selectedItems.isNotEmpty()) ||
-                        (showSelector.not() && downloadFilter.isNullOrEmpty().not()))
+                isExpanded.not() && (showSelector || downloadFilter.isNullOrEmpty().not())
             ) {
                 listOf(
                     ActionMenu(
@@ -181,6 +181,7 @@ internal fun GalleryLandingScreen(
             modifier = Modifier.padding(top = Dp64, end = Dp24),
             listDropDown = GalleryActionMenu.entries.filter { menu ->
                 when (menu) {
+                    SELECT_ALL -> showSelector && selectedItems.size != downloadFilter?.size
                     SELECT_FILES -> downloadList.isNullOrEmpty().not() && showSelector.not()
                     DELETE_ALL -> downloadList.isNullOrEmpty().not() && showSelector.not()
                     DELETE_SELECTED -> selectedItems.isNotEmpty()
@@ -201,6 +202,7 @@ internal fun GalleryLandingScreen(
             onDismissDropDownMenu = { showDropDownMenu = it },
             onClick = { menu ->
                 when (menu) {
+                    SELECT_ALL -> toggleSelectionAll(downloadFilter.orEmpty())
                     SELECT_FILES -> showSelector = true
                     DELETE_ALL -> showDeleteAllDialog = true
                     DELETE_SELECTED -> showDeleteDialog = selectedItems.map { it.id }
@@ -268,13 +270,17 @@ internal fun GalleryLandingScreen(
                     }
                 }
             },
+            onClickDelete = { showDeleteDialog = listOf(it.id) },
+            onClickLong = {
+                showSelector = showSelector.not()
+                toggleSelection(it)
+            },
             onClickShare = {
                 shareContent(
                     context = context,
                     file = File(getFilePath(it.fileName))
                 )
             },
-            onClickDelete = { showDeleteDialog = listOf(it.id) },
             onClickSelectedItem = { toggleSelection(it) }
         )
 
@@ -341,8 +347,9 @@ private fun GalleryContentSection(
     modifier: Modifier = Modifier,
     onClickFilter: (PlatformType) -> Unit,
     onClickCard: (DownloadModel) -> Unit,
-    onClickShare: (DownloadModel) -> Unit,
     onClickDelete: (DownloadModel) -> Unit,
+    onClickLong: (DownloadModel) -> Unit,
+    onClickShare: (DownloadModel) -> Unit,
     onClickSelectedItem: (DownloadModel) -> Unit
 ) {
     CompositionLocalProvider(LocalOverscrollFactory provides null) {
@@ -425,8 +432,9 @@ private fun GalleryContentSection(
                                     iconPadding = Dp5
                                 ),
                                 onClickCard = { onClickCard(it) },
-                                onClickShare = { onClickShare(it) },
                                 onClickDelete = { onClickDelete(it) },
+                                onClickLong = { onClickLong(it) },
+                                onClickShare = { onClickShare(it) },
                                 onClickSelectedItem = { onClickSelectedItem(it) }
                             )
                         }

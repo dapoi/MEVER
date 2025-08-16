@@ -59,6 +59,10 @@ class GalleryLandingViewModel @Inject constructor(
         }
     }
 
+    fun toggleSelectionAll(items: List<DownloadModel>) {
+        _selectedItems.update { items.toSet() }
+    }
+
     fun clearSelection() {
         _selectedItems.value = emptySet()
     }
