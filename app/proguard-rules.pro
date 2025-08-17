@@ -69,8 +69,10 @@
 
 # Keep Moshi adapters
 -keep class com.squareup.moshi.** { *; }
+#noinspection ShrinkerUnresolvedReference
 -keep @com.squareup.moshi.JsonQualifier interface *
 -keepclassmembers class * {
+    #noinspection ShrinkerUnresolvedReference
     @com.squareup.moshi.Json <fields>;
 }
 
