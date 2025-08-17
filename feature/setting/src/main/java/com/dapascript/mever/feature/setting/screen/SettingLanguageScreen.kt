@@ -28,7 +28,6 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -108,8 +107,6 @@ internal fun SettingLanguageScreen(
                                 }
                             )
                     ) {
-                        val context = LocalContext.current
-
                         Spacer(modifier = Modifier.height(Dp40))
                         Text(
                             text = stringResource(R.string.choose_preferrence),
@@ -124,7 +121,7 @@ internal fun SettingLanguageScreen(
                                 isChoosen = languageCode == code,
                                 onValueChoose = {
                                     languageCode = code
-                                    saveLanguageCode(context, code)
+                                    saveLanguageCode(code)
                                 }
                             )
                         }

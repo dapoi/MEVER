@@ -1,13 +1,11 @@
 package com.dapascript.mever.feature.setting.viewmodel
 
-import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
-import com.dapascript.mever.core.common.util.LanguageManager.changeLanguage
 import com.dapascript.mever.core.data.source.local.MeverDataStore
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLanguageRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,8 +26,7 @@ class SettingLanguageViewModel @Inject constructor(
     }
     var titleHeight by mutableIntStateOf(0)
 
-    fun saveLanguageCode(context: Context, languageCode: String) = viewModelScope.launch {
-        changeLanguage(context = context, languageCode = languageCode)
-        dataStore.saveLanguageCode(languageCode)
+    fun saveLanguageCode(code: String) = viewModelScope.launch {
+        dataStore.saveLanguageCode(code)
     }
 }
