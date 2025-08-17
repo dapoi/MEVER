@@ -5,6 +5,7 @@ import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.theme.MeverCreamPink
 import com.dapascript.mever.core.common.ui.theme.MeverLightBlue
 import com.dapascript.mever.core.common.ui.theme.MeverLightGray
+import com.dapascript.mever.core.common.ui.theme.MeverLightPurple
 import com.dapascript.mever.core.common.ui.theme.MeverPink
 import com.dapascript.mever.core.common.ui.theme.MeverViolet
 import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.SettingMenus.SubMenu
@@ -42,6 +43,11 @@ object SettingLandingAttr {
                     icon = R.drawable.ic_theme,
                     iconBackgroundColor = MeverViolet,
                     trailingTitle = ""
+                ),
+                SubMenu(
+                    leadingTitle = R.string.pip,
+                    icon = R.drawable.ic_pip,
+                    iconBackgroundColor = MeverLightPurple,
                 )
             )
         ),

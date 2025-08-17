@@ -25,6 +25,7 @@ val LightColorScheme = lightColorScheme(
     onSecondaryContainer = Light.onSecondaryContainer,
     surface = Light.surface,
     onSurface = Light.onSurface,
+    onSurfaceVariant = Light.onSurfaceVariant,
     background = Light.background
 )
 
@@ -37,6 +38,7 @@ val DarkColorScheme = darkColorScheme(
     onSecondaryContainer = Dark.onSecondaryContainer,
     surface = Dark.surface,
     onSurface = Dark.onSurface,
+    onSurfaceVariant = Dark.onSurfaceVariant,
     background = Dark.background
 )
 

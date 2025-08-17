@@ -105,6 +105,16 @@ class MeverDataStore @Inject constructor(
         preferences[KEY_URL_INTENT] ?: ""
     }
 
+    suspend fun setPipEnabled(isEnabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[KEY_PIP] = isEnabled
+        }
+    }
+
+    val isPipEnabled = dataStore.data.map { preferences ->
+        preferences[KEY_PIP] ?: true
+    }
+
     companion object {
         private val KEY_VERSION = stringPreferencesKey("version")
         private val KEY_IS_IMAGE_AI_ENABLED = booleanPreferencesKey("is_image_ai_enabled")
@@ -114,5 +124,6 @@ class MeverDataStore @Inject constructor(
         private val KEY_THEME = stringPreferencesKey("theme")
         private val KEY_CLICK_COUNT = intPreferencesKey("click_count")
         private val KEY_URL_INTENT = stringPreferencesKey("url_intent")
+        private val KEY_PIP = booleanPreferencesKey("pip_enabled")
     }
 }

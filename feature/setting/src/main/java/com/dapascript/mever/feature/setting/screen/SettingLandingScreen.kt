@@ -42,6 +42,8 @@ import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
 import com.dapascript.mever.core.common.ui.attr.MeverMenuItemAttr.MenuItemArgs
+import com.dapascript.mever.core.common.ui.attr.MeverMenuItemAttr.MenuItemArgs.TrailingType.Default
+import com.dapascript.mever.core.common.ui.attr.MeverMenuItemAttr.MenuItemArgs.TrailingType.Switch
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverMenuItem
@@ -82,6 +84,7 @@ internal fun SettingLandingScreen(
 ) = with(viewModel) {
     val getLanguageCode = getLanguageCode.collectAsStateValue()
     val themeType = themeType.collectAsStateValue()
+    val isPipEnabled = isPipEnabled.collectAsStateValue()
     val context = LocalContext.current
     val scrollState = rememberScrollState()
     val showAppreciateDialog = remember { mutableStateOf<AppreciateType?>(null) }
@@ -143,6 +146,7 @@ internal fun SettingLandingScreen(
             context = context,
             viewModel = this,
             isExpanded = isExpanded,
+            isPipEnabled = isPipEnabled,
             scrollState = scrollState,
             getLanguageCode = getLanguageCode,
             themeType = themeType,
@@ -156,6 +160,7 @@ internal fun SettingLandingScreen(
                 } else navigateToNotificationSettings(context)
             },
             onClickChangeTheme = { navController.navigate(SettingScreenRoute.SettingThemeRoute(it)) },
+            onClickPip = { savePipState(isPipEnabled.not()) },
             onClickDonate = { showAppreciateDialog.value = it },
             onClickQris = { showBottomSheetQris = true },
             onClickContact = { navigateToGmail(context) },
@@ -169,12 +174,14 @@ private fun SettingLandingContent(
     context: Context,
     viewModel: SettingLandingViewModel,
     isExpanded: Boolean,
+    isPipEnabled: Boolean,
     scrollState: ScrollState,
     getLanguageCode: String,
     themeType: ThemeType,
     onClickChangeLanguage: (String) -> Unit,
     onClickNotificationPermission: () -> Unit,
     onClickChangeTheme: (ThemeType) -> Unit,
+    onClickPip: () -> Unit,
     onClickDonate: (AppreciateType) -> Unit,
     onClickQris: () -> Unit,
     onClickContact: () -> Unit,
@@ -243,22 +250,25 @@ private fun SettingLandingContent(
                                         leadingTitle = stringResource(menu.leadingTitle),
                                         leadingIconSize = Dp40,
                                         leadingIconPadding = Dp8,
-                                        trailingTitle = menu.trailingTitle?.let {
-                                            when (stringResource(menu.leadingTitle)) {
-                                                stringResource(R.string.language) -> {
-                                                    if (getLanguageCode == "en") "English"
-                                                    else "Bahasa Indonesia"
+                                        trailingType = if (menu.leadingTitle != R.string.pip) {
+                                            Default(
+                                                trailingTitle = menu.trailingTitle?.let {
+                                                    when (stringResource(menu.leadingTitle)) {
+                                                        stringResource(R.string.language) -> {
+                                                            if (getLanguageCode == "en") "English"
+                                                            else "Bahasa Indonesia"
+                                                        }
+
+                                                        stringResource(R.string.theme) -> stringResource(
+                                                            themeType.themeResId
+                                                        )
+
+                                                        else -> it
+                                                    }
                                                 }
-
-                                                stringResource(R.string.theme) -> stringResource(
-                                                    themeType.themeResId
-                                                )
-
-                                                else -> it
-                                            }
-                                        }
-                                    ),
-                                    modifier = Modifier.animateItem()
+                                            )
+                                        } else Switch(isPipEnabled)
+                                    )
                                 ) {
                                     handleClickMenu(
                                         context = context,
@@ -268,6 +278,7 @@ private fun SettingLandingContent(
                                         onClickChangeLanguage = { onClickChangeLanguage(it) },
                                         onClickNotificationPermission = { onClickNotificationPermission() },
                                         onClickChangeTheme = { onClickChangeTheme(it) },
+                                        onClickPip = { onClickPip() },
                                         onClickDonate = { onClickDonate(it) },
                                         onClickQris = { onClickQris() },
                                         onClickContact = { onClickContact() },
@@ -292,6 +303,7 @@ private fun handleClickMenu(
     onClickChangeLanguage: (String) -> Unit,
     onClickNotificationPermission: () -> Unit,
     onClickChangeTheme: (ThemeType) -> Unit,
+    onClickPip: () -> Unit,
     onClickDonate: (AppreciateType) -> Unit,
     onClickQris: () -> Unit,
     onClickContact: () -> Unit,
@@ -301,6 +313,7 @@ private fun handleClickMenu(
         getString(R.string.language) -> onClickChangeLanguage(languageCode)
         getString(R.string.notification) -> onClickNotificationPermission()
         getString(R.string.theme) -> onClickChangeTheme(themeType)
+        getString(R.string.pip) -> onClickPip()
         getString(R.string.bitcoin) -> onClickDonate(BITCOIN)
         getString(R.string.paypal) -> onClickDonate(PAYPAL)
         getString(R.string.qris) -> onClickQris()

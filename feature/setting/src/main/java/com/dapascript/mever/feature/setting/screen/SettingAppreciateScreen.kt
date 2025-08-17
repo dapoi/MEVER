@@ -18,6 +18,7 @@ import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverMenuItemAttr.MenuItemArgs
+import com.dapascript.mever.core.common.ui.attr.MeverMenuItemAttr.MenuItemArgs.TrailingType.Default
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverMenuItem
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
@@ -70,7 +71,8 @@ internal fun SettingAppreciateScreen(navController: NavController) {
                         leadingIcon = it.icon,
                         leadingIconBackground = it.iconBackgroundColor,
                         leadingIconSize = Dp40,
-                        leadingIconPadding = Dp8
+                        leadingIconPadding = Dp8,
+                        trailingType = Default()
                     )
                 ) {
                     when (it.leadingTitle) {

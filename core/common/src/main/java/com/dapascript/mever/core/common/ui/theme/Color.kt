@@ -33,6 +33,7 @@ sealed class MeverThemeColors(
     val onSecondaryContainer: Color,
     val surface: Color,
     val onSurface: Color,
+    val onSurfaceVariant: Color,
     val background: Color
 ) {
     data object Light : MeverThemeColors(
@@ -44,6 +45,7 @@ sealed class MeverThemeColors(
         onSecondaryContainer = MeverWhiteSemiPink,
         surface = MeverWhite,
         onSurface = MeverLightGray,
+        onSurfaceVariant = MeverLightGray,
         background = MeverWhite
     )
 
@@ -56,6 +58,7 @@ sealed class MeverThemeColors(
         onSecondaryContainer = MeverBlack,
         surface = MeverDarkGray,
         onSurface = MeverGray,
+        onSurfaceVariant = MeverLightGray.copy(0.1f),
         background = MeverDark
     )
 }

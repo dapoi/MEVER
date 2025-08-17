@@ -11,17 +11,22 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color.Companion.Unspecified
 import androidx.compose.ui.graphics.ColorFilter.Companion.tint
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.attr.MeverMenuItemAttr.MenuItemArgs
+import com.dapascript.mever.core.common.ui.attr.MeverMenuItemAttr.MenuItemArgs.TrailingType.Default
+import com.dapascript.mever.core.common.ui.attr.MeverMenuItemAttr.MenuItemArgs.TrailingType.Switch
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
@@ -29,6 +34,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp50
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverLightGray
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
+import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.onCustomClick
 
 @Composable
@@ -69,30 +75,50 @@ fun MeverMenuItem(
                 color = colorScheme.onPrimary
             )
         }
-        Row(
-            horizontalArrangement = spacedBy(Dp16),
-            verticalAlignment = CenterVertically
-        ) {
-            trailingTitle?.let { title ->
-                Text(
-                    text = title,
-                    style = typography.body2,
-                    color = colorScheme.onPrimary
-                )
-            }
-            Box(
-                modifier = Modifier
-                    .background(color = MeverLightGray.copy(0.1f), shape = RoundedCornerShape(Dp8))
-                    .size(Dp40),
-                contentAlignment = Center
+        when (trailingType) {
+            is Default -> Row(
+                horizontalArrangement = spacedBy(Dp16),
+                verticalAlignment = CenterVertically
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_back),
-                    colorFilter = tint(color = colorScheme.onPrimary),
-                    contentDescription = "Arrow Right",
+                trailingType.trailingTitle?.let { title ->
+                    Text(
+                        text = title,
+                        style = typography.body2,
+                        color = trailingType.trailingTitleColor ?: colorScheme.onPrimary
+                    )
+                }
+                Box(
                     modifier = Modifier
-                        .size(Dp16)
-                        .graphicsLayer { rotationZ = 180f }
+                        .background(
+                            color = MeverLightGray.copy(0.1f),
+                            shape = RoundedCornerShape(Dp8)
+                        )
+                        .size(Dp40),
+                    contentAlignment = Center
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.ic_back),
+                        colorFilter = tint(color = colorScheme.onPrimary),
+                        contentDescription = "Arrow Right",
+                        modifier = Modifier
+                            .size(Dp16)
+                            .graphicsLayer { rotationZ = 180f }
+                    )
+                }
+            }
+
+            is Switch -> {
+                Switch(
+                    modifier = Modifier.align(CenterVertically),
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = MeverWhite,
+                        checkedTrackColor = colorScheme.primary,
+                        uncheckedThumbColor = colorScheme.secondary,
+                        uncheckedTrackColor = colorScheme.onSurfaceVariant,
+                        uncheckedBorderColor = Unspecified
+                    ),
+                    checked = trailingType.switchState,
+                    onCheckedChange = null
                 )
             }
         }

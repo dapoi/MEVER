@@ -10,6 +10,17 @@ object MeverMenuItemAttr {
         val leadingIconBackground: Color,
         val leadingIconSize: Dp,
         val leadingIconPadding: Dp,
-        val trailingTitle: String? = null
-    )
+        val trailingType: TrailingType
+    ) {
+        sealed class TrailingType {
+            data class Default(
+                val trailingTitle: String? = null,
+                val trailingTitleColor: Color? = null
+            ) : TrailingType()
+
+            data class Switch(
+                val switchState: Boolean = false
+            ) : TrailingType()
+        }
+    }
 }

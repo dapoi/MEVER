@@ -40,9 +40,10 @@
         tools:targetApi="36">
         <activity
             android:name=".screen.MainActivity"
-            android:configChanges="locale|orientation|screenSize|layoutDirection|keyboardHidden|screenLayout"
+            android:configChanges="locale|orientation|screenSize|smallestScreenSize|screenLayout|keyboardHidden|layoutDirection"
             android:exported="true"
             android:launchMode="singleTask"
+            android:supportsPictureInPicture="true"
             android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>

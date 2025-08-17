@@ -47,6 +47,7 @@ internal fun GalleryContentDetailScreen(
     val context = LocalContext.current
     val activity = LocalActivity.current
     val themeType = themeType.collectAsStateValue()
+    val isPipEnabled = isPipEnabled.collectAsStateValue()
     val darkTheme = when (themeType) {
         Light -> false
         Dark -> true
@@ -123,6 +124,7 @@ internal fun GalleryContentDetailScreen(
                     isPageVisible = pagerState.currentPage == page,
                     isInitialIndex = args.initialIndex == page,
                     isFullScreen = isFullScreen,
+                    isPipEnabled = isPipEnabled,
                     onFullScreenChange = { isFullScreen = it },
                     onClickDelete = { deleteContent(id) },
                     onClickShare = {

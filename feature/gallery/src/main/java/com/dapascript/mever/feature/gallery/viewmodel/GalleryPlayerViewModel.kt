@@ -27,6 +27,12 @@ class GalleryPlayerViewModel @Inject constructor(
         initialValue = System
     )
 
+    val isPipEnabled = dataStore.isPipEnabled.stateIn(
+        scope = viewModelScope,
+        started = WhileSubscribed(),
+        initialValue = true
+    )
+
     fun deleteContent(id: Int) = viewModelScope.launch {
         ketch.clearDb(id)
     }

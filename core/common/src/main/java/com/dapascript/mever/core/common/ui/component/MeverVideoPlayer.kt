@@ -1,8 +1,14 @@
 package com.dapascript.mever.core.common.ui.component
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.app.PictureInPictureParams
+import android.content.Context
 import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
 import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT
+import android.graphics.Rect
+import android.os.Build.VERSION.SDK_INT
+import android.os.Build.VERSION_CODES.S
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring.DampingRatioNoBouncy
@@ -57,11 +63,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.ColorFilter.Companion.tint
+import androidx.compose.ui.graphics.toAndroidRectF
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.graphics.toRect
 import androidx.lifecycle.Lifecycle.Event.ON_STOP
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -105,13 +115,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 
-@SuppressLint("SourceLockedOrientationActivity")
+@SuppressLint("SourceLockedOrientationActivity", "ImplicitSamInstance")
 @Composable
 fun MeverVideoPlayer(
     isInitialIndex: Boolean,
     isPageVisible: Boolean,
     isFullScreen: Boolean,
     isScrolling: Boolean,
+    isPipEnabled: Boolean,
     source: String,
     modifier: Modifier = Modifier,
     onClickDelete: () -> Unit,
@@ -122,7 +133,6 @@ fun MeverVideoPlayer(
     val context = LocalContext.current
     val activity = LocalActivity.current
     val player = remember(context) { ExoPlayer.Builder(context).build() }
-    val lifecycleOwner by rememberUpdatedState(LocalLifecycleOwner.current)
 
     // State
     var totalDuration by rememberSaveable { mutableLongStateOf(0L) }
@@ -136,6 +146,8 @@ fun MeverVideoPlayer(
     var showController by remember { mutableStateOf(false) }
     var showDropDownMenu by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
+    val lifecycleOwner by rememberUpdatedState(LocalLifecycleOwner.current)
+    val shouldEnterPipMode by rememberUpdatedState(isVideoPlaying)
 
     // Fullscreen Handlers
     val enterFullScreen = {
@@ -187,12 +199,11 @@ fun MeverVideoPlayer(
         }
     }
 
-    DisposableEffect(source) {
+    DisposableEffect(source, isPipEnabled) {
         val listener = object : Listener {
             override fun onEvents(player: Player, events: Events) {
                 super.onEvents(player, events)
                 totalDuration = player.duration.coerceAtLeast(0L)
-                isVideoPlaying = player.isPlaying
                 playbackState = player.playbackState
             }
 
@@ -201,18 +212,33 @@ fun MeverVideoPlayer(
                 playbackState = state
                 isVideoBuffering = state == STATE_BUFFERING
             }
+
+            override fun onIsPlayingChanged(isPlaying: Boolean) {
+                super.onIsPlayingChanged(isPlaying)
+                isVideoPlaying = isPlaying
+            }
         }
-        player.addListener(listener)
-
-        val observer = LifecycleEventObserver { _, event -> if (event == ON_STOP) player.pause() }
+        val onUserLeaveBehavior: () -> Unit = {
+            if (shouldEnterPipMode && isPipEnabled) {
+                activity.enterPictureInPictureMode(
+                    PictureInPictureParams.Builder().build()
+                )
+            }
+        }
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == ON_STOP && isPipEnabled.not()) player.pause()
+        }
         lifecycleOwner.lifecycle.addObserver(observer)
-
+        if (SDK_INT < S) activity.addOnUserLeaveHintListener(onUserLeaveBehavior)
+        player.addListener(listener)
         player.setMediaItem(fromUri(source))
         player.prepare()
 
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
             player.removeListener(listener)
+            if (SDK_INT < S) activity.removeOnUserLeaveHintListener(onUserLeaveBehavior)
+            if (SDK_INT >= S) activity.updatePipParams(autoEnter = false)
             player.stop()
             player.clearMediaItems()
             hideSystemBar(activity, isSystemBarVisible(activity).not())
@@ -223,7 +249,18 @@ fun MeverVideoPlayer(
 
     Box(modifier = modifier) {
         VideoPlayer(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .onGloballyPositioned { layoutCoordinates ->
+                    val sourceRect = if (isVideoPlaying && isPipEnabled) {
+                        layoutCoordinates.boundsInWindow().toAndroidRectF().toRect()
+                    } else null
+                    activity.updatePipParams(
+                        autoEnter = isVideoPlaying && isPipEnabled,
+                        sourceRect = sourceRect
+                    )
+                },
+            context = context,
             player = player,
             isVideoBuffering = isVideoBuffering,
             title = convertFilename(source.substringAfterLast("/")).ifEmpty { "Video" },
@@ -310,6 +347,7 @@ fun MeverVideoPlayer(
 
 @Composable
 private fun VideoPlayer(
+    context: Context,
     player: Player,
     isVideoBuffering: Boolean,
     title: String,
@@ -328,76 +366,72 @@ private fun VideoPlayer(
     onClickActionMenu: (String) -> Unit,
     onClickBack: () -> Unit,
     onChangeSeekbar: (Float) -> Unit
+) = Box(
+    modifier = modifier
+        .background(MeverBlack)
+        .clickable(
+            interactionSource = remember { MutableInteractionSource() },
+            indication = null
+        ) { onClickAny() }
 ) {
-    val context = LocalContext.current
-
-    Box(
-        modifier = modifier
-            .background(MeverBlack)
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) { onClickAny() }
+    AndroidView(
+        modifier = Modifier.align(Center),
+        factory = {
+            PlayerView(context).apply {
+                this.player = player
+                useController = false
+            }
+        }
+    )
+    AnimatedVisibility(
+        visible = isControllerVisible,
+        enter = fadeIn(),
+        exit = fadeOut()
     ) {
-        AndroidView(
-            modifier = Modifier.align(Center),
-            factory = {
-                PlayerView(context).apply {
-                    this.player = player
-                    useController = false
-                }
-            }
-        )
-        AnimatedVisibility(
-            visible = isControllerVisible,
-            enter = fadeIn(),
-            exit = fadeOut()
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MeverBlack.copy(alpha = 0.7f))
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MeverBlack.copy(alpha = 0.7f))
-            ) {
-                MeverTopBar(
-                    modifier = Modifier.padding(horizontal = Dp24),
-                    topBarArgs = TopBarArgs(
-                        actionMenus = listOf(
-                            ActionMenu(
-                                icon = R.drawable.ic_more,
-                                nameIcon = "More",
-                                onClickActionMenu = onClickActionMenu
-                            )
-                        ),
-                        title = title,
-                        topBarColor = MeverTransparent,
-                        titleColor = MeverWhite,
-                        iconBackColor = MeverWhite,
-                        actionMenusColor = MeverWhite,
-                        onClickBack = onClickBack
+            MeverTopBar(
+                modifier = Modifier.padding(horizontal = Dp24),
+                topBarArgs = TopBarArgs(
+                    actionMenus = listOf(
+                        ActionMenu(
+                            icon = R.drawable.ic_more,
+                            nameIcon = "More",
+                            onClickActionMenu = onClickActionMenu
+                        )
                     ),
-                    useCenterTopBar = false
-                )
-                VideoCenterControlSection(
-                    modifier = Modifier.align(Center),
-                    isVideoBuffering = isVideoBuffering,
-                    iconPlayOrPause = iconPlayOrPause,
-                    onClickRewind = onClickRewind,
-                    onClickPlay = onClickPlayOrPause,
-                    onClickForward = onClickForward
-                )
-                VideoBottomControlSection(
-                    modifier = Modifier
-                        .padding(horizontal = Dp24)
-                        .navigationBarsPadding()
-                        .align(BottomCenter),
-                    videoTimer = videoTimer,
-                    totalDuration = totalDuration,
-                    isFullScreen = isFullScreen,
-                    bufferProgress = bufferProgress,
-                    onChangeSeekbar = onChangeSeekbar,
-                    onClickFullScreen = onClickFullScreen
-                )
-            }
+                    title = title,
+                    topBarColor = MeverTransparent,
+                    titleColor = MeverWhite,
+                    iconBackColor = MeverWhite,
+                    actionMenusColor = MeverWhite,
+                    onClickBack = onClickBack
+                ),
+                useCenterTopBar = false
+            )
+            VideoCenterControlSection(
+                modifier = Modifier.align(Center),
+                isVideoBuffering = isVideoBuffering,
+                iconPlayOrPause = iconPlayOrPause,
+                onClickRewind = onClickRewind,
+                onClickPlay = onClickPlayOrPause,
+                onClickForward = onClickForward
+            )
+            VideoBottomControlSection(
+                modifier = Modifier
+                    .padding(horizontal = Dp24)
+                    .navigationBarsPadding()
+                    .align(BottomCenter),
+                videoTimer = videoTimer,
+                totalDuration = totalDuration,
+                isFullScreen = isFullScreen,
+                bufferProgress = bufferProgress,
+                onChangeSeekbar = onChangeSeekbar,
+                onClickFullScreen = onClickFullScreen
+            )
         }
     }
 }
@@ -570,4 +604,14 @@ private fun VideoBottomControlSection(
             )
         }
     }
+}
+
+private fun Activity.updatePipParams(
+    autoEnter: Boolean? = null,
+    sourceRect: Rect? = null
+) {
+    val builder = PictureInPictureParams.Builder()
+    sourceRect?.let { builder.setSourceRectHint(it) }
+    if (SDK_INT >= S) autoEnter?.let { builder.setAutoEnterEnabled(it) }
+    setPictureInPictureParams(builder.build())
 }
