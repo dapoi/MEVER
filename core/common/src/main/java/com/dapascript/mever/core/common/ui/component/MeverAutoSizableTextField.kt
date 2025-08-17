@@ -53,8 +53,8 @@ import kotlin.math.ceil
 fun MeverAutoSizableTextField(
     value: String,
     minFontSize: TextUnit,
-    readOnly: Boolean = false,
     modifier: Modifier = Modifier,
+    readOnly: Boolean = false,
     fontSize: TextUnit = Sp32,
     maxLines: Int = MAX_VALUE,
     shape: RoundedCornerShape = RoundedCornerShape(Dp12),
