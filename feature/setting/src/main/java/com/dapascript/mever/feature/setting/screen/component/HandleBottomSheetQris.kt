@@ -163,7 +163,7 @@ internal fun HandleBottomSheetQris(
                     modifier = Modifier
                         .clip(RoundedCornerShape(Dp14))
                         .onCustomClick {
-                            setStoragePermission = getStoragePermission
+                            setStoragePermission = getStoragePermission()
                             onDismiss(false)
                         }
                         .weight(1f)

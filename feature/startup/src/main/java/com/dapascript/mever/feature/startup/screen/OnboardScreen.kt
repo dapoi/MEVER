@@ -1,5 +1,6 @@
 package com.dapascript.mever.feature.startup.screen
 
+import android.content.pm.PackageManager.PERMISSION_GRANTED
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
@@ -30,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -54,7 +56,6 @@ import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp40
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp50
 import com.dapascript.mever.core.common.util.getNotificationPermission
-import com.dapascript.mever.core.common.util.isAndroidTiramisuAbove
 import com.dapascript.mever.core.navigation.helper.navigateClearBackStack
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeLandingRoute
 import com.dapascript.mever.feature.startup.R
@@ -72,6 +73,7 @@ internal fun OnboardScreen(
     ) {
         var buttonSize by remember { mutableStateOf(Dp0) }
         var setRequestPermission by remember { mutableStateOf<List<String>>(emptyList()) }
+        val context = LocalContext.current
         val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
 
         if (setRequestPermission.isNotEmpty()) {
@@ -120,10 +122,11 @@ internal fun OnboardScreen(
                     .align(BottomCenter)
                     .onGloballyPositioned { buttonSize = it.size.height.dp }
             ) {
-                setIsOnboarded(true)
-                if (isAndroidTiramisuAbove()) {
-                    setRequestPermission = getNotificationPermission
+                val perm = getNotificationPermission().firstOrNull()
+                if (perm != null && context.checkSelfPermission(perm) != PERMISSION_GRANTED) {
+                    setRequestPermission = listOf(perm)
                 } else navController.navigateClearBackStack(HomeLandingRoute)
+                setIsOnboarded(true)
             }
         }
     }

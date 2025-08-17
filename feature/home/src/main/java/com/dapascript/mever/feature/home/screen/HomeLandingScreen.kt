@@ -349,7 +349,7 @@ internal fun HomeLandingScreen(
             navController = navController,
             isImageGeneratorFeatureActive = isImageGeneratorFeatureActive,
             isLoading = showLoading
-        ) { setStoragePermission = getStoragePermission }
+        ) { setStoragePermission = getStoragePermission() }
     }
 }
 

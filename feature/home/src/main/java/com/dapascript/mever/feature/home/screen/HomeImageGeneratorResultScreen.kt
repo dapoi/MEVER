@@ -269,7 +269,7 @@ internal fun HomeImageGeneratorResultScreen(
                 },
                 onClickDownloadAll = {
                     isDownloadAllClicked = true
-                    setStoragePermission = getStoragePermission
+                    setStoragePermission = getStoragePermission()
                 },
                 onClickReport = { navigateToGmail(context) },
                 onClickShare = {
@@ -300,7 +300,7 @@ internal fun HomeImageGeneratorResultScreen(
                     aiImages = emptyList()
                     getImageAiGenerator()
                 },
-                onClickDownload = { setStoragePermission = getStoragePermission }
+                onClickDownload = { setStoragePermission = getStoragePermission() }
             )
         }
     }

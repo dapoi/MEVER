@@ -60,7 +60,6 @@ import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.ui.theme.ThemeType
 import com.dapascript.mever.core.common.util.getNotificationPermission
-import com.dapascript.mever.core.common.util.isAndroidTiramisuAbove
 import com.dapascript.mever.core.common.util.navigateToGmail
 import com.dapascript.mever.core.common.util.navigateToNotificationSettings
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
@@ -151,10 +150,10 @@ internal fun SettingLandingScreen(
                 navController.navigateTo(SettingLanguageRoute(LanguageData(it)))
             },
             onClickNotificationPermission = {
-                if (isAndroidTiramisuAbove() &&
-                    context.checkSelfPermission(getNotificationPermission.first()) != PERMISSION_GRANTED
-                ) setRequestPermission = getNotificationPermission
-                else navigateToNotificationSettings(context)
+                val perm = getNotificationPermission().firstOrNull()
+                if (perm != null && context.checkSelfPermission(perm) != PERMISSION_GRANTED) {
+                    setRequestPermission = listOf(perm)
+                } else navigateToNotificationSettings(context)
             },
             onClickChangeTheme = { navController.navigate(SettingScreenRoute.SettingThemeRoute(it)) },
             onClickDonate = { showAppreciateDialog.value = it },

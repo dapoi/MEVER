@@ -13,6 +13,8 @@ import android.graphics.Bitmap
 import android.graphics.Bitmap.CompressFormat.JPEG
 import android.graphics.BitmapFactory.decodeStream
 import android.media.MediaMetadataRetriever
+import android.os.Build.VERSION.SDK_INT
+import android.os.Build.VERSION_CODES.Q
 import android.os.Environment.DIRECTORY_PICTURES
 import android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI
 import android.provider.MediaStore.MediaColumns.DISPLAY_NAME
@@ -106,7 +108,7 @@ suspend fun saveBitmapToStorage(
     val values = ContentValues().apply {
         put(DISPLAY_NAME, fileName)
         put(MIME_TYPE, "image/jpeg")
-        if (isAndroidQAbove()) put(RELATIVE_PATH, DIRECTORY_PICTURES)
+        if (SDK_INT >= Q) put(RELATIVE_PATH, DIRECTORY_PICTURES)
     }
 
     val resolver = context.contentResolver
