@@ -37,12 +37,6 @@ android {
             applicationIdSuffix = ".debug"
         }
     }
-
-    bundle {
-        language {
-            enableSplit = false
-        }
-    }
 }
 
 dependencies {
