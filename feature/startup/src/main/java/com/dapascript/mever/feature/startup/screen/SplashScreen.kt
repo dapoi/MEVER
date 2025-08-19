@@ -1,6 +1,8 @@
 package com.dapascript.mever.feature.startup.screen
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -22,7 +24,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.Center
@@ -63,8 +64,6 @@ import com.dapascript.mever.core.navigation.helper.navigateClearBackStack
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeLandingRoute
 import com.dapascript.mever.core.navigation.route.StartupScreenRoute.OnboardRoute
 import com.dapascript.mever.feature.startup.viewmodel.SplashScreenViewModel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @Composable
 internal fun SplashScreen(
@@ -81,26 +80,21 @@ internal fun SplashScreen(
         val isNetworkAvailable = isNetworkAvailable.collectAsStateValue()
         val activity = LocalActivity.current
         val context = LocalContext.current
-        val scope = rememberCoroutineScope()
         val lifecycleOwner by rememberUpdatedState(LocalLifecycleOwner.current)
-        var showLogo by remember { mutableStateOf(false) }
         var showMaintenanceModal by remember { mutableStateOf(false) }
         var showErrorModal by remember { mutableStateOf<ErrorType?>(null) }
         var errorMessage by remember { mutableStateOf("") }
+        val logoVisibleState = remember { MutableTransitionState(false) }
+
+        LaunchedEffect(Unit) { logoVisibleState.targetState = true }
 
         LaunchedEffect(appConfigState) {
             appConfigState.handleUiState(
-                onLoading = { showLogo = true },
                 onSuccess = { response ->
                     if (response.maintenanceDay != null && today == response.maintenanceDay) {
                         showMaintenanceModal = true
-                    } else scope.launch {
-                        delay(1500)
-                        showLogo = false
-                        delay(250)
-                        navController.navigateClearBackStack(
-                            if (isOnboarded) HomeLandingRoute else OnboardRoute
-                        )
+                    } else {
+                        logoVisibleState.targetState = false
                     }
                 },
                 onFailed = { message ->
@@ -108,6 +102,14 @@ internal fun SplashScreen(
                     errorMessage = message ?: context.getString(R.string.unknown_error_desc)
                 }
             )
+        }
+
+        LaunchedEffect(logoVisibleState.isIdle, logoVisibleState.currentState) {
+            if (logoVisibleState.isIdle && logoVisibleState.currentState.not()) {
+                navController.navigateClearBackStack(
+                    if (isOnboarded) HomeLandingRoute else OnboardRoute
+                )
+            }
         }
 
         LaunchedEffect(isNetworkAvailable) {
@@ -184,9 +186,20 @@ internal fun SplashScreen(
                 verticalArrangement = spacedBy(Dp8)
             ) {
                 AnimatedVisibility(
-                    visible = showLogo,
-                    enter = fadeIn() + slideInVertically { -it },
-                    exit = slideOutVertically { -it } + fadeOut()
+                    visibleState = logoVisibleState,
+                    enter = fadeIn(animationSpec = tween(durationMillis = 300)) +
+                            slideInVertically(animationSpec = tween(300)) { -it },
+                    exit = slideOutVertically(
+                        animationSpec = tween(
+                            durationMillis = 250,
+                            delayMillis = 1000
+                        )
+                    ) { -it } + fadeOut(
+                        animationSpec = tween(
+                            durationMillis = 250,
+                            delayMillis = 1000
+                        )
+                    )
                 ) {
                     Image(
                         modifier = Modifier
@@ -198,9 +211,20 @@ internal fun SplashScreen(
                     )
                 }
                 AnimatedVisibility(
-                    visible = showLogo,
-                    enter = fadeIn() + slideInVertically { it },
-                    exit = slideOutVertically { it } + fadeOut()
+                    visibleState = logoVisibleState,
+                    enter = fadeIn(animationSpec = tween(300)) +
+                            slideInVertically(animationSpec = tween(300)) { it },
+                    exit = slideOutVertically(
+                        animationSpec = tween(
+                            durationMillis = 250,
+                            delayMillis = 1000
+                        )
+                    ) { it } + fadeOut(
+                        animationSpec = tween(
+                            durationMillis = 250,
+                            delayMillis = 1000
+                        )
+                    )
                 ) {
                     Text(
                         text = "Social Media Saver",
