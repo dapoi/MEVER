@@ -15,6 +15,7 @@ import com.dapascript.mever.core.common.util.state.UiState.StateFailed
 import com.dapascript.mever.core.common.util.state.UiState.StateInitial
 import com.dapascript.mever.core.common.util.state.UiState.StateLoading
 import com.dapascript.mever.core.common.util.state.UiState.StateSuccess
+import com.dapascript.mever.core.common.util.storage.StorageUtil.getFilePath
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFiles
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFolder
 import com.dapascript.mever.core.data.model.local.ContentEntity
@@ -28,8 +29,6 @@ import com.ketch.Status.STARTED
 import com.ketch.Status.SUCCESS
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers.Default
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.asStateFlow
@@ -65,24 +64,32 @@ class HomeLandingViewModel @Inject constructor(
     var selectedImageCount by mutableIntStateOf(1)
     var selectedArtStyle by mutableStateOf(Pair("", ""))
 
-    @OptIn(FlowPreview::class)
     val downloadList = ketch.observeDownloads()
         .distinctUntilChanged()
-        .map { downloads -> downloads.sortedByDescending { it.timeQueued } }
+        .map { downloads ->
+            val sortedList = downloads.sortedByDescending { it.timeQueued }
+            sortedList.map { downloadModel ->
+                downloadModel.copy(path = getFilePath(downloadModel.fileName))
+            }
+        }
+        .distinctUntilChanged()
         .conflate()
         .flowOn(Default)
         .stateIn(viewModelScope, WhileSubscribed(5000), null)
+
     val showBadge = downloadList
         .map { list ->
             list?.any { file ->
                 file.status in listOf(QUEUED, STARTED, PAUSED, PROGRESS)
-            }
+            } ?: false
         }
+        .distinctUntilChanged()
         .stateIn(
             scope = viewModelScope,
             started = WhileSubscribed(5000),
             initialValue = false
         )
+
     val isNetworkAvailable = connectivityObserver
         .observe()
         .stateIn(
@@ -90,12 +97,13 @@ class HomeLandingViewModel @Inject constructor(
             started = WhileSubscribed(),
             initialValue = connectivityObserver.isConnected()
         )
-    val isImageGeneratorFeatureActive = dataStore.isImageAiEnabled
-        .stateIn(
-            scope = viewModelScope,
-            started = WhileSubscribed(),
-            initialValue = true
-        )
+
+    val isImageGeneratorFeatureActive = dataStore.isImageAiEnabled.stateIn(
+        scope = viewModelScope,
+        started = WhileSubscribed(),
+        initialValue = true
+    )
+
     val youtubeResolutions = dataStore.getYoutubeVideoAndAudioQuality
         .map { it.ifEmpty { listOf("360p", "480p", "720p", "1080p") } }
         .stateIn(
@@ -103,18 +111,18 @@ class HomeLandingViewModel @Inject constructor(
             started = WhileSubscribed(),
             initialValue = emptyList()
         )
-    val getButtonClickCount = dataStore.clickCount
-        .stateIn(
-            scope = viewModelScope,
-            started = WhileSubscribed(),
-            initialValue = 1
-        )
-    val getUrlIntent = dataStore.getUrlIntent
-        .stateIn(
-            scope = viewModelScope,
-            started = WhileSubscribed(),
-            initialValue = ""
-        )
+
+    val getButtonClickCount = dataStore.clickCount.stateIn(
+        scope = viewModelScope,
+        started = WhileSubscribed(),
+        initialValue = 1
+    )
+
+    val getUrlIntent = dataStore.getUrlIntent.stateIn(
+        scope = viewModelScope,
+        started = WhileSubscribed(),
+        initialValue = ""
+    )
 
     private val _downloaderResponseState =
         MutableStateFlow<UiState<List<ContentEntity>>>(StateInitial)
@@ -156,7 +164,7 @@ class HomeLandingViewModel @Inject constructor(
     fun delete(id: Int) = ketch.clearDb(id)
 
     fun refreshDatabase() {
-        viewModelScope.launch(IO) {
+        viewModelScope.launch {
             val existingNames = getMeverFiles()
                 ?.map { it.name.lowercase() }
                 ?.toSet()

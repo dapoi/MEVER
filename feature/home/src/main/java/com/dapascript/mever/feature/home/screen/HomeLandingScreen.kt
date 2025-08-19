@@ -143,14 +143,13 @@ import com.dapascript.mever.core.common.util.changeToCurrentDate
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.NetworkStatus.Available
 import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.getStoragePermission
-import com.dapascript.mever.core.common.util.getUrlContentType
+import com.dapascript.mever.core.common.util.getExtensionFromUrl
 import com.dapascript.mever.core.common.util.goToSetting
 import com.dapascript.mever.core.common.util.isMusic
 import com.dapascript.mever.core.common.util.navigateToMusic
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
-import com.dapascript.mever.core.common.util.storage.StorageUtil.getFilePath
 import com.dapascript.mever.core.common.util.storage.StorageUtil.syncFileToGallery
 import com.dapascript.mever.core.navigation.helper.navigateTo
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
@@ -275,9 +274,9 @@ internal fun HomeLandingScreen(
                     startDownload(
                         url = url,
                         fileName = contents.firstOrNull()?.fileName.orEmpty().ifEmpty {
-                            changeToCurrentDate(currentTimeMillis()) + getUrlContentType(
+                            changeToCurrentDate(currentTimeMillis()) + getExtensionFromUrl(
                                 url = url,
-                                responseType = contents.firstOrNull()?.type.orEmpty()
+                                extensionFile = contents.firstOrNull()?.type.orEmpty()
                             )
                         },
                         thumbnail = contents.firstOrNull()?.thumbnail.orEmpty()
@@ -445,12 +444,12 @@ private fun HomeScreenContent(
                     iconBack = R.drawable.ic_mever,
                     actionMenus = getListActionMenu(
                         context = context,
-                        hasDownloadProgress = showBadge == true
+                        hasDownloadProgress = showBadge
                     ).map { (name, resource) ->
                         ActionMenu(
                             icon = resource,
                             nameIcon = name,
-                            showBadge = showBadge == true && name == stringResource(R.string.gallery),
+                            showBadge = showBadge && name == stringResource(R.string.gallery),
                         ) { navController.handleClickActionMenu(context, name) }
                     }
                 )
@@ -509,7 +508,7 @@ private fun HomeScreenContent(
                                                                 }?.map {
                                                                     Content(
                                                                         id = it.id,
-                                                                        filePath = getFilePath(it.fileName)
+                                                                        filePath = it.path
                                                                     )
                                                                 } ?: emptyList(),
                                                                 initialIndex = downloadList?.filterNot {
@@ -520,7 +519,7 @@ private fun HomeScreenContent(
                                                     } else {
                                                         navigateToMusic(
                                                             context = context,
-                                                            file = File(getFilePath(fileName))
+                                                            file = File(path)
                                                         )
                                                     }
                                                 }
@@ -535,7 +534,7 @@ private fun HomeScreenContent(
                                     onClickShare = {
                                         shareContent(
                                             context = context,
-                                            file = File(getFilePath(it.fileName))
+                                            file = File(it.path)
                                         )
                                     },
                                     onValueChange = { urlSocialMediaState = it },

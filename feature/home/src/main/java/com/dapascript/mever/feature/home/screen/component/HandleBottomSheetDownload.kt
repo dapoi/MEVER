@@ -81,8 +81,8 @@ internal fun HandleBottomSheetDownload(
                         .clip(RoundedCornerShape(Dp12)),
                     source = if (isMusic(groupedContent.first().fileName)) R.drawable.ic_music
                     else getBitmapFromUrl(
-                        source = groupedContent.first().thumbnail.ifEmpty { groupedContent.first().url },
-                        typeContent = groupedContent.first().type
+                        url = groupedContent.first().thumbnail.ifEmpty { groupedContent.first().url },
+                        extensionFile = groupedContent.first().type
                     ),
                     isImageError = isFailedFetchImage
                 )

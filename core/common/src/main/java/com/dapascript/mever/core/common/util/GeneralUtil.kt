@@ -79,7 +79,7 @@ suspend fun fetchVideoThumbnail(source: String): Bitmap? = withContext(IO) {
     }
 }
 
-suspend fun getUrlContentType(url: String, responseType: String) = withContext(IO) {
+suspend fun getExtensionFromUrl(url: String, extensionFile: String) = withContext(IO) {
     val client = OkHttpClient()
     val request = Request.Builder()
         .url(url)
@@ -89,11 +89,11 @@ suspend fun getUrlContentType(url: String, responseType: String) = withContext(I
     try {
         val client = client.newCall(request).execute()
         val contentType = client.body?.contentType()?.toString() ?: ""
-        if (responseType.isEmpty()) when {
+        if (extensionFile.isEmpty()) when {
             contentType.contains("video") || contentType.contains("mp4") -> ".mp4"
             contentType.contains("audio") -> ".mp3"
             else -> ".jpg"
-        } else ".$responseType"
+        } else ".$extensionFile"
     } catch (e: Exception) {
         e.printStackTrace()
         null

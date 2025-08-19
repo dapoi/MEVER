@@ -69,7 +69,6 @@ import com.dapascript.mever.core.common.util.getContentType
 import com.dapascript.mever.core.common.util.getTwoDecimals
 import com.dapascript.mever.core.common.util.isMusic
 import com.dapascript.mever.core.common.util.onCustomClick
-import com.dapascript.mever.core.common.util.storage.StorageUtil.getFilePath
 import com.ketch.Status
 import com.ketch.Status.FAILED
 import com.ketch.Status.PAUSED
@@ -145,11 +144,11 @@ fun MeverCard(
                             translationX = 1.5f
                             translationY = 1.5f
                         },
-                    source = if (isMusic(fileName)) R.drawable.ic_music
-                    else getImageSource(
+                    source = getImageSource(
                         status = status,
                         url = source,
                         fileName = fileName,
+                        path = path,
                         urlThumbnail = urlThumbnail
                     ),
                     isImageError = status == FAILED
@@ -177,7 +176,7 @@ fun MeverCard(
                         }
                         Text(
                             text = convertFilename(
-                                getFilePath(fileName).substringAfterLast("/").ifEmpty { fileName }
+                                path.substringAfterLast("/").ifEmpty { fileName }
                             ),
                             style = typography.bodyBold2,
                             maxLines = 1,
@@ -188,7 +187,7 @@ fun MeverCard(
                         text = stringResource(
                             R.string.type,
                             if (isMusic(fileName)) "music/mp3"
-                            else getContentType(getFilePath(fileName))
+                            else getContentType(path)
                         ),
                         style = typography.label2,
                         color = MeverGray,
@@ -289,13 +288,17 @@ private fun getImageSource(
     status: Status,
     url: String,
     fileName: String,
+    path: String,
     urlThumbnail: String?
 ) = when {
-    status != SUCCESS -> urlThumbnail?.takeIf {
-        it.isNotEmpty()
-    } ?: getBitmapFromUrl(url, fileName.substringAfterLast("."))
-
-    else -> getFilePath(fileName)
+    isMusic(fileName) -> R.drawable.ic_music
+    status != SUCCESS -> {
+        urlThumbnail?.takeIf { it.isNotEmpty() } ?: getBitmapFromUrl(
+            url = url,
+            extensionFile = fileName.substringAfterLast(".")
+        )
+    }
+    else -> path
 }
 
 @Composable

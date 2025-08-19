@@ -7,16 +7,15 @@ import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.util.PlatformType
 import com.dapascript.mever.core.common.util.PlatformType.ALL
+import com.dapascript.mever.core.common.util.storage.StorageUtil.getFilePath
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFiles
 import com.ketch.DownloadModel
 import com.ketch.Ketch
 import com.ketch.Status.SUCCESS
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers.Default
-import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted.Companion.Lazily
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.conflate
@@ -38,17 +37,21 @@ class GalleryLandingViewModel @Inject constructor(
     @OptIn(FlowPreview::class)
     val downloadList = ketch.observeDownloads()
         .distinctUntilChanged()
-        .map { downloads -> downloads.sortedByDescending { it.timeQueued } }
+        .map { downloads ->
+            downloads.map { it.copy(path = getFilePath(it.fileName)) }
+        }
+        .distinctUntilChanged()
         .conflate()
         .flowOn(Default)
         .stateIn(viewModelScope, WhileSubscribed(5000), null)
+
     val platformTypes = downloadList
         .map { list ->
-            PlatformType.entries.filter { type ->
-                list?.any { model -> model.tag == type.platformName } ?: false
-            }
+            val uniqueTags = list?.map { it.tag }?.toSet() ?: emptySet()
+            PlatformType.entries.filter { it.platformName in uniqueTags }
         }
-        .stateIn(viewModelScope, Lazily, listOf(ALL))
+        .distinctUntilChanged()
+        .stateIn(viewModelScope, WhileSubscribed(5000), listOf(ALL))
 
     private val _selectedItems = MutableStateFlow<Set<DownloadModel>>(emptySet())
     val selectedItems = _selectedItems.asStateFlow()
@@ -68,7 +71,7 @@ class GalleryLandingViewModel @Inject constructor(
     }
 
     fun refreshDatabase() {
-        viewModelScope.launch(IO) {
+        viewModelScope.launch {
             val existingNames = getMeverFiles()
                 ?.map { it.name.lowercase() }
                 ?.toSet()

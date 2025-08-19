@@ -4,6 +4,8 @@ import android.content.Context
 import android.media.MediaScannerConnection
 import android.os.Environment.DIRECTORY_DOWNLOADS
 import android.os.Environment.getExternalStoragePublicDirectory
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.withContext
 import java.io.File
 
 object StorageUtil {
@@ -16,23 +18,22 @@ object StorageUtil {
         return folder
     }
 
-    fun getMeverFiles(): List<File>? {
+    suspend fun getMeverFiles(): List<File>? = withContext(IO) {
         val dir = getMeverFolder()
-        if ((dir.exists() && dir.isDirectory).not()) return emptyList()
-        return dir.listFiles()?.asSequence()
+        if ((dir.exists() && dir.isDirectory).not()) return@withContext emptyList()
+        dir.listFiles()?.asSequence()
             ?.filter { it.isFile && it.extension.lowercase() in allowExt }
             ?.sortedByDescending { it.lastModified() }
             ?.toList()
             ?: emptyList()
     }
 
-    fun getFilePath(fileName: String) = runCatching {
-        getMeverFiles()
-            ?.find { it.name == fileName }
-            ?.path.orEmpty()
-    }.getOrDefault("")
+    suspend fun getFilePath(fileName: String): String = withContext(IO) {
+        val file = File(getMeverFolder(), fileName)
+        if (file.exists()) file.absolutePath else ""
+    }
 
-    fun syncFileToGallery(context: Context, fileName: String) {
+    suspend fun syncFileToGallery(context: Context, fileName: String) {
         val file = File(getFilePath(fileName))
         if (file.exists()) MediaScannerConnection.scanFile(
             context,

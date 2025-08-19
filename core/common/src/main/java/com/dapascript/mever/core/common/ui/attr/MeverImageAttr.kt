@@ -9,25 +9,25 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.dapascript.mever.core.common.util.fetchPhotoFromUrl
 import com.dapascript.mever.core.common.util.fetchVideoThumbnail
-import com.dapascript.mever.core.common.util.getUrlContentType
+import com.dapascript.mever.core.common.util.getExtensionFromUrl
 import kotlinx.coroutines.delay
 
 object MeverImageAttr {
     @Composable
-    fun getBitmapFromUrl(source: String, typeContent: String): Bitmap? {
-        var resultExtracted by remember(source) { mutableStateOf<Bitmap?>(null) }
+    fun getBitmapFromUrl(url: String, extensionFile: String): Bitmap? {
+        var resultExtracted by remember(url) { mutableStateOf<Bitmap?>(null) }
 
-        LaunchedEffect(source, resultExtracted) {
+        LaunchedEffect(url, resultExtracted) {
             while (resultExtracted == null) {
                 try {
                     resultExtracted = if (
-                        getUrlContentType(
-                            url = source,
-                            responseType = typeContent
+                        getExtensionFromUrl(
+                            url = url,
+                            extensionFile = extensionFile
                         ).orEmpty().contains("jpg")
                     ) {
-                        fetchPhotoFromUrl(source)
-                    } else fetchVideoThumbnail(source)
+                        fetchPhotoFromUrl(url)
+                    } else fetchVideoThumbnail(url)
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
