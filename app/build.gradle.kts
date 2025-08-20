@@ -5,6 +5,10 @@ plugins {
 }
 
 android {
+    androidResources {
+        generateLocaleConfig = true
+    }
+
     defaultConfig {
         applicationId = "com.dapascript.mever"
         versionCode = 20250901

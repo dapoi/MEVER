@@ -21,6 +21,7 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -61,6 +62,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.ui.theme.ThemeType
+import com.dapascript.mever.core.common.util.LanguageManager.getLanguageCode
 import com.dapascript.mever.core.common.util.getNotificationPermission
 import com.dapascript.mever.core.common.util.navigateToGmail
 import com.dapascript.mever.core.common.util.navigateToNotificationSettings
@@ -82,7 +84,6 @@ internal fun SettingLandingScreen(
     navController: NavController,
     viewModel: SettingLandingViewModel = hiltViewModel()
 ) = with(viewModel) {
-    val getLanguageCode = getLanguageCode.collectAsStateValue()
     val themeType = themeType.collectAsStateValue()
     val isPipEnabled = isPipEnabled.collectAsStateValue()
     val context = LocalContext.current
@@ -99,6 +100,8 @@ internal fun SettingLandingScreen(
         ),
         allowScreenOverlap = true
     ) {
+        LaunchedEffect(context) { getLanguageCode = getLanguageCode(context) }
+
         if (setRequestPermission.isNotEmpty()) {
             MeverPermissionHandler(
                 permissions = setRequestPermission,

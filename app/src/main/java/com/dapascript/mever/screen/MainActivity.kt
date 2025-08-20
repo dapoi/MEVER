@@ -20,14 +20,12 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
-import androidx.lifecycle.lifecycleScope
 import com.dapascript.mever.core.common.ui.theme.MeverDark
 import com.dapascript.mever.core.common.ui.theme.MeverTheme
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.ThemeType.Dark
 import com.dapascript.mever.core.common.ui.theme.ThemeType.Light
 import com.dapascript.mever.core.common.util.InAppUpdateManager
-import com.dapascript.mever.core.common.util.LanguageManager.changeLanguage
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.navigation.base.BaseNavGraph
@@ -37,7 +35,6 @@ import com.google.android.gms.ads.MobileAds
 import com.google.android.play.core.install.model.UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS
 import com.google.android.play.core.install.model.UpdateAvailability.UPDATE_AVAILABLE
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -61,7 +58,6 @@ class MainActivity : AppCompatActivity() {
             launcher = updateLauncher
         )
         enableEdgeToEdge()
-        setLanguage()
         handleShareIntent(intent)
         setContent {
             val themeType = viewModel.themeType.collectAsStateValue()
@@ -107,15 +103,6 @@ class MainActivity : AppCompatActivity() {
                         darkScrim = MeverDark.toArgb()
                     )
                 }
-            )
-        }
-    }
-
-    private fun setLanguage() = lifecycleScope.launch {
-        viewModel.getLanguage.collect { languageCode ->
-            changeLanguage(
-                context = this@MainActivity,
-                languageCode = languageCode
             )
         }
     }

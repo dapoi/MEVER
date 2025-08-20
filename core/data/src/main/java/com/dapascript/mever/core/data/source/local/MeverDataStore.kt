@@ -26,10 +26,6 @@ class MeverDataStore @Inject constructor(
         }
     }
 
-    val getVersion = dataStore.data.map { preferences ->
-        preferences[KEY_VERSION] ?: "1.0.0"
-    }
-
     suspend fun setIsImageAiEnabled(isEnabled: Boolean) {
         dataStore.edit { preferences ->
             preferences[KEY_IS_IMAGE_AI_ENABLED] = isEnabled
@@ -60,16 +56,6 @@ class MeverDataStore @Inject constructor(
         preferences[KEY_IS_ONBOARDED] ?: false
     }
 
-    suspend fun saveLanguageCode(languageCode: String) {
-        dataStore.edit { preferences ->
-            preferences[KEY_LANGUAGE] = languageCode
-        }
-    }
-
-    val getLanguageCode = dataStore.data.map { preferences ->
-        preferences[KEY_LANGUAGE] ?: "en"
-    }
-
     suspend fun saveTheme(mode: ThemeType) {
         dataStore.edit { preferences ->
             preferences[KEY_THEME] = mode.name
@@ -79,7 +65,7 @@ class MeverDataStore @Inject constructor(
     val getTheme = dataStore.data.map { preferences ->
         try {
             ThemeType.valueOf(preferences[KEY_THEME] ?: System.name)
-        } catch (e: IllegalArgumentException) {
+        } catch (_: IllegalArgumentException) {
             System
         }
     }
@@ -120,7 +106,6 @@ class MeverDataStore @Inject constructor(
         private val KEY_IS_IMAGE_AI_ENABLED = booleanPreferencesKey("is_image_ai_enabled")
         private val KEY_RESOLUTIONS = stringPreferencesKey("youtube_resolutions")
         private val KEY_IS_ONBOARDED = booleanPreferencesKey("is_onboarded")
-        private val KEY_LANGUAGE = stringPreferencesKey("language")
         private val KEY_THEME = stringPreferencesKey("theme")
         private val KEY_CLICK_COUNT = intPreferencesKey("click_count")
         private val KEY_URL_INTENT = stringPreferencesKey("url_intent")

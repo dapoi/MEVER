@@ -18,9 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
@@ -53,7 +51,6 @@ internal fun SettingLanguageScreen(
 ) = with(viewModel) {
     val scrollState = rememberScrollState()
     val isExpanded by remember { derivedStateOf { scrollState.value <= titleHeight } }
-    var languageCode by remember { mutableStateOf(args.languageData.languageCode) }
 
     BaseScreen(
         topBarArgs = TopBarArgs(
@@ -115,14 +112,11 @@ internal fun SettingLanguageScreen(
                             modifier = Modifier.padding(horizontal = Dp24)
                         )
                         Spacer(modifier = Modifier.height(Dp20))
-                        languages.map { (language, code) ->
+                        languages.forEach { (language, code) ->
                             MeverRadioButton(
                                 value = language,
-                                isChoosen = languageCode == code,
-                                onValueChoose = {
-                                    languageCode = code
-                                    saveLanguageCode(code)
-                                }
+                                isChoosen = getLanguageCode == code,
+                                onValueChoose = { changeLanguage(code) }
                             )
                         }
                     }

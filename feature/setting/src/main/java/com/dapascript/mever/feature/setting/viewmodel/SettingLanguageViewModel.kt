@@ -1,32 +1,32 @@
 package com.dapascript.mever.feature.setting.viewmodel
 
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
-import com.dapascript.mever.core.data.source.local.MeverDataStore
+import com.dapascript.mever.core.common.util.LanguageManager
+import com.dapascript.mever.core.common.util.LanguageManager.appLanguages
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLanguageRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 @HiltViewModel
 class SettingLanguageViewModel @Inject constructor(
-    private val dataStore: MeverDataStore,
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
+    @param:ApplicationContext private val context: Context,
 ) : BaseViewModel() {
     val args by lazy { SettingLanguageRoute.getArgs(savedStateHandle) }
-    val languages by lazy {
-        listOf(
-            "English" to "en",
-            "Bahasa Indonesia" to "in"
-        )
-    }
-    var titleHeight by mutableIntStateOf(0)
+    val languages by lazy { appLanguages() }
 
-    fun saveLanguageCode(code: String) = viewModelScope.launch {
-        dataStore.saveLanguageCode(code)
+    var titleHeight by mutableIntStateOf(0)
+    var getLanguageCode by mutableStateOf(args.languageData.languageCode)
+
+    fun changeLanguage(languageCode: String) {
+        LanguageManager.changeLanguage(context, languageCode)
+        getLanguageCode = languageCode
     }
 }
