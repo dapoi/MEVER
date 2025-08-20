@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="en">
     <string name="downloader_tab">Downloader</string>
     <string name="ai_tab">AI Image</string>
     <string name="downloader_title">Media Saver</string>
@@ -91,7 +91,7 @@
     <string name="maintenance_title">Temporary Unavailable</string>
     <string name="maintenance_message">This app is unavailable due maintenance. We sincerely apologize for the inconvenience 🙏 We will be back soon!</string>
     <string name="close">Close</string>
-    <string name="total_item_selected">%1$d item(s) selected</string>
+    <string name="total_item_selected">%1$s item(s) selected</string>
     <string name="select_files">Select Files</string>
     <string name="more">More</string>
     <string name="delete_all">Delete All</string>
