@@ -81,7 +81,7 @@ This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) f
 ## 💌 Support
 Found a bug or have an idea?
 - 👉 [Open an issue](https://github.com/dapoi/mever/issues)
-- 👉 Send me email at [luthfidaffaprabowo@gmail.com](mailto:luthfidaffaprabowo@gmail.com)
+- 👉 Send me email at [daffaprabowo5@gmail.com](mailto:daffaprabowo5@gmail.com)
 
 ## 🙌 Thanks To 
 - [khushpanchal](https://github.com/khushpanchal/Ketch) for the downloader lib
