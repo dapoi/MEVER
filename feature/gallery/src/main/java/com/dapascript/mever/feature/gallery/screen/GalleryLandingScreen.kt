@@ -221,11 +221,11 @@ internal fun GalleryLandingScreen(
                         files = selectedItems.map { File(it.path) }
                     )
 
-                    PAUSE_ALL -> ketch.pauseAll()
+                    PAUSE_ALL -> pauseAllDownloads()
                     HIDE_FILTER -> showFilter = false
                     SHOW_FILTER -> showFilter = true
                     else -> downloadList?.filter { model -> model.status == PAUSED }?.map { model ->
-                        ketch.resume(model.id)
+                        resumeDownload(model.id)
                     }
                 }
             }
@@ -276,8 +276,8 @@ internal fun GalleryLandingScreen(
                         }
 
                         FAILED -> showFailedDialog = id
-                        PAUSED -> ketch.resume(id)
-                        else -> ketch.pause(id)
+                        PAUSED -> resumeDownload(id)
+                        else -> pauseDownload(id)
                     }
                 }
             },
@@ -303,7 +303,7 @@ internal fun GalleryLandingScreen(
             primaryButtonText = stringResource(R.string.delete_button),
             onClickPrimary = {
                 scope.launch { listState.scrollToItem(0) }
-                ketch.clearAllDb()
+                deleteAll()
                 showDeleteAllDialog = false
             },
             onClickSecondary = { showDeleteAllDialog = false }
@@ -317,7 +317,7 @@ internal fun GalleryLandingScreen(
                 errorDescription = stringResource(R.string.delete_desc),
                 primaryButtonText = stringResource(R.string.delete_button),
                 onClickPrimary = {
-                    ids.forEach { ketch.clearDb(it) }
+                    ids.forEach { delete(it) }
                     showDeleteDialog = null
                     showSelector = false
                     clearSelection()
@@ -334,11 +334,11 @@ internal fun GalleryLandingScreen(
                 primaryButtonText = stringResource(R.string.delete_button),
                 secondaryButtonText = stringResource(R.string.retry),
                 onClickPrimary = {
-                    ketch.clearDb(id)
+                    delete(id)
                     showFailedDialog = null
                 },
                 onClickSecondary = {
-                    ketch.retry(id)
+                    retryDownload(id)
                     showFailedDialog = null
                 }
             )

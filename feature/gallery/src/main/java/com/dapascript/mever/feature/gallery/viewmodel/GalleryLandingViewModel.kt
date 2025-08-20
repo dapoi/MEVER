@@ -29,7 +29,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class GalleryLandingViewModel @Inject constructor(
-    val ketch: Ketch
+    private val ketch: Ketch
 ) : BaseViewModel() {
 
     var selectedFilter by mutableStateOf(ALL)
@@ -69,6 +69,18 @@ class GalleryLandingViewModel @Inject constructor(
     fun clearSelection() {
         _selectedItems.value = emptySet()
     }
+
+    fun resumeDownload(id: Int) = ketch.resume(id)
+
+    fun pauseDownload(id: Int) = ketch.pause(id)
+
+    fun pauseAllDownloads() = ketch.pauseAll()
+
+    fun retryDownload(id: Int) = ketch.retry(id)
+
+    fun delete(id: Int) = ketch.clearDb(id)
+
+    fun deleteAll() = ketch.clearAllDb()
 
     fun refreshDatabase() {
         viewModelScope.launch {

@@ -17,7 +17,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingLanguageViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    @param:ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context
 ) : BaseViewModel() {
     val args by lazy { SettingLanguageRoute.getArgs(savedStateHandle) }
     val languages by lazy { appLanguages() }
