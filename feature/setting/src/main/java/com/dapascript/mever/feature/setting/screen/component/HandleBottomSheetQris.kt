@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale.Companion.Crop
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.dapascript.mever.core.common.R
@@ -60,13 +61,9 @@ internal fun HandleBottomSheetQris(
 ) {
     val context = LocalContext.current
     val activity = LocalActivity.current
+    val resource = LocalResources.current
     val scope = rememberCoroutineScope()
-    val bitmap = remember {
-        decodeResource(
-            context.resources,
-            R.drawable.qris
-        )
-    }
+    val bitmap = remember { decodeResource(resource, R.drawable.qris) }
     var isSaveSuccess by remember { mutableStateOf(false) }
     var setStoragePermission by remember { mutableStateOf<List<String>>(emptyList()) }
 
