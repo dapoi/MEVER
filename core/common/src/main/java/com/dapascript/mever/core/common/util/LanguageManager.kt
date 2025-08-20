@@ -20,13 +20,13 @@ object LanguageManager {
 
     fun getLanguageCode(context: Context): String {
         val locale = if (SDK_INT >= TIRAMISU) {
-            context.getSystemService(LocaleManager::class.java)
-                ?.applicationLocales
-                ?.get(0)
+            context.getSystemService(
+                LocaleManager::class.java
+            ).applicationLocales.toLanguageTags()
         } else {
-            AppCompatDelegate.getApplicationLocales().get(0)
+            AppCompatDelegate.getApplicationLocales().toLanguageTags()
         }
-        return locale?.language ?: "en"
+        return locale.ifEmpty { appLanguages()[0].second }
     }
 
     fun appLanguages() = listOf(
