@@ -406,8 +406,8 @@ private fun HomeScreenContent(
             Text(
                 modifier = Modifier.fillMaxWidth(),
                 text = PlatformType.entries
-                    .filter { it != AI && it != ALL && it != YOUTUBE_MUSIC }
-                    .joinToString(separator = ", ") { if (it == YOUTUBE) "YT" else it.platformName },
+                    .filterNot { it != AI && it != ALL && it != YOUTUBE && it != YOUTUBE_MUSIC }
+                    .joinToString(separator = ", ") { it.platformName },
                 textAlign = TextAlign.Center,
                 style = typography.body1,
                 color = colorScheme.onPrimary
