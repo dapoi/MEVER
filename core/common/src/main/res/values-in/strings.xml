@@ -3,8 +3,8 @@
     <string name="downloader_tab">Pengunduh</string>
     <string name="ai_tab">Gambar AI</string>
     <string name="downloader_title">Penyimpanan Media</string>
-    <string name="downloader_desc">Cara paling mudah untuk unduh konten favorit kamu dari berbagai platform sosial media.</string>
-    <string name="paste_url">Tempel tautan di sini…</string>
+    <string name="downloader_desc">Cara paling mudah untuk unduh konten favorit kamu dari berbagai platform sosial media, hanya dengan beberapa langkah.</string>
+    <string name="paste_url">Tempel tautan di sini</string>
     <string name="download">Unduh</string>
     <string name="download_all">Unduh Semua</string>
     <string name="recently_downloaded">Baru Diunduh</string>
@@ -68,7 +68,7 @@
     <string name="generate">Buat Gambar</string>
     <string name="cancel_fetch_title">Keluar?</string>
     <string name="cancel_fetch_desc">Yakin mau keluar? Proses yang lagi jalan bakal dibatalin nih.</string>
-    <string name="see_all_supported_platforms">Tap untuk melihat platform.</string>
+    <string name="see_all_supported_platforms">Lihat selengkapnya…</string>
     <string name="platforms_supported">Platform yang Didukung</string>
     <string name="yes">Ya</string>
     <string name="prompt">Prompt Kamu</string>

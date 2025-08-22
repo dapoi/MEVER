@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
+import com.dapascript.mever.core.common.ui.theme.ThemeType.System
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE_MUSIC
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver
 import com.dapascript.mever.core.common.util.getPlatformType
@@ -122,6 +123,12 @@ class HomeLandingViewModel @Inject constructor(
         scope = viewModelScope,
         started = WhileSubscribed(),
         initialValue = ""
+    )
+
+    val themeType = dataStore.getTheme.stateIn(
+        scope = viewModelScope,
+        started = WhileSubscribed(),
+        initialValue = System
     )
 
     private val _downloaderResponseState =

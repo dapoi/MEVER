@@ -10,7 +10,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
@@ -32,14 +32,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicText
-import androidx.compose.foundation.text.InlineTextContent
-import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -65,19 +60,14 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale.Companion.Crop
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.Placeholder
-import androidx.compose.ui.text.PlaceholderVerticalAlign
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextLayoutResult
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow.Companion.Ellipsis
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle.State.RESUMED
@@ -113,6 +103,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp14
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp150
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp20
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
@@ -121,11 +112,16 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp5
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp75
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
+import com.dapascript.mever.core.common.ui.theme.MeverLightGray
+import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
+import com.dapascript.mever.core.common.ui.theme.MeverWhiteSemiPink
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp14
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp22
+import com.dapascript.mever.core.common.ui.theme.ThemeType.Dark
+import com.dapascript.mever.core.common.ui.theme.ThemeType.Light
 import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType
 import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType.NETWORK
 import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType.RESPONSE
@@ -136,14 +132,15 @@ import com.dapascript.mever.core.common.util.PlatformType.AI
 import com.dapascript.mever.core.common.util.PlatformType.ALL
 import com.dapascript.mever.core.common.util.PlatformType.FACEBOOK
 import com.dapascript.mever.core.common.util.PlatformType.INSTAGRAM
+import com.dapascript.mever.core.common.util.PlatformType.PINTEREST
 import com.dapascript.mever.core.common.util.PlatformType.TIKTOK
-import com.dapascript.mever.core.common.util.PlatformType.TWITTER
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
+import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE_MUSIC
 import com.dapascript.mever.core.common.util.changeToCurrentDate
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.NetworkStatus.Available
+import com.dapascript.mever.core.common.util.getExtensionFromUrl
 import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.getStoragePermission
-import com.dapascript.mever.core.common.util.getExtensionFromUrl
 import com.dapascript.mever.core.common.util.goToSetting
 import com.dapascript.mever.core.common.util.isMusic
 import com.dapascript.mever.core.common.util.navigateToMusic
@@ -367,6 +364,7 @@ private fun HomeScreenContent(
         val showBadge = showBadge.collectAsStateValue()
         val getButtonClickCount = getButtonClickCount.collectAsStateValue()
         val urlIntent = getUrlIntent.collectAsStateValue()
+        val themeType = themeType.collectAsStateValue()
         val tabItems = remember { tabItems(context) }
         val pagerState = rememberPagerState(pageCount = { tabItems.size })
         val scrollState = rememberScrollState()
@@ -408,8 +406,8 @@ private fun HomeScreenContent(
             Text(
                 modifier = Modifier.fillMaxWidth(),
                 text = PlatformType.entries
-                    .filter { it != AI && it != ALL }
-                    .joinToString(separator = ", ") { it.platformName },
+                    .filter { it != AI && it != ALL && it != YOUTUBE_MUSIC }
+                    .joinToString(separator = ", ") { if (it == YOUTUBE) "YT" else it.platformName },
                 textAlign = TextAlign.Center,
                 style = typography.body1,
                 color = colorScheme.onPrimary
@@ -494,6 +492,11 @@ private fun HomeScreenContent(
                                         .navigationBarsPadding(),
                                     context = context,
                                     downloadList = downloadList,
+                                    isDarkTheme = when (themeType) {
+                                        Light -> false
+                                        Dark -> true
+                                        else -> isSystemInDarkTheme()
+                                    },
                                     isLoading = isLoading,
                                     urlSocialMediaState = urlSocialMediaState,
                                     onClickCard = { model ->
@@ -667,6 +670,7 @@ private fun HomeScreenContent(
 @Composable
 internal fun HomeDownloaderSection(
     context: Context,
+    isDarkTheme: Boolean,
     isLoading: Boolean,
     urlSocialMediaState: TextFieldValue,
     downloadList: List<DownloadModel>?,
@@ -689,24 +693,59 @@ internal fun HomeDownloaderSection(
         }
         item {
             Spacer(modifier = Modifier.size(Dp16))
-            DescriptionDownloaderSection(context) { onClickPlatformSupport() }
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.downloader_desc),
+                style = typography.body2,
+                color = colorScheme.secondary
+            )
         }
         item {
             Spacer(modifier = Modifier.size(Dp24))
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = SpaceBetween
+                verticalAlignment = CenterVertically,
+                horizontalArrangement = spacedBy(Dp16)
             ) {
-                PlatformType.entries.filter {
-                    it in listOf(FACEBOOK, INSTAGRAM, TIKTOK, TWITTER, YOUTUBE)
-                }.map {
-                    MeverIcon(
-                        icon = getPlatformIcon(it.platformName),
-                        iconBackgroundColor = getPlatformIconBackgroundColor(it.platformName),
-                        iconSize = Dp48,
-                        iconPadding = Dp10
-                    )
+                Row(horizontalArrangement = spacedBy((-Dp20))) {
+                    val platforms = PlatformType.entries.filter {
+                        it in listOf(FACEBOOK, INSTAGRAM, TIKTOK, PINTEREST)
+                    }
+                    platforms.forEachIndexed { index, type ->
+                        MeverIcon(
+                            icon = getPlatformIcon(type.platformName),
+                            iconBackgroundColor = getPlatformIconBackgroundColor(type.platformName),
+                            iconSize = Dp48,
+                            iconPadding = Dp10
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .background(
+                                color = if (isDarkTheme) MeverLightGray else MeverWhiteSemiPink,
+                                shape = CircleShape
+                            )
+                            .size(Dp48),
+                        contentAlignment = Center
+                    ) {
+                        Text(
+                            text = "+5",
+                            textAlign = TextAlign.Center,
+                            style = typography.bodyBold1,
+                            color = MeverPurple
+                        )
+                    }
                 }
+                Text(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(Dp8))
+                        .onCustomClick { onClickPlatformSupport() },
+                    text = stringResource(R.string.see_all_supported_platforms),
+                    maxLines = 2,
+                    overflow = Ellipsis,
+                    style = typography.bodyBold1,
+                    color = MeverPurple
+                )
             }
         }
         item {
@@ -966,71 +1005,6 @@ internal fun HomeAiSection(
                 .clipToBounds()
         )
     }
-}
-
-@Composable
-private fun DescriptionDownloaderSection(
-    context: Context,
-    onClick: () -> Unit
-) {
-    val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
-    val baseStyle = SpanStyle(
-        fontSize = typography.bodyBold2.fontSize,
-        fontFamily = typography.bodyBold2.fontFamily,
-        fontWeight = typography.bodyBold2.fontWeight
-    )
-    val annotatedString = buildAnnotatedString {
-        append(context.getString(R.string.downloader_desc))
-        append(" ")
-        pushStringAnnotation(
-            tag = "infoIcon",
-            annotation = "clickable_info_icon"
-        )
-        pushStyle(
-            SpanStyle(
-                fontSize = baseStyle.fontSize,
-                fontFamily = baseStyle.fontFamily,
-                fontWeight = baseStyle.fontWeight,
-                color = colorScheme.primary
-            )
-        )
-        append(context.getString(R.string.see_all_supported_platforms))
-        append(" ")
-        pop()
-        appendInlineContent("infoIcon", "[icon]")
-    }
-    val inlineContent = mapOf(
-        "infoIcon" to InlineTextContent(
-            Placeholder(
-                width = Sp14,
-                height = Sp14,
-                placeholderVerticalAlign = PlaceholderVerticalAlign.Center
-            )
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.Info,
-                tint = colorScheme.primary,
-                contentDescription = "Info"
-            )
-        }
-    )
-    BasicText(
-        modifier = Modifier.pointerInput(Unit) {
-            detectTapGestures { offset ->
-                val layoutResult = layoutResult.value ?: return@detectTapGestures
-                val position = layoutResult.getOffsetForPosition(offset)
-                val annotations = annotatedString.getStringAnnotations(
-                    "infoIcon", position, position
-                )
-
-                if (annotations.isNotEmpty()) onClick()
-            }
-        },
-        onTextLayout = { layoutResult.value = it },
-        text = annotatedString,
-        inlineContent = inlineContent,
-        style = typography.body2.copy(color = colorScheme.secondary)
-    )
 }
 
 private fun getListActionMenu(context: Context, hasDownloadProgress: Boolean) = listOf(
