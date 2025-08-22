@@ -406,7 +406,7 @@ private fun HomeScreenContent(
             Text(
                 modifier = Modifier.fillMaxWidth(),
                 text = PlatformType.entries
-                    .filterNot { it != AI && it != ALL && it != YOUTUBE && it != YOUTUBE_MUSIC }
+                    .filterNot { it in listOf(AI, ALL, YOUTUBE, YOUTUBE_MUSIC) }
                     .joinToString(separator = ", ") { it.platformName },
                 textAlign = TextAlign.Center,
                 style = typography.body1,
