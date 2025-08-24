@@ -134,6 +134,7 @@ import com.dapascript.mever.core.common.util.PlatformType.FACEBOOK
 import com.dapascript.mever.core.common.util.PlatformType.INSTAGRAM
 import com.dapascript.mever.core.common.util.PlatformType.PINTEREST
 import com.dapascript.mever.core.common.util.PlatformType.TIKTOK
+import com.dapascript.mever.core.common.util.PlatformType.TWITTER
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE_MUSIC
 import com.dapascript.mever.core.common.util.changeToCurrentDate
@@ -405,9 +406,11 @@ private fun HomeScreenContent(
         ) {
             Text(
                 modifier = Modifier.fillMaxWidth(),
-                text = PlatformType.entries
-                    .filterNot { it in listOf(AI, ALL, YOUTUBE, YOUTUBE_MUSIC) }
-                    .joinToString(separator = ", ") { it.platformName },
+                text = "${
+                    PlatformType.entries
+                        .filterNot { it in listOf(AI, ALL, YOUTUBE, YOUTUBE_MUSIC) }
+                        .joinToString(separator = ", ") { it.platformName }
+                }, & ${stringResource(R.string.more)}",
                 textAlign = TextAlign.Center,
                 style = typography.body1,
                 color = colorScheme.onPrimary
@@ -709,7 +712,7 @@ internal fun HomeDownloaderSection(
             ) {
                 Row(horizontalArrangement = spacedBy((-Dp20))) {
                     val platforms = PlatformType.entries.filter {
-                        it in listOf(FACEBOOK, INSTAGRAM, TIKTOK, PINTEREST)
+                        it in listOf(FACEBOOK, INSTAGRAM, TIKTOK, TWITTER, PINTEREST)
                     }
                     platforms.forEachIndexed { index, type ->
                         MeverIcon(
@@ -729,7 +732,7 @@ internal fun HomeDownloaderSection(
                         contentAlignment = Center
                     ) {
                         Text(
-                            text = "+5",
+                            text = "+4",
                             textAlign = TextAlign.Center,
                             style = typography.bodyBold1,
                             color = MeverPurple
