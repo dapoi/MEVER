@@ -123,6 +123,7 @@ internal fun GalleryLandingScreen(
     var showDeleteDialog by remember { mutableStateOf<List<Int>?>(null) }
     var showDeleteAllDialog by remember { mutableStateOf(false) }
     var showDropDownMenu by remember { mutableStateOf(false) }
+    var isSelectedAll by remember { mutableStateOf(false) }
     var showFilter by rememberSaveable { mutableStateOf(true) }
     val isExpanded by remember {
         derivedStateOf { listState.firstVisibleItemIndex < 1 && showSelector.not() }
@@ -209,18 +210,30 @@ internal fun GalleryLandingScreen(
             },
             label = { it.getText(context) },
             showDropDownMenu = showDropDownMenu,
-            onDismissDropDownMenu = { showDropDownMenu = it },
+            onDismissDropDownMenu = {
+                if (isSelectedAll.not()) {
+                    showDropDownMenu = it
+                }
+            },
             onClick = { menu ->
                 when (menu) {
-                    SELECT_ALL -> toggleSelectionAll(downloadFilter.orEmpty())
+                    SELECT_ALL -> {
+                        toggleSelectionAll(downloadFilter.orEmpty())
+                        isSelectedAll = true
+                    }
                     SELECT_FILES -> showSelector = true
                     DELETE_ALL -> showDeleteAllDialog = true
-                    DELETE_SELECTED -> showDeleteDialog = selectedItems.map { it.id }
-                    SHARE_SELECTED -> shareContent(
-                        context = context,
-                        files = selectedItems.map { File(it.path) }
-                    )
-
+                    DELETE_SELECTED -> {
+                        showDeleteDialog = selectedItems.map { it.id }
+                        isSelectedAll = false
+                    }
+                    SHARE_SELECTED -> {
+                        shareContent(
+                            context = context,
+                            files = selectedItems.map { File(it.path) }
+                        )
+                        isSelectedAll = false
+                    }
                     PAUSE_ALL -> pauseAllDownloads()
                     HIDE_FILTER -> showFilter = false
                     SHOW_FILTER -> showFilter = true
