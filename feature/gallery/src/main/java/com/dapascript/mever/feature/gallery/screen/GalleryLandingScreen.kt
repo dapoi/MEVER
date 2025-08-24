@@ -101,7 +101,11 @@ import com.ketch.Status.FAILED
 import com.ketch.Status.PAUSED
 import com.ketch.Status.PROGRESS
 import com.ketch.Status.SUCCESS
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import com.dapascript.mever.core.common.R as RCommon
 
@@ -165,8 +169,11 @@ internal fun GalleryLandingScreen(
         allowScreenOverlap = true
     ) {
         LaunchedEffect(downloadList) {
-            downloadList?.map {
-                if (it.status == SUCCESS) syncFileToGallery(context, it.fileName)
+            withContext(IO) {
+                downloadList
+                    ?.filter { it.status == SUCCESS }
+                    ?.map { async { syncFileToGallery(context, it.fileName) } }
+                    ?.awaitAll()
             }
         }
 
