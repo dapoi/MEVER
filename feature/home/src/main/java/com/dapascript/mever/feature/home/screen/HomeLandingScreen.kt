@@ -163,12 +163,16 @@ import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetYouTu
 import com.dapascript.mever.feature.home.screen.component.HandleDialogExitConfirmation
 import com.dapascript.mever.feature.home.screen.component.HandleDonationDialogOffer
 import com.dapascript.mever.feature.home.viewmodel.HomeLandingViewModel
-import com.ketch.DownloadModel
 import com.ketch.Status.FAILED
 import com.ketch.Status.PAUSED
 import com.ketch.Status.SUCCESS
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.lang.System.currentTimeMillis
 import kotlin.random.Random
@@ -179,257 +183,37 @@ internal fun HomeLandingScreen(
     navController: NavController,
     viewModel: HomeLandingViewModel = hiltViewModel()
 ) = with(viewModel) {
-    val downloaderResponseState = downloaderResponseState.collectAsStateValue()
-    val isNetworkAvailable = isNetworkAvailable.collectAsStateValue()
-    val isImageGeneratorFeatureActive = isImageGeneratorFeatureActive.collectAsStateValue()
-    val youtubeResolutions = youtubeResolutions.collectAsStateValue()
-    val activity = LocalActivity.current
-    val context = LocalContext.current
-    val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
-    val scope = rememberCoroutineScope()
-    var skipRefreshDatabase by remember(lifecycleOwner.value) { mutableStateOf(true) }
-    var showLoading by remember { mutableStateOf(false) }
-    var showCancelExitConfirmation by remember { mutableStateOf(false) }
-    var showYoutubeChooseQualityModal by remember { mutableStateOf(false) }
-    var showErrorModal by remember { mutableStateOf<ErrorType?>(null) }
-    var randomDonateDialogOffer by remember { mutableIntStateOf(0) }
-    var setStoragePermission by remember { mutableStateOf<List<String>>(emptyList()) }
-    var errorMessage by remember { mutableStateOf("") }
-
     BaseScreen(
         useSystemBarsPadding = true,
         allowScreenOverlap = true,
         hideDefaultTopBar = true
     ) {
-        LaunchedEffect(lifecycleOwner.value) {
-            lifecycleOwner.value.lifecycle.repeatOnLifecycle(RESUMED) {
-                if (skipRefreshDatabase) skipRefreshDatabase = false
-                else refreshDatabase()
-            }
-        }
-
-        LaunchedEffect(downloaderResponseState) {
-            downloaderResponseState.handleUiState(
-                onLoading = { showLoading = true },
-                onSuccess = { showLoading = false },
-                onFailed = { message ->
-                    showLoading = false
-                    showErrorModal = RESPONSE
-                    errorMessage = message ?: context.getString(R.string.unknown_error_desc)
-                }
-            )
-        }
-
-        LaunchedEffect(randomDonateDialogOffer, showDonationDialog) {
-            if (showDonationDialog) {
-                (0..3).random(Random).also { randomValue ->
-                    randomDonateDialogOffer = randomValue
-                    showDonationDialog = false
-                }
-            }
-        }
-
-        if (setStoragePermission.isNotEmpty()) {
-            MeverPermissionHandler(
-                permissions = setStoragePermission,
-                onGranted = {
-                    setStoragePermission = emptyList()
-                    getNetworkStatus(
-                        isNetworkAvailable = isNetworkAvailable,
-                        onNetworkAvailable = {
-                            if (getPlatformType(urlSocialMediaState.text) == YOUTUBE) {
-                                showYoutubeChooseQualityModal = true
-                            } else getApiDownloader()
-                        },
-                        onNetworkUnavailable = { showErrorModal = NETWORK }
-                    )
-                },
-                onDenied = { isPermanentlyDeclined, retry ->
-                    MeverDeclinedPermission(
-                        isPermissionsDeclined = isPermanentlyDeclined,
-                        onGoToSetting = {
-                            setStoragePermission = emptyList()
-                            activity.goToSetting()
-                        },
-                        onRetry = { retry() },
-                        onDismiss = { setStoragePermission = emptyList() }
-                    )
-                }
-            )
-        }
-
-        BackHandler(showLoading) { showCancelExitConfirmation = true }
-
-        HandleBottomSheetDownload(
-            modifier = Modifier
-                .fillMaxWidth()
-                .navigationBarsPadding(),
-            listContent = contents,
-            showBottomSheet = contents.isNotEmpty(),
-            isFailedFetchImage = isNetworkAvailable != Available,
-            onClickDownload = { url ->
-                scope.launch {
-                    startDownload(
-                        url = url,
-                        fileName = contents.firstOrNull()?.fileName.orEmpty().ifEmpty {
-                            changeToCurrentDate(currentTimeMillis()) + getExtensionFromUrl(
-                                url = url,
-                                extensionFile = contents.firstOrNull()?.type.orEmpty()
-                            )
-                        },
-                        thumbnail = contents.firstOrNull()?.thumbnail.orEmpty()
-                    )
-                    contents = emptyList()
-                }
-            },
-            onClickDismiss = { contents = emptyList() }
-        )
-
-        HandleDialogExitConfirmation(
-            showDialog = showCancelExitConfirmation,
-            onClickPrimary = { activity.finish() },
-            onClickSecondary = { showCancelExitConfirmation = false }
-        )
-
-        HandleDonationDialogOffer(
-            showDialog = randomDonateDialogOffer == 1,
-            onClickPrimaryButton = {
-                randomDonateDialogOffer = 0
-                navController.navigateTo(SettingAppreciateRoute)
-            },
-            onClickSecondaryButton = { randomDonateDialogOffer = 0 }
-        )
-
-        getErrorResponseContent(
-            context = context,
-            errorType = showErrorModal,
-            message = errorMessage,
-        )?.let { (title, desc) ->
-            MeverDialogError(
-                showDialog = true,
-                errorTitle = stringResource(title),
-                errorDescription = desc,
-                onClickPrimary = {
-                    showErrorModal = null
-                    getNetworkStatus(
-                        isNetworkAvailable = isNetworkAvailable,
-                        onNetworkAvailable = { getApiDownloader() },
-                        onNetworkUnavailable = { showErrorModal = NETWORK }
-                    )
-                },
-                onClickSecondary = {
-                    showErrorModal = null
-                    errorMessage = ""
-                }
-            )
-        }
-
-        HandleBottomSheetYouTubeQuality(
-            showBottomSheet = showYoutubeChooseQualityModal,
-            qualityList = youtubeResolutions.takeIf {
-                urlSocialMediaState.text.contains("music").not()
-            } ?: listOf(youtubeResolutions.lastOrNull().orEmpty()),
-            onApplyQuality = { quality ->
-                showYoutubeChooseQualityModal = false
-                selectedQuality = quality
-                getApiDownloader()
-            },
-            onDismiss = { showYoutubeChooseQualityModal = false }
-        )
-
         HomeScreenContent(
             modifier = Modifier
                 .fillMaxSize()
                 .systemBarsPadding(),
             viewModel = this,
-            context = context,
-            navController = navController,
-            isImageGeneratorFeatureActive = isImageGeneratorFeatureActive,
-            isLoading = showLoading
-        ) { setStoragePermission = getStoragePermission() }
+            navController = navController
+        )
     }
 }
 
 @Composable
 private fun HomeScreenContent(
     viewModel: HomeLandingViewModel,
-    context: Context,
     navController: NavController,
-    isLoading: Boolean,
-    isImageGeneratorFeatureActive: Boolean,
-    modifier: Modifier = Modifier,
-    requestStoragePermissionLauncher: () -> Unit
+    modifier: Modifier = Modifier
 ) = with(viewModel) {
     BoxWithConstraints(modifier = modifier) {
-        val downloadList = downloadList.collectAsStateValue()
+        var generateButtonHeight by remember { mutableIntStateOf(0) }
+        val context = LocalContext.current
         val showBadge = showBadge.collectAsStateValue()
+        val isImageGeneratorFeatureActive = isImageGeneratorFeatureActive.collectAsStateValue()
         val getButtonClickCount = getButtonClickCount.collectAsStateValue()
-        val urlIntent = getUrlIntent.collectAsStateValue()
-        val themeType = themeType.collectAsStateValue()
         val tabItems = remember { tabItems(context) }
         val pagerState = rememberPagerState(pageCount = { tabItems.size })
         val scrollState = rememberScrollState()
         val scope = rememberCoroutineScope()
-        var showDeleteDialog by remember { mutableStateOf<Int?>(null) }
-        var showFailedDialog by remember { mutableStateOf<Int?>(null) }
-        var showPlatformSupportDialog by remember { mutableStateOf(false) }
-        var generateButtonHeight by remember { mutableIntStateOf(0) }
-        val buttonAction = {
-            if (pagerState.currentPage == 0) requestStoragePermissionLauncher()
-            else navController.navigateTo(HomeImageGeneratorResultRoute)
-        }
-        val interstitialController = rememberInterstitialAd(
-            onAdFailToLoad = buttonAction,
-            onAdFailOrDismissed = buttonAction
-        )
-
-        LaunchedEffect(downloadList) {
-            downloadList?.map {
-                if (it.status == SUCCESS) syncFileToGallery(context, it.fileName)
-            }
-        }
-
-        LaunchedEffect(urlIntent) {
-            if (urlIntent.isNotEmpty()) {
-                urlSocialMediaState = TextFieldValue(urlIntent)
-                delay(1000)
-                resetUrlIntent()
-            }
-        }
-
-        MeverDialog(
-            showDialog = showPlatformSupportDialog,
-            meverDialogArgs = MeverDialogArgs(
-                title = stringResource(R.string.platforms_supported)
-            ),
-            hideInteractionButton = true
-        ) {
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = "${
-                    PlatformType.entries
-                        .filterNot { it in listOf(AI, ALL, YOUTUBE, YOUTUBE_MUSIC) }
-                        .joinToString(separator = ", ") { it.platformName }
-                }, & ${stringResource(R.string.more)}",
-                textAlign = TextAlign.Center,
-                style = typography.body1,
-                color = colorScheme.onPrimary
-            )
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(Dp14))
-                    .onCustomClick { showPlatformSupportDialog = false }
-                    .padding(vertical = Dp8),
-                contentAlignment = Center
-            ) {
-                Text(
-                    text = stringResource(R.string.close),
-                    style = typography.bodyBold2,
-                    color = colorScheme.primary
-                )
-            }
-        }
 
         Column(
             modifier = Modifier
@@ -493,71 +277,11 @@ private fun HomeScreenContent(
                                         .fillMaxSize()
                                         .padding(horizontal = Dp24)
                                         .navigationBarsPadding(),
+                                    viewModel = this@with,
                                     context = context,
-                                    downloadList = downloadList,
-                                    isDarkTheme = when (themeType) {
-                                        Light -> false
-                                        Dark -> true
-                                        else -> isSystemInDarkTheme()
-                                    },
-                                    isLoading = isLoading,
-                                    urlSocialMediaState = urlSocialMediaState,
-                                    onClickCard = { model ->
-                                        with(model) {
-                                            when (status) {
-                                                SUCCESS -> {
-                                                    if (isMusic(model.fileName).not()) {
-                                                        navController.navigateTo(
-                                                            GalleryContentDetailRoute(
-                                                                contents = downloadList?.filterNot {
-                                                                    isMusic(it.fileName)
-                                                                }?.map {
-                                                                    Content(
-                                                                        id = it.id,
-                                                                        filePath = it.path
-                                                                    )
-                                                                } ?: emptyList(),
-                                                                initialIndex = downloadList?.filterNot {
-                                                                    isMusic(it.fileName)
-                                                                }?.indexOfFirst { it.id == id } ?: 0
-                                                            )
-                                                        )
-                                                    } else {
-                                                        navigateToMusic(
-                                                            context = context,
-                                                            file = File(path)
-                                                        )
-                                                    }
-                                                }
-
-                                                FAILED -> showFailedDialog = id
-                                                PAUSED -> resumeDownload(id)
-                                                else -> pauseDownload(id)
-                                            }
-                                        }
-                                    },
-                                    onClickDelete = { showDeleteDialog = it.id },
-                                    onClickShare = {
-                                        shareContent(
-                                            context = context,
-                                            file = File(it.path)
-                                        )
-                                    },
-                                    onValueChange = { urlSocialMediaState = it },
-                                    onClickDownload = {
-                                        handleClickButton(
-                                            buttonClickCount = getButtonClickCount,
-                                            onIncrementClickCount = { incrementClickCount() },
-                                            onShowAds = { interstitialController.showAd() },
-                                            onClickAction = {
-                                                if (isLoading.not()) {
-                                                    requestStoragePermissionLauncher()
-                                                }
-                                            }
-                                        )
-                                    },
-                                    onClickPlatformSupport = { showPlatformSupportDialog = true },
-                                    onClickViewAll = { navController.navigateToGalleryScreen() }
+                                    navController = navController,
+                                    scope = scope,
+                                    getButtonClickCount = getButtonClickCount
                                 )
                             }
 
@@ -606,6 +330,22 @@ private fun HomeScreenContent(
                 horizontalAlignment = CenterHorizontally,
                 verticalArrangement = spacedBy(Dp16)
             ) {
+                val interstitialController = rememberInterstitialAd(
+                    onAdFailToLoad = {
+                        navController.navigateToImageGenerator(
+                            prompt = promptState.text,
+                            artStyle = selectedArtStyle.second,
+                            totalImages = selectedImageCount
+                        )
+                    },
+                    onAdFailOrDismissed = {
+                        navController.navigateToImageGenerator(
+                            prompt = promptState.text,
+                            artStyle = selectedArtStyle.second,
+                            totalImages = selectedImageCount
+                        )
+                    }
+                )
                 MeverButton(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -622,227 +362,483 @@ private fun HomeScreenContent(
                         onIncrementClickCount = { incrementClickCount() },
                         onShowAds = { interstitialController.showAd() },
                         onClickAction = {
-                            navController.navigateTo(
-                                HomeImageGeneratorResultRoute(
-                                    prompt = promptState.text,
-                                    artStyle = selectedArtStyle.second,
-                                    totalImages = selectedImageCount
-                                )
+                            navController.navigateToImageGenerator(
+                                prompt = promptState.text,
+                                artStyle = selectedArtStyle.second,
+                                totalImages = selectedImageCount
                             )
                         }
                     )
                 }
             }
         }
-
-        showDeleteDialog?.let { id ->
-            MeverDialogError(
-                showDialog = true,
-                errorImage = null,
-                errorTitle = stringResource(R.string.delete_title),
-                errorDescription = stringResource(R.string.delete_desc),
-                primaryButtonText = stringResource(R.string.delete_button),
-                onClickPrimary = {
-                    delete(id)
-                    showDeleteDialog = null
-                },
-                onClickSecondary = { showDeleteDialog = null },
-            )
-        }
-
-        showFailedDialog?.let { id ->
-            MeverDialogError(
-                showDialog = true,
-                errorTitle = stringResource(R.string.download_failed_title),
-                errorDescription = stringResource(R.string.download_failed_desc),
-                primaryButtonText = stringResource(R.string.delete_button),
-                secondaryButtonText = stringResource(R.string.retry),
-                onClickPrimary = {
-                    delete(id)
-                    showFailedDialog = null
-                },
-                onClickSecondary = {
-                    retryDownload(id)
-                    showFailedDialog = null
-                }
-            )
-        }
     }
 }
 
 @Composable
 internal fun HomeDownloaderSection(
+    viewModel: HomeLandingViewModel,
     context: Context,
-    isDarkTheme: Boolean,
-    isLoading: Boolean,
-    urlSocialMediaState: TextFieldValue,
-    downloadList: List<DownloadModel>?,
-    modifier: Modifier = Modifier,
-    onClickCard: (DownloadModel) -> Unit,
-    onClickDelete: (DownloadModel) -> Unit,
-    onClickShare: (DownloadModel) -> Unit,
-    onValueChange: (TextFieldValue) -> Unit,
-    onClickDownload: () -> Unit,
-    onClickPlatformSupport: () -> Unit,
-    onClickViewAll: () -> Unit
-) = CompositionLocalProvider(LocalOverscrollFactory provides null) {
-    LazyColumn(modifier = modifier) {
-        item {
-            Text(
-                text = stringResource(R.string.downloader_title),
-                style = typography.h2.copy(fontSize = Sp22),
-                color = colorScheme.onPrimary
-            )
+    navController: NavController,
+    scope: CoroutineScope,
+    getButtonClickCount: Int,
+    modifier: Modifier = Modifier
+) = with(viewModel) {
+    val downloadList = downloadList.collectAsStateValue()
+    val downloaderResponseState = downloaderResponseState.collectAsStateValue()
+    val isNetworkAvailable = isNetworkAvailable.collectAsStateValue()
+    val youtubeResolutions = youtubeResolutions.collectAsStateValue()
+    val themeType = themeType.collectAsStateValue()
+    val activity = LocalActivity.current
+    val isDarkTheme = when (themeType) {
+        Light -> false
+        Dark -> true
+        else -> isSystemInDarkTheme()
+    }
+    val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
+    var skipRefreshDatabase by remember(lifecycleOwner.value) { mutableStateOf(true) }
+    var showLoading by remember { mutableStateOf(false) }
+    var showCancelExitConfirmation by remember { mutableStateOf(false) }
+    var showYoutubeChooseQualityModal by remember { mutableStateOf(false) }
+    var showErrorModal by remember { mutableStateOf<ErrorType?>(null) }
+    var randomDonateDialogOffer by remember { mutableIntStateOf(0) }
+    var setStoragePermission by remember { mutableStateOf<List<String>>(emptyList()) }
+    var errorMessage by remember { mutableStateOf("") }
+    val urlIntent = getUrlIntent.collectAsStateValue()
+    var showDeleteDialog by remember { mutableStateOf<Int?>(null) }
+    var showFailedDialog by remember { mutableStateOf<Int?>(null) }
+    var showPlatformSupportDialog by remember { mutableStateOf(false) }
+    val interstitialController = rememberInterstitialAd(
+        onAdFailToLoad = { setStoragePermission = getStoragePermission() },
+        onAdFailOrDismissed = { setStoragePermission = getStoragePermission() }
+    )
+
+    LaunchedEffect(downloadList) {
+        withContext(IO) {
+            downloadList
+                ?.filter { it.status == SUCCESS }
+                ?.map { async { syncFileToGallery(context, it.fileName) } }
+                ?.awaitAll()
         }
-        item {
-            Spacer(modifier = Modifier.size(Dp16))
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = stringResource(R.string.downloader_desc),
-                style = typography.body2,
-                color = colorScheme.secondary
-            )
+    }
+
+    LaunchedEffect(urlIntent) {
+        if (urlIntent.isNotEmpty()) {
+            urlSocialMediaState = TextFieldValue(urlIntent)
+            delay(1000)
+            resetUrlIntent()
         }
-        item {
-            Spacer(modifier = Modifier.size(Dp24))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = CenterVertically,
-                horizontalArrangement = spacedBy(Dp16)
-            ) {
-                Row(horizontalArrangement = spacedBy((-Dp20))) {
-                    val platforms = PlatformType.entries.filter {
-                        it in listOf(FACEBOOK, INSTAGRAM, TIKTOK, TWITTER, PINTEREST)
-                    }
-                    platforms.forEachIndexed { index, type ->
-                        MeverIcon(
-                            icon = getPlatformIcon(type.platformName),
-                            iconBackgroundColor = getPlatformIconBackgroundColor(type.platformName),
-                            iconSize = Dp48,
-                            iconPadding = Dp10
-                        )
-                    }
-                    Box(
-                        modifier = Modifier
-                            .background(
-                                color = if (isDarkTheme) MeverLightGray else MeverWhiteSemiPink,
-                                shape = CircleShape
-                            )
-                            .size(Dp48),
-                        contentAlignment = Center
-                    ) {
-                        Text(
-                            text = "+4",
-                            textAlign = TextAlign.Center,
-                            style = typography.bodyBold1,
-                            color = MeverPurple
-                        )
-                    }
-                }
-                Text(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(Dp8))
-                        .onCustomClick { onClickPlatformSupport() },
-                    text = stringResource(R.string.see_all_supported_platforms),
-                    maxLines = 2,
-                    overflow = Ellipsis,
-                    style = typography.bodyBold1,
-                    color = MeverPurple
-                )
+    }
+
+    LaunchedEffect(lifecycleOwner.value) {
+        lifecycleOwner.value.lifecycle.repeatOnLifecycle(RESUMED) {
+            if (skipRefreshDatabase) skipRefreshDatabase = false
+            else refreshDatabase()
+        }
+    }
+
+    LaunchedEffect(downloaderResponseState) {
+        downloaderResponseState.handleUiState(
+            onLoading = { showLoading = true },
+            onSuccess = { showLoading = false },
+            onFailed = { message ->
+                showLoading = false
+                showErrorModal = RESPONSE
+                errorMessage = message ?: context.getString(R.string.unknown_error_desc)
+            }
+        )
+    }
+
+    LaunchedEffect(randomDonateDialogOffer, showDonationDialog) {
+        if (showDonationDialog) {
+            (0..3).random(Random).also { randomValue ->
+                randomDonateDialogOffer = randomValue
+                showDonationDialog = false
             }
         }
-        item {
-            Spacer(modifier = Modifier.size(Dp24))
-            MeverTextField(
-                modifier = Modifier.fillMaxWidth(),
-                context = context,
-                webDomainValue = urlSocialMediaState,
-                onValueChange = { onValueChange(it) }
+    }
+
+    if (setStoragePermission.isNotEmpty()) {
+        MeverPermissionHandler(
+            permissions = setStoragePermission,
+            onGranted = {
+                setStoragePermission = emptyList()
+                getNetworkStatus(
+                    isNetworkAvailable = isNetworkAvailable,
+                    onNetworkAvailable = {
+                        if (getPlatformType(urlSocialMediaState.text) == YOUTUBE) {
+                            showYoutubeChooseQualityModal = true
+                        } else getApiDownloader()
+                    },
+                    onNetworkUnavailable = { showErrorModal = NETWORK }
+                )
+            },
+            onDenied = { isPermanentlyDeclined, retry ->
+                MeverDeclinedPermission(
+                    isPermissionsDeclined = isPermanentlyDeclined,
+                    onGoToSetting = {
+                        setStoragePermission = emptyList()
+                        activity.goToSetting()
+                    },
+                    onRetry = { retry() },
+                    onDismiss = { setStoragePermission = emptyList() }
+                )
+            }
+        )
+    }
+
+    BackHandler(showLoading) { showCancelExitConfirmation = true }
+
+    HandleBottomSheetDownload(
+        modifier = Modifier
+            .fillMaxWidth()
+            .navigationBarsPadding(),
+        listContent = contents,
+        showBottomSheet = contents.isNotEmpty(),
+        isFailedFetchImage = isNetworkAvailable != Available,
+        onClickDownload = { url ->
+            scope.launch {
+                startDownload(
+                    url = url,
+                    fileName = contents.firstOrNull()?.fileName.orEmpty().ifEmpty {
+                        changeToCurrentDate(currentTimeMillis()) + getExtensionFromUrl(
+                            url = url,
+                            extensionFile = contents.firstOrNull()?.type.orEmpty()
+                        )
+                    },
+                    thumbnail = contents.firstOrNull()?.thumbnail.orEmpty()
+                )
+                contents = emptyList()
+            }
+        },
+        onClickDismiss = { contents = emptyList() }
+    )
+
+    HandleDialogExitConfirmation(
+        showDialog = showCancelExitConfirmation,
+        onClickPrimary = { activity.finish() },
+        onClickSecondary = { showCancelExitConfirmation = false }
+    )
+
+    HandleDonationDialogOffer(
+        showDialog = randomDonateDialogOffer == 1,
+        onClickPrimaryButton = {
+            randomDonateDialogOffer = 0
+            navController.navigateTo(SettingAppreciateRoute)
+        },
+        onClickSecondaryButton = { randomDonateDialogOffer = 0 }
+    )
+
+    getErrorResponseContent(
+        context = context,
+        errorType = showErrorModal,
+        message = errorMessage,
+    )?.let { (title, desc) ->
+        MeverDialogError(
+            showDialog = true,
+            errorTitle = stringResource(title),
+            errorDescription = desc,
+            onClickPrimary = {
+                showErrorModal = null
+                getNetworkStatus(
+                    isNetworkAvailable = isNetworkAvailable,
+                    onNetworkAvailable = { getApiDownloader() },
+                    onNetworkUnavailable = { showErrorModal = NETWORK }
+                )
+            },
+            onClickSecondary = {
+                showErrorModal = null
+                errorMessage = ""
+            }
+        )
+    }
+
+    HandleBottomSheetYouTubeQuality(
+        showBottomSheet = showYoutubeChooseQualityModal,
+        qualityList = youtubeResolutions.takeIf {
+            urlSocialMediaState.text.contains("music").not()
+        } ?: listOf(youtubeResolutions.lastOrNull().orEmpty()),
+        onApplyQuality = { quality ->
+            showYoutubeChooseQualityModal = false
+            selectedQuality = quality
+            getApiDownloader()
+        },
+        onDismiss = { showYoutubeChooseQualityModal = false }
+    )
+
+    showDeleteDialog?.let { id ->
+        MeverDialogError(
+            showDialog = true,
+            errorImage = null,
+            errorTitle = stringResource(R.string.delete_title),
+            errorDescription = stringResource(R.string.delete_desc),
+            primaryButtonText = stringResource(R.string.delete_button),
+            onClickPrimary = {
+                delete(id)
+                showDeleteDialog = null
+            },
+            onClickSecondary = { showDeleteDialog = null },
+        )
+    }
+
+    showFailedDialog?.let { id ->
+        MeverDialogError(
+            showDialog = true,
+            errorTitle = stringResource(R.string.download_failed_title),
+            errorDescription = stringResource(R.string.download_failed_desc),
+            primaryButtonText = stringResource(R.string.delete_button),
+            secondaryButtonText = stringResource(R.string.retry),
+            onClickPrimary = {
+                delete(id)
+                showFailedDialog = null
+            },
+            onClickSecondary = {
+                retryDownload(id)
+                showFailedDialog = null
+            }
+        )
+    }
+
+    MeverDialog(
+        showDialog = showPlatformSupportDialog,
+        meverDialogArgs = MeverDialogArgs(
+            title = stringResource(R.string.platforms_supported)
+        ),
+        hideInteractionButton = true
+    ) {
+        Text(
+            modifier = Modifier.fillMaxWidth(),
+            text = "${
+                PlatformType.entries
+                    .filterNot { it in listOf(AI, ALL, YOUTUBE, YOUTUBE_MUSIC) }
+                    .joinToString(separator = ", ") { it.platformName }
+            }, & ${stringResource(R.string.more)}",
+            textAlign = TextAlign.Center,
+            style = typography.body1,
+            color = colorScheme.onPrimary
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(Dp14))
+                .onCustomClick { showPlatformSupportDialog = false }
+                .padding(vertical = Dp8),
+            contentAlignment = Center
+        ) {
+            Text(
+                text = stringResource(R.string.close),
+                style = typography.bodyBold2,
+                color = colorScheme.primary
             )
         }
-        item {
-            Spacer(modifier = Modifier.size(Dp10))
-            MeverButton(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(Dp40),
-                title = stringResource(R.string.download),
-                buttonType = Filled(
-                    backgroundColor = colorScheme.primary,
-                    contentColor = MeverWhite
-                ),
-                isEnabled = getPlatformType(
-                    urlSocialMediaState.text.trim()
-                ) != ALL && isLoading.not(),
-                isLoading = isLoading
-            ) { onClickDownload() }
-            Spacer(modifier = Modifier.size(Dp24))
-        }
-        stickyHeader {
-            Row(
-                modifier = Modifier
-                    .background(color = colorScheme.background)
-                    .fillMaxWidth()
-                    .padding(top = Dp16),
-                verticalAlignment = CenterVertically,
-                horizontalArrangement = SpaceBetween
-            ) {
+    }
+
+    CompositionLocalProvider(LocalOverscrollFactory provides null) {
+        LazyColumn(modifier = modifier) {
+            item {
                 Text(
-                    text = stringResource(R.string.recently_downloaded),
-                    style = typography.bodyBold1,
+                    text = stringResource(R.string.downloader_title),
+                    style = typography.h2.copy(fontSize = Sp22),
                     color = colorScheme.onPrimary
                 )
-                if (downloadList.isNullOrEmpty().not()) Text(
-                    text = stringResource(R.string.view_all),
+            }
+            item {
+                Spacer(modifier = Modifier.size(Dp16))
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = stringResource(R.string.downloader_desc),
                     style = typography.body2,
-                    color = colorScheme.primary,
-                    modifier = Modifier
-                        .animateItem()
-                        .clip(RoundedCornerShape(Dp8))
-                        .onCustomClick { onClickViewAll() }
+                    color = colorScheme.secondary
                 )
             }
-        }
-        downloadList?.let { files ->
-            if (files.isNotEmpty()) {
-                items(
-                    items = files.toMutableStateList().apply { if (size > 5) removeRange(5, size) },
-                    key = { it.id },
-                    contentType = { it.status.name }
+            item {
+                Spacer(modifier = Modifier.size(Dp24))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = CenterVertically,
+                    horizontalArrangement = spacedBy(Dp16)
                 ) {
-                    MeverCard(
+                    Row(horizontalArrangement = spacedBy((-Dp20))) {
+                        val platforms = PlatformType.entries.filter {
+                            it in listOf(FACEBOOK, INSTAGRAM, TIKTOK, TWITTER, PINTEREST)
+                        }
+                        platforms.forEachIndexed { index, type ->
+                            MeverIcon(
+                                icon = getPlatformIcon(type.platformName),
+                                iconBackgroundColor = getPlatformIconBackgroundColor(type.platformName),
+                                iconSize = Dp48,
+                                iconPadding = Dp10
+                            )
+                        }
+                        Box(
+                            modifier = Modifier
+                                .background(
+                                    color = if (isDarkTheme) MeverLightGray else MeverWhiteSemiPink,
+                                    shape = CircleShape
+                                )
+                                .size(Dp48),
+                            contentAlignment = Center
+                        ) {
+                            Text(
+                                text = "+4",
+                                textAlign = TextAlign.Center,
+                                style = typography.bodyBold1,
+                                color = MeverPurple
+                            )
+                        }
+                    }
+                    Text(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(Dp12))
-                            .animateItem(),
-                        paddingValues = PaddingValues(vertical = Dp24),
-                        cardArgs = MeverCardArgs(
-                            source = it.url,
-                            tag = it.tag,
-                            fileName = it.fileName,
-                            status = it.status,
-                            progress = it.progress,
-                            total = it.total,
-                            path = it.path,
-                            urlThumbnail = it.metaData,
-                            icon = if (it.tag.isNotEmpty() && it.tag != AI.platformName) {
-                                getPlatformIcon(it.tag)
-                            } else null,
-                            iconBackgroundColor = getPlatformIconBackgroundColor(it.tag),
-                            iconSize = Dp24,
-                            iconPadding = Dp5
-                        ),
-                        onClickCard = { onClickCard(it) },
-                        onClickShare = { onClickShare(it) },
-                        onClickDelete = { onClickDelete(it) }
+                            .clip(RoundedCornerShape(Dp8))
+                            .onCustomClick { showPlatformSupportDialog = true },
+                        text = stringResource(R.string.see_all_supported_platforms),
+                        maxLines = 2,
+                        overflow = Ellipsis,
+                        style = typography.bodyBold1,
+                        color = MeverPurple
                     )
                 }
-                item { Spacer(modifier = Modifier.size(Dp24)) }
-            } else item {
-                MeverEmptyItem(
-                    image = R.drawable.ic_not_found,
-                    size = Dp150.plus(Dp16),
-                    description = stringResource(R.string.empty_list_desc)
+            }
+            item {
+                Spacer(modifier = Modifier.size(Dp24))
+                MeverTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    context = context,
+                    webDomainValue = urlSocialMediaState,
+                    onValueChange = { urlSocialMediaState = it }
                 )
+            }
+            item {
+                Spacer(modifier = Modifier.size(Dp10))
+                MeverButton(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(Dp40),
+                    title = stringResource(R.string.download),
+                    buttonType = Filled(
+                        backgroundColor = colorScheme.primary,
+                        contentColor = MeverWhite
+                    ),
+                    isEnabled = getPlatformType(
+                        urlSocialMediaState.text.trim()
+                    ) != ALL && showLoading.not(),
+                    isLoading = showLoading
+                ) {
+                    handleClickButton(
+                        buttonClickCount = getButtonClickCount,
+                        onIncrementClickCount = { incrementClickCount() },
+                        onShowAds = { interstitialController.showAd() },
+                        onClickAction = {
+                            if (showLoading.not()) setStoragePermission = getStoragePermission()
+                        }
+                    )
+                }
+                Spacer(modifier = Modifier.size(Dp24))
+            }
+            stickyHeader {
+                Row(
+                    modifier = Modifier
+                        .background(color = colorScheme.background)
+                        .fillMaxWidth()
+                        .padding(top = Dp16),
+                    verticalAlignment = CenterVertically,
+                    horizontalArrangement = SpaceBetween
+                ) {
+                    Text(
+                        text = stringResource(R.string.recently_downloaded),
+                        style = typography.bodyBold1,
+                        color = colorScheme.onPrimary
+                    )
+                    if (downloadList.isNullOrEmpty().not()) Text(
+                        text = stringResource(R.string.view_all),
+                        style = typography.body2,
+                        color = colorScheme.primary,
+                        modifier = Modifier
+                            .animateItem()
+                            .clip(RoundedCornerShape(Dp8))
+                            .onCustomClick { navController.navigateToGalleryScreen() }
+                    )
+                }
+            }
+            downloadList?.let { files ->
+                if (files.isNotEmpty()) {
+                    items(
+                        items = files.toMutableStateList()
+                            .apply { if (size > 5) removeRange(5, size) },
+                        key = { it.id },
+                        contentType = { it.status.name }
+                    ) { model ->
+                        MeverCard(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(Dp12))
+                                .animateItem(),
+                            paddingValues = PaddingValues(vertical = Dp24),
+                            cardArgs = MeverCardArgs(
+                                source = model.url,
+                                tag = model.tag,
+                                fileName = model.fileName,
+                                status = model.status,
+                                progress = model.progress,
+                                total = model.total,
+                                path = model.path,
+                                urlThumbnail = model.metaData,
+                                icon = if (model.tag.isNotEmpty() && model.tag != AI.platformName) {
+                                    getPlatformIcon(model.tag)
+                                } else null,
+                                iconBackgroundColor = getPlatformIconBackgroundColor(model.tag),
+                                iconSize = Dp24,
+                                iconPadding = Dp5
+                            ),
+                            onClickCard = {
+                                with(model) {
+                                    when (status) {
+                                        SUCCESS -> {
+                                            if (isMusic(model.fileName).not()) {
+                                                navController.navigateTo(
+                                                    GalleryContentDetailRoute(
+                                                        contents = downloadList.filterNot {
+                                                            isMusic(it.fileName)
+                                                        }.map {
+                                                            Content(
+                                                                id = it.id,
+                                                                filePath = it.path
+                                                            )
+                                                        },
+                                                        initialIndex = downloadList.filterNot {
+                                                            isMusic(it.fileName)
+                                                        }.indexOfFirst { it.id == id }
+                                                    )
+                                                )
+                                            } else {
+                                                navigateToMusic(
+                                                    context = context,
+                                                    file = File(path)
+                                                )
+                                            }
+                                        }
+                                        FAILED -> showFailedDialog = id
+                                        PAUSED -> resumeDownload(id)
+                                        else -> pauseDownload(id)
+                                    }
+                                }
+                            },
+                            onClickShare = {
+                                shareContent(
+                                    context = context,
+                                    file = File(model.path)
+                                )
+                            },
+                            onClickDelete = { showDeleteDialog = model.id }
+                        )
+                    }
+                    item { Spacer(modifier = Modifier.size(Dp24)) }
+                } else item {
+                    MeverEmptyItem(
+                        image = R.drawable.ic_not_found,
+                        size = Dp150.plus(Dp16),
+                        description = stringResource(R.string.empty_list_desc)
+                    )
+                }
             }
         }
     }
@@ -906,7 +902,7 @@ internal fun HomeAiSection(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = spacedBy(Dp8)
                 ) {
-                    imagesCountGenerated.map { count ->
+                    imagesCountGenerated.forEach { count ->
                         MeverButton(
                             modifier = Modifier
                                 .weight(1f)
@@ -956,7 +952,7 @@ internal fun HomeAiSection(
                     horizontalArrangement = SpaceBetween,
                     verticalAlignment = CenterVertically
                 ) {
-                    artStyles.map {
+                    artStyles.forEach {
                         val imageSize by animateDpAsState(
                             targetValue = if (artStyleSelected == it.styleName) Dp80 else Dp75
                         )
@@ -1030,6 +1026,18 @@ private fun NavController.handleClickActionMenu(context: Context, name: String) 
 private fun NavController.navigateToGalleryScreen() = navigateTo(GalleryLandingRoute)
 
 private fun NavController.navigateToSettingScreen() = navigateTo(SettingLandingRoute)
+
+private fun NavController.navigateToImageGenerator(
+    prompt: String,
+    artStyle: String,
+    totalImages: Int
+) = navigateTo(
+    HomeImageGeneratorResultRoute(
+        prompt = prompt,
+        artStyle = artStyle,
+        totalImages = totalImages
+    )
+)
 
 private fun handleClickButton(
     buttonClickCount: Int,
