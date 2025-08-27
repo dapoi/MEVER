@@ -122,9 +122,7 @@ import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp22
 import com.dapascript.mever.core.common.ui.theme.ThemeType.Dark
 import com.dapascript.mever.core.common.ui.theme.ThemeType.Light
-import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType
 import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType.NETWORK
-import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType.RESPONSE
 import com.dapascript.mever.core.common.util.ErrorHandle.getErrorResponseContent
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.PlatformType
@@ -400,10 +398,8 @@ internal fun HomeDownloaderSection(
     var showLoading by remember { mutableStateOf(false) }
     var showCancelExitConfirmation by remember { mutableStateOf(false) }
     var showYoutubeChooseQualityModal by remember { mutableStateOf(false) }
-    var showErrorModal by remember { mutableStateOf<ErrorType?>(null) }
     var randomDonateDialogOffer by remember { mutableIntStateOf(0) }
     var setStoragePermission by remember { mutableStateOf<List<String>>(emptyList()) }
-    var errorMessage by remember { mutableStateOf("") }
     val urlIntent = getUrlIntent.collectAsStateValue()
     var showDeleteDialog by remember { mutableStateOf<Int?>(null) }
     var showFailedDialog by remember { mutableStateOf<Int?>(null) }
@@ -441,11 +437,7 @@ internal fun HomeDownloaderSection(
         downloaderResponseState.handleUiState(
             onLoading = { showLoading = true },
             onSuccess = { showLoading = false },
-            onFailed = { message ->
-                showLoading = false
-                showErrorModal = RESPONSE
-                errorMessage = message ?: context.getString(R.string.unknown_error_desc)
-            }
+            onFailed = { showLoading = false }
         )
     }
 

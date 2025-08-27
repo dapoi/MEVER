@@ -8,6 +8,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.ui.theme.ThemeType.System
+import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType
+import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType.RESPONSE
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE_MUSIC
 import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver
 import com.dapascript.mever.core.common.util.getPlatformType
@@ -57,6 +59,8 @@ class HomeLandingViewModel @Inject constructor(
     var selectedQuality by mutableStateOf("")
     var showDonationDialog by mutableStateOf(true)
     var contents by mutableStateOf<List<ContentEntity>>(emptyList())
+    var showErrorModal by mutableStateOf<ErrorType?>(null)
+    var errorMessage by mutableStateOf("")
 
     /**
      * Image Generator
@@ -145,7 +149,11 @@ class HomeLandingViewModel @Inject constructor(
             _downloaderResponseState.value = StateSuccess(response)
             contents = response
         },
-        onFailed = { _downloaderResponseState.value = StateFailed(it) },
+        onFailed = {
+            _downloaderResponseState.value = StateFailed(it)
+            showErrorModal = RESPONSE
+            errorMessage = it
+        },
         onReset = { _downloaderResponseState.value = StateInitial }
     )
 
