@@ -7,6 +7,7 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class TeraboxDownloaderResponse(
+    val status: Boolean? = null,
     val data: List<DataContent>? = null
 ) {
     data class DataContent(
@@ -22,6 +23,7 @@ data class TeraboxDownloaderResponse(
     fun mapToEntity() = data?.map {
         ContentEntity(
             url = it.url.orEmpty(),
+            status = status ?: true,
             fileName = sanitizeFilename(it.serverFileName.orEmpty()),
             thumbnail = it.thumbs?.thumbnail.orEmpty()
         )

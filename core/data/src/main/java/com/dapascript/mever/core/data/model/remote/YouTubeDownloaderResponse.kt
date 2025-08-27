@@ -6,6 +6,7 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class YouTubeDownloaderResponse(
+    val status: Boolean? = null,
     val data: DataContent,
     val thumbnail: String? = null
 ) {
@@ -20,6 +21,7 @@ data class YouTubeDownloaderResponse(
     fun mapToEntity() = listOf(
         ContentEntity(
             url = data.url.orEmpty(),
+            status = status ?: true,
             fileName = sanitizeFilename(data.filename.orEmpty()),
             quality = data.quality.orEmpty(),
             type = data.extension.orEmpty(),

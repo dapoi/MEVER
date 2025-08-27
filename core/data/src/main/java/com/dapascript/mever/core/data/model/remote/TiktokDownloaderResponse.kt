@@ -6,6 +6,7 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class TiktokDownloaderResponse(
+    val status: Boolean? = null,
     val data: DataContent
 ) {
     @JsonClass(generateAdapter = true)
@@ -28,6 +29,7 @@ data class TiktokDownloaderResponse(
             contentList.add(
                 ContentEntity(
                     url = photoUrl,
+                    status = status ?: true,
                     type = "jpg"
                 )
             )
@@ -36,6 +38,7 @@ data class TiktokDownloaderResponse(
             contentList.add(
                 ContentEntity(
                     url = videoUrl,
+                    status = status ?: true,
                     type = "mp4"
                 )
             )

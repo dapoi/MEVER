@@ -5,6 +5,7 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class VideyDownloaderResponse(
+    val status: Boolean? = null,
     val data: DataContent? = null
 ) {
     @JsonClass(generateAdapter = true)
@@ -12,5 +13,5 @@ data class VideyDownloaderResponse(
         val url: String? = null
     )
 
-    fun mapToEntity() = listOf(ContentEntity(url = data?.url.orEmpty()))
+    fun mapToEntity() = listOf(ContentEntity(url = data?.url.orEmpty(), status = status ?: true))
 }

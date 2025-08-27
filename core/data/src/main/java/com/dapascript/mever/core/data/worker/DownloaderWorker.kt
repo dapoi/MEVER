@@ -45,7 +45,9 @@ class DownloaderWorker @AssistedInject constructor(
         val link = inputData.getString(KEY_REQUEST_URL).orEmpty()
         val selectedQuality = inputData.getString(KEY_REQUEST_SELECTED_QUALITY).orEmpty()
         val type = inputData.getString(KEY_RESPONSE_TYPE) ?: "video"
-        return apiService.getApiDownloader(link, selectedQuality, type).orEmpty()
+        return apiService.getApiDownloader(link, selectedQuality, type).let { contents ->
+            if (contents?.first()?.status == true) contents else emptyList()
+        }
     }
 
     private suspend fun ApiService.getApiDownloader(

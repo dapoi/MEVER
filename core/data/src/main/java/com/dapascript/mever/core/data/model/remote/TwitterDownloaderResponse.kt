@@ -5,6 +5,7 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class TwitterDownloaderResponse(
+    val status: Boolean? = null,
     val data: List<DataContent>? = null
 ) {
     @JsonClass(generateAdapter = true)
@@ -18,6 +19,10 @@ data class TwitterDownloaderResponse(
         "jpg" -> data
         else -> emptyList()
     }.map {
-        ContentEntity(url = it.url.orEmpty(), type = it.type.orEmpty())
+        ContentEntity(
+            url = it.url.orEmpty(),
+            status = status ?: true,
+            type = it.type.orEmpty()
+        )
     }
 }

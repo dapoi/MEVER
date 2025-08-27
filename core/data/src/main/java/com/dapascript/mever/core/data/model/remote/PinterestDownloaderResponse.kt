@@ -6,6 +6,7 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class PinterestDownloaderResponse(
+    val status: Boolean? = null,
     val data: DataContent
 ) {
     @JsonClass(generateAdapter = true)
@@ -23,6 +24,7 @@ data class PinterestDownloaderResponse(
     fun mapToEntity() = data.contents?.map {
         ContentEntity(
             url = it.url.orEmpty(),
+            status = status ?: true,
             thumbnail = it.thumbnail.orEmpty(),
             type = if (data.isVideo == true) "mp4" else "jpg"
         )

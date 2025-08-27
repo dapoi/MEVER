@@ -5,6 +5,7 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class FacebookDownloaderResponse(
+    val status: Boolean? = null,
     val data: List<DataContent>? = null
 ) {
     @JsonClass(generateAdapter = true)
@@ -17,6 +18,7 @@ data class FacebookDownloaderResponse(
     fun mapToEntity() = data?.filter { it.response == 200 }?.map {
         ContentEntity(
             url = it.url.orEmpty(),
+            status = status ?: true,
             quality = it.quality.orEmpty()
         )
     }

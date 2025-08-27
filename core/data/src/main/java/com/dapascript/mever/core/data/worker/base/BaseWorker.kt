@@ -26,6 +26,11 @@ abstract class BaseWorker<T : Any>(
 
     final override suspend fun doWork(): Result = try {
         val resultData = doApiCall()
+        if ((resultData as Collection<*>).isEmpty()) {
+            Result.failure(
+                workDataOf(KEY_ERROR to context.getString(R.string.error_unknown))
+            )
+        }
         val jsonOutput = moshiHelper.toJson(resultType, resultData)
         val response = workDataOf(outputSuccessKey to jsonOutput)
         Result.success(response)
