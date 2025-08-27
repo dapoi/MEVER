@@ -814,6 +814,7 @@ internal fun HomeDownloaderSection(
                                     }
                                 }
                             },
+                            onClickLong = { showDeleteDialog = model.id },
                             onClickShare = {
                                 shareContent(
                                     context = context,
