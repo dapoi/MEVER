@@ -54,7 +54,7 @@ fun MeverImage(
         AsyncImage(
             modifier = Modifier
                 .fillMaxSize()
-                .background(meverShimmer(isLoading)),
+                .background(meverShimmer(isLoading || source == null)),
             model = ImageRequest.Builder(context)
                 .data(source)
                 .crossfade(true)
