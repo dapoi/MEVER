@@ -34,10 +34,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -104,6 +106,7 @@ import com.ketch.Status.SUCCESS
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -130,7 +133,11 @@ internal fun GalleryLandingScreen(
     var isSelectedAll by remember { mutableStateOf(false) }
     var showFilter by rememberSaveable { mutableStateOf(true) }
     val isExpanded by remember {
-        derivedStateOf { listState.firstVisibleItemIndex < 1 && showSelector.not() }
+        derivedStateOf {
+            listState.firstVisibleItemIndex < 1 &&
+            listState.firstVisibleItemScrollOffset < titleHeight / 2 &&
+            showSelector.not()
+        }
     }
     val downloadFilter by remember(downloadList, selectedFilter) {
         derivedStateOf {
@@ -168,6 +175,27 @@ internal fun GalleryLandingScreen(
         ),
         allowScreenOverlap = true
     ) {
+        LaunchedEffect(listState, titleHeight) {
+            snapshotFlow { listState.isScrollInProgress }
+                .filter { scroll -> scroll.not() }
+                .collect {
+                    if (titleHeight == 0 || listState.firstVisibleItemIndex > 0) {
+                        return@collect
+                    }
+
+                    val threshold = titleHeight / 2
+                    val currentOffset = listState.firstVisibleItemScrollOffset
+
+                    if (currentOffset > 0 && currentOffset < titleHeight) {
+                        if (currentOffset > threshold) {
+                            scope.launch { listState.animateScrollToItem(1) }
+                        } else {
+                            scope.launch { listState.animateScrollToItem(0) }
+                        }
+                    }
+                }
+        }
+
         LaunchedEffect(downloadList) {
             withContext(IO) {
                 downloadList
@@ -228,12 +256,14 @@ internal fun GalleryLandingScreen(
                         toggleSelectionAll(downloadFilter.orEmpty())
                         isSelectedAll = true
                     }
+
                     SELECT_FILES -> showSelector = true
                     DELETE_ALL -> showDeleteAllDialog = true
                     DELETE_SELECTED -> {
                         showDeleteDialog = selectedItems.map { it.id }
                         isSelectedAll = false
                     }
+
                     SHARE_SELECTED -> {
                         shareContent(
                             context = context,
@@ -241,6 +271,7 @@ internal fun GalleryLandingScreen(
                         )
                         isSelectedAll = false
                     }
+
                     PAUSE_ALL -> pauseAllDownloads()
                     HIDE_FILTER -> showFilter = false
                     SHOW_FILTER -> showFilter = true
@@ -312,7 +343,8 @@ internal fun GalleryLandingScreen(
                     file = File(it.path)
                 )
             },
-            onClickSelectedItem = { toggleSelection(it) }
+            onClickSelectedItem = { toggleSelection(it) },
+            onSetTitleHeight = { titleHeight = it }
         )
 
         MeverDialogError(
@@ -381,7 +413,8 @@ private fun GalleryContentSection(
     onClickDelete: (DownloadModel) -> Unit,
     onClickLong: (DownloadModel) -> Unit,
     onClickShare: (DownloadModel) -> Unit,
-    onClickSelectedItem: (DownloadModel) -> Unit
+    onClickSelectedItem: (DownloadModel) -> Unit,
+    onSetTitleHeight: (Int) -> Unit
 ) {
     CompositionLocalProvider(LocalOverscrollFactory provides null) {
         val headerScroll = rememberScrollState()
@@ -400,11 +433,9 @@ private fun GalleryContentSection(
                                     text = stringResource(RCommon.string.gallery),
                                     style = typography.h2.copy(fontSize = Sp32),
                                     color = colorScheme.onPrimary,
-                                    modifier = Modifier.padding(
-                                        top = Dp16,
-                                        start = Dp24,
-                                        end = Dp24
-                                    )
+                                    modifier = Modifier
+                                        .padding(top = Dp16, start = Dp24, end = Dp24)
+                                        .onGloballyPositioned { onSetTitleHeight(it.size.height) }
                                 )
                             }
                         }

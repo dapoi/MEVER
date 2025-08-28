@@ -3,8 +3,6 @@ package com.dapascript.mever.feature.setting.screen
 import android.content.Context
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import androidx.compose.foundation.LocalOverscrollFactory
-import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,9 +11,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
@@ -26,13 +24,11 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -78,6 +74,8 @@ import com.dapascript.mever.feature.setting.screen.attr.HandleAppreciateDialogAt
 import com.dapascript.mever.feature.setting.screen.component.HandleAppreciateDialog
 import com.dapascript.mever.feature.setting.screen.component.HandleBottomSheetQris
 import com.dapascript.mever.feature.setting.viewmodel.SettingLandingViewModel
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.launch
 
 @Composable
 internal fun SettingLandingScreen(
@@ -87,10 +85,16 @@ internal fun SettingLandingScreen(
     val themeType = themeType.collectAsStateValue()
     val isPipEnabled = isPipEnabled.collectAsStateValue()
     val context = LocalContext.current
-    val scrollState = rememberScrollState()
+    val listState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
     val showAppreciateDialog = remember { mutableStateOf<AppreciateType?>(null) }
+    val isExpanded by remember {
+        derivedStateOf {
+            listState.firstVisibleItemIndex == 0 &&
+            listState.firstVisibleItemScrollOffset < titleHeight / 2
+        }
+    }
     var showBottomSheetQris by remember { mutableStateOf(false) }
-    val isExpanded by remember { derivedStateOf { scrollState.value <= titleHeight } }
     var setRequestPermission by remember { mutableStateOf<List<String>>(emptyList()) }
 
     BaseScreen(
@@ -100,6 +104,27 @@ internal fun SettingLandingScreen(
         ),
         allowScreenOverlap = true
     ) {
+        LaunchedEffect(listState, titleHeight) {
+            snapshotFlow { listState.isScrollInProgress }
+                .filter { scroll -> scroll.not() }
+                .collect {
+                    if (titleHeight == 0 || listState.firstVisibleItemIndex > 0) {
+                        return@collect
+                    }
+
+                    val threshold = titleHeight / 2
+                    val currentOffset = listState.firstVisibleItemScrollOffset
+
+                    if (currentOffset > 0 && currentOffset < titleHeight) {
+                        if (currentOffset > threshold) {
+                            scope.launch { listState.animateScrollToItem(1) }
+                        } else {
+                            scope.launch { listState.animateScrollToItem(0) }
+                        }
+                    }
+                }
+        }
+
         LaunchedEffect(context) { getLanguageCode = getLanguageCode(context) }
 
         if (setRequestPermission.isNotEmpty()) {
@@ -146,11 +171,15 @@ internal fun SettingLandingScreen(
         HandleBottomSheetQris(showBottomSheetQris) { showBottomSheetQris = it }
 
         SettingLandingContent(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = Dp64)
+                .systemBarsPadding(),
             context = context,
             viewModel = this,
+            listState = listState,
             isExpanded = isExpanded,
             isPipEnabled = isPipEnabled,
-            scrollState = scrollState,
             getLanguageCode = getLanguageCode,
             themeType = themeType,
             onClickChangeLanguage = {
@@ -176,11 +205,12 @@ internal fun SettingLandingScreen(
 private fun SettingLandingContent(
     context: Context,
     viewModel: SettingLandingViewModel,
+    listState: LazyListState,
     isExpanded: Boolean,
     isPipEnabled: Boolean,
-    scrollState: ScrollState,
     getLanguageCode: String,
     themeType: ThemeType,
+    modifier: Modifier = Modifier,
     onClickChangeLanguage: (String) -> Unit,
     onClickNotificationPermission: () -> Unit,
     onClickChangeTheme: (ThemeType) -> Unit,
@@ -190,108 +220,97 @@ private fun SettingLandingContent(
     onClickContact: () -> Unit,
     onClickAbout: () -> Unit
 ) = with(viewModel) {
-    BoxWithConstraints(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(top = Dp64)
-            .systemBarsPadding()
-    ) {
-        if (isExpanded.not()) HorizontalDivider(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = Dp1)
-                .shadow(Dp3),
-            thickness = Dp1,
-            color = colorScheme.onPrimary.copy(alpha = 0.12f)
-        )
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = Dp24)
-                .verticalScroll(scrollState)
-        ) {
-            Spacer(modifier = Modifier.height(Dp16))
-            Text(
-                text = stringResource(R.string.settings),
-                style = typography.h2.copy(fontSize = Sp32),
-                color = colorScheme.onPrimary,
-                modifier = Modifier.onGloballyPositioned { titleHeight = it.size.height }
-            )
-            Spacer(modifier = Modifier.height(Dp32))
-            Column(
-                modifier = Modifier
-                    .height(this@BoxWithConstraints.maxHeight)
-                    .nestedScroll(
-                        object : NestedScrollConnection {
-                            override fun onPreScroll(
-                                available: Offset,
-                                source: NestedScrollSource
-                            ) = if (available.y > 0) Offset.Zero
-                            else Offset(x = 0f, y = -scrollState.dispatchRawDelta(-available.y))
-                        }
-                    )
+    CompositionLocalProvider(LocalOverscrollFactory provides null) {
+        Column(modifier = modifier) {
+            if (isExpanded.not() && titleHeight > 0) {
+                HorizontalDivider(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .shadow(Dp3),
+                    thickness = Dp1,
+                    color = colorScheme.onPrimary.copy(alpha = 0.12f)
+                )
+            }
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth(),
+                state = listState
             ) {
-                CompositionLocalProvider(LocalOverscrollFactory provides null) {
-                    LazyColumn(modifier = Modifier.fillMaxSize()) {
-                        settingMenus.forEach { (title, menus) ->
-                            item {
-                                Text(
-                                    text = stringResource(title),
-                                    style = typography.h3,
-                                    color = colorScheme.onPrimary
-                                )
-                                Spacer(modifier = Modifier.height(Dp12))
-                            }
-                            items(
-                                items = menus,
-                                key = { menu -> menu.leadingTitle }
-                            ) { menu ->
-                                MeverMenuItem(
-                                    menuArgs = MenuItemArgs(
-                                        leadingIcon = menu.icon,
-                                        leadingIconBackground = menu.iconBackgroundColor,
-                                        leadingTitle = stringResource(menu.leadingTitle),
-                                        leadingIconSize = Dp40,
-                                        leadingIconPadding = Dp8,
-                                        trailingType = if (menu.leadingTitle != R.string.pip) {
-                                            Default(
-                                                trailingTitle = menu.trailingTitle?.let {
-                                                    when (stringResource(menu.leadingTitle)) {
-                                                        stringResource(R.string.language) -> {
-                                                            if (getLanguageCode == "en") "English"
-                                                            else "Bahasa Indonesia"
-                                                        }
-
-                                                        stringResource(R.string.theme) -> stringResource(
-                                                            themeType.themeResId
-                                                        )
-
-                                                        else -> it
-                                                    }
+                item {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .onGloballyPositioned { titleHeight = it.size.height }
+                    ) {
+                        Spacer(modifier = Modifier.height(Dp16))
+                        Text(
+                            text = stringResource(R.string.settings),
+                            style = typography.h2.copy(fontSize = Sp32),
+                            color = colorScheme.onPrimary,
+                            modifier = Modifier
+                                .padding(horizontal = Dp24)
+                                .onGloballyPositioned { titleHeight = it.size.height }
+                        )
+                        Spacer(modifier = Modifier.height(Dp32))
+                    }
+                }
+                settingMenus.forEach { (title, menus) ->
+                    item {
+                        Text(
+                            text = stringResource(title),
+                            style = typography.h3,
+                            color = colorScheme.onPrimary,
+                            modifier = Modifier.padding(start = Dp24, end = Dp24, bottom = Dp12)
+                        )
+                    }
+                    items(
+                        items = menus,
+                        key = { menu -> menu.leadingTitle }
+                    ) { menu ->
+                        MeverMenuItem(
+                            modifier = Modifier.padding(horizontal = Dp24),
+                            menuArgs = MenuItemArgs(
+                                leadingIcon = menu.icon,
+                                leadingIconBackground = menu.iconBackgroundColor,
+                                leadingTitle = stringResource(menu.leadingTitle),
+                                leadingIconSize = Dp40,
+                                leadingIconPadding = Dp8,
+                                trailingType = if (menu.leadingTitle != R.string.pip) {
+                                    Default(
+                                        trailingTitle = menu.trailingTitle?.let {
+                                            when (stringResource(menu.leadingTitle)) {
+                                                stringResource(R.string.language) -> {
+                                                    if (getLanguageCode == "en") "English"
+                                                    else "Bahasa Indonesia"
                                                 }
-                                            )
-                                        } else Switch(isPipEnabled)
+
+                                                stringResource(R.string.theme) -> stringResource(
+                                                    themeType.themeResId
+                                                )
+
+                                                else -> it
+                                            }
+                                        }
                                     )
-                                ) {
-                                    handleClickMenu(
-                                        context = context,
-                                        title = context.getString(menu.leadingTitle),
-                                        languageCode = getLanguageCode,
-                                        themeType = themeType,
-                                        onClickChangeLanguage = { onClickChangeLanguage(it) },
-                                        onClickNotificationPermission = { onClickNotificationPermission() },
-                                        onClickChangeTheme = { onClickChangeTheme(it) },
-                                        onClickPip = { onClickPip() },
-                                        onClickDonate = { onClickDonate(it) },
-                                        onClickQris = { onClickQris() },
-                                        onClickContact = { onClickContact() },
-                                        onClickAbout = { onClickAbout() }
-                                    )
-                                }
-                            }
-                            item { Spacer(modifier = Modifier.height(Dp28)) }
+                                } else Switch(isPipEnabled)
+                            )
+                        ) {
+                            handleClickMenu(
+                                context = context,
+                                title = context.getString(menu.leadingTitle),
+                                languageCode = getLanguageCode,
+                                themeType = themeType,
+                                onClickChangeLanguage = { onClickChangeLanguage(it) },
+                                onClickNotificationPermission = { onClickNotificationPermission() },
+                                onClickChangeTheme = { onClickChangeTheme(it) },
+                                onClickPip = { onClickPip() },
+                                onClickDonate = { onClickDonate(it) },
+                                onClickQris = { onClickQris() },
+                                onClickContact = { onClickContact() },
+                                onClickAbout = { onClickAbout() }
+                            )
                         }
                     }
+                    item { Spacer(modifier = Modifier.height(Dp28)) }
                 }
             }
         }
