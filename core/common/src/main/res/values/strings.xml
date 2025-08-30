@@ -102,6 +102,6 @@
     <string name="select_all">Select All</string>
     <string name="mixed_content">Video &amp; Image</string>
     <string name="video">Video</string>
-    <string name="image">Image (%1$s)</string>
+    <string name="image">%1$s Images</string>
     <string name="audio">Audio</string>
 </resources>
