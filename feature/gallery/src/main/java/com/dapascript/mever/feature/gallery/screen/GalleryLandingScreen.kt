@@ -106,6 +106,7 @@ import com.ketch.Status.SUCCESS
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -148,7 +149,7 @@ internal fun GalleryLandingScreen(
     BaseScreen(
         useCenterTopBar = showSelector.not(),
         topBarArgs = TopBarArgs(
-            actionMenus = if (isExpanded.not()) {
+            actionMenus = if (isExpanded.not() && downloadFilter.isNullOrEmpty().not()) {
                 listOf(
                     ActionMenu(
                         icon = R.drawable.ic_more,
@@ -158,7 +159,7 @@ internal fun GalleryLandingScreen(
                 )
             } else emptyList(),
             title = when {
-                isExpanded.not() -> stringResource(
+                isExpanded.not() && downloadFilter.isNullOrEmpty().not() -> stringResource(
                     if (showSelector.not()) RCommon.string.gallery
                     else RCommon.string.total_item_selected, selectedItems.size
                 )
@@ -177,21 +178,17 @@ internal fun GalleryLandingScreen(
     ) {
         LaunchedEffect(listState, titleHeight) {
             snapshotFlow { listState.isScrollInProgress }
-                .filter { scroll -> scroll.not() }
+                .distinctUntilChanged()
+                .filter { it.not() }
                 .collect {
-                    if (titleHeight == 0 || listState.firstVisibleItemIndex > 0) {
-                        return@collect
-                    }
+                    if (titleHeight == 0 || listState.firstVisibleItemIndex > 0) return@collect
 
                     val threshold = titleHeight / 2
                     val currentOffset = listState.firstVisibleItemScrollOffset
 
-                    if (currentOffset > 0 && currentOffset < titleHeight) {
-                        if (currentOffset > threshold) {
-                            scope.launch { listState.animateScrollToItem(1) }
-                        } else {
-                            scope.launch { listState.animateScrollToItem(0) }
-                        }
+                    if (currentOffset in 1 until titleHeight) {
+                        val targetIndex = if (currentOffset < threshold) 0 else 1
+                        listState.animateScrollToItem(targetIndex)
                     }
                 }
         }

@@ -495,7 +495,7 @@ internal fun HomeDownloaderSection(
                     fileName = contents.firstOrNull()?.fileName.orEmpty().ifEmpty {
                         changeToCurrentDate(currentTimeMillis()) + getExtensionFromUrl(
                             url = url,
-                            extensionFile = contents.firstOrNull()?.type.orEmpty()
+                            extensionFile = contents.find { it.url == url }?.type.orEmpty()
                         )
                     },
                     thumbnail = contents.firstOrNull()?.thumbnail.orEmpty()

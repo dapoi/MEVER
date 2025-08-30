@@ -24,7 +24,6 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
@@ -74,8 +73,8 @@ import com.dapascript.mever.feature.setting.screen.attr.HandleAppreciateDialogAt
 import com.dapascript.mever.feature.setting.screen.component.HandleAppreciateDialog
 import com.dapascript.mever.feature.setting.screen.component.HandleBottomSheetQris
 import com.dapascript.mever.feature.setting.viewmodel.SettingLandingViewModel
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.launch
 
 @Composable
 internal fun SettingLandingScreen(
@@ -86,7 +85,6 @@ internal fun SettingLandingScreen(
     val isPipEnabled = isPipEnabled.collectAsStateValue()
     val context = LocalContext.current
     val listState = rememberLazyListState()
-    val scope = rememberCoroutineScope()
     val showAppreciateDialog = remember { mutableStateOf<AppreciateType?>(null) }
     val isExpanded by remember {
         derivedStateOf {
@@ -106,21 +104,17 @@ internal fun SettingLandingScreen(
     ) {
         LaunchedEffect(listState, titleHeight) {
             snapshotFlow { listState.isScrollInProgress }
-                .filter { scroll -> scroll.not() }
+                .distinctUntilChanged()
+                .filter { it.not() }
                 .collect {
-                    if (titleHeight == 0 || listState.firstVisibleItemIndex > 0) {
-                        return@collect
-                    }
+                    if (titleHeight == 0 || listState.firstVisibleItemIndex > 0) return@collect
 
                     val threshold = titleHeight / 2
                     val currentOffset = listState.firstVisibleItemScrollOffset
 
-                    if (currentOffset > 0 && currentOffset < titleHeight) {
-                        if (currentOffset > threshold) {
-                            scope.launch { listState.animateScrollToItem(1) }
-                        } else {
-                            scope.launch { listState.animateScrollToItem(0) }
-                        }
+                    if (currentOffset in 1 until titleHeight) {
+                        val targetIndex = if (currentOffset < threshold) 0 else 1
+                        listState.animateScrollToItem(targetIndex)
                     }
                 }
         }

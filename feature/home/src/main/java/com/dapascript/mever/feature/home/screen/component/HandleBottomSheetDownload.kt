@@ -58,13 +58,32 @@ internal fun HandleBottomSheetDownload(
     onClickDismiss: () -> Unit
 ) {
     var chooseQualityIndex by remember { mutableIntStateOf(0) }
-    val jpgContents = remember(listContent) {
+    val videos = remember(listContent) {
+        listContent.filter { it.type.contains("mp4") }
+    }
+    val images = remember(listContent) {
         listContent.filter { it.type.contains("jpg") }
     }
     val groupedContent = remember(listContent) {
-        if (jpgContents.size > 1) {
-            listContent.filterNot { it.type.contains("jpg") } + jpgContents.first()
-        } else listContent
+        buildList {
+            when {
+                videos.isNotEmpty() && images.isNotEmpty() -> add(
+                    listContent.first().copy(
+                        fileName = "Mixed",
+                        url = listContent.joinToString(",") { it.url }
+                    )
+                )
+
+                images.size > 1 -> add(
+                    listContent.first().copy(
+                        fileName = "All Images",
+                        url = images.joinToString(",") { it.url }
+                    )
+                )
+
+                else -> addAll(listContent)
+            }
+        }
     }
 
     MeverBottomSheet(
@@ -96,23 +115,25 @@ internal fun HandleBottomSheetDownload(
                     CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
                         MeverRadioButton(
                             value = when {
-                                content.fileName.isNotEmpty() -> {
-                                    content.fileName
-                                }
-
                                 content.quality.isNotEmpty() -> {
                                     stringResource(R.string.quality, content.quality)
                                 }
 
-                                content.type.contains("jpg") -> {
-                                    ".jpg"
+                                content.fileName == "Mixed" -> {
+                                    stringResource(R.string.mixed_content)
                                 }
 
-                                content.type.contains("mp3") -> {
-                                    ".mp3"
+                                content.fileName == "All Images" -> {
+                                    stringResource(R.string.image, images.size)
                                 }
 
-                                else -> ".mp4"
+                                else -> content.fileName.ifEmpty {
+                                    when {
+                                        content.type.contains("mp4") -> stringResource(R.string.video)
+                                        content.type.contains("mp3") -> stringResource(R.string.audio)
+                                        else -> "Unknown"
+                                    }
+                                }
                             },
                             isChoosen = chooseQualityIndex == index,
                         ) { chooseQualityIndex = index }
@@ -153,8 +174,12 @@ internal fun HandleBottomSheetDownload(
                     modifier = Modifier
                         .clip(RoundedCornerShape(Dp14))
                         .onCustomClick {
-                            if (jpgContents.size > 1) jpgContents.map { onClickDownload(it.url) }
-                            else onClickDownload(groupedContent[chooseQualityIndex].url)
+                            val chosen = groupedContent[chooseQualityIndex]
+                            if (chosen.fileName == "Mixed" || chosen.fileName == "All Images") {
+                                chosen.url.split(",").forEach { url ->
+                                    onClickDownload(url)
+                                }
+                            } else onClickDownload(chosen.url)
                         }
                         .weight(1f)
                         .padding(vertical = Dp16),
