@@ -11,7 +11,6 @@ import androidx.compose.material3.SheetValue.Hidden
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.window.SecureFlagPolicy.SecureOn
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp96
@@ -29,10 +28,7 @@ fun MeverBottomSheet(
             modifier = modifier,
             sheetState = sheetState,
             containerColor = colorScheme.background,
-            properties = ModalBottomSheetProperties(
-                securePolicy = SecureOn,
-                shouldDismissOnBackPress = false
-            ),
+            properties = ModalBottomSheetProperties(shouldDismissOnBackPress = false),
             dragHandle = {
                 HorizontalDivider(
                     thickness = Dp2,
