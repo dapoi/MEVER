@@ -26,14 +26,15 @@ abstract class BaseWorker<T : Any>(
 
     final override suspend fun doWork(): Result = try {
         val resultData = doApiCall()
-        if ((resultData as Collection<*>).isEmpty()) {
+        if (resultData is Collection<*> && resultData.isEmpty()) {
             Result.failure(
                 workDataOf(KEY_ERROR to context.getString(R.string.error_unknown))
             )
+        } else {
+            val jsonOutput = moshiHelper.toJson(resultType, resultData)
+            val response = workDataOf(outputSuccessKey to jsonOutput)
+            Result.success(response)
         }
-        val jsonOutput = moshiHelper.toJson(resultType, resultData)
-        val response = workDataOf(outputSuccessKey to jsonOutput)
-        Result.success(response)
     } catch (e: Throwable) {
         val errorMessage = when (e) {
             is SocketTimeoutException -> context.getString(R.string.error_timeout)
