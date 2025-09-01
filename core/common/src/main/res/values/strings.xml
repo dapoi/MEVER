@@ -100,6 +100,8 @@
     <string name="hide_filter">Hide Filter</string>
     <string name="show_filter">Show Filter</string>
     <string name="select_all">Select All</string>
+    <string name="sort_latest">Sort by Latest</string>
+    <string name="sort_oldest">Sort by Oldest</string>
     <string name="mixed_content">Video &amp; Image</string>
     <string name="video">Video</string>
     <string name="image">%1$s Images</string>

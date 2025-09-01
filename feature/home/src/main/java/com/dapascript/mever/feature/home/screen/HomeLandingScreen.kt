@@ -11,7 +11,9 @@ import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement.SpaceAround
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
+import androidx.compose.foundation.layout.Arrangement.SpaceEvenly
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -55,7 +57,6 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
@@ -109,6 +110,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp5
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp75
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
@@ -122,6 +124,10 @@ import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp22
 import com.dapascript.mever.core.common.ui.theme.ThemeType.Dark
 import com.dapascript.mever.core.common.ui.theme.ThemeType.Light
+import com.dapascript.mever.core.common.util.DeviceType
+import com.dapascript.mever.core.common.util.DeviceType.DESKTOP
+import com.dapascript.mever.core.common.util.DeviceType.PHONE
+import com.dapascript.mever.core.common.util.DeviceType.TABLET
 import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType.NETWORK
 import com.dapascript.mever.core.common.util.ErrorHandle.getErrorResponseContent
 import com.dapascript.mever.core.common.util.LocalActivity
@@ -179,6 +185,7 @@ import com.dapascript.mever.feature.home.R as FeatureHomeR
 @Composable
 internal fun HomeLandingScreen(
     navController: NavController,
+    deviceType: DeviceType,
     viewModel: HomeLandingViewModel = hiltViewModel()
 ) = with(viewModel) {
     BaseScreen(
@@ -191,6 +198,7 @@ internal fun HomeLandingScreen(
                 .fillMaxSize()
                 .systemBarsPadding(),
             viewModel = this,
+            deviceType = deviceType,
             navController = navController
         )
     }
@@ -200,6 +208,7 @@ internal fun HomeLandingScreen(
 private fun HomeScreenContent(
     viewModel: HomeLandingViewModel,
     navController: NavController,
+    deviceType: DeviceType,
     modifier: Modifier = Modifier
 ) = with(viewModel) {
     BoxWithConstraints(modifier = modifier) {
@@ -212,6 +221,22 @@ private fun HomeScreenContent(
         val pagerState = rememberPagerState(pageCount = { tabItems.size })
         val scrollState = rememberScrollState()
         val scope = rememberCoroutineScope()
+        val interstitialController = rememberInterstitialAd(
+            onAdFailToLoad = {
+                navController.navigateToImageGenerator(
+                    prompt = promptState.text,
+                    artStyle = selectedArtStyle.second,
+                    totalImages = selectedImageCount
+                )
+            },
+            onAdFailOrDismissed = {
+                navController.navigateToImageGenerator(
+                    prompt = promptState.text,
+                    artStyle = selectedArtStyle.second,
+                    totalImages = selectedImageCount
+                )
+            }
+        )
 
         Column(
             modifier = Modifier
@@ -242,80 +267,130 @@ private fun HomeScreenContent(
                 horizontalAlignment = CenterHorizontally
             ) {
                 Spacer(modifier = Modifier.size(Dp16))
-                if (isImageGeneratorFeatureActive) {
-                    MeverTabs(
-                        items = tabItems,
-                        pagerState = pagerState
-                    ) { scope.launch { pagerState.animateScrollToPage(it) } }
-                    Spacer(modifier = Modifier.size(Dp24))
-                }
-                CompositionLocalProvider(LocalOverscrollFactory provides null) {
-                    HorizontalPager(
-                        state = pagerState,
-                        userScrollEnabled = isImageGeneratorFeatureActive,
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .nestedScroll(remember {
-                                object : NestedScrollConnection {
-                                    override fun onPreScroll(
-                                        available: Offset,
-                                        source: NestedScrollSource
-                                    ) = if (available.y > 0) Offset.Zero
-                                    else Offset(
-                                        x = 0f,
-                                        y = -scrollState.dispatchRawDelta(-available.y)
+                if (deviceType == PHONE) {
+                    if (isImageGeneratorFeatureActive) {
+                        MeverTabs(
+                            items = tabItems,
+                            pagerState = pagerState
+                        ) { scope.launch { pagerState.animateScrollToPage(it) } }
+                        Spacer(modifier = Modifier.size(Dp24))
+                    }
+                    CompositionLocalProvider(LocalOverscrollFactory provides null) {
+                        HorizontalPager(
+                            state = pagerState,
+                            userScrollEnabled = isImageGeneratorFeatureActive,
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .nestedScroll(remember {
+                                    object : NestedScrollConnection {
+                                        override fun onPreScroll(
+                                            available: Offset,
+                                            source: NestedScrollSource
+                                        ) = if (available.y > 0) Offset.Zero
+                                        else Offset(
+                                            x = 0f,
+                                            y = -scrollState.dispatchRawDelta(-available.y)
+                                        )
+                                    }
+                                })
+                        ) { index ->
+                            when (index) {
+                                0 -> {
+                                    HomeDownloaderSection(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .padding(horizontal = Dp24)
+                                            .navigationBarsPadding(),
+                                        viewModel = this@with,
+                                        context = context,
+                                        navController = navController,
+                                        scope = scope,
+                                        getButtonClickCount = getButtonClickCount
                                     )
                                 }
-                            })
-                    ) { index ->
-                        when (index) {
-                            0 -> {
-                                HomeDownloaderSection(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(horizontal = Dp24)
-                                        .navigationBarsPadding(),
-                                    viewModel = this@with,
-                                    context = context,
-                                    navController = navController,
-                                    scope = scope,
-                                    getButtonClickCount = getButtonClickCount
-                                )
-                            }
 
-                            1 -> {
-                                HomeAiSection(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(
-                                            start = Dp24,
-                                            end = Dp24,
-                                            bottom = generateButtonHeight.dp
-                                        )
-                                        .navigationBarsPadding(),
-                                    context = context,
-                                    prompt = promptState.text,
-                                    totalImageSelected = selectedImageCount,
-                                    artStyleSelected = selectedArtStyle.first,
-                                    onPromptChange = {
-                                        if (it.length <= 1000 || it.length < promptState.text.length) {
-                                            promptState = promptState.copy(text = it)
+                                1 -> {
+                                    HomeAiSection(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .padding(
+                                                start = Dp24,
+                                                end = Dp24,
+                                                bottom = generateButtonHeight.dp
+                                            )
+                                            .navigationBarsPadding(),
+                                        context = context,
+                                        deviceType = deviceType,
+                                        prompt = promptState.text,
+                                        totalImageSelected = selectedImageCount,
+                                        artStyleSelected = selectedArtStyle.first,
+                                        onPromptChange = {
+                                            if (it.length <= 1000 || it.length < promptState.text.length) {
+                                                promptState = promptState.copy(text = it)
+                                            }
+                                        },
+                                        onImageCountSelected = { selectedImageCount = it },
+                                        onArtStyleSelected = { name, prompt ->
+                                            selectedArtStyle = Pair(name, prompt)
                                         }
-                                    },
-                                    onImageCountSelected = { selectedImageCount = it },
-                                    onArtStyleSelected = { name, prompt ->
-                                        selectedArtStyle = Pair(name, prompt)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    Row(modifier = Modifier.fillMaxSize()) {
+                        HomeDownloaderSection(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(horizontal = Dp24)
+                                .navigationBarsPadding(),
+                            viewModel = this@with,
+                            context = context,
+                            navController = navController,
+                            scope = scope,
+                            getButtonClickCount = getButtonClickCount
+                        )
+                        HomeAiSection(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(horizontal = Dp24),
+                            context = context,
+                            deviceType = deviceType,
+                            prompt = promptState.text,
+                            totalImageSelected = selectedImageCount,
+                            artStyleSelected = selectedArtStyle.first,
+                            onPromptChange = {
+                                if (it.length <= 1000 || it.length < promptState.text.length) {
+                                    promptState = promptState.copy(text = it)
+                                }
+                            },
+                            onImageCountSelected = { selectedImageCount = it },
+                            onArtStyleSelected = { name, prompt ->
+                                selectedArtStyle = Pair(name, prompt)
+                            },
+                            onClickGenerate = {
+                                handleClickButton(
+                                    buttonClickCount = getButtonClickCount,
+                                    onIncrementClickCount = { incrementClickCount() },
+                                    onShowAds = { interstitialController.showAd() },
+                                    onClickAction = {
+                                        navController.navigateToImageGenerator(
+                                            prompt = promptState.text,
+                                            artStyle = selectedArtStyle.second,
+                                            totalImages = selectedImageCount
+                                        )
                                     }
                                 )
                             }
-                        }
+                        )
                     }
                 }
             }
         }
         AnimatedVisibility(
             modifier = Modifier.align(BottomCenter),
-            visible = pagerState.currentPage == 1,
+            visible = pagerState.currentPage == 1 && deviceType == PHONE,
             enter = fadeIn(),
             exit = fadeOut()
         ) {
@@ -328,22 +403,6 @@ private fun HomeScreenContent(
                 horizontalAlignment = CenterHorizontally,
                 verticalArrangement = spacedBy(Dp16)
             ) {
-                val interstitialController = rememberInterstitialAd(
-                    onAdFailToLoad = {
-                        navController.navigateToImageGenerator(
-                            prompt = promptState.text,
-                            artStyle = selectedArtStyle.second,
-                            totalImages = selectedImageCount
-                        )
-                    },
-                    onAdFailOrDismissed = {
-                        navController.navigateToImageGenerator(
-                            prompt = promptState.text,
-                            artStyle = selectedArtStyle.second,
-                            totalImages = selectedImageCount
-                        )
-                    }
-                )
                 MeverButton(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -756,7 +815,7 @@ internal fun HomeDownloaderSection(
                 if (files.isNotEmpty()) {
                     items(
                         items = files.toMutableStateList()
-                            .apply { if (size > 5) removeRange(5, size) },
+                            .apply { if (size > 3) removeRange(3, size) },
                         key = { it.id },
                         contentType = { it.status.name }
                     ) { model ->
@@ -808,6 +867,7 @@ internal fun HomeDownloaderSection(
                                                 )
                                             }
                                         }
+
                                         FAILED -> showFailedDialog = id
                                         PAUSED -> resumeDownload(id)
                                         else -> pauseDownload(id)
@@ -841,12 +901,14 @@ internal fun HomeDownloaderSection(
 internal fun HomeAiSection(
     context: Context,
     prompt: String,
+    deviceType: DeviceType,
     totalImageSelected: Int,
     artStyleSelected: String,
     modifier: Modifier = Modifier,
     onPromptChange: (String) -> Unit,
     onImageCountSelected: (Int) -> Unit,
-    onArtStyleSelected: (String, String) -> Unit
+    onArtStyleSelected: (String, String) -> Unit,
+    onClickGenerate: (() -> Unit)? = null
 ) = CompositionLocalProvider(LocalOverscrollFactory provides null) {
     val imagesCountGenerated = remember { List(4) { it + 1 } }
     val artStyles = remember { getArtStyles(context) }
@@ -942,7 +1004,11 @@ internal fun HomeAiSection(
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = SpaceBetween,
+                    horizontalArrangement = when(deviceType) {
+                        TABLET -> SpaceAround
+                        DESKTOP -> SpaceEvenly
+                        else -> SpaceBetween
+                    },
                     verticalAlignment = CenterVertically
                 ) {
                     artStyles.forEach {
@@ -990,12 +1056,25 @@ internal fun HomeAiSection(
                 }
             }
         }
-        MeverBannerAd(
+        if (onClickGenerate == null) MeverBannerAd(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = Dp8)
-                .clipToBounds()
         )
+        onClickGenerate?.let {
+            MeverButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(Dp64)
+                    .padding(top = Dp16),
+                title = stringResource(R.string.generate),
+                isEnabled = prompt.isNotEmpty(),
+                buttonType = Filled(
+                    backgroundColor = colorScheme.primary,
+                    contentColor = MeverWhite
+                )
+            ) { it() }
+        }
     }
 }
 

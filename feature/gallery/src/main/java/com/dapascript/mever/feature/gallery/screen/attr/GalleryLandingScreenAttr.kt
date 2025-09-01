@@ -15,7 +15,9 @@ object GalleryLandingScreenAttr {
         PAUSE_ALL(R.string.pause_all),
         RESUME_ALL(R.string.resume_all),
         HIDE_FILTER(R.string.hide_filter),
-        SHOW_FILTER(R.string.show_filter);
+        SHOW_FILTER(R.string.show_filter),
+        SORT_LATEST(R.string.sort_latest),
+        SORT_OLDEST(R.string.sort_oldest);
 
         fun getText(context: Context) = context.getString(resId)
     }

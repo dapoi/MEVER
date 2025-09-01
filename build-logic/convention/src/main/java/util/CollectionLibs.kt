@@ -15,6 +15,7 @@ object CollectionLibs {
             implementation(libs.androidx.activity.compose.get())
             implementation(libs.androidx.appcompat.get())
             implementation(libs.androidx.compose.material3.get())
+            implementation(libs.androidx.compose.materialWindow.get())
             implementation(libs.androidx.compose.ui.tooling.preview.get())
             debugImplementation(libs.androidx.compose.ui.tooling.debug.get())
             implementation(libs.androidx.core.ktx.get())

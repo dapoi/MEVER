@@ -15,6 +15,10 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass.Companion.Compact
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass.Companion.Medium
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -25,6 +29,9 @@ import com.dapascript.mever.core.common.ui.theme.MeverTheme
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.ThemeType.Dark
 import com.dapascript.mever.core.common.ui.theme.ThemeType.Light
+import com.dapascript.mever.core.common.util.DeviceType.DESKTOP
+import com.dapascript.mever.core.common.util.DeviceType.PHONE
+import com.dapascript.mever.core.common.util.DeviceType.TABLET
 import com.dapascript.mever.core.common.util.InAppUpdateManager
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
@@ -37,6 +44,7 @@ import com.google.android.play.core.install.model.UpdateAvailability.UPDATE_AVAI
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
@@ -61,16 +69,29 @@ class MainActivity : AppCompatActivity() {
         handleShareIntent(intent)
         setContent {
             val themeType = viewModel.themeType.collectAsStateValue()
+            val windowSizeClass = calculateWindowSizeClass(this)
+            val deviceType = when (windowSizeClass.widthSizeClass) {
+                Compact -> PHONE
+                Medium -> TABLET
+                else -> DESKTOP
+            }
             val darkTheme = when (themeType) {
                 Light -> false
                 Dark -> true
                 else -> isSystemInDarkTheme()
             }
-            MeverTheme(darkTheme = darkTheme) {
+            MeverTheme(
+                deviceType = deviceType,
+                darkTheme = darkTheme
+            ) {
                 ApplyEdgeToEdgeSystemBars(darkTheme)
                 Surface(modifier = Modifier.fillMaxSize(), color = colorScheme.background) {
                     CompositionLocalProvider(LocalActivity provides this) {
-                        MainNavigation(navGraphs = navGraphs, viewModel = viewModel)
+                        MainNavigation(
+                            navGraphs = navGraphs,
+                            deviceType = deviceType,
+                            viewModel = viewModel
+                        )
                     }
                 }
             }

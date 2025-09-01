@@ -10,6 +10,7 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
+import com.dapascript.mever.core.common.util.DeviceType
 import com.dapascript.mever.core.navigation.base.BaseNavGraph
 import com.dapascript.mever.core.navigation.helper.composableScreen
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
@@ -21,6 +22,7 @@ import javax.inject.Inject
 class GalleryNavGraphImpl @Inject constructor() : BaseNavGraph {
     override fun createGraph(
         navController: NavController,
+        deviceType: DeviceType,
         navGraphBuilder: NavGraphBuilder
     ) = with(navGraphBuilder) {
         composableScreen<GalleryLandingRoute> { GalleryLandingScreen(navController) }

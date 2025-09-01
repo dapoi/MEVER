@@ -8,6 +8,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.scaleIn
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
+import com.dapascript.mever.core.common.util.DeviceType
 import com.dapascript.mever.core.navigation.base.BaseNavGraph
 import com.dapascript.mever.core.navigation.helper.composableScreen
 import com.dapascript.mever.core.navigation.route.StartupScreenRoute.OnboardRoute
@@ -19,6 +20,7 @@ import javax.inject.Inject
 class StartupNavGraphImpl @Inject constructor() : BaseNavGraph {
     override fun createGraph(
         navController: NavController,
+        deviceType: DeviceType,
         navGraphBuilder: NavGraphBuilder
     ) = with(navGraphBuilder) {
         composableScreen<SplashRoute> { SplashScreen(navController) }
