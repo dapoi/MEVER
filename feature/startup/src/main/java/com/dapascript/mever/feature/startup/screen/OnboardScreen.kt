@@ -2,9 +2,13 @@ package com.dapascript.mever.feature.startup.screen
 
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Arrangement.SpaceAround
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -30,6 +34,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.layout.ContentScale.Companion.Crop
+import androidx.compose.ui.layout.ContentScale.Companion.Fit
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -50,11 +57,15 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
+import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.MeverYellow
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp40
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp50
+import com.dapascript.mever.core.common.util.DeviceType
+import com.dapascript.mever.core.common.util.DeviceType.DESKTOP
+import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.getNotificationPermission
 import com.dapascript.mever.core.navigation.helper.navigateClearBackStack
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeLandingRoute
@@ -64,6 +75,7 @@ import com.dapascript.mever.feature.startup.viewmodel.OnboardViewModel
 @Composable
 internal fun OnboardScreen(
     navController: NavController,
+    deviceType: DeviceType,
     viewModel: OnboardViewModel = hiltViewModel()
 ) = with(viewModel) {
     BaseScreen(
@@ -90,7 +102,7 @@ internal fun OnboardScreen(
             )
         }
 
-        Box(
+        if (deviceType == PHONE) Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = statusBarHeight)
@@ -127,6 +139,55 @@ internal fun OnboardScreen(
                     setRequestPermission = listOf(perm)
                 } else navController.navigateClearBackStack(HomeLandingRoute)
                 setIsOnboarded(true)
+            }
+        } else Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = SpaceAround
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .weight(1f)
+            ) {
+                Image(
+                    modifier = Modifier.fillMaxSize(),
+                    painter = painterResource(
+                        if (isSystemInDarkTheme()) R.drawable.bg_onboard_dark
+                        else R.drawable.bg_onboard_light
+                    ),
+                    contentScale = if (deviceType == DESKTOP) Crop else Fit,
+                    contentDescription = "Background Onboard"
+                )
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .background(
+                            brush = Brush.horizontalGradient(
+                                colors = listOf(MeverTransparent, colorScheme.background),
+                                startX = 100f,
+                                endX = 1000f
+                            )
+                        )
+                )
+            }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .weight(1f)
+                    .padding(top = Dp40, bottom = Dp24, start = Dp16, end = Dp16),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally
+            ) {
+                DescriptionOnboardSection(modifier = Modifier.fillMaxWidth())
+                Spacer(modifier = Modifier.size(Dp40))
+                ButtonOnboardSection(modifier = Modifier.fillMaxWidth()) {
+                    val perm = getNotificationPermission().firstOrNull()
+                    if (perm != null && context.checkSelfPermission(perm) != PERMISSION_GRANTED) {
+                        setRequestPermission = listOf(perm)
+                    } else navController.navigateClearBackStack(HomeLandingRoute)
+                    setIsOnboarded(true)
+                }
             }
         }
     }

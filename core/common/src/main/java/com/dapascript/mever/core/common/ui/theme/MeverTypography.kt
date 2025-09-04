@@ -277,5 +277,5 @@ private fun adjustFontSize(
 ) = when (deviceType) {
     PHONE -> size
     TABLET -> size.value.let { (it + 2).sp }
-    else -> size.value.let { (it + 4).sp }
+    else -> size.value.let { (it + 3).sp }
 }

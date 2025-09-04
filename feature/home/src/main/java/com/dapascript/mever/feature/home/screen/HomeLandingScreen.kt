@@ -339,12 +339,15 @@ private fun HomeScreenContent(
                         }
                     }
                 } else {
-                    Row(modifier = Modifier.fillMaxSize()) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .navigationBarsPadding()
+                    ) {
                         HomeDownloaderSection(
                             modifier = Modifier
                                 .weight(1f)
-                                .padding(horizontal = Dp24)
-                                .navigationBarsPadding(),
+                                .padding(horizontal = Dp24),
                             viewModel = this@with,
                             context = context,
                             navController = navController,
@@ -1000,7 +1003,7 @@ internal fun HomeAiSection(
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = when(deviceType) {
+                    horizontalArrangement = when (deviceType) {
                         TABLET -> SpaceAround
                         DESKTOP -> SpaceEvenly
                         else -> SpaceBetween

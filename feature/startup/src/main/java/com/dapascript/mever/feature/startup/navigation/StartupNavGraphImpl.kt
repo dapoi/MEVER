@@ -32,6 +32,6 @@ class StartupNavGraphImpl @Inject constructor() : BaseNavGraph {
                     stiffness = StiffnessMediumLow
                 )
             )
-        ) { OnboardScreen(navController) }
+        ) { OnboardScreen(navController, deviceType) }
     }
 }
