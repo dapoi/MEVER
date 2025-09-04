@@ -108,6 +108,7 @@ import com.ketch.Status.SUCCESS
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
@@ -184,6 +185,7 @@ internal fun GalleryLandingScreen(
         allowScreenOverlap = true
     ) {
         LaunchedEffect(listState, titleHeight) {
+            delay(500L)
             snapshotFlow { listState.isScrollInProgress }
                 .distinctUntilChanged()
                 .filter { it.not() }

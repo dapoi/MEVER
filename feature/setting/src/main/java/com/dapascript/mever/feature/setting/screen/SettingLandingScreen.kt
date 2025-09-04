@@ -73,6 +73,7 @@ import com.dapascript.mever.feature.setting.screen.attr.HandleAppreciateDialogAt
 import com.dapascript.mever.feature.setting.screen.component.HandleAppreciateDialog
 import com.dapascript.mever.feature.setting.screen.component.HandleBottomSheetQris
 import com.dapascript.mever.feature.setting.viewmodel.SettingLandingViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 
@@ -103,6 +104,7 @@ internal fun SettingLandingScreen(
         allowScreenOverlap = true
     ) {
         LaunchedEffect(listState, titleHeight) {
+            delay(500L)
             snapshotFlow { listState.isScrollInProgress }
                 .distinctUntilChanged()
                 .filter { it.not() }
