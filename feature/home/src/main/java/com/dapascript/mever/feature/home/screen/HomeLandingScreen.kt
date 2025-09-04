@@ -479,7 +479,7 @@ internal fun HomeDownloaderSection(
     LaunchedEffect(urlIntent) {
         if (urlIntent.isNotEmpty()) {
             urlSocialMediaState = TextFieldValue(urlIntent)
-            delay(1000)
+            delay(1000L)
             resetUrlIntent()
         }
     }
