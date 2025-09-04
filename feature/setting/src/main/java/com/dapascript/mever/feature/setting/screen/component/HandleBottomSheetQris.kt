@@ -4,19 +4,21 @@ import android.graphics.BitmapFactory.decodeResource
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
+import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,11 +28,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.Center
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale.Companion.Crop
+import androidx.compose.ui.layout.ContentScale.Companion.FillBounds
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.painterResource
@@ -39,12 +42,12 @@ import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.component.MeverBottomSheet
 import com.dapascript.mever.core.common.ui.component.MeverDeclinedPermission
 import com.dapascript.mever.core.common.ui.component.MeverPermissionHandler
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp14
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp20
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp500
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.util.LocalActivity
@@ -106,30 +109,35 @@ internal fun HandleBottomSheetQris(
         )
     }
 
-    MeverBottomSheet(showBottomSheet = showQrisDialog) {
+    MeverBottomSheet(
+        modifier = Modifier.wrapContentSize(),
+        showBottomSheet = showQrisDialog
+    ) {
         Column(
-            modifier = Modifier.wrapContentSize(),
-            verticalArrangement = Arrangement.spacedBy(Dp16)
+            modifier = Modifier.verticalScroll(rememberScrollState()),
+            horizontalAlignment = CenterHorizontally,
+            verticalArrangement = spacedBy(Dp16)
         ) {
             Box(
                 modifier = Modifier
-                    .aspectRatio(3f / 4f)
-                    .fillMaxWidth()
                     .padding(horizontal = Dp24)
-                    .clip(RoundedCornerShape(Dp12)),
-                contentAlignment = Alignment.Center
+                    .clip(RoundedCornerShape(Dp16)),
+                contentAlignment = Center
             ) {
                 Image(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .heightIn(max = Dp500)
+                        .aspectRatio(3f / 4f),
                     painter = painterResource(R.drawable.qris),
-                    contentScale = Crop,
+                    contentScale = FillBounds,
                     contentDescription = "QRIS"
                 )
             }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = Dp24),
+                    .padding(horizontal = Dp24)
+                    .background(colorScheme.background),
                 verticalAlignment = CenterVertically,
                 horizontalArrangement = SpaceBetween
             ) {
@@ -139,7 +147,7 @@ internal fun HandleBottomSheetQris(
                         .onCustomClick { onDismiss(false) }
                         .weight(1f)
                         .padding(vertical = Dp16),
-                    contentAlignment = Alignment.Companion.Center
+                    contentAlignment = Center
                 ) {
                     Text(
                         text = stringResource(R.string.cancel),
@@ -165,7 +173,7 @@ internal fun HandleBottomSheetQris(
                         }
                         .weight(1f)
                         .padding(vertical = Dp16),
-                    contentAlignment = Alignment.Companion.Center
+                    contentAlignment = Center
                 ) {
                     Text(
                         text = stringResource(R.string.download),
