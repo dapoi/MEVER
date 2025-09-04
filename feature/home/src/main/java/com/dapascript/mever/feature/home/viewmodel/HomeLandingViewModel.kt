@@ -184,13 +184,13 @@ class HomeLandingViewModel @Inject constructor(
                 ?.map { it.name.lowercase() }
                 ?.toSet()
                 ?: emptySet()
+            val downloads = downloadList.value ?: return@launch
 
-            downloadList.value?.forEach { download ->
-                if (download.status == SUCCESS) {
-                    val exists = existingNames.contains(download.fileName.lowercase())
-                    if (exists.not()) ketch.clearDb(download.id)
+            downloads
+                .filter {
+                    it.status == SUCCESS && existingNames.contains(it.fileName.lowercase()).not()
                 }
-            }
+                .forEach { ketch.clearDb(it.id) }
         }
     }
 
