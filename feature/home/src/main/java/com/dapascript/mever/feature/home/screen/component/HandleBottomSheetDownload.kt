@@ -98,10 +98,11 @@ internal fun HandleBottomSheetDownload(
                         .height(Dp150)
                         .padding(bottom = Dp32, start = Dp24, end = Dp24)
                         .clip(RoundedCornerShape(Dp12)),
-                    source = if (isMusic(groupedContent.first().fileName)) R.drawable.ic_music
-                    else getBitmapFromUrl(
-                        url = groupedContent.first().thumbnail.ifEmpty { groupedContent.first().url },
-                        extensionFile = groupedContent.first().type
+                    source = getImageSource(
+                        url = groupedContent[chooseQualityIndex].url.split(",").first(),
+                        fileName = groupedContent[chooseQualityIndex].fileName,
+                        type = groupedContent[chooseQualityIndex].type,
+                        urlThumbnail = groupedContent[chooseQualityIndex].thumbnail
                     ),
                     isImageError = isFailedFetchImage
                 )
@@ -131,7 +132,7 @@ internal fun HandleBottomSheetDownload(
                                     when {
                                         content.type.contains("mp4") -> stringResource(R.string.video)
                                         content.type.contains("mp3") -> stringResource(R.string.audio)
-                                        else -> "Unknown"
+                                        else -> stringResource(R.string.image, 1)
                                     }
                                 }
                             },
@@ -193,5 +194,21 @@ internal fun HandleBottomSheetDownload(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun getImageSource(
+    url: String,
+    fileName: String,
+    type: String,
+    urlThumbnail: String?
+) = when {
+    isMusic(fileName) -> R.drawable.ic_music
+    else -> {
+        urlThumbnail?.takeIf { it.isNotEmpty() } ?: getBitmapFromUrl(
+            url = url,
+            extensionFile = type
+        )
     }
 }

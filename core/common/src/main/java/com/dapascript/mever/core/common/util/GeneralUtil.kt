@@ -93,7 +93,7 @@ suspend fun getExtensionFromUrl(url: String, extensionFile: String) = withContex
             contentType.contains("video") || contentType.contains("mp4") -> ".mp4"
             contentType.contains("audio") -> ".mp3"
             else -> ".jpg"
-        } else ".$extensionFile"
+        } else if (extensionFile == "All Images") ".jpg" else ".$extensionFile"
     } catch (e: Exception) {
         e.printStackTrace()
         null
