@@ -38,7 +38,6 @@ class GalleryLandingViewModel @Inject constructor(
 
     @OptIn(FlowPreview::class)
     val downloadList = ketch.observeDownloads()
-        .distinctUntilChanged()
         .map { downloads ->
             downloads.map { it.copy(path = getFilePath(it.fileName)) }
         }

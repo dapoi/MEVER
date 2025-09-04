@@ -453,7 +453,6 @@ internal fun HomeDownloaderSection(
         else -> isSystemInDarkTheme()
     }
     val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
-    var skipRefreshDatabase by remember(lifecycleOwner.value) { mutableStateOf(true) }
     var showLoading by remember { mutableStateOf(false) }
     var showCancelExitConfirmation by remember { mutableStateOf(false) }
     var showYoutubeChooseQualityModal by remember { mutableStateOf(false) }
@@ -486,10 +485,7 @@ internal fun HomeDownloaderSection(
     }
 
     LaunchedEffect(lifecycleOwner.value) {
-        lifecycleOwner.value.lifecycle.repeatOnLifecycle(RESUMED) {
-            if (skipRefreshDatabase) skipRefreshDatabase = false
-            else refreshDatabase()
-        }
+        lifecycleOwner.value.lifecycle.repeatOnLifecycle(RESUMED) { refreshDatabase() }
     }
 
     LaunchedEffect(downloaderResponseState) {

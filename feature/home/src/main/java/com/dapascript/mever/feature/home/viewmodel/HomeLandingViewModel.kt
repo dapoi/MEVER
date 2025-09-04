@@ -70,12 +70,12 @@ class HomeLandingViewModel @Inject constructor(
     var selectedArtStyle by mutableStateOf(Pair("", ""))
 
     val downloadList = ketch.observeDownloads()
-        .distinctUntilChanged()
         .map { downloads ->
-            val sortedList = downloads.sortedByDescending { it.timeQueued }
-            sortedList.map { downloadModel ->
-                downloadModel.copy(path = getFilePath(downloadModel.fileName))
-            }
+            downloads
+                .sortedByDescending { it.timeQueued }
+                .map { downloadModel ->
+                    downloadModel.copy(path = getFilePath(downloadModel.fileName))
+                }
         }
         .distinctUntilChanged()
         .conflate()
