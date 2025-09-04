@@ -5,6 +5,9 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_ERROR
+import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_OUTPUT_FILE_PATH
+import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_OUTPUT_IS_FILE
+import com.dapascript.mever.core.common.util.worker.WorkerConstant.SIZE_LIMIT
 import com.dapascript.mever.core.data.R
 import com.dapascript.mever.core.data.util.MoshiHelper
 import retrofit2.HttpException
@@ -30,10 +33,24 @@ abstract class BaseWorker<T : Any>(
             Result.failure(
                 workDataOf(KEY_ERROR to context.getString(R.string.error_unknown))
             )
+        }
+        val jsonOutput = moshiHelper.toJson(resultType, resultData)
+        val size = jsonOutput?.toByteArray()?.size
+        if (size != null && size > SIZE_LIMIT) {
+            val path = writeJsonToCache(jsonOutput, outputSuccessKey)
+            Result.success(
+                workDataOf(
+                    KEY_OUTPUT_IS_FILE to true,
+                    KEY_OUTPUT_FILE_PATH to path
+                )
+            )
         } else {
-            val jsonOutput = moshiHelper.toJson(resultType, resultData)
-            val response = workDataOf(outputSuccessKey to jsonOutput)
-            Result.success(response)
+            Result.success(
+                workDataOf(
+                    KEY_OUTPUT_IS_FILE to false,
+                    outputSuccessKey to jsonOutput
+                )
+            )
         }
     } catch (e: Throwable) {
         val errorMessage = when (e) {
@@ -45,4 +62,11 @@ abstract class BaseWorker<T : Any>(
         }
         Result.failure(workDataOf(KEY_ERROR to errorMessage))
     }
+
+    private fun writeJsonToCache(
+        json: String,
+        key: String
+    ) = context.cacheDir.resolve("$key.json").apply {
+        writeText(json)
+    }.absolutePath
 }

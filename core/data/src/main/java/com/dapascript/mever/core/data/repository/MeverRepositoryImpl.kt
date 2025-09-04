@@ -24,39 +24,32 @@ class MeverRepositoryImpl @Inject constructor(
     private val moshiHelper: MoshiHelper
 ) : MeverRepository, BaseRepository() {
 
-    override fun getAppConfig() = collectApiResultWithWorker(
-        workManager = workManager,
+    override fun getAppConfig() = workManager.collectApiResultWithWorker<AppConfigEntity>(
         workerClass = AppConfigWorker::class.java,
-        responses = {
-            val data = it.getString(KEY_RESPONSE_APP_CONFIG).orEmpty()
-            moshiHelper.fromJson<AppConfigEntity>(data)
-        }
+        outputKey = KEY_RESPONSE_APP_CONFIG,
+        moshiHelper = moshiHelper
     )
 
     override fun getDownloader(
         url: String,
         quality: String
-    ) = collectApiResultWithWorker(
-        workManager = workManager,
+    ) = workManager.collectApiResultWithWorker<List<ContentEntity>>(
         workerClass = DownloaderWorker::class.java,
+        outputKey = KEY_RESPONSE_CONTENTS,
+        moshiHelper = moshiHelper,
         requestParam = workDataOf(
             KEY_REQUEST_URL to url,
             KEY_REQUEST_SELECTED_QUALITY to quality,
             KEY_RESPONSE_TYPE to if (quality.contains("kbps", true)) "audio" else "video"
-        ),
-        responses = {
-            val data = it.getString(KEY_RESPONSE_CONTENTS).orEmpty()
-            moshiHelper.fromJson<List<ContentEntity>>(data) ?: emptyList()
-        }
+        )
     )
 
-    override fun getImageAiGenerator(prompt: String) = collectApiResultWithWorker(
-        workManager = workManager,
+    override fun getImageAiGenerator(
+        prompt: String
+    ) = workManager.collectApiResultWithWorker<ImageAiEntity>(
         workerClass = ImageGeneratorWorker::class.java,
-        requestParam = workDataOf(KEY_REQUEST_PROMPT to prompt),
-        responses = {
-            val data = it.getString(KEY_RESPONSE_AI_IMAGES).orEmpty()
-            moshiHelper.fromJson<ImageAiEntity>(data)
-        }
+        outputKey = KEY_RESPONSE_AI_IMAGES,
+        moshiHelper = moshiHelper,
+        requestParam = workDataOf(KEY_REQUEST_PROMPT to prompt)
     )
 }

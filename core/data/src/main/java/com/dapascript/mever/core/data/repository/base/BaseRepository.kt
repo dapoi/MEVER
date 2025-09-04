@@ -11,6 +11,9 @@ import androidx.work.WorkInfo.State.SUCCEEDED
 import androidx.work.WorkManager
 import com.dapascript.mever.core.common.util.state.ApiState
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_ERROR
+import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_OUTPUT_FILE_PATH
+import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_OUTPUT_IS_FILE
+import com.dapascript.mever.core.data.util.MoshiHelper
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -23,25 +26,26 @@ import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
 open class BaseRepository @Inject constructor() {
-    inline fun <T> collectApiResultWithWorker(
-        workManager: WorkManager,
+
+    inline fun <reified T> WorkManager.collectApiResultWithWorker(
         workerClass: Class<out ListenableWorker>,
-        requestParam: Data = EMPTY,
-        crossinline responses: (Data) -> T
+        outputKey: String,
+        moshiHelper: MoshiHelper,
+        requestParam: Data = EMPTY
     ): Flow<ApiState<T>> = channelFlow {
         val request = OneTimeWorkRequest.Builder(workerClass)
             .setInputData(requestParam)
             .build()
         send(ApiState.Loading)
-        workManager.enqueue(request)
+        enqueue(request)
 
-        val job = workManager.getWorkInfoByIdFlow(request.id)
+        val job = getWorkInfoByIdFlow(request.id)
             .map { it?.state to it?.outputData }
             .distinctUntilChanged { old, new -> old.first == new.first }
             .onEach { (state, data) ->
                 when (state) {
                     SUCCEEDED -> {
-                        runCatching { data?.let { responses(it) } }
+                        runCatching { data?.parseWorkerOutput<T>(moshiHelper, outputKey) }
                             .onSuccess { send(ApiState.Success(it)) }
                             .onFailure { send(ApiState.Error(it)) }
                         close()
@@ -59,7 +63,24 @@ open class BaseRepository @Inject constructor() {
             .launchIn(this)
         awaitClose {
             job.cancel()
-            workManager.cancelWorkById(request.id)
+            cancelWorkById(request.id)
         }
     }.flowOn(IO)
+
+    inline fun <reified T> Data.parseWorkerOutput(
+        moshiHelper: MoshiHelper,
+        outputKey: String
+    ): T? {
+        val isFile = getBoolean(KEY_OUTPUT_IS_FILE, false)
+        val json = if (isFile.not()) {
+            getString(outputKey) ?: return null
+        } else {
+            val path = getString(KEY_OUTPUT_FILE_PATH) ?: return null
+            val file = java.io.File(path)
+            val text = runCatching { file.readText() }.getOrNull() ?: return null
+            runCatching { file.delete() }
+            text
+        }
+        return moshiHelper.fromJson<T>(json)
+    }
 }

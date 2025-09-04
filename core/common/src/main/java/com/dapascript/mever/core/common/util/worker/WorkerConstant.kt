@@ -24,4 +24,11 @@ object WorkerConstant {
      * Error Handling
      */
     const val KEY_ERROR = "error"
+
+    /**
+     * Size Limit
+     */
+    const val SIZE_LIMIT = 900
+    const val KEY_OUTPUT_IS_FILE = "KEY_OUTPUT_IS_FILE"
+    const val KEY_OUTPUT_FILE_PATH = "KEY_OUTPUT_FILE_PATH"
 }
