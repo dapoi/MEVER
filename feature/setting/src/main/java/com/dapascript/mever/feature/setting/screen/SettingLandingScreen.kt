@@ -3,6 +3,8 @@ package com.dapascript.mever.feature.setting.screen
 import android.content.Context
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.text.format.Formatter
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.layout.Arrangement.SpaceEvenly
 import androidx.compose.foundation.layout.Arrangement.spacedBy
@@ -29,6 +31,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -354,6 +357,9 @@ private fun AvailableStorageSection(
     modifier: Modifier = Modifier
 ) {
     val storageInfo = remember { getStorageInfo(context) }
+    var animatedPercent by remember { mutableFloatStateOf(0f) }
+
+    LaunchedEffect(Unit) { animatedPercent = storageInfo.usedPercent.toFloat() / 100f }
 
     Box(modifier = modifier) {
         with(storageInfo) {
@@ -363,9 +369,13 @@ private fun AvailableStorageSection(
                 horizontalArrangement = if (deviceType == PHONE) SpaceEvenly else spacedBy(Dp24)
             ) {
                 Box(contentAlignment = Alignment.Center) {
+                    val percentAnimate by animateFloatAsState(
+                        targetValue = animatedPercent,
+                        animationSpec = tween(durationMillis = 1000)
+                    )
                     CircularProgressIndicator(
                         modifier = Modifier.size(if (deviceType == PHONE) Dp120 else Dp150),
-                        progress = { usedPercent.toFloat() / 100f },
+                        progress = { percentAnimate },
                         color = when {
                             usedPercent < 70 -> MeverPurple
                             usedPercent in 70..90 -> MeverOrange
