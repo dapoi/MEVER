@@ -1,16 +1,54 @@
 package com.dapascript.mever.core.common.util.storage
 
+import android.app.usage.StorageStatsManager
 import android.content.Context
+import android.content.Context.STORAGE_SERVICE
+import android.content.Context.STORAGE_STATS_SERVICE
 import android.media.MediaScannerConnection
 import android.os.Environment.DIRECTORY_DOWNLOADS
 import android.os.Environment.getExternalStoragePublicDirectory
+import android.os.storage.StorageManager
+import android.os.storage.StorageManager.UUID_DEFAULT
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.util.UUID
 
 object StorageUtil {
 
     private val allowExt = setOf("mp4", "mp3", "jpg")
+
+    data class StorageInfo(
+        val totalBytes: Long,
+        val freeBytes: Long,
+        val usedBytes: Long,
+        val usedPercent: Int,
+        val freePercent: Int
+    )
+
+    fun getStorageInfo(context: Context): StorageInfo {
+        val storageManager = context.getSystemService(STORAGE_SERVICE) as StorageManager
+        val statsManager = context.getSystemService(STORAGE_STATS_SERVICE) as StorageStatsManager
+
+        val storageVolume = storageManager.primaryStorageVolume
+        val uuidStr = storageVolume.uuid ?: UUID_DEFAULT.toString()
+        val uuid = UUID.fromString(uuidStr)
+
+        val totalBytes = statsManager.getTotalBytes(uuid)
+        val freeBytes = statsManager.getFreeBytes(uuid)
+        val usedBytes = totalBytes - freeBytes
+
+        val usedPercent = ((usedBytes.toDouble() / totalBytes.toDouble()) * 100).toInt()
+        val freePercent = 100 - usedPercent
+
+        return StorageInfo(
+            totalBytes = totalBytes,
+            freeBytes = freeBytes,
+            usedBytes = usedBytes,
+            usedPercent = usedPercent,
+            freePercent = freePercent
+        )
+    }
 
     fun getMeverFolder(): File {
         val folder = File(getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS), "MEVER")

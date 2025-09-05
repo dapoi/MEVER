@@ -106,4 +106,6 @@
     <string name="video">Video</string>
     <string name="image">%1$s Gambar</string>
     <string name="audio">Audio</string>
+    <string name="storage">Penyimpanan Internal</string>
+    <string name="used_storage">Terpakai %1$s dari %2$s</string>
 </resources>

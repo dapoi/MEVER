@@ -23,7 +23,7 @@ class SettingNavGraphImpl @Inject constructor() : BaseNavGraph {
         deviceType: DeviceType,
         navGraphBuilder: NavGraphBuilder
     ) = with(navGraphBuilder) {
-        composableScreen<SettingLandingRoute> { SettingLandingScreen(navController) }
+        composableScreen<SettingLandingRoute> { SettingLandingScreen(navController, deviceType) }
         composableScreen<SettingLanguageRoute>(SettingLanguageRoute.typeMap) { SettingLanguageScreen(navController) }
         composableScreen<SettingThemeRoute> { SettingThemeScreen(navController) }
         composableScreen<SettingAppreciateRoute> { SettingAppreciateScreen(navController) }
