@@ -87,6 +87,8 @@ import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp14
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
+import com.dapascript.mever.core.common.util.DeviceType
+import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType
 import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType.NETWORK
 import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType.RESPONSE
@@ -114,6 +116,7 @@ import java.io.FileOutputStream
 @Composable
 internal fun HomeImageGeneratorResultScreen(
     navController: NavController,
+    deviceType: DeviceType,
     viewModel: HomeImageGeneratorResultViewModel = hiltViewModel()
 ) = with(viewModel) {
     val activity = LocalActivity.current
@@ -250,12 +253,14 @@ internal fun HomeImageGeneratorResultScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(top = Dp64, start = Dp24, end = Dp24),
-                totalImages = args.totalImages
+                totalImages = args.totalImages,
+                deviceType = deviceType
             ) else ImageGeneratorResultContent(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(top = Dp64),
                 context = context,
+                deviceType = deviceType,
                 aiImages = aiImages,
                 imageSelected = imageSelected.orEmpty(),
                 promptText = args.prompt,
@@ -309,6 +314,7 @@ internal fun HomeImageGeneratorResultScreen(
 @Composable
 private fun ImageGeneratorResultContent(
     context: Context,
+    deviceType: DeviceType,
     aiImages: List<String>,
     imageSelected: String,
     promptText: String,
@@ -324,7 +330,7 @@ private fun ImageGeneratorResultContent(
     onClickRegenerate: () -> Unit,
     onClickDownload: () -> Unit
 ) = Box(modifier = modifier) {
-    Column(
+    if (deviceType == PHONE) Column(
         modifier = Modifier
             .matchParentSize()
             .padding(horizontal = Dp24)
@@ -431,6 +437,124 @@ private fun ImageGeneratorResultContent(
             }
         MeverBannerAd(modifier = Modifier.fillMaxWidth())
         Spacer(modifier = Modifier.height(Dp120))
+    } else Row(
+        modifier = Modifier
+            .matchParentSize()
+            .padding(horizontal = Dp24)
+            .navigationBarsPadding()
+            .verticalScroll(scrollState),
+        horizontalArrangement = spacedBy(Dp16)
+    ) {
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = spacedBy(Dp16)
+        ) {
+            MeverImage(
+                modifier = Modifier
+                    .aspectRatio(1f)
+                    .clip(RoundedCornerShape(Dp12))
+                    .graphicsLayer {
+                        scaleY = 1.1f
+                        scaleX = 1.1f
+                        clip = true
+                    },
+                source = imageSelected
+            )
+            if (aiImages.size > 1) Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = spacedBy(Dp8)
+            ) {
+                aiImages.map { url ->
+                    MeverImage(
+                        modifier = Modifier
+                            .weight(1f)
+                            .heightIn(max = Dp64)
+                            .clip(RoundedCornerShape(Dp12))
+                            .then(
+                                if (imageSelected == url) {
+                                    Modifier.border(
+                                        width = Dp4,
+                                        color = colorScheme.primary,
+                                        shape = RoundedCornerShape(Dp10)
+                                    )
+                                } else {
+                                    Modifier.drawWithContent {
+                                        drawContent()
+                                        drawRect(
+                                            color = MeverWhite.copy(alpha = 0.3f),
+                                            size = size,
+                                            style = Fill
+                                        )
+                                    }
+                                }
+                            )
+                            .onCustomClick { onChangeImageSelected(url) },
+                        source = url
+                    )
+                }
+            }
+        }
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = spacedBy(Dp16)
+        ) {
+            Text(
+                text = stringResource(R.string.prompt),
+                style = typography.bodyBold1,
+                color = colorScheme.onPrimary
+            )
+            MeverAutoSizableTextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(Dp120),
+                value = promptText,
+                readOnly = true,
+                fontSize = Sp18,
+                minFontSize = Sp14,
+                maxLines = 4
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            getMenuActions(context, hasCopied)
+                .filterNot { (_, icon) -> icon == R.drawable.ic_download && aiImages.size <= 1 }
+                .map { (title, icon) ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .shadow(elevation = Dp2, shape = RoundedCornerShape(Dp12))
+                            .background(
+                                color = colorScheme.surface,
+                                shape = RoundedCornerShape(Dp12)
+                            )
+                            .clip(RoundedCornerShape(Dp12))
+                            .onCustomClick {
+                                when (icon) {
+                                    R.drawable.ic_copy -> onClickCopy()
+                                    R.drawable.ic_download -> onClickDownloadAll()
+                                    R.drawable.ic_report -> onClickReport()
+                                    R.drawable.ic_share -> onClickShare()
+                                }
+                            }
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(Dp10),
+                            horizontalArrangement = spacedBy(Dp8),
+                            verticalAlignment = CenterVertically
+                        ) {
+                            Icon(
+                                modifier = Modifier.size(Dp20),
+                                imageVector = ImageVector.vectorResource(icon),
+                                tint = colorScheme.onPrimary.copy(alpha = 0.4f),
+                                contentDescription = "Copy Prompt"
+                            )
+                            Text(
+                                text = title,
+                                style = typography.bodyBold2,
+                                color = colorScheme.onPrimary
+                            )
+                        }
+                    }
+                }
+        }
     }
     Box(
         modifier = Modifier
@@ -492,44 +616,97 @@ private fun ImageGeneratorResultContent(
 @Composable
 private fun ImageGeneratorLoading(
     totalImages: Int,
+    deviceType: DeviceType,
     modifier: Modifier = Modifier
-) = Column(
-    modifier = modifier.verticalScroll(rememberScrollState()),
-    verticalArrangement = spacedBy(Dp16)
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .aspectRatio(1f)
-            .clip(RoundedCornerShape(Dp12))
-            .background(meverShimmer())
-    )
-    if (totalImages > 1) Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = spacedBy(Dp8)
+    if (deviceType == PHONE) Column(
+        modifier = modifier.verticalScroll(rememberScrollState()),
+        verticalArrangement = spacedBy(Dp16)
     ) {
-        repeat(totalImages) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(1f)
+                .clip(RoundedCornerShape(Dp12))
+                .background(meverShimmer())
+        )
+        if (totalImages > 1) Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = spacedBy(Dp8)
+        ) {
+            repeat(totalImages) {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(Dp80)
+                        .clip(RoundedCornerShape(Dp12))
+                        .background(meverShimmer())
+                )
+            }
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(Dp52)
+                .clip(RoundedCornerShape(Dp12))
+                .background(meverShimmer())
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(Dp120)
+                .clip(RoundedCornerShape(Dp12))
+                .background(meverShimmer())
+        )
+    } else Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = spacedBy(Dp16)
+    ) {
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = spacedBy(Dp16)
+        ) {
             Box(
                 modifier = Modifier
-                    .weight(1f)
-                    .height(Dp80)
+                    .aspectRatio(1f)
+                    .clip(RoundedCornerShape(Dp12))
+                    .background(meverShimmer())
+            )
+            if (totalImages > 1) Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = spacedBy(Dp8)
+            ) {
+                repeat(totalImages) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(Dp64)
+                            .clip(RoundedCornerShape(Dp12))
+                            .background(meverShimmer())
+                    )
+                }
+            }
+        }
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = spacedBy(Dp16)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(Dp52)
+                    .clip(RoundedCornerShape(Dp12))
+                    .background(meverShimmer())
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(Dp150)
                     .clip(RoundedCornerShape(Dp12))
                     .background(meverShimmer())
             )
         }
     }
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(Dp52)
-            .clip(RoundedCornerShape(Dp12))
-            .background(meverShimmer())
-    )
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(Dp120)
-            .clip(RoundedCornerShape(Dp12))
-            .background(meverShimmer())
-    )
 }

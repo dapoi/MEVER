@@ -23,7 +23,7 @@ class HomeNavGraphImpl @Inject constructor() : BaseNavGraph {
             enterTransition = slideInVertically(tween(600)) { it }
         ) { HomeLandingScreen(navController, deviceType) }
         composableScreen<HomeImageGeneratorResultRoute> {
-            HomeImageGeneratorResultScreen(navController)
+            HomeImageGeneratorResultScreen(navController, deviceType)
         }
     }
 }
