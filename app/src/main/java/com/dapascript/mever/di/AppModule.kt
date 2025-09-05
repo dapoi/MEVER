@@ -2,8 +2,6 @@ package com.dapascript.mever.di
 
 import android.app.Application
 import com.dapascript.mever.core.common.R
-import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver
-import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserverImpl
 import com.ketch.DownloadConfig
 import com.ketch.Ketch
 import com.ketch.NotificationConfig
@@ -33,10 +31,4 @@ class AppModule {
         )
         .enableLogs(true)
         .build(application)
-
-    @Provides
-    @Singleton
-    fun provideConnectivityObserver(
-        application: Application
-    ): ConnectivityObserver = ConnectivityObserverImpl(application)
 }

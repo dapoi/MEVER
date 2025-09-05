@@ -15,8 +15,8 @@
     <string name="light">Terang</string>
     <string name="no_internet_title">Ups! Lagi offline</string>
     <string name="no_internet_desc">Cek koneksi internet kamu dulu ya, terus coba lagi.</string>
-    <string name="unknown_error_title">Waduh! Ada yang salah</string>
-    <string name="unknown_error_desc">Kayaknya ada error. Coba lagi nanti ya.</string>
+    <string name="error_title">Waduh! Terjadi kesalahan</string>
+    <string name="error_desc">Kayaknya ada error. Coba lagi nanti ya.</string>
     <string name="permission_request_title">Butuh izin nih</string>
     <string name="permission_request_media">Biar bisa nyimpen file, kami perlu akses ke media kamu.</string>
     <string name="permission_request_notification">Kami perlu akses notifikasi buat kasih tau progres unduhan.</string>

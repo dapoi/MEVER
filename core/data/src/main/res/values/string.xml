@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:locale="en">
     <string name="error_timeout">Connection timed out. Please try again later.</string>
-    <string name="error_no_host">Cannot find server. Please check your internet connection.</string>
-    <string name="error_io">Failed to connect to the server. Please check your internet connection.</string>
+    <string name="error_no_host">Cannot connect to the server. Please check your internet connection.</string>
+    <string name="error_io">Connection was interrupted. Please check your internet connection.</string>
     <string name="error_http">Server error occurred (%1$d).</string>
     <string name="error_unknown">An unknown error occurred.</string>
 </resources>

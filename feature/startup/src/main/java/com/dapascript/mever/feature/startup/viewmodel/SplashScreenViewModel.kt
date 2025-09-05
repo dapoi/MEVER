@@ -2,7 +2,6 @@ package com.dapascript.mever.feature.startup.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
-import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver
 import com.dapascript.mever.core.common.util.state.UiState
 import com.dapascript.mever.core.common.util.state.UiState.StateFailed
 import com.dapascript.mever.core.common.util.state.UiState.StateInitial
@@ -17,7 +16,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -25,7 +23,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SplashScreenViewModel @Inject constructor(
-    connectivityObserver: ConnectivityObserver,
     private val dataStore: MeverDataStore,
     private val meverRepository: MeverRepository
 ) : BaseViewModel() {
@@ -34,14 +31,7 @@ class SplashScreenViewModel @Inject constructor(
         LocalDate.now().dayOfWeek.name.lowercase().replaceFirstChar { it.uppercase() }
     }
 
-    val isNetworkAvailable = connectivityObserver
-        .observe()
-        .stateIn(
-            scope = viewModelScope,
-            started = WhileSubscribed(),
-            initialValue = connectivityObserver.isConnected()
-        )
-    val isOnboarded = dataStore.isOnboarded.map { it }.stateIn(
+    val isOnboarded = dataStore.isOnboarded.stateIn(
         scope = viewModelScope,
         started = WhileSubscribed(),
         initialValue = false
@@ -82,13 +72,13 @@ class SplashScreenViewModel @Inject constructor(
                 onSuccess = {
                     _appConfigState.value = StateSuccess(it)
                     viewModelScope.launch {
-                       it?.let {
-                           with(dataStore) {
-                               saveVersion(it.version)
-                               setIsImageAiEnabled(it.isImageGeneratorFeatureActive)
-                               saveYoutubeVideoAndAudioQuality(it.videoResolutionsAndAudioQualities)
-                           }
-                       }
+                        it?.let {
+                            with(dataStore) {
+                                saveVersion(it.version)
+                                setIsImageAiEnabled(it.isImageGeneratorFeatureActive)
+                                saveYoutubeVideoAndAudioQuality(it.videoResolutionsAndAudioQualities)
+                            }
+                        }
                     }
                 },
                 onFailed = { _appConfigState.value = StateFailed(it) }

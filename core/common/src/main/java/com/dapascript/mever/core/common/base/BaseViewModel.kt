@@ -2,8 +2,6 @@ package com.dapascript.mever.core.common.base
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.NetworkStatus
-import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.NetworkStatus.Available
 import com.dapascript.mever.core.common.util.state.ApiState
 import com.dapascript.mever.core.common.util.state.ApiState.Error
 import com.dapascript.mever.core.common.util.state.ApiState.Loading
@@ -52,10 +50,4 @@ open class BaseViewModel @Inject constructor() : ViewModel() {
         is StateFailed -> onFailed(message)
         is StateInitial -> Unit
     }
-
-    fun getNetworkStatus(
-        isNetworkAvailable: NetworkStatus,
-        onNetworkAvailable: () -> Unit,
-        onNetworkUnavailable: () -> Unit
-    ) = if (isNetworkAvailable == Available) onNetworkAvailable() else onNetworkUnavailable()
 }

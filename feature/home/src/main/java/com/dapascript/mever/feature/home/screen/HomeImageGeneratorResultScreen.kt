@@ -89,10 +89,6 @@ import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp14
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
 import com.dapascript.mever.core.common.util.DeviceType
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
-import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType
-import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType.NETWORK
-import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType.RESPONSE
-import com.dapascript.mever.core.common.util.ErrorHandle.getErrorResponseContent
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.copyToClipboard
 import com.dapascript.mever.core.common.util.fetchPhotoFromUrl
@@ -101,7 +97,6 @@ import com.dapascript.mever.core.common.util.goToSetting
 import com.dapascript.mever.core.common.util.navigateToGmail
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.shareContent
-import com.dapascript.mever.core.common.util.state.UiState.StateSuccess
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.navigation.helper.navigateTo
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute
@@ -124,11 +119,9 @@ internal fun HomeImageGeneratorResultScreen(
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
     val aiResponseState = aiResponseState.collectAsStateValue()
-    val isNetworkAvailable = isNetworkAvailable.collectAsStateValue()
     var hasCopied by remember { mutableStateOf(false) }
     var aiImages by remember { mutableStateOf<List<String>>(emptyList()) }
     var showShimmer by remember { mutableStateOf(false) }
-    var showErrorModal by remember { mutableStateOf<ErrorType?>(null) }
     var showCancelExitConfirmation by remember { mutableStateOf(false) }
     var isDownloadAllClicked by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
@@ -143,20 +136,11 @@ internal fun HomeImageGeneratorResultScreen(
         ),
         allowScreenOverlap = true
     ) {
-        LaunchedEffect(isNetworkAvailable) {
-            if (aiResponseState !is StateSuccess) getNetworkStatus(
-                isNetworkAvailable = isNetworkAvailable,
-                onNetworkAvailable = ::getImageAiGenerator,
-                onNetworkUnavailable = { showErrorModal = NETWORK }
-            )
-        }
+        LaunchedEffect(Unit) { getImageAiGenerator() }
 
         LaunchedEffect(aiResponseState) {
             aiResponseState.handleUiState(
-                onLoading = {
-                    showShimmer = true
-                    showErrorModal = null
-                },
+                onLoading = { showShimmer = true },
                 onSuccess = { result ->
                     showShimmer = false
                     aiImages = result.imagesUrl.take(args.totalImages)
@@ -164,8 +148,7 @@ internal fun HomeImageGeneratorResultScreen(
                 onFailed = { message ->
                     showShimmer = false
                     aiImages = emptyList()
-                    showErrorModal = RESPONSE
-                    errorMessage = message ?: context.getString(R.string.unknown_error_desc)
+                    errorMessage = message ?: context.getString(R.string.error_desc)
                 }
             )
         }
@@ -182,31 +165,24 @@ internal fun HomeImageGeneratorResultScreen(
             permissions = setStoragePermission,
             onGranted = {
                 setStoragePermission = emptyList()
-                getNetworkStatus(
-                    isNetworkAvailable = isNetworkAvailable,
-                    onNetworkAvailable = {
-                        if (isDownloadAllClicked) {
-                            aiImages.map { url -> scope.launch { startDownload(url = url) } }
-                            navController.navigateTo(
-                                route = GalleryLandingRoute,
-                                popUpTo = HomeImageGeneratorResultRoute::class,
-                                inclusive = true
-                            )
-                        } else {
-                            snackbarMessage.value =
-                                context.getString(R.string.image_has_been_downloaded)
-                            scope.launch { startDownload(url = imageSelected.orEmpty()) }
-                            if (aiImages.size <= 1) navController.navigateTo(
-                                route = GalleryLandingRoute,
-                                popUpTo = HomeImageGeneratorResultRoute::class,
-                                inclusive = true
-                            ) else aiImages = aiImages.toMutableStateList().apply {
-                                removeAt(aiImages.indexOf(imageSelected))
-                            }
-                        }
-                    },
-                    onNetworkUnavailable = { showErrorModal = NETWORK }
-                )
+                if (isDownloadAllClicked) {
+                    aiImages.map { url -> scope.launch { startDownload(url = url) } }
+                    navController.navigateTo(
+                        route = GalleryLandingRoute,
+                        popUpTo = HomeImageGeneratorResultRoute::class,
+                        inclusive = true
+                    )
+                } else {
+                    snackbarMessage.value = context.getString(R.string.image_has_been_downloaded)
+                    scope.launch { startDownload(url = imageSelected.orEmpty()) }
+                    if (aiImages.size <= 1) navController.navigateTo(
+                        route = GalleryLandingRoute,
+                        popUpTo = HomeImageGeneratorResultRoute::class,
+                        inclusive = true
+                    ) else aiImages = aiImages.toMutableStateList().apply {
+                        removeAt(aiImages.indexOf(imageSelected))
+                    }
+                }
             },
             onDenied = { isPermanentlyDeclined, retry ->
                 MeverDeclinedPermission(
@@ -221,29 +197,19 @@ internal fun HomeImageGeneratorResultScreen(
             }
         )
 
-        getErrorResponseContent(
-            context = context,
-            errorType = showErrorModal,
-            message = errorMessage,
-        )?.let { (title, desc) ->
-            MeverDialogError(
-                showDialog = true,
-                errorTitle = stringResource(title),
-                errorDescription = desc,
-                onClickPrimary = {
-                    showErrorModal = null
-                    getNetworkStatus(
-                        isNetworkAvailable = isNetworkAvailable,
-                        onNetworkAvailable = ::getImageAiGenerator,
-                        onNetworkUnavailable = { showErrorModal = NETWORK }
-                    )
-                },
-                onClickSecondary = {
-                    showErrorModal = null
-                    navController.popBackStack()
-                }
-            )
-        }
+        MeverDialogError(
+            showDialog = errorMessage.isNotEmpty(),
+            errorTitle = stringResource(R.string.error_title),
+            errorDescription = errorMessage,
+            onClickPrimary = {
+                errorMessage = ""
+                getImageAiGenerator()
+            },
+            onClickSecondary = {
+                errorMessage = ""
+                navController.popBackStack()
+            }
+        )
 
         AnimatedContent(
             targetState = showShimmer && aiImages.isEmpty(),

@@ -52,7 +52,6 @@ import com.dapascript.mever.core.data.model.local.ContentEntity
 internal fun HandleBottomSheetDownload(
     listContent: List<ContentEntity>,
     showBottomSheet: Boolean,
-    isFailedFetchImage: Boolean,
     modifier: Modifier = Modifier,
     onClickDownload: (String) -> Unit,
     onClickDismiss: () -> Unit
@@ -103,8 +102,7 @@ internal fun HandleBottomSheetDownload(
                         fileName = groupedContent[chooseQualityIndex].fileName,
                         type = groupedContent[chooseQualityIndex].type,
                         urlThumbnail = groupedContent[chooseQualityIndex].thumbnail
-                    ),
-                    isImageError = isFailedFetchImage
+                    )
                 )
                 Text(
                     text = stringResource(R.string.choose_file),

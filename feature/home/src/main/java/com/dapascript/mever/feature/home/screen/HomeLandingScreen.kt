@@ -128,8 +128,6 @@ import com.dapascript.mever.core.common.util.DeviceType
 import com.dapascript.mever.core.common.util.DeviceType.DESKTOP
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.DeviceType.TABLET
-import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType.NETWORK
-import com.dapascript.mever.core.common.util.ErrorHandle.getErrorResponseContent
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.PlatformType
 import com.dapascript.mever.core.common.util.PlatformType.AI
@@ -142,7 +140,6 @@ import com.dapascript.mever.core.common.util.PlatformType.TWITTER
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE_MUSIC
 import com.dapascript.mever.core.common.util.changeToCurrentDate
-import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver.NetworkStatus.Available
 import com.dapascript.mever.core.common.util.getExtensionFromUrl
 import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.getStoragePermission
@@ -446,7 +443,6 @@ internal fun HomeDownloaderSection(
 ) = with(viewModel) {
     val downloadList = downloadList.collectAsStateValue()
     val downloaderResponseState = downloaderResponseState.collectAsStateValue()
-    val isNetworkAvailable = isNetworkAvailable.collectAsStateValue()
     val youtubeResolutions = youtubeResolutions.collectAsStateValue()
     val themeType = themeType.collectAsStateValue()
     val activity = LocalActivity.current
@@ -513,15 +509,9 @@ internal fun HomeDownloaderSection(
             permissions = setStoragePermission,
             onGranted = {
                 setStoragePermission = emptyList()
-                getNetworkStatus(
-                    isNetworkAvailable = isNetworkAvailable,
-                    onNetworkAvailable = {
-                        if (getPlatformType(urlSocialMediaState.text) == YOUTUBE) {
-                            showYoutubeChooseQualityModal = true
-                        } else getApiDownloader()
-                    },
-                    onNetworkUnavailable = { showErrorModal = NETWORK }
-                )
+                if (getPlatformType(urlSocialMediaState.text) == YOUTUBE) {
+                    showYoutubeChooseQualityModal = true
+                } else getApiDownloader()
             },
             onDenied = { isPermanentlyDeclined, retry ->
                 MeverDeclinedPermission(
@@ -545,7 +535,6 @@ internal fun HomeDownloaderSection(
             .navigationBarsPadding(),
         listContent = contents,
         showBottomSheet = contents.isNotEmpty(),
-        isFailedFetchImage = isNetworkAvailable != Available,
         onClickDownload = { url ->
             scope.launch {
                 startDownload(
@@ -579,29 +568,16 @@ internal fun HomeDownloaderSection(
         onClickSecondaryButton = { randomDonateDialogOffer = 0 }
     )
 
-    getErrorResponseContent(
-        context = context,
-        errorType = showErrorModal,
-        message = errorMessage,
-    )?.let { (title, desc) ->
-        MeverDialogError(
-            showDialog = true,
-            errorTitle = stringResource(title),
-            errorDescription = desc,
-            onClickPrimary = {
-                showErrorModal = null
-                getNetworkStatus(
-                    isNetworkAvailable = isNetworkAvailable,
-                    onNetworkAvailable = { getApiDownloader() },
-                    onNetworkUnavailable = { showErrorModal = NETWORK }
-                )
-            },
-            onClickSecondary = {
-                showErrorModal = null
-                errorMessage = ""
-            }
-        )
-    }
+    MeverDialogError(
+        showDialog = errorMessage.isNotEmpty(),
+        errorTitle = stringResource(R.string.error_title),
+        errorDescription = errorMessage,
+        onClickPrimary = {
+            errorMessage = ""
+            getApiDownloader()
+        },
+        onClickSecondary = { errorMessage = "" }
+    )
 
     HandleBottomSheetYouTubeQuality(
         showBottomSheet = showYoutubeChooseQualityModal,

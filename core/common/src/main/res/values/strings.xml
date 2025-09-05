@@ -15,10 +15,8 @@
     <string name="system_default">System Default</string>
     <string name="dark">Dark</string>
     <string name="light">Light</string>
-    <string name="no_internet_title">Ups! You\'re offline</string>
-    <string name="no_internet_desc">Please check your internet connection and try again.</string>
-    <string name="unknown_error_title">Oops! Something went wrong</string>
-    <string name="unknown_error_desc">An unknown error occurred. Please try again later.</string>
+    <string name="error_title">Oops! Something went wrong</string>
+    <string name="error_desc">An unknown error occurred. Please try again later.</string>
     <string name="permission_request_title">Permission required</string>
     <string name="permission_request_media">We need to access your media to save the file.</string>
     <string name="permission_request_notification">We need to access your notification to show the download progress.</string>

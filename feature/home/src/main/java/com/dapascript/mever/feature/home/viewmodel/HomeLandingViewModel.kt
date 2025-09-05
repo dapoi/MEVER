@@ -8,10 +8,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.ui.theme.ThemeType.System
-import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType
-import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType.RESPONSE
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE_MUSIC
-import com.dapascript.mever.core.common.util.connectivity.ConnectivityObserver
 import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.state.UiState
 import com.dapascript.mever.core.common.util.state.UiState.StateFailed
@@ -45,7 +42,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeLandingViewModel @Inject constructor(
-    connectivityObserver: ConnectivityObserver,
     private val dataStore: MeverDataStore,
     private val ketch: Ketch,
     private val repository: MeverRepository
@@ -59,7 +55,6 @@ class HomeLandingViewModel @Inject constructor(
     var selectedQuality by mutableStateOf("")
     var showDonationDialog by mutableStateOf(true)
     var contents by mutableStateOf<List<ContentEntity>>(emptyList())
-    var showErrorModal by mutableStateOf<ErrorType?>(null)
     var errorMessage by mutableStateOf("")
 
     /**
@@ -93,14 +88,6 @@ class HomeLandingViewModel @Inject constructor(
             scope = viewModelScope,
             started = WhileSubscribed(5000),
             initialValue = false
-        )
-
-    val isNetworkAvailable = connectivityObserver
-        .observe()
-        .stateIn(
-            scope = viewModelScope,
-            started = WhileSubscribed(),
-            initialValue = connectivityObserver.isConnected()
         )
 
     val isImageGeneratorFeatureActive = dataStore.isImageAiEnabled.stateIn(
@@ -151,7 +138,6 @@ class HomeLandingViewModel @Inject constructor(
         },
         onFailed = {
             _downloaderResponseState.value = StateFailed(it)
-            showErrorModal = RESPONSE
             errorMessage = it
         },
         onReset = { _downloaderResponseState.value = StateInitial }

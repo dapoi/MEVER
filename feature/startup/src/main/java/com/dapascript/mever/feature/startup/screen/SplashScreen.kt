@@ -52,13 +52,8 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
-import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType
-import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType.NETWORK
-import com.dapascript.mever.core.common.util.ErrorHandle.ErrorType.RESPONSE
-import com.dapascript.mever.core.common.util.ErrorHandle.getErrorResponseContent
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.hideSystemBar
-import com.dapascript.mever.core.common.util.state.UiState.StateSuccess
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.navigation.helper.navigateClearBackStack
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeLandingRoute
@@ -77,14 +72,14 @@ internal fun SplashScreen(
     ) {
         val isOnboarded = isOnboarded.collectAsStateValue()
         val appConfigState = appConfigState.collectAsStateValue()
-        val isNetworkAvailable = isNetworkAvailable.collectAsStateValue()
         val activity = LocalActivity.current
         val context = LocalContext.current
         val lifecycleOwner by rememberUpdatedState(LocalLifecycleOwner.current)
         var showMaintenanceModal by remember { mutableStateOf(false) }
-        var showErrorModal by remember { mutableStateOf<ErrorType?>(null) }
         var errorMessage by remember { mutableStateOf("") }
         val logoVisibleState = remember { MutableTransitionState(false) }
+
+        LaunchedEffect(Unit) { getAppConfig() }
 
         LaunchedEffect(Unit) { logoVisibleState.targetState = true }
 
@@ -98,8 +93,7 @@ internal fun SplashScreen(
                     }
                 },
                 onFailed = { message ->
-                    showErrorModal = RESPONSE
-                    errorMessage = message ?: context.getString(R.string.unknown_error_desc)
+                    errorMessage = message ?: context.getString(R.string.error_desc)
                 }
             )
         }
@@ -110,14 +104,6 @@ internal fun SplashScreen(
                     if (isOnboarded) HomeLandingRoute else OnboardRoute
                 )
             }
-        }
-
-        LaunchedEffect(isNetworkAvailable) {
-            if (appConfigState !is StateSuccess) getNetworkStatus(
-                isNetworkAvailable = isNetworkAvailable,
-                onNetworkAvailable = ::getAppConfig,
-                onNetworkUnavailable = { showErrorModal = NETWORK }
-            )
         }
 
         MeverDialog(
@@ -143,29 +129,19 @@ internal fun SplashScreen(
             )
         }
 
-        getErrorResponseContent(
-            context = context,
-            errorType = showErrorModal,
-            message = errorMessage,
-        )?.let { (title, desc) ->
-            MeverDialogError(
-                showDialog = true,
-                errorTitle = stringResource(title),
-                errorDescription = desc,
-                onClickPrimary = {
-                    showErrorModal = null
-                    getNetworkStatus(
-                        isNetworkAvailable = isNetworkAvailable,
-                        onNetworkAvailable = ::getAppConfig,
-                        onNetworkUnavailable = { showErrorModal = NETWORK }
-                    )
-                },
-                onClickSecondary = {
-                    showErrorModal = null
-                    navController.popBackStack()
-                }
-            )
-        }
+        MeverDialogError(
+            showDialog = errorMessage.isNotEmpty(),
+            errorTitle = stringResource(R.string.error_title),
+            errorDescription = errorMessage,
+            onClickPrimary = {
+                errorMessage = ""
+                getAppConfig()
+            },
+            onClickSecondary = {
+                errorMessage = ""
+                navController.popBackStack()
+            }
+        )
 
         DisposableEffect(lifecycleOwner) {
             val observer = LifecycleEventObserver { _, event ->
