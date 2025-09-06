@@ -462,7 +462,7 @@ internal fun HomeDownloaderSection(
     var showDeleteDialog by remember { mutableStateOf<Int?>(null) }
     var showFailedDialog by remember { mutableStateOf<Int?>(null) }
     var showPlatformSupportDialog by remember { mutableStateOf(false) }
-    var isStorageFull by remember { mutableStateOf(false) }
+    var isAvoidRetry by remember { mutableStateOf(false) }
     val interstitialController = rememberInterstitialAd(
         onAdFailToLoad = { setStoragePermission = getStoragePermission() },
         onAdFailOrDismissed = { setStoragePermission = getStoragePermission() }
@@ -514,8 +514,13 @@ internal fun HomeDownloaderSection(
                 setStoragePermission = emptyList()
                 when {
                     storageInfo.usedPercent > 90 -> {
-                        isStorageFull = true
+                        isAvoidRetry = true
                         errorMessage = context.getString(R.string.storage_full)
+                    }
+
+                    urlSocialMediaState.text.contains("playlist") -> {
+                        isAvoidRetry = true
+                        errorMessage = context.getString(R.string.playlist_not_supported)
                     }
 
                     getPlatformType(urlSocialMediaState.text) == YOUTUBE -> {
@@ -584,14 +589,14 @@ internal fun HomeDownloaderSection(
         showDialog = errorMessage.isNotEmpty(),
         errorTitle = stringResource(R.string.error_title),
         errorDescription = errorMessage,
-        primaryButtonText = stringResource(if (isStorageFull) R.string.yes else R.string.retry),
+        primaryButtonText = stringResource(if (isAvoidRetry) R.string.ok else R.string.retry),
         onClickPrimary = {
             errorMessage = ""
-            if (isStorageFull.not()) getApiDownloader() else isStorageFull = false
+            if (isAvoidRetry.not()) getApiDownloader() else isAvoidRetry = false
         },
         onClickSecondary = {
             errorMessage = ""
-            isStorageFull = false
+            isAvoidRetry = false
         }
     )
 

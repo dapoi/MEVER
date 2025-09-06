@@ -202,7 +202,7 @@ private fun getImageSource(
     type: String,
     urlThumbnail: String?
 ) = when {
-    isMusic(fileName) -> R.drawable.ic_music
+    isMusic(fileName) && urlThumbnail.isNullOrEmpty() -> R.drawable.ic_music
     else -> {
         urlThumbnail?.takeIf { it.isNotEmpty() } ?: getBitmapFromUrl(
             url = url,

@@ -5,6 +5,7 @@ import com.dapascript.mever.core.data.model.remote.FacebookDownloaderResponse
 import com.dapascript.mever.core.data.model.remote.ImageAiResponse
 import com.dapascript.mever.core.data.model.remote.InstagramDownloaderResponse
 import com.dapascript.mever.core.data.model.remote.PinterestDownloaderResponse
+import com.dapascript.mever.core.data.model.remote.SpotifyDownloaderResponse
 import com.dapascript.mever.core.data.model.remote.TeraboxDownloaderResponse
 import com.dapascript.mever.core.data.model.remote.ThreadsDownloaderResponse
 import com.dapascript.mever.core.data.model.remote.TiktokDownloaderResponse
@@ -32,6 +33,11 @@ interface ApiService {
     suspend fun getPinterestDownloader(
         @Query("url") url: String
     ): PinterestDownloaderResponse
+
+    @GET("spotify")
+    suspend fun getSpotifyDownloader(
+        @Query("url") url: String
+    ): SpotifyDownloaderResponse
 
     @GET("terabox")
     suspend fun getTeraBoxDownloader(

@@ -14,6 +14,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverSoftWhite
 import com.dapascript.mever.core.common.util.PlatformType.FACEBOOK
 import com.dapascript.mever.core.common.util.PlatformType.INSTAGRAM
 import com.dapascript.mever.core.common.util.PlatformType.PINTEREST
+import com.dapascript.mever.core.common.util.PlatformType.SPOTIFY
 import com.dapascript.mever.core.common.util.PlatformType.TERABOX
 import com.dapascript.mever.core.common.util.PlatformType.THREADS
 import com.dapascript.mever.core.common.util.PlatformType.TIKTOK
@@ -27,6 +28,7 @@ object MeverIconAttr {
         platform.contains(FACEBOOK.platformName) -> R.drawable.ic_facebook
         platform.contains(INSTAGRAM.platformName) -> R.drawable.ic_instagram
         platform.contains(PINTEREST.platformName) -> R.drawable.ic_pinterest
+        platform.contains(SPOTIFY.platformName) -> R.drawable.ic_spotify
         platform.contains(TERABOX.platformName) -> R.drawable.ic_terabox
         platform.contains(THREADS.platformName) -> R.drawable.ic_threads
         platform.contains(TIKTOK.platformName) -> R.drawable.ic_tiktok
@@ -41,6 +43,7 @@ object MeverIconAttr {
         platform.contains(FACEBOOK.platformName) -> MeverLightBlue
         platform.contains(INSTAGRAM.platformName) -> MeverCreamPink
         platform.contains(PINTEREST.platformName) -> MeverLightPink
+        platform.contains(SPOTIFY.platformName) -> MeverGreen
         platform.contains(TERABOX.platformName) -> MeverSoftWhite
         platform.contains(THREADS.platformName) -> MeverGreen
         platform.contains(TIKTOK.platformName) -> MeverLightGreen

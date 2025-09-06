@@ -8,6 +8,7 @@ import com.dapascript.mever.core.common.util.PlatformType.ALL
 import com.dapascript.mever.core.common.util.PlatformType.FACEBOOK
 import com.dapascript.mever.core.common.util.PlatformType.INSTAGRAM
 import com.dapascript.mever.core.common.util.PlatformType.PINTEREST
+import com.dapascript.mever.core.common.util.PlatformType.SPOTIFY
 import com.dapascript.mever.core.common.util.PlatformType.TERABOX
 import com.dapascript.mever.core.common.util.PlatformType.THREADS
 import com.dapascript.mever.core.common.util.PlatformType.TIKTOK
@@ -58,6 +59,7 @@ class DownloaderWorker @AssistedInject constructor(
         FACEBOOK -> getFacebookDownloader(url).mapToEntity()
         INSTAGRAM -> getInstagramDownloader(url).mapToEntity()
         PINTEREST -> getPinterestDownloader(url).mapToEntity()
+        SPOTIFY -> getSpotifyDownloader(url).mapToEntity()
         TERABOX -> getTeraBoxDownloader(url).mapToEntity()
         THREADS -> getThreadsDownloader(url).mapToEntity()
         TIKTOK -> getTiktokDownloader(url).mapToEntity()

@@ -13,8 +13,6 @@
     <string name="system_default">Sistem</string>
     <string name="dark">Gelap</string>
     <string name="light">Terang</string>
-    <string name="no_internet_title">Ups! Lagi offline</string>
-    <string name="no_internet_desc">Cek koneksi internet kamu dulu ya, terus coba lagi.</string>
     <string name="error_title">Waduh! Terjadi kesalahan</string>
     <string name="error_desc">Kayaknya ada error. Coba lagi nanti ya.</string>
     <string name="permission_request_title">Butuh izin nih</string>
@@ -109,4 +107,6 @@
     <string name="storage">Penyimpanan Internal</string>
     <string name="storage_full">Penyimpanan kamu hampir penuh, coba hapus beberapa file ya.</string>
     <string name="used_storage">Terpakai %1$s dari %2$s</string>
+    <string name="playlist_not_supported">Maaf, untuk sekarang unduhan playlist belum didukung.</string>
+    <string name="ok">Oke</string>
 </resources>

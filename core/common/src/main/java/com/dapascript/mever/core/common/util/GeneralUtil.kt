@@ -36,6 +36,7 @@ import com.dapascript.mever.core.common.util.PlatformType.ALL
 import com.dapascript.mever.core.common.util.PlatformType.FACEBOOK
 import com.dapascript.mever.core.common.util.PlatformType.INSTAGRAM
 import com.dapascript.mever.core.common.util.PlatformType.PINTEREST
+import com.dapascript.mever.core.common.util.PlatformType.SPOTIFY
 import com.dapascript.mever.core.common.util.PlatformType.TERABOX
 import com.dapascript.mever.core.common.util.PlatformType.THREADS
 import com.dapascript.mever.core.common.util.PlatformType.TIKTOK
@@ -272,6 +273,7 @@ fun getPlatformType(url: String, type: String = "video"): PlatformType {
     val listFbUrl = listOf("facebook.com", "fb.com", "m.facebook.com", "fb.watch")
     val listInstagramUrl = listOf("instagram.com", "instagr.am", "ig.com")
     val listPinterestUrl = listOf("pinterest.com", "pin.it", "pinterest.co.uk")
+    val listSpotifyUrl = listOf("spotify.com", "spoti.fi", "spotify.link")
     val listTeraboxUrl = listOf("terabox.com", "terabox.co", "terabox.net")
     val listThreadsUrl = listOf("threads.net", "threadsthis.com", "threadsthis.net", "threads.com")
     val listTiktokUrl = listOf("tiktok.com", "tiktokv.com", "tiktokcdn.com")
@@ -284,6 +286,7 @@ fun getPlatformType(url: String, type: String = "video"): PlatformType {
         listFbUrl.any { url.contains(it) } -> FACEBOOK
         listInstagramUrl.any { url.contains(it) } -> INSTAGRAM
         listPinterestUrl.any { url.contains(it) } -> PINTEREST
+        listSpotifyUrl.any { url.contains(it) } -> SPOTIFY
         listTeraboxUrl.any { url.contains(it) } -> TERABOX
         listThreadsUrl.any { url.contains(it) } -> THREADS
         listTiktokUrl.any { url.contains(it) } -> TIKTOK

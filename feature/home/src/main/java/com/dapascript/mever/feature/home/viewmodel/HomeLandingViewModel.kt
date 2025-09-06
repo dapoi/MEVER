@@ -96,13 +96,11 @@ class HomeLandingViewModel @Inject constructor(
         initialValue = true
     )
 
-    val youtubeResolutions = dataStore.getYoutubeVideoAndAudioQuality
-        .map { it.ifEmpty { listOf("360p", "480p", "720p", "1080p") } }
-        .stateIn(
-            scope = viewModelScope,
-            started = WhileSubscribed(),
-            initialValue = emptyList()
-        )
+    val youtubeResolutions = dataStore.getYoutubeVideoAndAudioQuality.stateIn(
+        scope = viewModelScope,
+        started = WhileSubscribed(),
+        initialValue = listOf("360p", "480p", "720p", "1080p")
+    )
 
     val getButtonClickCount = dataStore.clickCount.stateIn(
         scope = viewModelScope,
