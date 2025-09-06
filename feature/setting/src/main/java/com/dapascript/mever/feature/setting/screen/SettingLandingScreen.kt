@@ -3,9 +3,15 @@ package com.dapascript.mever.feature.setting.screen
 import android.content.Context
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.text.format.Formatter
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.LocalOverscrollFactory
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement.SpaceEvenly
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
@@ -18,10 +24,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -38,6 +46,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap.Companion.Round
@@ -45,6 +54,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign.Companion.Center
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
@@ -57,6 +67,7 @@ import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverMenuItem
 import com.dapascript.mever.core.common.ui.component.MeverPermissionHandler
+import com.dapascript.mever.core.common.ui.component.meverShimmer
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp0
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
@@ -71,15 +82,18 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp90
 import com.dapascript.mever.core.common.ui.theme.MeverOrange
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverRed
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp20
+import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp22
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.ui.theme.ThemeType
 import com.dapascript.mever.core.common.util.DeviceType
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
+import com.dapascript.mever.core.common.util.DeviceType.TABLET
 import com.dapascript.mever.core.common.util.LanguageManager.getLanguageCode
 import com.dapascript.mever.core.common.util.getNotificationPermission
 import com.dapascript.mever.core.common.util.navigateToGmail
@@ -109,11 +123,12 @@ internal fun SettingLandingScreen(
 ) = with(viewModel) {
     val themeType = themeType.collectAsStateValue()
     val isPipEnabled = isPipEnabled.collectAsStateValue()
+    val storageInfo = storageInfo.collectAsStateValue()
     val context = LocalContext.current
     val listState = rememberLazyListState()
     val showAppreciateDialog = remember { mutableStateOf<AppreciateType?>(null) }
-    val statusColor = remember(storageInfo.usedPercent) {
-        getStatusStorageColor(storageInfo.usedPercent)
+    val statusColor = remember(storageInfo?.usedPercent) {
+        getStatusStorageColor(storageInfo?.usedPercent ?: 0)
     }
     val isExpanded by remember {
         derivedStateOf {
@@ -153,9 +168,11 @@ internal fun SettingLandingScreen(
                 }
         }
 
-        LaunchedEffect(storageInfo.usedPercent) {
+        LaunchedEffect(storageInfo?.usedPercent) {
             delay(350)
-            animatedPercent = storageInfo.usedPercent / 100f
+            storageInfo?.usedPercent?.let {
+                animatedPercent = storageInfo.usedPercent / 100f
+            }
         }
 
         LaunchedEffect(context) { getLanguageCode = getLanguageCode(context) }
@@ -209,7 +226,6 @@ internal fun SettingLandingScreen(
                 .padding(top = Dp64)
                 .systemBarsPadding(),
             context = context,
-            storageInfo = storageInfo,
             usedStorage = usedStorage,
             statusColor = statusColor,
             deviceType = deviceType,
@@ -219,6 +235,7 @@ internal fun SettingLandingScreen(
             isPipEnabled = isPipEnabled,
             getLanguageCode = getLanguageCode,
             themeType = themeType,
+            storageInfo = storageInfo,
             onClickChangeLanguage = {
                 navController.navigateTo(SettingLanguageRoute(LanguageData(it)))
             },
@@ -241,7 +258,6 @@ internal fun SettingLandingScreen(
 @Composable
 private fun SettingLandingContent(
     context: Context,
-    storageInfo: StorageInfo,
     usedStorage: Float,
     statusColor: Color,
     deviceType: DeviceType,
@@ -251,6 +267,7 @@ private fun SettingLandingContent(
     isPipEnabled: Boolean,
     getLanguageCode: String,
     themeType: ThemeType,
+    storageInfo: StorageInfo?,
     modifier: Modifier = Modifier,
     onClickChangeLanguage: (String) -> Unit,
     onClickNotificationPermission: () -> Unit,
@@ -292,16 +309,28 @@ private fun SettingLandingContent(
                     }
                 }
                 item {
-                    AvailableStorageSection(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = Dp24, vertical = Dp32),
-                        context = context,
-                        storageInfo = storageInfo,
-                        usedStorage = usedStorage,
-                        statusColor = statusColor,
-                        deviceType = deviceType
-                    )
+                    AnimatedContent(
+                        targetState = storageInfo != null,
+                        transitionSpec = {
+                            (fadeIn() togetherWith fadeOut()).using(SizeTransform(clip = false))
+                        }
+                    ) { completedFetching ->
+                        if (completedFetching) AvailableStorageSection(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = Dp24, vertical = Dp32),
+                            context = context,
+                            storageInfo = storageInfo!!,
+                            usedStorage = usedStorage,
+                            statusColor = statusColor,
+                            deviceType = deviceType
+                        ) else StorageSectionLoading(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = Dp24, vertical = Dp32),
+                            deviceType = deviceType
+                        )
+                    }
                 }
                 settingMenus.forEach { (title, menus) ->
                     item {
@@ -410,6 +439,51 @@ private fun AvailableStorageSection(
                     color = colorScheme.onPrimary
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun StorageSectionLoading(
+    deviceType: DeviceType,
+    modifier: Modifier = Modifier
+) = Box(modifier = modifier) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = CenterVertically,
+        horizontalArrangement = if (deviceType == PHONE) SpaceEvenly else spacedBy(Dp24)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(if (deviceType == PHONE) Dp120 else Dp150)
+                .clip(CircleShape)
+                .background(meverShimmer())
+        )
+        Column(verticalArrangement = spacedBy(Dp4)) {
+            Box(
+                modifier = Modifier
+                    .height(Sp22.run {
+                        when (deviceType) {
+                            PHONE -> value.dp
+                            TABLET -> (value + 2).dp
+                            else -> (value + 4).dp
+                        }
+                    })
+                    .width(Dp90)
+                    .background(meverShimmer())
+            )
+            Box(
+                modifier = Modifier
+                    .height(Sp20.run {
+                        when (deviceType) {
+                            PHONE -> value.dp
+                            TABLET -> (value + 2).dp
+                            else -> (value + 4).dp
+                        }
+                    })
+                    .width(Dp150)
+                    .background(meverShimmer())
+            )
         }
     }
 }

@@ -496,14 +496,17 @@ internal fun HomeDownloaderSection(
         }
     }
 
+    LaunchedEffect(Unit) {
+        scope.launch(IO) { storageInfo = getStorageInfo(context) }
+    }
+
     if (setStoragePermission.isNotEmpty()) {
-        val storageInfo = remember { getStorageInfo(context) }
         MeverPermissionHandler(
             permissions = setStoragePermission,
             onGranted = {
                 setStoragePermission = emptyList()
                 when {
-                    storageInfo.usedPercent > 90 -> {
+                    (storageInfo?.usedPercent ?: 0) > 90 -> {
                         isAvoidRetry = true
                         errorMessage = context.getString(R.string.storage_full)
                     }

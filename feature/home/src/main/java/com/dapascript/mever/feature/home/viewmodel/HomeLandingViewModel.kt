@@ -14,6 +14,7 @@ import com.dapascript.mever.core.common.util.state.UiState.StateFailed
 import com.dapascript.mever.core.common.util.state.UiState.StateInitial
 import com.dapascript.mever.core.common.util.state.UiState.StateLoading
 import com.dapascript.mever.core.common.util.state.UiState.StateSuccess
+import com.dapascript.mever.core.common.util.storage.StorageUtil.StorageInfo
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getFilePath
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFiles
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFolder
@@ -55,6 +56,7 @@ class HomeLandingViewModel @Inject constructor(
     var showDonationDialog by mutableStateOf(true)
     var contents by mutableStateOf<List<ContentEntity>>(emptyList())
     var errorMessage by mutableStateOf("")
+    var storageInfo by mutableStateOf<StorageInfo?>(null)
 
     /**
      * Image Generator
