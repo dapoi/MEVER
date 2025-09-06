@@ -98,6 +98,7 @@ import com.dapascript.mever.core.common.util.navigateToGmail
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
+import com.dapascript.mever.core.common.util.storage.StorageUtil
 import com.dapascript.mever.core.navigation.helper.navigateTo
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeImageGeneratorResultRoute
@@ -124,6 +125,7 @@ internal fun HomeImageGeneratorResultScreen(
     var showShimmer by remember { mutableStateOf(false) }
     var showCancelExitConfirmation by remember { mutableStateOf(false) }
     var isDownloadAllClicked by remember { mutableStateOf(false) }
+    var isStorageFull by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
     var imageSelected by remember(aiImages) { mutableStateOf(aiImages.firstOrNull()) }
     val snackbarMessage = remember { mutableStateOf("") }
@@ -161,49 +163,63 @@ internal fun HomeImageGeneratorResultScreen(
             onClickSecondary = { showCancelExitConfirmation = false }
         )
 
-        if (setStoragePermission.isNotEmpty()) MeverPermissionHandler(
-            permissions = setStoragePermission,
-            onGranted = {
-                setStoragePermission = emptyList()
-                if (isDownloadAllClicked) {
-                    aiImages.map { url -> scope.launch { startDownload(url = url) } }
-                    navController.navigateTo(
-                        route = GalleryLandingRoute,
-                        popUpTo = HomeImageGeneratorResultRoute::class,
-                        inclusive = true
-                    )
-                } else {
-                    snackbarMessage.value = context.getString(R.string.image_has_been_downloaded)
-                    scope.launch { startDownload(url = imageSelected.orEmpty()) }
-                    if (aiImages.size <= 1) navController.navigateTo(
-                        route = GalleryLandingRoute,
-                        popUpTo = HomeImageGeneratorResultRoute::class,
-                        inclusive = true
-                    ) else aiImages = aiImages.toMutableStateList().apply {
-                        removeAt(aiImages.indexOf(imageSelected))
+        if (setStoragePermission.isNotEmpty()) {
+            val storageInfo = remember { StorageUtil.getStorageInfo(context) }
+            MeverPermissionHandler(
+                permissions = setStoragePermission,
+                onGranted = {
+                    setStoragePermission = emptyList()
+                    when {
+                        storageInfo.usedPercent > 90 -> {
+                            isStorageFull = true
+                            errorMessage = context.getString(R.string.storage_full)
+                        }
+
+                        isDownloadAllClicked -> {
+                            aiImages.map { url -> scope.launch { startDownload(url = url) } }
+                            navController.navigateTo(
+                                route = GalleryLandingRoute,
+                                popUpTo = HomeImageGeneratorResultRoute::class,
+                                inclusive = true
+                            )
+                        }
+
+                        else -> {
+                            snackbarMessage.value =
+                                context.getString(R.string.image_has_been_downloaded)
+                            scope.launch { startDownload(url = imageSelected.orEmpty()) }
+                            if (aiImages.size <= 1) navController.navigateTo(
+                                route = GalleryLandingRoute,
+                                popUpTo = HomeImageGeneratorResultRoute::class,
+                                inclusive = true
+                            ) else aiImages = aiImages.toMutableStateList().apply {
+                                removeAt(aiImages.indexOf(imageSelected))
+                            }
+                        }
                     }
+                },
+                onDenied = { isPermanentlyDeclined, retry ->
+                    MeverDeclinedPermission(
+                        isPermissionsDeclined = isPermanentlyDeclined,
+                        onGoToSetting = {
+                            setStoragePermission = emptyList()
+                            activity.goToSetting()
+                        },
+                        onRetry = { retry() },
+                        onDismiss = { setStoragePermission = emptyList() }
+                    )
                 }
-            },
-            onDenied = { isPermanentlyDeclined, retry ->
-                MeverDeclinedPermission(
-                    isPermissionsDeclined = isPermanentlyDeclined,
-                    onGoToSetting = {
-                        setStoragePermission = emptyList()
-                        activity.goToSetting()
-                    },
-                    onRetry = { retry() },
-                    onDismiss = { setStoragePermission = emptyList() }
-                )
-            }
-        )
+            )
+        }
 
         MeverDialogError(
             showDialog = errorMessage.isNotEmpty(),
             errorTitle = stringResource(R.string.error_title),
             errorDescription = errorMessage,
+            primaryButtonText = stringResource(if (isStorageFull) R.string.yes else R.string.retry),
             onClickPrimary = {
                 errorMessage = ""
-                getImageAiGenerator()
+                if (isStorageFull.not()) getImageAiGenerator() else isStorageFull = false
             },
             onClickSecondary = {
                 errorMessage = ""

@@ -149,6 +149,7 @@ import com.dapascript.mever.core.common.util.navigateToMusic
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
+import com.dapascript.mever.core.common.util.storage.StorageUtil.getStorageInfo
 import com.dapascript.mever.core.common.util.storage.StorageUtil.syncFileToGallery
 import com.dapascript.mever.core.navigation.helper.navigateTo
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
@@ -445,6 +446,7 @@ internal fun HomeDownloaderSection(
     val downloaderResponseState = downloaderResponseState.collectAsStateValue()
     val youtubeResolutions = youtubeResolutions.collectAsStateValue()
     val themeType = themeType.collectAsStateValue()
+    val urlIntent = getUrlIntent.collectAsStateValue()
     val activity = LocalActivity.current
     val isDarkTheme = when (themeType) {
         Light -> false
@@ -457,10 +459,10 @@ internal fun HomeDownloaderSection(
     var showYoutubeChooseQualityModal by remember { mutableStateOf(false) }
     var randomDonateDialogOffer by remember { mutableIntStateOf(0) }
     var setStoragePermission by remember { mutableStateOf<List<String>>(emptyList()) }
-    val urlIntent = getUrlIntent.collectAsStateValue()
     var showDeleteDialog by remember { mutableStateOf<Int?>(null) }
     var showFailedDialog by remember { mutableStateOf<Int?>(null) }
     var showPlatformSupportDialog by remember { mutableStateOf(false) }
+    var isStorageFull by remember { mutableStateOf(false) }
     val interstitialController = rememberInterstitialAd(
         onAdFailToLoad = { setStoragePermission = getStoragePermission() },
         onAdFailOrDismissed = { setStoragePermission = getStoragePermission() }
@@ -505,13 +507,23 @@ internal fun HomeDownloaderSection(
     }
 
     if (setStoragePermission.isNotEmpty()) {
+        val storageInfo = remember { getStorageInfo(context) }
         MeverPermissionHandler(
             permissions = setStoragePermission,
             onGranted = {
                 setStoragePermission = emptyList()
-                if (getPlatformType(urlSocialMediaState.text) == YOUTUBE) {
-                    showYoutubeChooseQualityModal = true
-                } else getApiDownloader()
+                when {
+                    storageInfo.usedPercent > 90 -> {
+                        isStorageFull = true
+                        errorMessage = context.getString(R.string.storage_full)
+                    }
+
+                    getPlatformType(urlSocialMediaState.text) == YOUTUBE -> {
+                        showYoutubeChooseQualityModal = true
+                    }
+
+                    else -> getApiDownloader()
+                }
             },
             onDenied = { isPermanentlyDeclined, retry ->
                 MeverDeclinedPermission(
@@ -572,11 +584,15 @@ internal fun HomeDownloaderSection(
         showDialog = errorMessage.isNotEmpty(),
         errorTitle = stringResource(R.string.error_title),
         errorDescription = errorMessage,
+        primaryButtonText = stringResource(if (isStorageFull) R.string.yes else R.string.retry),
         onClickPrimary = {
             errorMessage = ""
-            getApiDownloader()
+            if (isStorageFull.not()) getApiDownloader() else isStorageFull = false
         },
-        onClickSecondary = { errorMessage = "" }
+        onClickSecondary = {
+            errorMessage = ""
+            isStorageFull = false
+        }
     )
 
     HandleBottomSheetYouTubeQuality(

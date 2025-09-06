@@ -105,5 +105,6 @@
     <string name="image">%1$s Images</string>
     <string name="audio">Audio</string>
     <string name="storage">Internal Storage</string>
+    <string name="storage_full">Your storage is almost full, please free up some space.</string>
     <string name="used_storage">Used %1$s of %2$s</string>
 </resources>

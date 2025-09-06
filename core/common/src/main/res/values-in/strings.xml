@@ -107,5 +107,6 @@
     <string name="image">%1$s Gambar</string>
     <string name="audio">Audio</string>
     <string name="storage">Penyimpanan Internal</string>
+    <string name="storage_full">Penyimpanan kamu hampir penuh, coba hapus beberapa file ya.</string>
     <string name="used_storage">Terpakai %1$s dari %2$s</string>
 </resources>
