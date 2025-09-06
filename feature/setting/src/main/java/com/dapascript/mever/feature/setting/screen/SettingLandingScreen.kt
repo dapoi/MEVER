@@ -31,16 +31,15 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap.Companion.Round
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
@@ -87,7 +86,6 @@ import com.dapascript.mever.core.common.util.navigateToGmail
 import com.dapascript.mever.core.common.util.navigateToNotificationSettings
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.common.util.storage.StorageUtil.StorageInfo
-import com.dapascript.mever.core.common.util.storage.StorageUtil.getStorageInfo
 import com.dapascript.mever.core.navigation.helper.navigateTo
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingAboutAppRoute
@@ -114,6 +112,9 @@ internal fun SettingLandingScreen(
     val context = LocalContext.current
     val listState = rememberLazyListState()
     val showAppreciateDialog = remember { mutableStateOf<AppreciateType?>(null) }
+    val statusColor = remember(storageInfo.usedPercent) {
+        getStatusStorageColor(storageInfo.usedPercent)
+    }
     val isExpanded by remember {
         derivedStateOf {
             listState.firstVisibleItemIndex == 0 &&
@@ -122,6 +123,10 @@ internal fun SettingLandingScreen(
     }
     var showBottomSheetQris by remember { mutableStateOf(false) }
     var setRequestPermission by remember { mutableStateOf<List<String>>(emptyList()) }
+    val usedStorage by animateFloatAsState(
+        targetValue = animatedPercent,
+        animationSpec = tween(durationMillis = 1000)
+    )
 
     BaseScreen(
         topBarArgs = TopBarArgs(
@@ -146,6 +151,11 @@ internal fun SettingLandingScreen(
                         listState.animateScrollToItem(targetIndex)
                     }
                 }
+        }
+
+        LaunchedEffect(storageInfo.usedPercent) {
+            delay(350)
+            animatedPercent = storageInfo.usedPercent / 100f
         }
 
         LaunchedEffect(context) { getLanguageCode = getLanguageCode(context) }
@@ -199,6 +209,9 @@ internal fun SettingLandingScreen(
                 .padding(top = Dp64)
                 .systemBarsPadding(),
             context = context,
+            storageInfo = storageInfo,
+            usedStorage = usedStorage,
+            statusColor = statusColor,
             deviceType = deviceType,
             viewModel = this,
             listState = listState,
@@ -228,6 +241,9 @@ internal fun SettingLandingScreen(
 @Composable
 private fun SettingLandingContent(
     context: Context,
+    storageInfo: StorageInfo,
+    usedStorage: Float,
+    statusColor: Color,
     deviceType: DeviceType,
     viewModel: SettingLandingViewModel,
     listState: LazyListState,
@@ -271,19 +287,19 @@ private fun SettingLandingContent(
                             text = stringResource(R.string.settings),
                             style = typography.h2.copy(fontSize = Sp32),
                             color = colorScheme.onPrimary,
-                            modifier = Modifier
-                                .padding(horizontal = Dp24)
-                                .onGloballyPositioned { titleHeight = it.size.height }
+                            modifier = Modifier.padding(horizontal = Dp24)
                         )
-                        Spacer(modifier = Modifier.height(Dp32))
                     }
                 }
                 item {
                     AvailableStorageSection(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(start = Dp24, end = Dp24, bottom = Dp32),
+                            .padding(horizontal = Dp24, vertical = Dp32),
                         context = context,
+                        storageInfo = storageInfo,
+                        usedStorage = usedStorage,
+                        statusColor = statusColor,
                         deviceType = deviceType
                     )
                 }
@@ -354,54 +370,45 @@ private fun SettingLandingContent(
 @Composable
 private fun AvailableStorageSection(
     context: Context,
+    storageInfo: StorageInfo,
+    usedStorage: Float,
+    statusColor: Color,
     deviceType: DeviceType,
     modifier: Modifier = Modifier
-) {
-    val storageInfo = remember { getStorageInfo(context) }
-    val statusColor = remember { getStatusStorageColor(storageInfo.usedPercent) }
-    var animatedPercent by rememberSaveable { mutableFloatStateOf(0f) }
-    val percentAnimate by animateFloatAsState(
-        targetValue = animatedPercent,
-        animationSpec = tween(durationMillis = 600, delayMillis = 200)
-    )
-
-    LaunchedEffect(Unit) { animatedPercent = storageInfo.usedPercent.toFloat() / 100f }
-
+) = with(storageInfo) {
     Box(modifier = modifier) {
-        with(storageInfo) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = CenterVertically,
-                horizontalArrangement = if (deviceType == PHONE) SpaceEvenly else spacedBy(Dp24)
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(if (deviceType == PHONE) Dp120 else Dp150),
-                        progress = { percentAnimate },
-                        color = statusColor,
-                        strokeWidth = Dp8,
-                        trackColor = colorScheme.onBackground.copy(alpha = 0.1f),
-                        strokeCap = Round,
-                        gapSize = Dp0
-                    )
-                    Text(
-                        text = "$usedPercent%",
-                        style = typography.body1.copy(fontSize = Sp20),
-                        color = colorScheme.onBackground
-                    )
-                }
-                Column(verticalArrangement = spacedBy(Dp4)) {
-                    Text(
-                        text = stringResource(R.string.storage),
-                        style = typography.bodyBold1,
-                        color = statusColor
-                    )
-                    Text(
-                        text = getUsedOfTotalText(context, this@with),
-                        style = typography.body2,
-                        color = colorScheme.onPrimary
-                    )
-                }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = CenterVertically,
+            horizontalArrangement = if (deviceType == PHONE) SpaceEvenly else spacedBy(Dp24)
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(if (deviceType == PHONE) Dp120 else Dp150),
+                    progress = { usedStorage },
+                    color = statusColor,
+                    strokeWidth = Dp8,
+                    trackColor = colorScheme.onBackground.copy(alpha = 0.1f),
+                    strokeCap = Round,
+                    gapSize = Dp0
+                )
+                Text(
+                    text = "$usedPercent%",
+                    style = typography.body1.copy(fontSize = Sp20),
+                    color = colorScheme.onBackground
+                )
+            }
+            Column(verticalArrangement = spacedBy(Dp4)) {
+                Text(
+                    text = stringResource(R.string.storage),
+                    style = typography.bodyBold1,
+                    color = statusColor
+                )
+                Text(
+                    text = getUsedOfTotalText(context, this@with),
+                    style = typography.body2,
+                    color = colorScheme.onPrimary
+                )
             }
         }
     }
