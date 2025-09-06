@@ -10,7 +10,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement.SpaceAround
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Arrangement.SpaceEvenly
@@ -114,16 +113,13 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp75
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
-import com.dapascript.mever.core.common.ui.theme.MeverLightGray
+import com.dapascript.mever.core.common.ui.theme.MeverLightViolet
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
-import com.dapascript.mever.core.common.ui.theme.MeverWhiteSemiPink
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp14
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp22
-import com.dapascript.mever.core.common.ui.theme.ThemeType.Dark
-import com.dapascript.mever.core.common.ui.theme.ThemeType.Light
 import com.dapascript.mever.core.common.util.DeviceType
 import com.dapascript.mever.core.common.util.DeviceType.DESKTOP
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
@@ -445,14 +441,8 @@ internal fun HomeDownloaderSection(
     val downloadList = downloadList.collectAsStateValue()
     val downloaderResponseState = downloaderResponseState.collectAsStateValue()
     val youtubeResolutions = youtubeResolutions.collectAsStateValue()
-    val themeType = themeType.collectAsStateValue()
     val urlIntent = getUrlIntent.collectAsStateValue()
     val activity = LocalActivity.current
-    val isDarkTheme = when (themeType) {
-        Light -> false
-        Dark -> true
-        else -> isSystemInDarkTheme()
-    }
     val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
     var showLoading by remember { mutableStateOf(false) }
     var showCancelExitConfirmation by remember { mutableStateOf(false) }
@@ -720,14 +710,14 @@ internal fun HomeDownloaderSection(
                         Box(
                             modifier = Modifier
                                 .background(
-                                    color = if (isDarkTheme) MeverLightGray else MeverWhiteSemiPink,
+                                    color = MeverLightViolet,
                                     shape = CircleShape
                                 )
                                 .size(Dp48),
                             contentAlignment = Center
                         ) {
                             Text(
-                                text = "+4",
+                                text = "+5",
                                 textAlign = TextAlign.Center,
                                 style = typography.bodyBold1,
                                 color = MeverPurple
