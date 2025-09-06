@@ -34,6 +34,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -130,7 +131,7 @@ internal fun SettingLandingScreen(
         allowScreenOverlap = true
     ) {
         LaunchedEffect(listState, titleHeight) {
-            delay(500L)
+            delay(1000L)
             snapshotFlow { listState.isScrollInProgress }
                 .distinctUntilChanged()
                 .filter { it.not() }
@@ -357,7 +358,12 @@ private fun AvailableStorageSection(
     modifier: Modifier = Modifier
 ) {
     val storageInfo = remember { getStorageInfo(context) }
-    var animatedPercent by remember { mutableFloatStateOf(0f) }
+    val statusColor = remember { getStatusStorageColor(storageInfo.usedPercent) }
+    var animatedPercent by rememberSaveable { mutableFloatStateOf(0f) }
+    val percentAnimate by animateFloatAsState(
+        targetValue = animatedPercent,
+        animationSpec = tween(durationMillis = 600, delayMillis = 200)
+    )
 
     LaunchedEffect(Unit) { animatedPercent = storageInfo.usedPercent.toFloat() / 100f }
 
@@ -369,18 +375,10 @@ private fun AvailableStorageSection(
                 horizontalArrangement = if (deviceType == PHONE) SpaceEvenly else spacedBy(Dp24)
             ) {
                 Box(contentAlignment = Alignment.Center) {
-                    val percentAnimate by animateFloatAsState(
-                        targetValue = animatedPercent,
-                        animationSpec = tween(durationMillis = 1000)
-                    )
                     CircularProgressIndicator(
                         modifier = Modifier.size(if (deviceType == PHONE) Dp120 else Dp150),
                         progress = { percentAnimate },
-                        color = when {
-                            usedPercent < 70 -> MeverPurple
-                            usedPercent in 70..90 -> MeverOrange
-                            else -> MeverRed
-                        },
+                        color = statusColor,
                         strokeWidth = Dp8,
                         trackColor = colorScheme.onBackground.copy(alpha = 0.1f),
                         strokeCap = Round,
@@ -396,7 +394,7 @@ private fun AvailableStorageSection(
                     Text(
                         text = stringResource(R.string.storage),
                         style = typography.bodyBold1,
-                        color = colorScheme.primary
+                        color = statusColor
                     )
                     Text(
                         text = getUsedOfTotalText(context, this@with),
@@ -414,6 +412,12 @@ private fun getUsedOfTotalText(context: Context, storageInfo: StorageInfo): Stri
     val usedText = Formatter.formatFileSize(context, storageInfo.usedBytes).replace(" ", "")
     val totalText = Formatter.formatFileSize(context, storageInfo.totalBytes).replace(" ", "")
     return stringResource(R.string.used_storage, usedText, totalText)
+}
+
+private fun getStatusStorageColor(usedPercent: Int) = when {
+    usedPercent < 70 -> MeverPurple
+    usedPercent in 70..90 -> MeverOrange
+    else -> MeverRed
 }
 
 private fun handleClickMenu(
