@@ -424,7 +424,7 @@ private fun AvailableStorageSection(
                 Text(
                     text = "$usedPercent%",
                     style = typography.body1.copy(fontSize = Sp20),
-                    color = colorScheme.onBackground
+                    color = colorScheme.onPrimary
                 )
             }
             Column(verticalArrangement = spacedBy(Dp4)) {
