@@ -50,6 +50,12 @@ object StorageUtil {
         )
     }
 
+    fun isStorageFull(storageInfo: StorageInfo?): Boolean {
+        if (storageInfo == null) return false
+        val minimumFreeBytes = 500 * 1024 * 1024
+        return storageInfo.freeBytes < minimumFreeBytes
+    }
+
     fun getMeverFolder(): File {
         val folder = File(getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS), "MEVER")
         if (folder.exists().not()) folder.mkdirs()

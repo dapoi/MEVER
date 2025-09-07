@@ -146,6 +146,7 @@ import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getStorageInfo
+import com.dapascript.mever.core.common.util.storage.StorageUtil.isStorageFull
 import com.dapascript.mever.core.common.util.storage.StorageUtil.syncFileToGallery
 import com.dapascript.mever.core.navigation.helper.navigateTo
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
@@ -506,7 +507,7 @@ internal fun HomeDownloaderSection(
             onGranted = {
                 setStoragePermission = emptyList()
                 when {
-                    (storageInfo?.usedPercent ?: 0) > 90 -> {
+                    isStorageFull(storageInfo) -> {
                         isAvoidRetry = true
                         errorMessage = context.getString(R.string.storage_full)
                     }

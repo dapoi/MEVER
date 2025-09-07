@@ -98,7 +98,8 @@ import com.dapascript.mever.core.common.util.navigateToGmail
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
-import com.dapascript.mever.core.common.util.storage.StorageUtil
+import com.dapascript.mever.core.common.util.storage.StorageUtil.getStorageInfo
+import com.dapascript.mever.core.common.util.storage.StorageUtil.isStorageFull
 import com.dapascript.mever.core.navigation.helper.navigateTo
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeImageGeneratorResultRoute
@@ -164,13 +165,13 @@ internal fun HomeImageGeneratorResultScreen(
         )
 
         if (setStoragePermission.isNotEmpty()) {
-            val storageInfo = remember { StorageUtil.getStorageInfo(context) }
+            val storageInfo = remember { getStorageInfo(context) }
             MeverPermissionHandler(
                 permissions = setStoragePermission,
                 onGranted = {
                     setStoragePermission = emptyList()
                     when {
-                        storageInfo.usedPercent > 90 -> {
+                        isStorageFull(storageInfo) -> {
                             isStorageFull = true
                             errorMessage = context.getString(R.string.storage_full)
                         }
