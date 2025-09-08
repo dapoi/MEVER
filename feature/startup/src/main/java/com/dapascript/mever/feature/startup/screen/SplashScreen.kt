@@ -139,7 +139,7 @@ internal fun SplashScreen(
             },
             onClickSecondary = {
                 errorMessage = ""
-                navController.popBackStack()
+                activity.finish()
             }
         )
 
