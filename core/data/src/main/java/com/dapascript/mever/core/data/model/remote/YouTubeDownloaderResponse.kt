@@ -7,8 +7,9 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 data class YouTubeDownloaderResponse(
     val status: Boolean? = null,
-    val data: DataContent,
-    val thumbnail: String? = null
+    val data: DataContent? = null,
+    val thumbnail: String? = null,
+    val msg: String? = null
 ) {
     @JsonClass(generateAdapter = true)
     data class DataContent(
@@ -18,14 +19,22 @@ data class YouTubeDownloaderResponse(
         val extension: String? = null
     )
 
-    fun mapToEntity() = listOf(
+    fun mapToEntity() = data?.let {
+        listOf(
+            ContentEntity(
+                url = data.url.orEmpty(),
+                status = status ?: true,
+                fileName = sanitizeFilename(data.filename.orEmpty()),
+                quality = data.quality.orEmpty(),
+                type = data.extension.orEmpty(),
+                thumbnail = thumbnail.orEmpty()
+            )
+        )
+    } ?: listOf(
         ContentEntity(
-            url = data.url.orEmpty(),
-            status = status ?: true,
-            fileName = sanitizeFilename(data.filename.orEmpty()),
-            quality = data.quality.orEmpty(),
-            type = data.extension.orEmpty(),
-            thumbnail = thumbnail.orEmpty()
+            url = "",
+            status = false,
+            message = msg.orEmpty()
         )
     )
 }

@@ -31,26 +31,29 @@ abstract class BaseWorker<T : Any>(
         val resultData = doApiCall()
         if (resultData is Collection<*> && resultData.isEmpty()) {
             Result.failure(
-                workDataOf(KEY_ERROR to context.getString(R.string.error_unknown))
-            )
-        }
-        val jsonOutput = moshiHelper.toJson(resultType, resultData)
-        val size = jsonOutput?.toByteArray()?.size
-        if (size != null && size > SIZE_LIMIT) {
-            val path = writeJsonToCache(jsonOutput, outputSuccessKey)
-            Result.success(
                 workDataOf(
-                    KEY_OUTPUT_IS_FILE to true,
-                    KEY_OUTPUT_FILE_PATH to path
+                    KEY_ERROR to context.getString(R.string.error_unknown)
                 )
             )
         } else {
-            Result.success(
-                workDataOf(
-                    KEY_OUTPUT_IS_FILE to false,
-                    outputSuccessKey to jsonOutput
+            val jsonOutput = moshiHelper.toJson(resultType, resultData)
+            val size = jsonOutput?.toByteArray()?.size
+            if (size != null && size > SIZE_LIMIT) {
+                val path = writeJsonToCache(jsonOutput, outputSuccessKey)
+                Result.success(
+                    workDataOf(
+                        KEY_OUTPUT_IS_FILE to true,
+                        KEY_OUTPUT_FILE_PATH to path
+                    )
                 )
-            )
+            } else {
+                Result.success(
+                    workDataOf(
+                        KEY_OUTPUT_IS_FILE to false,
+                        outputSuccessKey to jsonOutput
+                    )
+                )
+            }
         }
     } catch (e: Throwable) {
         val errorMessage = when (e) {

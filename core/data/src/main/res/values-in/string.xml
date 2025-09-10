@@ -5,4 +5,5 @@
     <string name="error_io">Koneksi terputus. Periksa koneksi internet kamu.</string>
     <string name="error_http">Terjadi kesalahan server (%1$d).</string>
     <string name="error_unknown">Terjadi kesalahan yang tidak diketahui.</string>
+    <string name="max_duration_exceeded">Durasi maksimum yang diizinkan adalah 30 menit.</string>
 </resources>

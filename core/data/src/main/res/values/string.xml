@@ -5,4 +5,5 @@
     <string name="error_io">Connection was interrupted. Please check your internet connection.</string>
     <string name="error_http">Server error occurred (%1$d).</string>
     <string name="error_unknown">An unknown error occurred.</string>
+    <string name="max_duration_exceeded">The maximum allowed duration is 30 minutes.</string>
 </resources>

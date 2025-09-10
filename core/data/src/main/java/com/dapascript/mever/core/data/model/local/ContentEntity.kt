@@ -6,5 +6,6 @@ data class ContentEntity(
     val fileName: String = "",
     val quality: String = "",
     val thumbnail: String = "",
-    val type: String = ""
+    val type: String = "",
+    val message: String = ""
 )
