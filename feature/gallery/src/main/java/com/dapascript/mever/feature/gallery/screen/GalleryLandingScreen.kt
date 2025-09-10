@@ -114,7 +114,6 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import com.dapascript.mever.core.common.R as RCommon
 
 @Composable
 internal fun GalleryLandingScreen(
@@ -167,8 +166,8 @@ internal fun GalleryLandingScreen(
             } else emptyList(),
             title = when {
                 isExpanded.not() && downloadFilter.isNullOrEmpty().not() -> stringResource(
-                    if (showSelector.not()) RCommon.string.gallery
-                    else RCommon.string.total_item_selected, selectedItems.size
+                    if (showSelector.not()) R.string.gallery
+                    else R.string.total_item_selected, selectedItems.size
                 )
 
                 else -> ""
@@ -443,7 +442,7 @@ private fun GalleryContentSection(
                         if (showSelector.not()) {
                             item {
                                 Text(
-                                    text = stringResource(RCommon.string.gallery),
+                                    text = stringResource(R.string.gallery),
                                     style = typography.h2.copy(fontSize = Sp32),
                                     color = colorScheme.onPrimary,
                                     modifier = Modifier
@@ -518,7 +517,7 @@ private fun GalleryContentSection(
             } else {
                 Column(modifier = Modifier.fillMaxSize()) {
                     Text(
-                        text = stringResource(RCommon.string.gallery),
+                        text = stringResource(R.string.gallery),
                         style = typography.h2.copy(fontSize = Sp32),
                         color = colorScheme.onPrimary,
                         modifier = Modifier.padding(top = Dp80, start = Dp24, end = Dp24)
@@ -537,7 +536,7 @@ private fun GalleryContentSection(
                 .systemBarsPadding()
         ) {
             Text(
-                text = stringResource(RCommon.string.gallery),
+                text = stringResource(R.string.gallery),
                 style = typography.h2.copy(fontSize = Sp32),
                 color = colorScheme.onPrimary,
                 modifier = Modifier.padding(
@@ -574,7 +573,7 @@ private fun FilterContent(
             verticalAlignment = CenterVertically
         ) {
             MeverButton(
-                title = stringResource(RCommon.string.all),
+                title = stringResource(R.string.all),
                 shape = RoundedCornerShape(Dp64),
                 buttonType = getButtonType(selectedFilter == ALL),
             ) { onClickFilter(ALL) }
