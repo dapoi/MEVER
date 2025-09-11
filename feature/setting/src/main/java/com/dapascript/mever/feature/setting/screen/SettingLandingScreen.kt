@@ -411,7 +411,10 @@ private fun AvailableStorageSection(
             verticalAlignment = CenterVertically,
             horizontalArrangement = if (deviceType == PHONE) SpaceEvenly else spacedBy(Dp24)
         ) {
-            Box(contentAlignment = Alignment.Center) {
+            Box(
+                modifier = Modifier.then(if (deviceType == PHONE) Modifier.weight(1f) else Modifier),
+                contentAlignment = Alignment.Center
+            ) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(if (deviceType == PHONE) Dp120 else Dp150),
                     progress = { usedStorage },
@@ -427,7 +430,10 @@ private fun AvailableStorageSection(
                     color = colorScheme.onPrimary
                 )
             }
-            Column(verticalArrangement = spacedBy(Dp4)) {
+            Column(
+                modifier = Modifier.then(if (deviceType == PHONE) Modifier.weight(1f) else Modifier),
+                verticalArrangement = spacedBy(Dp4)
+            ) {
                 Text(
                     text = stringResource(R.string.storage),
                     style = typography.bodyBold1,
