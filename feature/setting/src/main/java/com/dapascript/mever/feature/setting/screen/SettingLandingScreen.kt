@@ -12,7 +12,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement.SpaceEvenly
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -409,12 +408,9 @@ private fun AvailableStorageSection(
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = CenterVertically,
-            horizontalArrangement = if (deviceType == PHONE) SpaceEvenly else spacedBy(Dp24)
+            horizontalArrangement = spacedBy(Dp24)
         ) {
-            Box(
-                modifier = Modifier.then(if (deviceType == PHONE) Modifier.weight(1f) else Modifier),
-                contentAlignment = Alignment.Center
-            ) {
+            Box(contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(if (deviceType == PHONE) Dp120 else Dp150),
                     progress = { usedStorage },
@@ -457,7 +453,7 @@ private fun StorageSectionLoading(
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = CenterVertically,
-        horizontalArrangement = if (deviceType == PHONE) SpaceEvenly else spacedBy(Dp24)
+        horizontalArrangement = spacedBy(Dp24)
     ) {
         Box(
             modifier = Modifier
