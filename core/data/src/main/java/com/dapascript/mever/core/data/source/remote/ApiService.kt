@@ -74,7 +74,7 @@ interface ApiService {
     @GET("meta")
     suspend fun getImageAiGenerator(
         @Query("q") prompt: String,
-        @Query("session") session: String = "bb286368-37d4-485d-9522-fb88ee8f92b4",
+        @Query("session") session: String = "2afeffca-e841-453c-af09-9d2bb6ee9ae4",
         @Query("lang") lang: String = "id"
     ): ImageAiResponse
 }
