@@ -120,6 +120,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp14
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp22
+import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp26
 import com.dapascript.mever.core.common.util.DeviceType
 import com.dapascript.mever.core.common.util.DeviceType.DESKTOP
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
@@ -302,7 +303,8 @@ private fun HomeScreenContent(
                                         context = context,
                                         navController = navController,
                                         scope = scope,
-                                        getButtonClickCount = getButtonClickCount
+                                        getButtonClickCount = getButtonClickCount,
+                                        isImageGeneratorFeatureActive = isImageGeneratorFeatureActive
                                     )
                                 }
 
@@ -349,7 +351,8 @@ private fun HomeScreenContent(
                             context = context,
                             navController = navController,
                             scope = scope,
-                            getButtonClickCount = getButtonClickCount
+                            getButtonClickCount = getButtonClickCount,
+                            isImageGeneratorFeatureActive = isImageGeneratorFeatureActive
                         )
                         HomeAiSection(
                             modifier = Modifier
@@ -439,6 +442,7 @@ internal fun HomeDownloaderSection(
     navController: NavController,
     scope: CoroutineScope,
     getButtonClickCount: Int,
+    isImageGeneratorFeatureActive: Boolean,
     modifier: Modifier = Modifier
 ) = with(viewModel) {
     val downloadList = downloadList.collectAsStateValue()
@@ -674,8 +678,10 @@ internal fun HomeDownloaderSection(
         LazyColumn(modifier = modifier) {
             item {
                 Text(
+                    modifier = Modifier.fillMaxWidth(),
                     text = stringResource(R.string.downloader_title),
-                    style = typography.h2.copy(fontSize = Sp22),
+                    textAlign = if (isImageGeneratorFeatureActive.not()) TextAlign.Center else TextAlign.Start,
+                    style = typography.h2.copy(fontSize = if (isImageGeneratorFeatureActive) Sp22 else Sp26),
                     color = colorScheme.onPrimary
                 )
             }
@@ -684,6 +690,7 @@ internal fun HomeDownloaderSection(
                 Text(
                     modifier = Modifier.fillMaxWidth(),
                     text = stringResource(R.string.downloader_desc),
+                    textAlign = if (isImageGeneratorFeatureActive.not()) TextAlign.Center else TextAlign.Start,
                     style = typography.body2,
                     color = colorScheme.secondary
                 )
