@@ -11,6 +11,7 @@ import com.dapascript.mever.core.common.util.state.UiState.StateLoading
 import com.dapascript.mever.core.common.util.state.UiState.StateSuccess
 import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.dapascript.mever.core.data.repository.MeverRepository
+import com.dapascript.mever.feature.explore.BuildConfig.DEBUG
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -35,13 +36,13 @@ class ExploreLandingViewModel @Inject constructor(
 
     init {
         getExploreContents(
-            setOf(
+            if (DEBUG) setOf(
                 "technology",
                 "cute animal",
                 "wallpaper",
                 "automotive",
                 "nature"
-            ).random()
+            ).random() else ""
         )
     }
 }
