@@ -1,5 +1,7 @@
 package com.dapascript.mever.feature.gallery.screen
 
+import android.widget.Toast
+import android.widget.Toast.LENGTH_SHORT
 import androidx.activity.SystemBarStyle.Companion.dark
 import androidx.activity.SystemBarStyle.Companion.light
 import androidx.activity.enableEdgeToEdge
@@ -12,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -21,6 +24,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.util.lerp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.component.MeverPhotoViewer
 import com.dapascript.mever.core.common.ui.component.MeverVideoPlayer
@@ -33,14 +37,15 @@ import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.isVideo
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
-import com.dapascript.mever.feature.gallery.viewmodel.GalleryPlayerViewModel
+import com.dapascript.mever.feature.gallery.viewmodel.GalleryContentDetailViewModel
+import kotlinx.coroutines.launch
 import java.io.File
 import kotlin.math.absoluteValue
 
 @Composable
 internal fun GalleryContentDetailScreen(
     navigator: NavController,
-    viewModel: GalleryPlayerViewModel = hiltViewModel()
+    viewModel: GalleryContentDetailViewModel = hiltViewModel()
 ) = with(viewModel) {
     var isFullScreen by rememberSaveable { mutableStateOf(false) }
     val pagerState = rememberPagerState(args.initialIndex) { args.contents.size }
@@ -48,6 +53,7 @@ internal fun GalleryContentDetailScreen(
     val activity = LocalActivity.current
     val themeType = themeType.collectAsStateValue()
     val isPipEnabled = isPipEnabled.collectAsStateValue()
+    val scope = rememberCoroutineScope()
     val darkTheme = when (themeType) {
         Light -> false
         Dark -> true
@@ -136,7 +142,9 @@ internal fun GalleryContentDetailScreen(
                     onClickBack = { navigator.popBackStack() }
                 ) else MeverPhotoViewer(
                     modifier = itemModifier,
-                    source = filePath,
+                    source = filePath.ifEmpty { url },
+                    preview = preview,
+                    fileName = fileName,
                     onClickDelete = { deleteContent(id) },
                     onClickShare = {
                         shareContent(
@@ -144,7 +152,21 @@ internal fun GalleryContentDetailScreen(
                             file = File(filePath)
                         )
                     },
-                    onClickBack = { navigator.popBackStack() }
+                    onClickBack = { navigator.popBackStack() },
+                    onClickDownload = {
+                        startDownload(it)
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.image_has_been_downloaded),
+                            LENGTH_SHORT
+                        ).show()
+                        scope.launch {
+                            val nextPage = pagerState.currentPage + 1
+                            if (nextPage < pagerState.pageCount) {
+                                pagerState.animateScrollToPage(nextPage)
+                            }
+                        }
+                    }
                 )
             }
         }

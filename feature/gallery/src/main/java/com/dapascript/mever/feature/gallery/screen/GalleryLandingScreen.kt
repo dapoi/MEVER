@@ -78,6 +78,7 @@ import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.util.PlatformType
 import com.dapascript.mever.core.common.util.PlatformType.AI
 import com.dapascript.mever.core.common.util.PlatformType.ALL
+import com.dapascript.mever.core.common.util.PlatformType.EXPLORE
 import com.dapascript.mever.core.common.util.isMusic
 import com.dapascript.mever.core.common.util.navigateToMusic
 import com.dapascript.mever.core.common.util.shareContent
@@ -323,7 +324,8 @@ internal fun GalleryLandingScreen(
                                     }?.map {
                                         Content(
                                             id = it.id,
-                                            filePath = it.path
+                                            filePath = it.path,
+                                            fileName = it.fileName
                                         )
                                     } ?: emptyList(),
                                     initialIndex = downloadFilter?.filterNot {
@@ -496,7 +498,10 @@ private fun GalleryContentSection(
                                     total = it.total,
                                     path = it.path,
                                     urlThumbnail = it.metaData,
-                                    icon = if (it.tag.isNotEmpty() && it.tag != AI.platformName) {
+                                    icon = if (it.tag.isNotEmpty() && it.tag !in setOf(
+                                            AI.platformName, EXPLORE.platformName
+                                        )
+                                    ) {
                                         getPlatformIcon(it.tag)
                                     } else null,
                                     iconBackgroundColor = getPlatformIconBackgroundColor(

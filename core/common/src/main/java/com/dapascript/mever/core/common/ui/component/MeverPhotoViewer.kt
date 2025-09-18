@@ -3,6 +3,7 @@ package com.dapascript.mever.core.common.ui.component
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -12,6 +13,7 @@ import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -27,19 +29,22 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale.Companion.Fit
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import coil3.compose.SubcomposeAsyncImage
+import coil3.compose.rememberAsyncImagePainter
 import com.dapascript.mever.core.common.R
+import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Outlined
 import com.dapascript.mever.core.common.ui.attr.MeverContentViewerAttr.ContentViewerActionMenu
 import com.dapascript.mever.core.common.ui.attr.MeverContentViewerAttr.ContentViewerActionMenu.DELETE
 import com.dapascript.mever.core.common.ui.attr.MeverContentViewerAttr.ContentViewerActionMenu.SHARE
@@ -47,6 +52,7 @@ import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.ActionMenu
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp120
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp150
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.MeverBlack
@@ -55,7 +61,6 @@ import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.LocalActivity
-import com.dapascript.mever.core.common.util.convertFilename
 import com.dapascript.mever.core.common.util.hideSystemBar
 import com.dapascript.mever.core.common.util.isSystemBarVisible
 import kotlin.math.abs
@@ -64,10 +69,13 @@ import kotlin.math.roundToInt
 @Composable
 fun MeverPhotoViewer(
     source: String,
+    preview: String,
+    fileName: String,
     modifier: Modifier = Modifier,
+    onClickBack: () -> Unit,
     onClickDelete: () -> Unit,
     onClickShare: () -> Unit,
-    onClickBack: () -> Unit
+    onClickDownload: (String) -> Unit
 ) {
     val context = LocalContext.current
     val activity = LocalActivity.current
@@ -110,11 +118,22 @@ fun MeverPhotoViewer(
             modifier = Modifier
                 .wrapContentSize()
                 .align(Center),
-            image = source,
+            source = source,
+            preview = preview,
             isPhotoTouched = isPhotoTouched,
             onPhotoTouched = { isPhotoTouched = it },
             onZooming = { isZoomed = it }
         )
+        if (preview.isNotEmpty()) MeverButton(
+            modifier = Modifier
+                .align(BottomCenter)
+                .padding(bottom = Dp150),
+            title = stringResource(R.string.download),
+            buttonType = Outlined(
+                contentColor = MeverWhite,
+                borderColor = MeverWhite
+            )
+        ) { onClickDownload(source.ifEmpty { preview }) }
         AnimatedVisibility(
             visible = isPhotoTouched.not(),
             enter = fadeIn(),
@@ -125,14 +144,14 @@ fun MeverPhotoViewer(
                     .padding(horizontal = Dp24)
                     .systemBarsPadding(),
                 topBarArgs = TopBarArgs(
-                    actionMenus = listOf(
+                    actionMenus = if (preview.isEmpty()) listOf(
                         ActionMenu(
                             icon = R.drawable.ic_more,
                             nameIcon = "More",
                             onClickActionMenu = { showDropDownMenu = showDropDownMenu.not() }
                         )
-                    ),
-                    title = convertFilename(source.substringAfterLast("/")),
+                    ) else emptyList(),
+                    title = fileName,
                     topBarColor = MeverTransparent,
                     titleColor = MeverWhite,
                     iconBackColor = MeverWhite,
@@ -191,7 +210,8 @@ fun MeverPhotoViewer(
 
 @Composable
 private fun PhotoViewer(
-    image: String,
+    source: String,
+    preview: String,
     isPhotoTouched: Boolean,
     modifier: Modifier = Modifier,
     onPhotoTouched: (Boolean) -> Unit,
@@ -275,9 +295,19 @@ private fun PhotoViewer(
                 translationY = offsetY
             }
     ) {
-        MeverImage(
-            source = image,
-            contentScale = Fit
+        var isImageError by remember { mutableStateOf(false) }
+        SubcomposeAsyncImage(
+            modifier = Modifier.fillMaxSize(),
+            model = if (isImageError && preview.isNotEmpty()) preview else source,
+            contentDescription = "Photo Viewer",
+            loading = {
+                if (preview.isNotEmpty()) Image(
+                    modifier = Modifier.fillMaxSize(),
+                    painter = rememberAsyncImagePainter(preview),
+                    contentDescription = "Loading Image"
+                ) else null
+            },
+            error = { isImageError = true }
         )
     }
 }

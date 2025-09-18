@@ -128,6 +128,7 @@ import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.PlatformType
 import com.dapascript.mever.core.common.util.PlatformType.AI
 import com.dapascript.mever.core.common.util.PlatformType.ALL
+import com.dapascript.mever.core.common.util.PlatformType.EXPLORE
 import com.dapascript.mever.core.common.util.PlatformType.FACEBOOK
 import com.dapascript.mever.core.common.util.PlatformType.INSTAGRAM
 import com.dapascript.mever.core.common.util.PlatformType.PINTEREST
@@ -149,6 +150,7 @@ import com.dapascript.mever.core.common.util.storage.StorageUtil.getStorageInfo
 import com.dapascript.mever.core.common.util.storage.StorageUtil.isStorageFull
 import com.dapascript.mever.core.common.util.storage.StorageUtil.syncFileToGallery
 import com.dapascript.mever.core.navigation.helper.navigateTo
+import com.dapascript.mever.core.navigation.route.ExploreScreenRoute.ExploreLandingRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute.Content
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute
@@ -745,7 +747,7 @@ internal fun HomeDownloaderSection(
                 MeverTextField(
                     modifier = Modifier.fillMaxWidth(),
                     context = context,
-                    webDomainValue = urlSocialMediaState,
+                    value = urlSocialMediaState,
                     onValueChange = { urlSocialMediaState = it }
                 )
             }
@@ -823,7 +825,10 @@ internal fun HomeDownloaderSection(
                                 total = model.total,
                                 path = model.path,
                                 urlThumbnail = model.metaData,
-                                icon = if (model.tag.isNotEmpty() && model.tag != AI.platformName) {
+                                icon = if (model.tag.isNotEmpty() && model.tag !in setOf(
+                                        AI.platformName, EXPLORE.platformName
+                                    )
+                                ) {
                                     getPlatformIcon(model.tag)
                                 } else null,
                                 iconBackgroundColor = getPlatformIconBackgroundColor(model.tag),
@@ -842,12 +847,13 @@ internal fun HomeDownloaderSection(
                                                         }.map {
                                                             Content(
                                                                 id = it.id,
-                                                                filePath = it.path
+                                                                filePath = it.path,
+                                                                fileName = it.fileName
                                                             )
                                                         },
                                                         initialIndex = downloadList.filterNot {
                                                             isMusic(it.fileName)
-                                                        }.indexOfFirst { it.id == id }
+                                                        }.indexOfFirst { it.id == id },
                                                     )
                                                 )
                                             } else {
@@ -1069,8 +1075,9 @@ internal fun HomeAiSection(
 }
 
 private fun getListActionMenu(context: Context, hasDownloadProgress: Boolean) = listOf(
+    context.getString(R.string.explore) to FeatureHomeR.drawable.ic_explore,
     context.getString(R.string.gallery) to if (hasDownloadProgress) FeatureHomeR.drawable.ic_notification
-    else FeatureHomeR.drawable.ic_explore,
+    else FeatureHomeR.drawable.ic_gallery,
     context.getString(R.string.settings) to FeatureHomeR.drawable.ic_setting
 )
 
@@ -1080,6 +1087,7 @@ private fun tabItems(context: Context) = listOf(
 )
 
 private fun NavController.handleClickActionMenu(context: Context, name: String) = when (name) {
+    context.getString(R.string.explore) -> navigateTo(ExploreLandingRoute)
     context.getString(R.string.gallery) -> navigateToGalleryScreen()
     context.getString(R.string.settings) -> navigateToSettingScreen()
     else -> Unit

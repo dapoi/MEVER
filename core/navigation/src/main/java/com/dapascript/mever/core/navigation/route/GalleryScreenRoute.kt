@@ -18,7 +18,10 @@ sealed class GalleryScreenRoute {
         @Serializable
         data class Content(
             val id: Int,
-            val filePath: String
+            val url: String = "",
+            val preview: String = "",
+            val filePath: String = "",
+            val fileName: String = ""
         ) : GalleryScreenRoute()
 
         companion object {

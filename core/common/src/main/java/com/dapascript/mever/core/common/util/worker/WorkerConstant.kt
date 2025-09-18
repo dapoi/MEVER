@@ -15,6 +15,12 @@ object WorkerConstant {
     const val KEY_RESPONSE_TYPE = "type"
 
     /**
+     * Image Search Worker
+     */
+    const val KEY_REQUEST_QUERY = "query"
+    const val KEY_RESPONSE_IMAGES = "images"
+
+    /**
      * AI Image Generator Worker
      */
     const val KEY_REQUEST_PROMPT = "prompt"

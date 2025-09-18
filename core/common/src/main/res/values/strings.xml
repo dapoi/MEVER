@@ -6,7 +6,7 @@
     <string name="downloader_desc">Easiest way to download your favorite content from the biggest social media platforms, with just a few taps.</string>
     <string name="see_all_supported_platforms">Tap to see more…</string>
     <string name="platforms_supported">Supported Platforms</string>
-    <string name="paste_url">Paste Link Here</string>
+    <string name="paste_url">Paste the link here</string>
     <string name="download">Download</string>
     <string name="download_all">Download All</string>
     <string name="recently_downloaded">Recently Downloaded</string>
@@ -36,6 +36,7 @@
     <string name="empty_list_desc">Looks like you haven\'t downloaded anything yet.</string>
     <string name="gallery">Gallery</string>
     <string name="settings">Settings</string>
+    <string name="explore">Explore</string>
     <string name="application">Application</string>
     <string name="language">Language</string>
     <string name="notification">Notification</string>
@@ -109,4 +110,6 @@
     <string name="used_storage">Used %1$s of %2$s</string>
     <string name="playlist_not_supported">Playlist download is not supported yet.</string>
     <string name="ok">OK</string>
+    <string name="keyword_hint">Put keywords…</string>
+    <string name="no_result">No results found</string>
 </resources>
