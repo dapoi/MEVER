@@ -1,5 +1,7 @@
 package com.dapascript.mever.feature.gallery.screen
 
+import android.widget.Toast
+import android.widget.Toast.LENGTH_SHORT
 import androidx.activity.SystemBarStyle.Companion.dark
 import androidx.activity.SystemBarStyle.Companion.light
 import androidx.activity.enableEdgeToEdge
@@ -12,16 +14,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.util.lerp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
+import com.dapascript.mever.core.common.ui.component.MeverDeclinedPermission
+import com.dapascript.mever.core.common.ui.component.MeverDialogError
+import com.dapascript.mever.core.common.ui.component.MeverPermissionHandler
 import com.dapascript.mever.core.common.ui.component.MeverPhotoViewer
 import com.dapascript.mever.core.common.ui.component.MeverVideoPlayer
 import com.dapascript.mever.core.common.ui.theme.MeverBlack
@@ -30,24 +39,33 @@ import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.ThemeType.Dark
 import com.dapascript.mever.core.common.ui.theme.ThemeType.Light
 import com.dapascript.mever.core.common.util.LocalActivity
+import com.dapascript.mever.core.common.util.getStoragePermission
+import com.dapascript.mever.core.common.util.goToSetting
 import com.dapascript.mever.core.common.util.isVideo
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
-import com.dapascript.mever.feature.gallery.viewmodel.GalleryPlayerViewModel
+import com.dapascript.mever.core.common.util.storage.StorageUtil.getStorageInfo
+import com.dapascript.mever.core.common.util.storage.StorageUtil.isStorageFull
+import com.dapascript.mever.feature.gallery.viewmodel.GalleryContentDetailViewModel
+import kotlinx.coroutines.launch
 import java.io.File
 import kotlin.math.absoluteValue
 
 @Composable
 internal fun GalleryContentDetailScreen(
     navigator: NavController,
-    viewModel: GalleryPlayerViewModel = hiltViewModel()
+    viewModel: GalleryContentDetailViewModel = hiltViewModel()
 ) = with(viewModel) {
     var isFullScreen by rememberSaveable { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
+    var imageExploreData by remember { mutableStateOf(Pair("","")) }
+    var setStoragePermission by remember { mutableStateOf<List<String>>(emptyList()) }
     val pagerState = rememberPagerState(args.initialIndex) { args.contents.size }
     val context = LocalContext.current
     val activity = LocalActivity.current
     val themeType = themeType.collectAsStateValue()
     val isPipEnabled = isPipEnabled.collectAsStateValue()
+    val scope = rememberCoroutineScope()
     val darkTheme = when (themeType) {
         Light -> false
         Dark -> true
@@ -85,6 +103,66 @@ internal fun GalleryContentDetailScreen(
                     }
                 )
             }
+        }
+
+        MeverDialogError(
+            showDialog = errorMessage.isNotEmpty(),
+            errorTitle = stringResource(R.string.error_title),
+            errorDescription = errorMessage,
+            primaryButtonText = stringResource(R.string.ok),
+            onClickPrimary = {
+                errorMessage = ""
+                startDownload(imageExploreData.first, imageExploreData.second)
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.image_has_been_downloaded),
+                    LENGTH_SHORT
+                ).show()
+                scope.launch {
+                    val nextPage = pagerState.currentPage + 1
+                    if (nextPage < pagerState.pageCount) {
+                        pagerState.animateScrollToPage(nextPage)
+                    }
+                }
+            },
+            onClickSecondary = { errorMessage = "" }
+        )
+
+        if (setStoragePermission.isNotEmpty()) {
+            val storageInfo = remember { getStorageInfo(context) }
+            MeverPermissionHandler(
+                permissions = setStoragePermission,
+                onGranted = {
+                    setStoragePermission = emptyList()
+                    if (isStorageFull(storageInfo)) {
+                        errorMessage = context.getString(R.string.storage_full)
+                    } else {
+                        startDownload(imageExploreData.first, imageExploreData.second)
+                        scope.launch {
+                            val nextPage = pagerState.currentPage + 1
+                            if (nextPage < pagerState.pageCount) {
+                                pagerState.animateScrollToPage(nextPage)
+                            }
+                        }
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.image_has_been_downloaded),
+                            LENGTH_SHORT
+                        ).show()
+                    }
+                },
+                onDenied = { isPermanentlyDeclined, retry ->
+                    MeverDeclinedPermission(
+                        isPermissionsDeclined = isPermanentlyDeclined,
+                        onGoToSetting = {
+                            setStoragePermission = emptyList()
+                            activity.goToSetting()
+                        },
+                        onRetry = { retry() },
+                        onDismiss = { setStoragePermission = emptyList() }
+                    )
+                }
+            )
         }
 
         HorizontalPager(
@@ -136,7 +214,9 @@ internal fun GalleryContentDetailScreen(
                     onClickBack = { navigator.popBackStack() }
                 ) else MeverPhotoViewer(
                     modifier = itemModifier,
-                    source = filePath,
+                    source = filePath.ifEmpty { url },
+                    preview = preview,
+                    fileName = fileName,
                     onClickDelete = { deleteContent(id) },
                     onClickShare = {
                         shareContent(
@@ -144,7 +224,11 @@ internal fun GalleryContentDetailScreen(
                             file = File(filePath)
                         )
                     },
-                    onClickBack = { navigator.popBackStack() }
+                    onClickBack = { navigator.popBackStack() },
+                    onClickDownload = { url, filename ->
+                        setStoragePermission = getStoragePermission()
+                        imageExploreData = Pair(url, filename)
+                    }
                 )
             }
         }

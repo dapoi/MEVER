@@ -45,9 +45,14 @@ import com.dapascript.mever.core.common.util.pasteFromClipboard
 @Composable
 fun MeverTextField(
     context: Context,
-    webDomainValue: TextFieldValue,
+    value: TextFieldValue,
     modifier: Modifier = Modifier,
     shape: RoundedCornerShape = RoundedCornerShape(Dp48),
+    maxLines: Int = 1,
+    singleLine: Boolean = true,
+    hint: Int? = null,
+    leadingIcon: Int? = null,
+    onClickLeadingIcon: (() -> Unit)? = null,
     onValueChange: (TextFieldValue) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
@@ -61,45 +66,43 @@ fun MeverTextField(
             .clip(shape),
         verticalAlignment = CenterVertically
     ) {
-        Box(
+        Icon(
             modifier = Modifier
                 .padding(horizontal = Dp16, vertical = Dp12)
                 .clip(CircleShape)
                 .background(color = Transparent, shape = CircleShape)
                 .size(Dp24)
                 .onCustomClick {
-                    pasteFromClipboard(context)?.let { onValueChange(TextFieldValue(it)) }
-                }
-        ) {
-            Icon(
-                modifier = Modifier.fillMaxSize(),
-                painter = painterResource(R.drawable.ic_link),
-                contentDescription = "Link",
-                tint = colorScheme.onPrimary
-            )
-        }
+                    onClickLeadingIcon?.invoke() ?: pasteFromClipboard(context)?.let {
+                        onValueChange(TextFieldValue(it))
+                    }
+                },
+            painter = painterResource(leadingIcon ?: R.drawable.ic_link),
+            contentDescription = "Leading icon",
+            tint = colorScheme.onPrimary
+        )
         BasicTextField(
             modifier = Modifier
                 .weight(1f)
                 .clearFocusOnKeyboardDismiss(focusManager),
-            value = webDomainValue.text.trim(),
+            value = value.text,
             onValueChange = { onValueChange(TextFieldValue(it)) },
             interactionSource = interactionSource,
-            maxLines = 1,
-            singleLine = true,
+            maxLines = maxLines,
+            singleLine = singleLine,
             cursorBrush = SolidColor(colorScheme.onPrimary),
             textStyle = typography.body2.copy(color = colorScheme.onPrimary),
             keyboardOptions = KeyboardOptions(keyboardType = Uri, imeAction = Done),
             keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
             decorationBox = { innerTextField ->
-                if (webDomainValue.text.isEmpty()) Text(
-                    text = stringResource(R.string.paste_url),
+                if (value.text.isEmpty()) Text(
+                    text = stringResource(hint ?: R.string.paste_url),
                     style = typography.body2.copy(color = colorScheme.secondary)
                 )
                 innerTextField()
             }
         )
-        if (webDomainValue.text.isNotEmpty()) {
+        if (value.text.isNotEmpty()) {
             Box(
                 modifier = Modifier
                     .padding(horizontal = Dp16, vertical = Dp12)

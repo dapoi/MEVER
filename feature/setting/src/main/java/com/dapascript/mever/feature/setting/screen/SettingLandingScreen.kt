@@ -12,7 +12,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement.SpaceEvenly
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -55,7 +54,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign.Companion.Center
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
@@ -409,7 +408,7 @@ private fun AvailableStorageSection(
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = CenterVertically,
-            horizontalArrangement = if (deviceType == PHONE) SpaceEvenly else spacedBy(Dp24)
+            horizontalArrangement = spacedBy(Dp24)
         ) {
             Box(contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(
@@ -427,7 +426,10 @@ private fun AvailableStorageSection(
                     color = colorScheme.onPrimary
                 )
             }
-            Column(verticalArrangement = spacedBy(Dp4)) {
+            Column(
+                modifier = Modifier.then(if (deviceType == PHONE) Modifier.weight(1f) else Modifier),
+                verticalArrangement = spacedBy(Dp4)
+            ) {
                 Text(
                     text = stringResource(R.string.storage),
                     style = typography.bodyBold1,
@@ -451,7 +453,7 @@ private fun StorageSectionLoading(
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = CenterVertically,
-        horizontalArrangement = if (deviceType == PHONE) SpaceEvenly else spacedBy(Dp24)
+        horizontalArrangement = spacedBy(Dp24)
     ) {
         Box(
             modifier = Modifier

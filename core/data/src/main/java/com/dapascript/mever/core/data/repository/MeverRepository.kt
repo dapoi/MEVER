@@ -12,5 +12,6 @@ interface MeverRepository {
         url: String,
         quality: String
     ): Flow<ApiState<List<ContentEntity>>>
+    fun getImageSearch(query: String): Flow<ApiState<List<ContentEntity>>>
     fun getImageAiGenerator(prompt: String): Flow<ApiState<ImageAiEntity?>>
 }

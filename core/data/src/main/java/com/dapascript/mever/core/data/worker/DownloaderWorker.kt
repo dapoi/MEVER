@@ -5,6 +5,7 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.WorkerParameters
 import com.dapascript.mever.core.common.util.PlatformType.AI
 import com.dapascript.mever.core.common.util.PlatformType.ALL
+import com.dapascript.mever.core.common.util.PlatformType.EXPLORE
 import com.dapascript.mever.core.common.util.PlatformType.FACEBOOK
 import com.dapascript.mever.core.common.util.PlatformType.INSTAGRAM
 import com.dapascript.mever.core.common.util.PlatformType.PINTEREST
@@ -75,6 +76,6 @@ class DownloaderWorker @AssistedInject constructor(
         TWITTER -> getTwitterDownloader(url).mapToEntity()
         VIDEY -> getVideyDownloader(url).mapToEntity()
         YOUTUBE, YOUTUBE_MUSIC -> getYoutubeDownloader(url, selectedQuality, type).mapToEntity()
-        AI, ALL -> throw Throwable("Platform not supported")
+        AI, ALL, EXPLORE -> throw Throwable("Platform not supported")
     }
 }

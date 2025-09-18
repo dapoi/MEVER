@@ -69,7 +69,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow.Companion.Ellipsis
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle.State.RESUMED
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
@@ -120,6 +120,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp14
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp22
+import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp26
 import com.dapascript.mever.core.common.util.DeviceType
 import com.dapascript.mever.core.common.util.DeviceType.DESKTOP
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
@@ -128,6 +129,7 @@ import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.PlatformType
 import com.dapascript.mever.core.common.util.PlatformType.AI
 import com.dapascript.mever.core.common.util.PlatformType.ALL
+import com.dapascript.mever.core.common.util.PlatformType.EXPLORE
 import com.dapascript.mever.core.common.util.PlatformType.FACEBOOK
 import com.dapascript.mever.core.common.util.PlatformType.INSTAGRAM
 import com.dapascript.mever.core.common.util.PlatformType.PINTEREST
@@ -149,6 +151,7 @@ import com.dapascript.mever.core.common.util.storage.StorageUtil.getStorageInfo
 import com.dapascript.mever.core.common.util.storage.StorageUtil.isStorageFull
 import com.dapascript.mever.core.common.util.storage.StorageUtil.syncFileToGallery
 import com.dapascript.mever.core.navigation.helper.navigateTo
+import com.dapascript.mever.core.navigation.route.ExploreScreenRoute.ExploreLandingRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute.Content
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute
@@ -211,6 +214,7 @@ private fun HomeScreenContent(
         val context = LocalContext.current
         val showBadge = showBadge.collectAsStateValue()
         val isImageGeneratorFeatureActive = isImageGeneratorFeatureActive.collectAsStateValue()
+        val isGoImgFeatureActive = isGoImgFeatureActive.collectAsStateValue()
         val getButtonClickCount = getButtonClickCount.collectAsStateValue()
         val tabItems = remember { tabItems(context) }
         val pagerState = rememberPagerState(pageCount = { tabItems.size })
@@ -245,16 +249,15 @@ private fun HomeScreenContent(
                     .padding(horizontal = Dp24),
                 topBarArgs = TopBarArgs(
                     iconBack = R.drawable.ic_mever,
-                    actionMenus = getListActionMenu(
-                        context = context,
-                        hasDownloadProgress = showBadge
-                    ).map { (name, resource) ->
-                        ActionMenu(
-                            icon = resource,
-                            nameIcon = name,
-                            showBadge = showBadge && name == stringResource(R.string.gallery),
-                        ) { navController.handleClickActionMenu(context, name) }
-                    }
+                    actionMenus = getListActionMenu(context, showBadge)
+                        .filterNot { it.first == stringResource(R.string.explore) && isGoImgFeatureActive.not() }
+                        .map { (name, resource) ->
+                            ActionMenu(
+                                icon = resource,
+                                nameIcon = name,
+                                showBadge = showBadge && name == stringResource(R.string.gallery),
+                            ) { navController.handleClickActionMenu(context, name) }
+                        }
                 )
             )
             Column(
@@ -300,7 +303,8 @@ private fun HomeScreenContent(
                                         context = context,
                                         navController = navController,
                                         scope = scope,
-                                        getButtonClickCount = getButtonClickCount
+                                        getButtonClickCount = getButtonClickCount,
+                                        isImageGeneratorFeatureActive = isImageGeneratorFeatureActive
                                     )
                                 }
 
@@ -347,7 +351,8 @@ private fun HomeScreenContent(
                             context = context,
                             navController = navController,
                             scope = scope,
-                            getButtonClickCount = getButtonClickCount
+                            getButtonClickCount = getButtonClickCount,
+                            isImageGeneratorFeatureActive = isImageGeneratorFeatureActive
                         )
                         HomeAiSection(
                             modifier = Modifier
@@ -437,6 +442,7 @@ internal fun HomeDownloaderSection(
     navController: NavController,
     scope: CoroutineScope,
     getButtonClickCount: Int,
+    isImageGeneratorFeatureActive: Boolean,
     modifier: Modifier = Modifier
 ) = with(viewModel) {
     val downloadList = downloadList.collectAsStateValue()
@@ -453,7 +459,6 @@ internal fun HomeDownloaderSection(
     var showDeleteDialog by remember { mutableStateOf<Int?>(null) }
     var showFailedDialog by remember { mutableStateOf<Int?>(null) }
     var showPlatformSupportDialog by remember { mutableStateOf(false) }
-    var isAvoidRetry by remember { mutableStateOf(false) }
     val interstitialController = rememberInterstitialAd(
         onAdFailToLoad = { setStoragePermission = getStoragePermission() },
         onAdFailOrDismissed = { setStoragePermission = getStoragePermission() }
@@ -508,12 +513,10 @@ internal fun HomeDownloaderSection(
                 setStoragePermission = emptyList()
                 when {
                     isStorageFull(storageInfo) -> {
-                        isAvoidRetry = true
                         errorMessage = context.getString(R.string.storage_full)
                     }
 
                     urlSocialMediaState.text.contains("playlist") -> {
-                        isAvoidRetry = true
                         errorMessage = context.getString(R.string.playlist_not_supported)
                     }
 
@@ -583,15 +586,12 @@ internal fun HomeDownloaderSection(
         showDialog = errorMessage.isNotEmpty(),
         errorTitle = stringResource(R.string.error_title),
         errorDescription = errorMessage,
-        primaryButtonText = stringResource(if (isAvoidRetry) R.string.ok else R.string.retry),
+        primaryButtonText = stringResource(R.string.ok),
         onClickPrimary = {
             errorMessage = ""
-            if (isAvoidRetry.not()) getApiDownloader() else isAvoidRetry = false
+            getApiDownloader()
         },
-        onClickSecondary = {
-            errorMessage = ""
-            isAvoidRetry = false
-        }
+        onClickSecondary = { errorMessage = "" }
     )
 
     HandleBottomSheetYouTubeQuality(
@@ -678,8 +678,10 @@ internal fun HomeDownloaderSection(
         LazyColumn(modifier = modifier) {
             item {
                 Text(
+                    modifier = Modifier.fillMaxWidth(),
                     text = stringResource(R.string.downloader_title),
-                    style = typography.h2.copy(fontSize = Sp22),
+                    textAlign = if (isImageGeneratorFeatureActive.not()) TextAlign.Center else TextAlign.Start,
+                    style = typography.h2.copy(fontSize = if (isImageGeneratorFeatureActive) Sp22 else Sp26),
                     color = colorScheme.onPrimary
                 )
             }
@@ -688,6 +690,7 @@ internal fun HomeDownloaderSection(
                 Text(
                     modifier = Modifier.fillMaxWidth(),
                     text = stringResource(R.string.downloader_desc),
+                    textAlign = if (isImageGeneratorFeatureActive.not()) TextAlign.Center else TextAlign.Start,
                     style = typography.body2,
                     color = colorScheme.secondary
                 )
@@ -745,7 +748,7 @@ internal fun HomeDownloaderSection(
                 MeverTextField(
                     modifier = Modifier.fillMaxWidth(),
                     context = context,
-                    webDomainValue = urlSocialMediaState,
+                    value = urlSocialMediaState,
                     onValueChange = { urlSocialMediaState = it }
                 )
             }
@@ -823,7 +826,10 @@ internal fun HomeDownloaderSection(
                                 total = model.total,
                                 path = model.path,
                                 urlThumbnail = model.metaData,
-                                icon = if (model.tag.isNotEmpty() && model.tag != AI.platformName) {
+                                icon = if (model.tag.isNotEmpty() && model.tag !in setOf(
+                                        AI.platformName, EXPLORE.platformName
+                                    )
+                                ) {
                                     getPlatformIcon(model.tag)
                                 } else null,
                                 iconBackgroundColor = getPlatformIconBackgroundColor(model.tag),
@@ -842,12 +848,13 @@ internal fun HomeDownloaderSection(
                                                         }.map {
                                                             Content(
                                                                 id = it.id,
-                                                                filePath = it.path
+                                                                filePath = it.path,
+                                                                fileName = it.fileName
                                                             )
                                                         },
                                                         initialIndex = downloadList.filterNot {
                                                             isMusic(it.fileName)
-                                                        }.indexOfFirst { it.id == id }
+                                                        }.indexOfFirst { it.id == id },
                                                     )
                                                 )
                                             } else {
@@ -1069,8 +1076,9 @@ internal fun HomeAiSection(
 }
 
 private fun getListActionMenu(context: Context, hasDownloadProgress: Boolean) = listOf(
+    context.getString(R.string.explore) to FeatureHomeR.drawable.ic_explore,
     context.getString(R.string.gallery) to if (hasDownloadProgress) FeatureHomeR.drawable.ic_notification
-    else FeatureHomeR.drawable.ic_explore,
+    else FeatureHomeR.drawable.ic_gallery,
     context.getString(R.string.settings) to FeatureHomeR.drawable.ic_setting
 )
 
@@ -1080,6 +1088,7 @@ private fun tabItems(context: Context) = listOf(
 )
 
 private fun NavController.handleClickActionMenu(context: Context, name: String) = when (name) {
+    context.getString(R.string.explore) -> navigateTo(ExploreLandingRoute)
     context.getString(R.string.gallery) -> navigateToGalleryScreen()
     context.getString(R.string.settings) -> navigateToSettingScreen()
     else -> Unit

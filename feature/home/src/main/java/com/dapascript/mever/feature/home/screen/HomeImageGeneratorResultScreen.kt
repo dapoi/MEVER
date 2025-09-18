@@ -54,7 +54,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
@@ -126,7 +126,6 @@ internal fun HomeImageGeneratorResultScreen(
     var showShimmer by remember { mutableStateOf(false) }
     var showCancelExitConfirmation by remember { mutableStateOf(false) }
     var isDownloadAllClicked by remember { mutableStateOf(false) }
-    var isStorageFull by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
     var imageSelected by remember(aiImages) { mutableStateOf(aiImages.firstOrNull()) }
     val snackbarMessage = remember { mutableStateOf("") }
@@ -172,7 +171,6 @@ internal fun HomeImageGeneratorResultScreen(
                     setStoragePermission = emptyList()
                     when {
                         isStorageFull(storageInfo) -> {
-                            isStorageFull = true
                             errorMessage = context.getString(R.string.storage_full)
                         }
 
@@ -217,15 +215,12 @@ internal fun HomeImageGeneratorResultScreen(
             showDialog = errorMessage.isNotEmpty(),
             errorTitle = stringResource(R.string.error_title),
             errorDescription = errorMessage,
-            primaryButtonText = stringResource(if (isStorageFull) R.string.yes else R.string.retry),
+            primaryButtonText = stringResource(R.string.ok),
             onClickPrimary = {
                 errorMessage = ""
-                if (isStorageFull.not()) getImageAiGenerator() else isStorageFull = false
+                getImageAiGenerator()
             },
-            onClickSecondary = {
-                errorMessage = ""
-                navController.popBackStack()
-            }
+            onClickSecondary = { errorMessage = "" }
         )
 
         AnimatedContent(
