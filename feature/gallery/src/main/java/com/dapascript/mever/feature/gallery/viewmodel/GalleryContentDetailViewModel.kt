@@ -39,11 +39,14 @@ class GalleryContentDetailViewModel @Inject constructor(
         initialValue = true
     )
 
-    fun startDownload(url: String) {
+    fun startDownload(
+        url: String,
+        fileName: String
+    ) {
         if (url.isBlank()) return
         ketch.download(
             url = url,
-            fileName = changeToCurrentDate(currentTimeMillis()) + ".jpg",
+            fileName = "$fileName.jpg",
             path = meverFolder.path,
             tag = EXPLORE.platformName
         )

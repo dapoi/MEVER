@@ -455,7 +455,6 @@ internal fun HomeDownloaderSection(
     var showDeleteDialog by remember { mutableStateOf<Int?>(null) }
     var showFailedDialog by remember { mutableStateOf<Int?>(null) }
     var showPlatformSupportDialog by remember { mutableStateOf(false) }
-    var isAvoidRetry by remember { mutableStateOf(false) }
     val interstitialController = rememberInterstitialAd(
         onAdFailToLoad = { setStoragePermission = getStoragePermission() },
         onAdFailOrDismissed = { setStoragePermission = getStoragePermission() }
@@ -510,12 +509,10 @@ internal fun HomeDownloaderSection(
                 setStoragePermission = emptyList()
                 when {
                     isStorageFull(storageInfo) -> {
-                        isAvoidRetry = true
                         errorMessage = context.getString(R.string.storage_full)
                     }
 
                     urlSocialMediaState.text.contains("playlist") -> {
-                        isAvoidRetry = true
                         errorMessage = context.getString(R.string.playlist_not_supported)
                     }
 
@@ -585,15 +582,12 @@ internal fun HomeDownloaderSection(
         showDialog = errorMessage.isNotEmpty(),
         errorTitle = stringResource(R.string.error_title),
         errorDescription = errorMessage,
-        primaryButtonText = stringResource(if (isAvoidRetry) R.string.ok else R.string.retry),
+        primaryButtonText = stringResource(R.string.ok),
         onClickPrimary = {
             errorMessage = ""
-            if (isAvoidRetry.not()) getApiDownloader() else isAvoidRetry = false
+            getApiDownloader()
         },
-        onClickSecondary = {
-            errorMessage = ""
-            isAvoidRetry = false
-        }
+        onClickSecondary = { errorMessage = "" }
     )
 
     HandleBottomSheetYouTubeQuality(

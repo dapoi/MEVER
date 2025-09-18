@@ -109,7 +109,7 @@
     <string name="storage_full">Penyimpanan kamu hampir penuh, coba hapus beberapa file ya.</string>
     <string name="used_storage">Terpakai %1$s dari %2$s</string>
     <string name="playlist_not_supported">Maaf, untuk sekarang unduhan playlist belum didukung.</string>
-    <string name="ok">Oke</string>
+    <string name="ok">Oke, sip</string>
     <string name="keyword_hint">Masukkan kata kunci…</string>
     <string name="no_result">Tidak ada hasil ditemukan</string>
 </resources>

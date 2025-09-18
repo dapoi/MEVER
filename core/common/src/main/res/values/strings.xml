@@ -109,7 +109,7 @@
     <string name="storage_full">Your storage is almost full, please free up some space.</string>
     <string name="used_storage">Used %1$s of %2$s</string>
     <string name="playlist_not_supported">Playlist download is not supported yet.</string>
-    <string name="ok">OK</string>
+    <string name="ok">It\'s okay</string>
     <string name="keyword_hint">Put keywords…</string>
     <string name="no_result">No results found</string>
 </resources>
