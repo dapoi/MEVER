@@ -52,7 +52,7 @@ fun MeverTextField(
     singleLine: Boolean = true,
     hint: Int? = null,
     leadingIcon: Int? = null,
-    onCLickLeadingIcon: (() -> Unit)? = null,
+    onClickLeadingIcon: (() -> Unit)? = null,
     onValueChange: (TextFieldValue) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
@@ -73,7 +73,7 @@ fun MeverTextField(
                 .background(color = Transparent, shape = CircleShape)
                 .size(Dp24)
                 .onCustomClick {
-                    onCLickLeadingIcon?.invoke() ?: pasteFromClipboard(context)?.let {
+                    onClickLeadingIcon?.invoke() ?: pasteFromClipboard(context)?.let {
                         onValueChange(TextFieldValue(it))
                     }
                 },
