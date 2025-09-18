@@ -97,6 +97,12 @@ class HomeLandingViewModel @Inject constructor(
         initialValue = true
     )
 
+    val isGoImgFeatureActive = dataStore.isGoImgEnabled.stateIn(
+        scope = viewModelScope,
+        started = WhileSubscribed(),
+        initialValue = true
+    )
+
     val youtubeResolutions = dataStore.getYoutubeVideoAndAudioQuality.stateIn(
         scope = viewModelScope,
         started = WhileSubscribed(),

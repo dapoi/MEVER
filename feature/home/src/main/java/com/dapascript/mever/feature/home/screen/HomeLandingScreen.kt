@@ -213,6 +213,7 @@ private fun HomeScreenContent(
         val context = LocalContext.current
         val showBadge = showBadge.collectAsStateValue()
         val isImageGeneratorFeatureActive = isImageGeneratorFeatureActive.collectAsStateValue()
+        val isGoImgFeatureActive = isGoImgFeatureActive.collectAsStateValue()
         val getButtonClickCount = getButtonClickCount.collectAsStateValue()
         val tabItems = remember { tabItems(context) }
         val pagerState = rememberPagerState(pageCount = { tabItems.size })
@@ -247,16 +248,15 @@ private fun HomeScreenContent(
                     .padding(horizontal = Dp24),
                 topBarArgs = TopBarArgs(
                     iconBack = R.drawable.ic_mever,
-                    actionMenus = getListActionMenu(
-                        context = context,
-                        hasDownloadProgress = showBadge
-                    ).map { (name, resource) ->
-                        ActionMenu(
-                            icon = resource,
-                            nameIcon = name,
-                            showBadge = showBadge && name == stringResource(R.string.gallery),
-                        ) { navController.handleClickActionMenu(context, name) }
-                    }
+                    actionMenus = getListActionMenu(context, showBadge)
+                        .filterNot { it.first == stringResource(R.string.explore) && isGoImgFeatureActive.not() }
+                        .map { (name, resource) ->
+                            ActionMenu(
+                                icon = resource,
+                                nameIcon = name,
+                                showBadge = showBadge && name == stringResource(R.string.gallery),
+                            ) { navController.handleClickActionMenu(context, name) }
+                        }
                 )
             )
             Column(

@@ -7,6 +7,7 @@ import com.squareup.moshi.JsonClass
 data class AppConfigResponse(
     val version: String,
     val isImageGeneratorFeatureActive: Boolean,
+    val isGoImgFeatureActive: Boolean,
     val youtubeResolutions: List<String>,
     val audioQualities: List<String>,
     val maintenanceDay: String? = null
@@ -14,6 +15,7 @@ data class AppConfigResponse(
     fun mapToEntity() = AppConfigEntity(
         version = version,
         isImageGeneratorFeatureActive = isImageGeneratorFeatureActive,
+        isGoImgFeatureActive = isGoImgFeatureActive,
         videoResolutionsAndAudioQualities = mapOf(
             "video" to youtubeResolutions,
             "audio" to audioQualities
