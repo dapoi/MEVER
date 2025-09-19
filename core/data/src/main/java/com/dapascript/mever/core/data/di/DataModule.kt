@@ -4,8 +4,8 @@ import android.content.Context
 import androidx.work.WorkManager
 import com.chuckerteam.chucker.api.ChuckerCollector
 import com.chuckerteam.chucker.api.ChuckerInterceptor
-import com.dapascript.mever.core.data.BuildConfig
 import com.dapascript.mever.core.data.BuildConfig.BASE_URL
+import com.dapascript.mever.core.data.BuildConfig.DEBUG
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.repository.MeverRepositoryImpl
 import com.dapascript.mever.core.data.source.remote.ApiService
@@ -24,7 +24,7 @@ import okhttp3.logging.HttpLoggingInterceptor.Level.BODY
 import okhttp3.logging.HttpLoggingInterceptor.Level.NONE
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import java.util.concurrent.TimeUnit.MINUTES
+import java.util.concurrent.TimeUnit.SECONDS
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -54,13 +54,13 @@ class DataModule {
         chuckerInterceptor: ChuckerInterceptor
     ): OkHttpClient = OkHttpClient.Builder()
         .addInterceptor(HttpLoggingInterceptor().apply {
-            level = if (BuildConfig.DEBUG) BODY else NONE
+            level = if (DEBUG) BODY else NONE
         })
         .addInterceptor(apiKeyInterceptor)
         .addInterceptor(chuckerInterceptor)
-        .connectTimeout(1, MINUTES)
-        .readTimeout(1, MINUTES)
-        .writeTimeout(1, MINUTES)
+        .connectTimeout(45, SECONDS)
+        .readTimeout(45, SECONDS)
+        .writeTimeout(45, SECONDS)
         .retryOnConnectionFailure(true)
         .build()
 
