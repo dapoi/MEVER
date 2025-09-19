@@ -150,8 +150,10 @@ class HomeLandingViewModel @Inject constructor(
         url = url,
         path = meverFolder.path,
         fileName = fileName,
-        tag = if (selectedQuality.contains("kbps")) YOUTUBE_MUSIC.platformName
-        else getPlatformType(urlSocialMediaState.text).platformName,
+        tag = if (selectedQuality.contains("kbps")) {
+            selectedQuality = ""
+            YOUTUBE_MUSIC.platformName
+        } else getPlatformType(urlSocialMediaState.text).platformName,
         metaData = thumbnail
     )
 
