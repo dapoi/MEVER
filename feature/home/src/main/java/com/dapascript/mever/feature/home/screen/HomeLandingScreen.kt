@@ -459,6 +459,7 @@ internal fun HomeDownloaderSection(
     var showDeleteDialog by remember { mutableStateOf<Int?>(null) }
     var showFailedDialog by remember { mutableStateOf<Int?>(null) }
     var showPlatformSupportDialog by remember { mutableStateOf(false) }
+    var isStorageFull by remember { mutableStateOf(false) }
     val interstitialController = rememberInterstitialAd(
         onAdFailToLoad = { setStoragePermission = getStoragePermission() },
         onAdFailOrDismissed = { setStoragePermission = getStoragePermission() }
@@ -513,6 +514,7 @@ internal fun HomeDownloaderSection(
                 setStoragePermission = emptyList()
                 when {
                     isStorageFull(storageInfo) -> {
+                        isStorageFull = true
                         errorMessage = context.getString(R.string.storage_full)
                     }
 
@@ -586,12 +588,15 @@ internal fun HomeDownloaderSection(
         showDialog = errorMessage.isNotEmpty(),
         errorTitle = stringResource(R.string.error_title),
         errorDescription = errorMessage,
-        primaryButtonText = stringResource(R.string.ok),
+        primaryButtonText = stringResource(if (isStorageFull) R.string.ok else R.string.retry),
         onClickPrimary = {
+            if (isStorageFull) isStorageFull = false else getApiDownloader()
             errorMessage = ""
-            getApiDownloader()
         },
-        onClickSecondary = { errorMessage = "" }
+        onClickSecondary = {
+            isStorageFull = false
+            errorMessage = ""
+        }
     )
 
     HandleBottomSheetYouTubeQuality(
