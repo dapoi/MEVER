@@ -101,10 +101,10 @@
     <string name="select_all">Select All</string>
     <string name="sort_latest">Sort by Latest</string>
     <string name="sort_oldest">Sort by Oldest</string>
-    <string name="mixed_content">Video &amp; Image</string>
     <string name="video">Video</string>
-    <string name="image">%1$s Images</string>
+    <string name="image">Image %1$s</string>
     <string name="audio">Audio</string>
+    <string name="preview">Preview</string>
     <string name="storage">Internal Storage</string>
     <string name="storage_full">Your storage is almost full, please free up some space.</string>
     <string name="used_storage">Used %1$s of %2$s</string>

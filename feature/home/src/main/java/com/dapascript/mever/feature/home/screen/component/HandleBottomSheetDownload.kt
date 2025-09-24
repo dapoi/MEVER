@@ -2,6 +2,7 @@ package com.dapascript.mever.feature.home.screen.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
+import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,35 +12,38 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign.Companion.End
 import androidx.compose.ui.unit.Dp
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.attr.MeverImageAttr.getBitmapFromUrl
 import com.dapascript.mever.core.common.ui.component.MeverBottomSheet
 import com.dapascript.mever.core.common.ui.component.MeverImage
-import com.dapascript.mever.core.common.ui.component.MeverRadioButton
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp14
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp150
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp20
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp250
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
@@ -56,33 +60,11 @@ internal fun HandleBottomSheetDownload(
     onClickDownload: (String) -> Unit,
     onClickDismiss: () -> Unit
 ) {
-    var chooseQualityIndex by remember { mutableIntStateOf(0) }
-    val videos = remember(listContent) {
-        listContent.filter { it.type.contains("mp4") }
+    var selectMultipleItems by remember(listContent) {
+        mutableStateOf(listContent.indices.toSet())
     }
-    val images = remember(listContent) {
-        listContent.filter { it.type.contains("jpg") }
-    }
-    val groupedContent = remember(listContent) {
-        buildList {
-            when {
-                videos.isNotEmpty() && images.isNotEmpty() -> add(
-                    listContent.first().copy(
-                        fileName = "Mixed",
-                        url = listContent.joinToString(",") { it.url }
-                    )
-                )
-
-                images.size > 1 -> add(
-                    listContent.first().copy(
-                        fileName = "All Images",
-                        url = images.joinToString(",") { it.url }
-                    )
-                )
-
-                else -> addAll(listContent)
-            }
-        }
+    var selectedIndex by remember(listContent) {
+        mutableStateOf(if (listContent.size == 1) 0 else null)
     }
 
     MeverBottomSheet(
@@ -91,51 +73,42 @@ internal fun HandleBottomSheetDownload(
     ) {
         Column(modifier = Modifier.wrapContentSize()) {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                MeverImage(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(Dp150)
-                        .padding(bottom = Dp32, start = Dp24, end = Dp24)
-                        .clip(RoundedCornerShape(Dp12)),
-                    source = getImageSource(
-                        url = groupedContent[chooseQualityIndex].url.split(",").first(),
-                        fileName = groupedContent[chooseQualityIndex].fileName,
-                        type = groupedContent[chooseQualityIndex].type,
-                        urlThumbnail = groupedContent[chooseQualityIndex].thumbnail
+                selectedIndex?.let { index ->
+                    MeverImage(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(Dp250)
+                            .padding(bottom = Dp32, start = Dp24, end = Dp24)
+                            .clip(RoundedCornerShape(Dp12)),
+                        source = getImageSource(
+                            url = listContent[index].url,
+                            fileName = listContent[index].fileName,
+                            type = listContent[index].type,
+                            urlThumbnail = listContent[index].thumbnail
+                        )
                     )
-                )
+                }
                 Text(
                     text = stringResource(R.string.choose_file),
                     style = typography.bodyBold1.copy(fontSize = Sp20),
                     color = colorScheme.onPrimary,
                     modifier = Modifier.padding(horizontal = Dp24)
                 )
-                groupedContent.forEachIndexed { index, content ->
+                listContent.forEachIndexed { index, content ->
                     CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
-                        MeverRadioButton(
-                            value = when {
-                                content.quality.isNotEmpty() -> {
-                                    stringResource(R.string.quality, content.quality)
+                        MeverCheckBoxButton(
+                            value = getValueSelector(index, content),
+                            isChecked = selectMultipleItems.contains(index),
+                            showPreviewButton = listContent.size > 1,
+                            onClickPreview = { selectedIndex = index },
+                            onChooseValue = {
+                                selectMultipleItems = if (selectMultipleItems.contains(index)) {
+                                    selectMultipleItems - index
+                                } else {
+                                    selectMultipleItems + index
                                 }
-
-                                content.fileName == "Mixed" -> {
-                                    stringResource(R.string.mixed_content)
-                                }
-
-                                content.fileName == "All Images" -> {
-                                    stringResource(R.string.image, images.size)
-                                }
-
-                                else -> content.fileName.ifEmpty {
-                                    when {
-                                        content.type.contains("mp4") -> stringResource(R.string.video)
-                                        content.type.contains("mp3") -> stringResource(R.string.audio)
-                                        else -> stringResource(R.string.image, 1)
-                                    }
-                                }
-                            },
-                            isChoosen = chooseQualityIndex == index,
-                        ) { chooseQualityIndex = index }
+                            }
+                        )
                     }
                 }
             }
@@ -169,16 +142,12 @@ internal fun HandleBottomSheetDownload(
                             shape = RoundedCornerShape(Dp8)
                         )
                 )
+                if (selectMultipleItems.isEmpty()) return@Row
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(Dp14))
                         .onCustomClick {
-                            val chosen = groupedContent[chooseQualityIndex]
-                            if (chosen.fileName == "Mixed" || chosen.fileName == "All Images") {
-                                chosen.url.split(",").forEach { url ->
-                                    onClickDownload(url)
-                                }
-                            } else onClickDownload(chosen.url)
+                            selectMultipleItems.forEach { onClickDownload(listContent[it].url) }
                         }
                         .weight(1f)
                         .padding(vertical = Dp16),
@@ -192,6 +161,69 @@ internal fun HandleBottomSheetDownload(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun MeverCheckBoxButton(
+    value: String,
+    isChecked: Boolean,
+    showPreviewButton: Boolean,
+    modifier: Modifier = Modifier,
+    onClickPreview: () -> Unit,
+    onChooseValue: () -> Unit
+) = Row(
+    modifier = modifier
+        .fillMaxWidth()
+        .clip(RoundedCornerShape(Dp8))
+        .onCustomClick(onClick = { onChooseValue() })
+        .padding(vertical = Dp16, horizontal = Dp24),
+    verticalAlignment = CenterVertically,
+    horizontalArrangement = spacedBy(Dp16)
+) {
+    Box(
+        modifier = modifier
+            .clip(CircleShape)
+            .onCustomClick { onChooseValue() },
+        contentAlignment = Center
+    ) {
+        Icon(
+            painter = painterResource(
+                if (isChecked) R.drawable.ic_round_checked
+                else R.drawable.ic_round_unchecked
+            ),
+            contentDescription = "Radio button",
+            tint = colorScheme.primary
+        )
+    }
+    Text(
+        modifier = Modifier.weight(1f),
+        text = value,
+        style = typography.body1,
+        color = colorScheme.onPrimary
+    )
+    if (showPreviewButton) Text(
+        modifier = Modifier
+            .clip(RoundedCornerShape(Dp8))
+            .onCustomClick { onClickPreview() },
+        text = stringResource(R.string.preview),
+        textAlign = End,
+        style = typography.bodyBold2,
+        color = colorScheme.primary
+    )
+}
+
+@Composable
+private fun getValueSelector(
+    index: Int,
+    content: ContentEntity
+) = if (content.quality.isNotEmpty()) {
+    stringResource(R.string.quality, content.quality)
+} else content.fileName.ifEmpty {
+    when {
+        content.type.contains("mp4") -> stringResource(R.string.video)
+        content.type.contains("mp3") -> stringResource(R.string.audio)
+        else -> stringResource(R.string.image, index + 1)
     }
 }
 
