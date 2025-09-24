@@ -67,11 +67,9 @@ class HomeLandingViewModel @Inject constructor(
 
     val downloadList = ketch.observeDownloads()
         .map { downloads ->
-            downloads
-                .sortedByDescending { it.timeQueued }
-                .map { downloadModel ->
-                    downloadModel.copy(path = getFilePath(downloadModel.fileName))
-                }
+            downloads.map { downloadModel ->
+                downloadModel.copy(path = getFilePath(downloadModel.fileName))
+            }
         }
         .distinctUntilChanged()
         .conflate()

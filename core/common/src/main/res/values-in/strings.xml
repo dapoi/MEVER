@@ -99,8 +99,6 @@
     <string name="hide_filter">Sembunyikan Filter</string>
     <string name="show_filter">Tampilkan Filter</string>
     <string name="select_all">Pilih Semua</string>
-    <string name="sort_latest">Urutkan Terbaru</string>
-    <string name="sort_oldest">Urutkan Terlama</string>
     <string name="video">Video</string>
     <string name="image">Gambar %1$s</string>
     <string name="audio">Audio</string>

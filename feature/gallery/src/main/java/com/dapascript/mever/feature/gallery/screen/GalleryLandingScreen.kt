@@ -98,8 +98,6 @@ import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.GalleryActionMenu.SELECT_FILES
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.GalleryActionMenu.SHARE_SELECTED
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.GalleryActionMenu.SHOW_FILTER
-import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.GalleryActionMenu.SORT_LATEST
-import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.GalleryActionMenu.SORT_OLDEST
 import com.dapascript.mever.feature.gallery.viewmodel.GalleryLandingViewModel
 import com.ketch.DownloadModel
 import com.ketch.Status.FAILED
@@ -122,7 +120,7 @@ internal fun GalleryLandingScreen(
     viewModel: GalleryLandingViewModel = hiltViewModel()
 ) = with(viewModel) {
     val context = LocalContext.current
-    val downloadList = downloadList.collectAsStateValue()
+    val downloadList = downloadList.collectAsStateValue()?.reversed()
     val platformTypes = platformTypes.collectAsStateValue()
     val selectedItems = selectedItems.collectAsStateValue()
     val listState = rememberLazyListState()
@@ -135,7 +133,6 @@ internal fun GalleryLandingScreen(
     var showDeleteAllDialog by remember { mutableStateOf(false) }
     var showDropDownMenu by remember { mutableStateOf(false) }
     var isSelectedAll by remember { mutableStateOf(false) }
-    var isSortingLatest by rememberSaveable { mutableStateOf(false) }
     var showFilter by rememberSaveable { mutableStateOf(true) }
     val isExpanded by remember {
         derivedStateOf {
@@ -146,10 +143,9 @@ internal fun GalleryLandingScreen(
     }
     val downloadFilter by remember(downloadList, selectedFilter) {
         derivedStateOf {
-            downloadList?.filter { selectedFilter == ALL || it.tag == selectedFilter.platformName }
-                .let {
-                    if (isSortingLatest) it?.reversed() else it
-                }
+            downloadList?.filter {
+                selectedFilter == ALL || it.tag == selectedFilter.platformName
+            }
         }
     }
 
@@ -222,8 +218,6 @@ internal fun GalleryLandingScreen(
             if (selectedFilter != ALL && downloadFilter?.isEmpty() == true) selectedFilter = ALL
         }
 
-        LaunchedEffect(isSortingLatest) { listState.animateScrollToItem(0) }
-
         BackHandler(showSelector) {
             showSelector = false
             showDropDownMenu = false
@@ -249,8 +243,6 @@ internal fun GalleryLandingScreen(
 
                     HIDE_FILTER -> showFilter && platformTypes.size > 1 && showSelector.not()
                     SHOW_FILTER -> showFilter.not() && showSelector.not()
-                    SORT_LATEST -> isSortingLatest.not()
-                    SORT_OLDEST -> isSortingLatest
                     else -> false
                 }
             },
@@ -286,8 +278,6 @@ internal fun GalleryLandingScreen(
                     PAUSE_ALL -> pauseAllDownloads()
                     HIDE_FILTER -> showFilter = false
                     SHOW_FILTER -> showFilter = true
-                    SORT_LATEST -> isSortingLatest = true
-                    SORT_OLDEST -> isSortingLatest = false
                     else -> downloadList?.filter { model -> model.status == PAUSED }?.map { model ->
                         resumeDownload(model.id)
                     }

@@ -446,7 +446,7 @@ internal fun HomeDownloaderSection(
     isImageGeneratorFeatureActive: Boolean,
     modifier: Modifier = Modifier
 ) = with(viewModel) {
-    val downloadList = downloadList.collectAsStateValue()
+    val downloadList = downloadList.collectAsStateValue()?.reversed()
     val downloaderResponseState = downloaderResponseState.collectAsStateValue()
     val youtubeResolutions = youtubeResolutions.collectAsStateValue()
     val urlIntent = getUrlIntent.collectAsStateValue()
