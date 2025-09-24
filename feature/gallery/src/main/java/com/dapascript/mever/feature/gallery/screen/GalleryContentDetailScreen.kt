@@ -42,6 +42,7 @@ import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.getStoragePermission
 import com.dapascript.mever.core.common.util.goToSetting
 import com.dapascript.mever.core.common.util.isVideo
+import com.dapascript.mever.core.common.util.sanitizeFilename
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getStorageInfo
@@ -58,7 +59,7 @@ internal fun GalleryContentDetailScreen(
 ) = with(viewModel) {
     var isFullScreen by rememberSaveable { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
-    var imageExploreData by remember { mutableStateOf(Pair("","")) }
+    var imageExploreData by remember { mutableStateOf(Pair("", "")) }
     var setStoragePermission by remember { mutableStateOf<List<String>>(emptyList()) }
     val pagerState = rememberPagerState(args.initialIndex) { args.contents.size }
     val context = LocalContext.current
@@ -112,13 +113,13 @@ internal fun GalleryContentDetailScreen(
             primaryButtonText = stringResource(R.string.ok),
             onClickPrimary = {
                 errorMessage = ""
-                startDownload(imageExploreData.first, imageExploreData.second)
                 Toast.makeText(
                     context,
                     context.getString(R.string.image_has_been_downloaded),
                     LENGTH_SHORT
                 ).show()
                 scope.launch {
+                    startDownload(imageExploreData.first, imageExploreData.second)
                     val nextPage = pagerState.currentPage + 1
                     if (nextPage < pagerState.pageCount) {
                         pagerState.animateScrollToPage(nextPage)
@@ -137,8 +138,8 @@ internal fun GalleryContentDetailScreen(
                     if (isStorageFull(storageInfo)) {
                         errorMessage = context.getString(R.string.storage_full)
                     } else {
-                        startDownload(imageExploreData.first, imageExploreData.second)
                         scope.launch {
+                            startDownload(imageExploreData.first, imageExploreData.second)
                             val nextPage = pagerState.currentPage + 1
                             if (nextPage < pagerState.pageCount) {
                                 pagerState.animateScrollToPage(nextPage)
@@ -227,7 +228,7 @@ internal fun GalleryContentDetailScreen(
                     onClickBack = { navigator.popBackStack() },
                     onClickDownload = { url, filename ->
                         setStoragePermission = getStoragePermission()
-                        imageExploreData = Pair(url, filename)
+                        imageExploreData = Pair(url, sanitizeFilename(filename))
                     }
                 )
             }
