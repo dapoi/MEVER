@@ -55,7 +55,6 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp150
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp3
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
@@ -97,7 +96,7 @@ internal fun ExploreLandingScreen(
     ) {
         LaunchedEffect(query) {
             snapshotFlow { query }
-                .debounce(800)
+                .debounce(1000)
                 .map { it.trim() }
                 .distinctUntilChanged()
                 .collectLatest {
@@ -167,8 +166,8 @@ internal fun ExploreLandingScreen(
                     columns = if (deviceType == PHONE) StaggeredGridCells.Fixed(2)
                     else StaggeredGridCells.Adaptive(Dp150),
                     contentPadding = PaddingValues(Dp24),
-                    verticalItemSpacing = Dp4,
-                    horizontalArrangement = spacedBy(Dp4)
+                    verticalItemSpacing = Dp16,
+                    horizontalArrangement = spacedBy(Dp16)
                 ) {
                     itemsIndexed(
                         items = result,
@@ -204,8 +203,8 @@ internal fun ExploreLandingScreen(
                 columns = if (deviceType == PHONE) GridCells.Fixed(2)
                 else GridCells.Adaptive(Dp150),
                 contentPadding = PaddingValues(Dp0),
-                verticalArrangement = spacedBy(Dp4),
-                horizontalArrangement = spacedBy(Dp4)
+                verticalArrangement = spacedBy(Dp16),
+                horizontalArrangement = spacedBy(Dp16)
             ) {
                 items(20) {
                     Box(
