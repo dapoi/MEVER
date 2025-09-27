@@ -657,7 +657,7 @@ internal fun HomeDownloaderSection(
             modifier = Modifier.fillMaxWidth(),
             text = "${
                 PlatformType.entries
-                    .filterNot { it in listOf(AI, ALL, YOUTUBE, YOUTUBE_MUSIC) }
+                    .filterNot { it in listOf(AI, ALL, EXPLORE, YOUTUBE, YOUTUBE_MUSIC) }
                     .joinToString(separator = ", ") { it.platformName }
             }, & ${stringResource(R.string.more)}",
             textAlign = TextAlign.Center,

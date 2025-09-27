@@ -576,7 +576,8 @@ private fun FilterContent(
                 .filterNot { it == ALL }
                 .map { type ->
                     MeverButton(
-                        title = type.platformName,
+                        title = if (type == EXPLORE) stringResource(R.string.explore)
+                        else type.platformName,
                         shape = RoundedCornerShape(Dp64),
                         buttonType = getButtonType(selectedFilter == type),
                     ) { onClickFilter(type) }
