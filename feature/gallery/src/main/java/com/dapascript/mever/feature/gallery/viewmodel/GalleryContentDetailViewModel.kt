@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.ui.theme.ThemeType.System
 import com.dapascript.mever.core.common.util.PlatformType.EXPLORE
-import com.dapascript.mever.core.common.util.changeToCurrentDate
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFolder
 import com.dapascript.mever.core.data.source.local.MeverDataStore
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
@@ -14,7 +13,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.lang.System.currentTimeMillis
 import javax.inject.Inject
 
 @HiltViewModel
