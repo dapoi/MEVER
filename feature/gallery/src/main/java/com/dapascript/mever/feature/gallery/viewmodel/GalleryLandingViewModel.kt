@@ -97,12 +97,14 @@ class GalleryLandingViewModel @Inject constructor(
 
     fun syncToGallery(context: Context, fileName: String) {
         viewModelScope.launch {
-            MediaScannerConnection.scanFile(
-                context,
-                arrayOf(getFilePath(meverFolder, fileName)?.absolutePath),
-                null,
-                null
-            )
+            getFilePath(meverFolder, fileName)?.let { filePath ->
+                MediaScannerConnection.scanFile(
+                    context,
+                    arrayOf(filePath.absolutePath),
+                    null,
+                    null
+                )
+            }
         }
     }
 
