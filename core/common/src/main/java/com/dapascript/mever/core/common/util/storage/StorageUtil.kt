@@ -4,7 +4,6 @@ import android.app.usage.StorageStatsManager
 import android.content.Context
 import android.content.Context.STORAGE_SERVICE
 import android.content.Context.STORAGE_STATS_SERVICE
-import android.media.MediaScannerConnection
 import android.os.Environment.DIRECTORY_DOWNLOADS
 import android.os.Environment.getExternalStoragePublicDirectory
 import android.os.storage.StorageManager
@@ -62,28 +61,15 @@ object StorageUtil {
         return folder
     }
 
-    suspend fun getMeverFiles(): List<File>? = withContext(IO) {
-        val dir = getMeverFolder()
+    suspend fun getMeverFiles(dir: File): List<File>? = withContext(IO) {
         if ((dir.exists() && dir.isDirectory).not()) return@withContext emptyList()
         dir.listFiles()?.asSequence()
             ?.filter { it.isFile && it.extension.lowercase() in allowExt }
-            ?.sortedByDescending { it.lastModified() }
             ?.toList()
             ?: emptyList()
     }
 
-    suspend fun getFilePath(fileName: String): String = withContext(IO) {
-        val file = File(getMeverFolder(), fileName)
-        if (file.exists()) file.absolutePath else ""
-    }
-
-    suspend fun syncFileToGallery(context: Context, fileName: String) {
-        val file = File(getFilePath(fileName))
-        if (file.exists()) MediaScannerConnection.scanFile(
-            context,
-            arrayOf(file.absolutePath),
-            null,
-            null
-        )
+    suspend fun getFilePath(dir: File, fileName: String): File? = withContext(IO) {
+        File(dir, fileName).takeIf { it.exists() && it.isFile }
     }
 }

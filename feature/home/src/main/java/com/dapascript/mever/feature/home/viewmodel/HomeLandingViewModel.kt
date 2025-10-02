@@ -1,5 +1,7 @@
 package com.dapascript.mever.feature.home.viewmodel
 
+import android.content.Context
+import android.media.MediaScannerConnection
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -68,7 +70,12 @@ class HomeLandingViewModel @Inject constructor(
     val downloadList = ketch.observeDownloads()
         .map { downloads ->
             downloads.map { downloadModel ->
-                downloadModel.copy(path = getFilePath(downloadModel.fileName))
+                downloadModel.copy(
+                    path = getFilePath(
+                        dir = meverFolder,
+                        fileName = downloadModel.fileName
+                    )?.absolutePath.orEmpty()
+                )
             }
         }
         .distinctUntilChanged()
@@ -163,9 +170,20 @@ class HomeLandingViewModel @Inject constructor(
 
     fun delete(id: Int) = ketch.clearDb(id)
 
+    fun syncToGallery(context: Context, fileName: String) {
+        viewModelScope.launch {
+            MediaScannerConnection.scanFile(
+                context,
+                arrayOf(getFilePath(meverFolder, fileName)?.absolutePath),
+                null,
+                null
+            )
+        }
+    }
+
     fun refreshDatabase() {
         viewModelScope.launch {
-            val existingNames = getMeverFiles()
+            val existingNames = getMeverFiles(meverFolder)
                 ?.map { it.name.lowercase() }
                 ?.toSet()
                 ?: emptySet()

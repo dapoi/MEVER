@@ -1,5 +1,7 @@
 package com.dapascript.mever.feature.gallery.viewmodel
 
+import android.content.Context
+import android.media.MediaScannerConnection
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -10,6 +12,7 @@ import com.dapascript.mever.core.common.util.PlatformType
 import com.dapascript.mever.core.common.util.PlatformType.ALL
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getFilePath
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFiles
+import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFolder
 import com.ketch.DownloadModel
 import com.ketch.Ketch
 import com.ketch.Status.SUCCESS
@@ -33,13 +36,22 @@ class GalleryLandingViewModel @Inject constructor(
     private val ketch: Ketch
 ) : BaseViewModel() {
 
+    private val meverFolder by lazy { getMeverFolder() }
+
     var selectedFilter by mutableStateOf(ALL)
     var titleHeight by mutableIntStateOf(0)
 
     @OptIn(FlowPreview::class)
     val downloadList = ketch.observeDownloads()
         .map { downloads ->
-            downloads.map { it.copy(path = getFilePath(it.fileName)) }
+            downloads.map {
+                it.copy(
+                    path = getFilePath(
+                        dir = meverFolder,
+                        fileName = it.fileName
+                    )?.absolutePath.orEmpty()
+                )
+            }
         }
         .distinctUntilChanged()
         .conflate()
@@ -83,9 +95,20 @@ class GalleryLandingViewModel @Inject constructor(
 
     fun deleteAll() = ketch.clearAllDb()
 
+    fun syncToGallery(context: Context, fileName: String) {
+        viewModelScope.launch {
+            MediaScannerConnection.scanFile(
+                context,
+                arrayOf(getFilePath(meverFolder, fileName)?.absolutePath),
+                null,
+                null
+            )
+        }
+    }
+
     fun refreshDatabase() {
         viewModelScope.launch {
-            val existingNames = getMeverFiles()
+            val existingNames = getMeverFiles(meverFolder)
                 ?.map { it.name.lowercase() }
                 ?.toSet()
                 ?: emptySet()

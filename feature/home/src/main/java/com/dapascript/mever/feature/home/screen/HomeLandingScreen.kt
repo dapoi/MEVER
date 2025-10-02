@@ -150,7 +150,6 @@ import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getStorageInfo
 import com.dapascript.mever.core.common.util.storage.StorageUtil.isStorageFull
-import com.dapascript.mever.core.common.util.storage.StorageUtil.syncFileToGallery
 import com.dapascript.mever.core.navigation.helper.navigateTo
 import com.dapascript.mever.core.navigation.route.ExploreScreenRoute.ExploreLandingRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
@@ -171,11 +170,8 @@ import com.ketch.Status.PAUSED
 import com.ketch.Status.SUCCESS
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.File
 import java.lang.System.currentTimeMillis
 import kotlin.random.Random
@@ -467,12 +463,9 @@ internal fun HomeDownloaderSection(
     )
 
     LaunchedEffect(downloadList) {
-        withContext(IO) {
-            downloadList
-                ?.filter { it.status == SUCCESS }
-                ?.map { async { syncFileToGallery(context, it.fileName) } }
-                ?.awaitAll()
-        }
+        downloadList
+            ?.filter { it.status == SUCCESS }
+            ?.map { syncToGallery(context, it.fileName) }
     }
 
     LaunchedEffect(urlIntent) {

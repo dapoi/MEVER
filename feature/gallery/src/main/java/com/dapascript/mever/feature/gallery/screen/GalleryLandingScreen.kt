@@ -83,7 +83,6 @@ import com.dapascript.mever.core.common.util.isMusic
 import com.dapascript.mever.core.common.util.navigateToMusic
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
-import com.dapascript.mever.core.common.util.storage.StorageUtil.syncFileToGallery
 import com.dapascript.mever.core.navigation.helper.navigateTo
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute.Content
@@ -104,14 +103,10 @@ import com.ketch.Status.FAILED
 import com.ketch.Status.PAUSED
 import com.ketch.Status.PROGRESS
 import com.ketch.Status.SUCCESS
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.File
 
 @Composable
@@ -199,12 +194,9 @@ internal fun GalleryLandingScreen(
         }
 
         LaunchedEffect(downloadList) {
-            withContext(IO) {
-                downloadList
-                    ?.filter { it.status == SUCCESS }
-                    ?.map { async { syncFileToGallery(context, it.fileName) } }
-                    ?.awaitAll()
-            }
+            downloadList
+                ?.filter { it.status == SUCCESS }
+                ?.map { syncToGallery(context, it.fileName) }
         }
 
         LaunchedEffect(lifecycleOwner.value) {
