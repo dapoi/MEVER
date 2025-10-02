@@ -15,13 +15,11 @@ data class FacebookDownloaderResponse(
         val response: Int? = null
     )
 
-    fun mapToEntity() = data?.lastOrNull { it.response == 200 }?.let {
-        listOf(
-            ContentEntity(
-                url = it.url.orEmpty(),
-                status = status ?: true,
-                quality = it.quality.orEmpty()
-            )
+    fun mapToEntity() = data?.filter { it.response == 200 }?.map {
+        ContentEntity(
+            url = it.url.orEmpty(),
+            status = status ?: true,
+            quality = it.quality.orEmpty()
         )
     }
 }
