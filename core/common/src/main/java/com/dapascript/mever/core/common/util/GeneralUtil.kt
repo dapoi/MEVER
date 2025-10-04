@@ -299,9 +299,9 @@ fun getPlatformType(url: String, type: String = "video"): PlatformType {
 
 fun isValidUrl(url: String) = WEB_URL.matcher(url).matches()
 
-fun isVideo(path: String) = path.endsWith(".mp4")
+fun isVideo(source: String) = source.endsWith(".mp4")
 
-fun isMusic(path: String) = path.endsWith(".mp3")
+fun isMusic(source: String) = source.endsWith(".mp3")
 
 fun changeToCurrentDate(date: Long): String {
     val calendar = getInstance()

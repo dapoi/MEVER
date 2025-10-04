@@ -34,7 +34,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign.Companion.End
 import androidx.compose.ui.unit.Dp
 import com.dapascript.mever.core.common.R
-import com.dapascript.mever.core.common.ui.attr.MeverImageAttr.getBitmapFromUrl
 import com.dapascript.mever.core.common.ui.component.MeverBottomSheet
 import com.dapascript.mever.core.common.ui.component.MeverImage
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
@@ -55,39 +54,32 @@ import com.dapascript.mever.core.data.model.local.ContentEntity
 @Composable
 internal fun HandleBottomSheetDownload(
     listContent: List<ContentEntity>,
-    showBottomSheet: Boolean,
     modifier: Modifier = Modifier,
     onClickDownload: (String) -> Unit,
+    onClickPreview: (Int) -> Unit,
     onClickDismiss: () -> Unit
 ) {
     var selectMultipleItems by remember(listContent) {
         mutableStateOf(listContent.indices.toSet())
     }
-    var selectedIndex by remember(listContent) {
-        mutableStateOf(if (listContent.size == 1) 0 else null)
+    val isMusic = remember(listContent) {
+        isMusic(listContent.firstOrNull()?.fileName.orEmpty())
     }
 
     MeverBottomSheet(
-        showBottomSheet = showBottomSheet,
+        showBottomSheet = listContent.isNotEmpty(),
         modifier = modifier
     ) {
         Column(modifier = Modifier.wrapContentSize()) {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                selectedIndex?.let { index ->
-                    MeverImage(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(Dp250)
-                            .padding(bottom = Dp32, start = Dp24, end = Dp24)
-                            .clip(RoundedCornerShape(Dp12)),
-                        source = getImageSource(
-                            url = listContent[index].url,
-                            fileName = listContent[index].fileName,
-                            type = listContent[index].type,
-                            urlThumbnail = listContent[index].thumbnail
-                        )
-                    )
-                }
+                if (isMusic) MeverImage(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(Dp250)
+                        .padding(bottom = Dp32, start = Dp24, end = Dp24)
+                        .clip(RoundedCornerShape(Dp12)),
+                    source = R.drawable.ic_music
+                )
                 Text(
                     text = stringResource(R.string.choose_file),
                     style = typography.bodyBold1.copy(fontSize = Sp20),
@@ -99,8 +91,8 @@ internal fun HandleBottomSheetDownload(
                         MeverCheckBoxButton(
                             value = getValueSelector(index, content),
                             isChecked = selectMultipleItems.contains(index),
-                            showPreviewButton = listContent.size > 1,
-                            onClickPreview = { selectedIndex = index },
+                            showPreviewButton = isMusic.not(),
+                            onClickPreview = { onClickPreview(index) },
                             onChooseValue = {
                                 selectMultipleItems = if (selectMultipleItems.contains(index)) {
                                     selectMultipleItems - index
@@ -224,21 +216,5 @@ private fun getValueSelector(
         content.type.contains("mp4") -> stringResource(R.string.video)
         content.type.contains("mp3") -> stringResource(R.string.audio)
         else -> stringResource(R.string.image, index + 1)
-    }
-}
-
-@Composable
-private fun getImageSource(
-    url: String,
-    fileName: String,
-    type: String,
-    urlThumbnail: String?
-) = when {
-    isMusic(fileName) && urlThumbnail.isNullOrEmpty() -> R.drawable.ic_music
-    else -> {
-        urlThumbnail?.takeIf { it.isNotEmpty() } ?: getBitmapFromUrl(
-            url = url,
-            extensionFile = type
-        )
     }
 }

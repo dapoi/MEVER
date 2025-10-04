@@ -80,6 +80,7 @@ import com.dapascript.mever.core.common.util.PlatformType.AI
 import com.dapascript.mever.core.common.util.PlatformType.ALL
 import com.dapascript.mever.core.common.util.PlatformType.EXPLORE
 import com.dapascript.mever.core.common.util.isMusic
+import com.dapascript.mever.core.common.util.isVideo
 import com.dapascript.mever.core.common.util.navigateToMusic
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
@@ -306,7 +307,8 @@ internal fun GalleryLandingScreen(
                                     }?.map {
                                         Content(
                                             id = it.id,
-                                            filePath = it.path,
+                                            isVideo = isVideo(it.path),
+                                            primaryContent = it.path,
                                             fileName = it.fileName
                                         )
                                     } ?: emptyList(),
@@ -562,7 +564,7 @@ private fun FilterContent(
             MeverButton(
                 title = stringResource(R.string.all),
                 shape = RoundedCornerShape(Dp64),
-                buttonType = getButtonType(selectedFilter == ALL),
+                buttonType = getButtonType(selectedFilter == ALL)
             ) { onClickFilter(ALL) }
             platformTypes
                 .filterNot { it == ALL }
@@ -571,7 +573,7 @@ private fun FilterContent(
                         title = if (type == EXPLORE) stringResource(R.string.explore)
                         else type.platformName,
                         shape = RoundedCornerShape(Dp64),
-                        buttonType = getButtonType(selectedFilter == type),
+                        buttonType = getButtonType(selectedFilter == type)
                     ) { onClickFilter(type) }
                 }
         }

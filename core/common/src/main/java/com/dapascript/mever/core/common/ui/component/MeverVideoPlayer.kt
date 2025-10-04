@@ -75,12 +75,14 @@ import androidx.core.graphics.toRect
 import androidx.lifecycle.Lifecycle.Event.ON_STOP
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.media3.common.MediaItem.fromUri
+import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaItem.ClippingConfiguration
 import androidx.media3.common.Player
 import androidx.media3.common.Player.Events
 import androidx.media3.common.Player.Listener
 import androidx.media3.common.Player.STATE_BUFFERING
 import androidx.media3.common.Player.STATE_ENDED
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import com.dapascript.mever.core.common.R
@@ -106,7 +108,6 @@ import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.LocalActivity
-import com.dapascript.mever.core.common.util.convertFilename
 import com.dapascript.mever.core.common.util.convertToTimeFormat
 import com.dapascript.mever.core.common.util.hideSystemBar
 import com.dapascript.mever.core.common.util.isSystemBarVisible
@@ -115,15 +116,18 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 
+@androidx.annotation.OptIn(UnstableApi::class)
 @SuppressLint("SourceLockedOrientationActivity", "ImplicitSamInstance")
 @Composable
 fun MeverVideoPlayer(
+    fileName: String,
+    isOnlineContent: Boolean,
+    videoSource: String,
     isInitialIndex: Boolean,
     isPageVisible: Boolean,
     isFullScreen: Boolean,
     isScrolling: Boolean,
     isPipEnabled: Boolean,
-    source: String,
     modifier: Modifier = Modifier,
     onClickDelete: () -> Unit,
     onClickShare: () -> Unit,
@@ -199,7 +203,7 @@ fun MeverVideoPlayer(
         }
     }
 
-    DisposableEffect(source, isPipEnabled) {
+    DisposableEffect(videoSource, isPipEnabled) {
         val listener = object : Listener {
             override fun onEvents(player: Player, events: Events) {
                 super.onEvents(player, events)
@@ -228,10 +232,16 @@ fun MeverVideoPlayer(
         val observer = LifecycleEventObserver { _, event ->
             if (event == ON_STOP && isPipEnabled.not()) player.pause()
         }
+        val mediaItem = MediaItem.Builder()
+            .setUri(videoSource)
+            .setClipping(isOnlineContent)
+            .build()
+
         lifecycleOwner.lifecycle.addObserver(observer)
         if (SDK_INT < S) activity.addOnUserLeaveHintListener(onUserLeaveBehavior)
+
         player.addListener(listener)
-        player.setMediaItem(fromUri(source))
+        player.setMediaItem(mediaItem)
         player.prepare()
 
         onDispose {
@@ -262,8 +272,9 @@ fun MeverVideoPlayer(
                 },
             context = context,
             player = player,
+            title = fileName,
+            isStreaming = isOnlineContent,
             isVideoBuffering = isVideoBuffering,
-            title = convertFilename(source.substringAfterLast("/")).ifEmpty { "Video" },
             iconPlayOrPause = if (isVideoPlaying) R.drawable.ic_pause else R.drawable.ic_play,
             isControllerVisible = showController,
             isFullScreen = isFullScreen,
@@ -349,8 +360,9 @@ fun MeverVideoPlayer(
 private fun VideoPlayer(
     context: Context,
     player: Player,
-    isVideoBuffering: Boolean,
     title: String,
+    isStreaming: Boolean,
+    isVideoBuffering: Boolean,
     iconPlayOrPause: Int,
     isControllerVisible: Boolean,
     isFullScreen: Boolean,
@@ -396,7 +408,7 @@ private fun VideoPlayer(
             MeverTopBar(
                 modifier = Modifier.padding(horizontal = Dp24),
                 topBarArgs = TopBarArgs(
-                    actionMenus = listOf(
+                    actionMenus = if (isStreaming) emptyList() else listOf(
                         ActionMenu(
                             icon = R.drawable.ic_more,
                             nameIcon = "More",
@@ -428,6 +440,7 @@ private fun VideoPlayer(
                 videoTimer = videoTimer,
                 totalDuration = totalDuration,
                 isFullScreen = isFullScreen,
+                isStreaming = isStreaming,
                 bufferProgress = bufferProgress,
                 onChangeSeekbar = onChangeSeekbar,
                 onClickFullScreen = onClickFullScreen
@@ -507,6 +520,7 @@ private fun VideoBottomControlSection(
     videoTimer: Long,
     totalDuration: Long,
     isFullScreen: Boolean,
+    isStreaming: Boolean,
     bufferProgress: Float,
     modifier: Modifier = Modifier,
     onChangeSeekbar: (Float) -> Unit,
@@ -591,7 +605,7 @@ private fun VideoBottomControlSection(
                 style = typography.body1,
                 color = MeverWhite
             )
-            Image(
+            if (isStreaming.not()) Image(
                 painter = painterResource(
                     if (isFullScreen) R.drawable.ic_fullscreen_exit else R.drawable.ic_fullscreen
                 ),
@@ -615,3 +629,13 @@ private fun Activity.updatePipParams(
     if (SDK_INT >= S) autoEnter?.let { builder.setAutoEnterEnabled(it) }
     setPictureInPictureParams(builder.build())
 }
+
+private fun MediaItem.Builder.setClipping(isStreaming: Boolean) = if (isStreaming) {
+    setClippingConfiguration(
+        ClippingConfiguration.Builder()
+            .setStartPositionMs(0)
+            .setEndPositionMs(10000L)
+            .setRelativeToLiveWindow(true)
+            .build()
+    )
+} else this

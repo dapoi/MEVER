@@ -41,7 +41,6 @@ import com.dapascript.mever.core.common.ui.theme.ThemeType.Light
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.getStoragePermission
 import com.dapascript.mever.core.common.util.goToSetting
-import com.dapascript.mever.core.common.util.isVideo
 import com.dapascript.mever.core.common.util.sanitizeFilename
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
@@ -196,11 +195,13 @@ internal fun GalleryContentDetailScreen(
             val content = args.contents[page]
 
             with(content) {
-                if (isVideo(filePath)) MeverVideoPlayer(
+                if (isVideo) MeverVideoPlayer(
                     modifier = itemModifier,
-                    source = filePath,
-                    isScrolling = pagerState.isScrollInProgress,
+                    fileName = fileName,
+                    videoSource = primaryContent,
+                    isOnlineContent = isOnlineContent,
                     isPageVisible = pagerState.currentPage == page,
+                    isScrolling = pagerState.isScrollInProgress,
                     isInitialIndex = args.initialIndex == page,
                     isFullScreen = isFullScreen,
                     isPipEnabled = isPipEnabled,
@@ -209,20 +210,21 @@ internal fun GalleryContentDetailScreen(
                     onClickShare = {
                         shareContent(
                             context = context,
-                            file = File(filePath)
+                            file = File(primaryContent)
                         )
                     },
                     onClickBack = { navigator.popBackStack() }
                 ) else MeverPhotoViewer(
                     modifier = itemModifier,
-                    source = filePath.ifEmpty { url },
-                    preview = preview,
                     fileName = fileName,
+                    isOnlineContent = isOnlineContent,
+                    primaryImage = primaryContent,
+                    secondaryImage = secondaryContent,
                     onClickDelete = { deleteContent(id) },
                     onClickShare = {
                         shareContent(
                             context = context,
-                            file = File(filePath)
+                            file = File(primaryContent)
                         )
                     },
                     onClickBack = { navigator.popBackStack() },

@@ -68,9 +68,10 @@ import kotlin.math.roundToInt
 
 @Composable
 fun MeverPhotoViewer(
-    source: String,
-    preview: String,
     fileName: String,
+    isOnlineContent: Boolean,
+    primaryImage: String,
+    secondaryImage: String,
     modifier: Modifier = Modifier,
     onClickBack: () -> Unit,
     onClickDelete: () -> Unit,
@@ -118,13 +119,13 @@ fun MeverPhotoViewer(
             modifier = Modifier
                 .wrapContentSize()
                 .align(Center),
-            source = source,
-            preview = preview,
+            primaryImage = primaryImage,
+            secondaryImage = secondaryImage,
             isPhotoTouched = isPhotoTouched,
             onPhotoTouched = { isPhotoTouched = it },
             onZooming = { isZoomed = it }
         )
-        if (preview.isNotEmpty()) MeverButton(
+        if (secondaryImage.isNotEmpty()) MeverButton(
             modifier = Modifier
                 .align(BottomCenter)
                 .padding(bottom = Dp150),
@@ -133,7 +134,7 @@ fun MeverPhotoViewer(
                 contentColor = MeverWhite,
                 borderColor = MeverWhite
             )
-        ) { onClickDownload(source.ifEmpty { preview }, fileName) }
+        ) { onClickDownload(primaryImage.ifEmpty { secondaryImage }, fileName) }
         AnimatedVisibility(
             visible = isPhotoTouched.not(),
             enter = fadeIn(),
@@ -144,7 +145,7 @@ fun MeverPhotoViewer(
                     .padding(horizontal = Dp24)
                     .systemBarsPadding(),
                 topBarArgs = TopBarArgs(
-                    actionMenus = if (preview.isEmpty()) listOf(
+                    actionMenus = if (isOnlineContent.not()) listOf(
                         ActionMenu(
                             icon = R.drawable.ic_more,
                             nameIcon = "More",
@@ -210,8 +211,8 @@ fun MeverPhotoViewer(
 
 @Composable
 private fun PhotoViewer(
-    source: String,
-    preview: String,
+    primaryImage: String,
+    secondaryImage: String,
     isPhotoTouched: Boolean,
     modifier: Modifier = Modifier,
     onPhotoTouched: (Boolean) -> Unit,
@@ -298,12 +299,12 @@ private fun PhotoViewer(
         var isImageError by remember { mutableStateOf(false) }
         SubcomposeAsyncImage(
             modifier = Modifier.fillMaxSize(),
-            model = if (isImageError && preview.isNotEmpty()) preview else source,
+            model = if (isImageError && secondaryImage.isNotEmpty()) secondaryImage else primaryImage,
             contentDescription = "Photo Viewer",
             loading = {
-                if (preview.isNotEmpty()) Image(
+                if (secondaryImage.isNotEmpty()) Image(
                     modifier = Modifier.fillMaxSize(),
-                    painter = rememberAsyncImagePainter(preview),
+                    painter = rememberAsyncImagePainter(secondaryImage),
                     contentDescription = "Loading Image"
                 ) else null
             },

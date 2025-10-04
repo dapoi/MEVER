@@ -144,6 +144,7 @@ import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.getStoragePermission
 import com.dapascript.mever.core.common.util.goToSetting
 import com.dapascript.mever.core.common.util.isMusic
+import com.dapascript.mever.core.common.util.isVideo
 import com.dapascript.mever.core.common.util.navigateToMusic
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.shareContent
@@ -170,6 +171,9 @@ import com.ketch.Status.PAUSED
 import com.ketch.Status.SUCCESS
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
@@ -544,7 +548,6 @@ internal fun HomeDownloaderSection(
             .fillMaxWidth()
             .navigationBarsPadding(),
         listContent = contents,
-        showBottomSheet = contents.isNotEmpty(),
         onClickDownload = { url ->
             scope.launch {
                 startDownload(
@@ -558,6 +561,29 @@ internal fun HomeDownloaderSection(
                     thumbnail = contents.firstOrNull()?.thumbnail.orEmpty()
                 )
                 contents = emptyList()
+            }
+        },
+        onClickPreview = { initialIndex ->
+            scope.launch {
+                val processedContents = coroutineScope {
+                    contents.mapIndexed { index, content ->
+                        async {
+                            val extension = getExtensionFromUrl(
+                                url = content.url,
+                                extensionFile = content.type
+                            ).orEmpty()
+
+                            Content(
+                                id = index,
+                                isOnlineContent = true,
+                                isVideo = isVideo(extension),
+                                primaryContent = content.url,
+                                fileName = content.fileName
+                            )
+                        }
+                    }.awaitAll()
+                }
+                navController.navigateTo(GalleryContentDetailRoute(processedContents, initialIndex))
             }
         },
         onClickDismiss = { contents = emptyList() }
@@ -847,7 +873,8 @@ internal fun HomeDownloaderSection(
                                                         }.map {
                                                             Content(
                                                                 id = it.id,
-                                                                filePath = it.path,
+                                                                isVideo = isVideo(it.path),
+                                                                primaryContent = it.path,
                                                                 fileName = it.fileName
                                                             )
                                                         },
