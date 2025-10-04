@@ -13,7 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp96
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,7 +34,7 @@ fun MeverBottomSheet(
                     thickness = Dp2,
                     color = colorScheme.onPrimary,
                     modifier = Modifier
-                        .width(Dp96)
+                        .width(Dp80)
                         .padding(vertical = Dp24)
                 )
             },

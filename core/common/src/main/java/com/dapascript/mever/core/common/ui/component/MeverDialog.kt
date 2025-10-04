@@ -42,6 +42,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.dapascript.mever.core.common.R
@@ -130,6 +131,7 @@ private fun DialogContent(
     ) {
         Text(
             text = title,
+            textAlign = TextAlign.Center,
             style = typography.bodyBold1,
             color = titleColor ?: colorScheme.onPrimary
         )
