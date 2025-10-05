@@ -4,7 +4,6 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults.centerAlignedTopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -30,7 +29,7 @@ fun MeverTopBar(
                 onClickBack = onClickBack
             ),
             actions = actions(actionMenus),
-            colors = centerAlignedTopAppBarColors(
+            colors = topAppBarColors(
                 containerColor = topBarColor ?: MeverTransparent,
                 navigationIconContentColor = iconBackColor ?: colorScheme.onPrimary,
                 titleContentColor = titleColor ?: colorScheme.onPrimary,

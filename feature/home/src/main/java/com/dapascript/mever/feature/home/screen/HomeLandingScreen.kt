@@ -749,7 +749,7 @@ internal fun HomeDownloaderSection(
                             contentAlignment = Center
                         ) {
                             Text(
-                                text = "+5",
+                                text = "+6",
                                 textAlign = TextAlign.Center,
                                 style = typography.bodyBold1,
                                 color = MeverPurple
