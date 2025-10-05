@@ -9,6 +9,7 @@ import com.dapascript.mever.core.common.util.PlatformType.EXPLORE
 import com.dapascript.mever.core.common.util.PlatformType.FACEBOOK
 import com.dapascript.mever.core.common.util.PlatformType.INSTAGRAM
 import com.dapascript.mever.core.common.util.PlatformType.PINTEREST
+import com.dapascript.mever.core.common.util.PlatformType.SOUNDCLOUD
 import com.dapascript.mever.core.common.util.PlatformType.SPOTIFY
 import com.dapascript.mever.core.common.util.PlatformType.TERABOX
 import com.dapascript.mever.core.common.util.PlatformType.THREADS
@@ -69,6 +70,7 @@ class DownloaderWorker @AssistedInject constructor(
         FACEBOOK -> getFacebookDownloader(url).mapToEntity()
         INSTAGRAM -> getInstagramDownloader(url).mapToEntity()
         PINTEREST -> getPinterestDownloader(url).mapToEntity()
+        SOUNDCLOUD -> getSoundCloudDownloader(url).mapToEntity()
         SPOTIFY -> getSpotifyDownloader(url).mapToEntity()
         TERABOX -> getTeraBoxDownloader(url).mapToEntity()
         THREADS -> getThreadsDownloader(url).mapToEntity()

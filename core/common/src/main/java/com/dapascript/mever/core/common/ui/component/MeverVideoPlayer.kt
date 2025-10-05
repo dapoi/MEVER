@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
 import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT
 import android.graphics.Rect
+import android.net.Uri.fromFile
 import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.S
 import androidx.activity.compose.BackHandler
@@ -35,9 +36,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults.Thumb
 import androidx.compose.material3.SliderDefaults.Track
@@ -72,18 +75,26 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.graphics.toRect
+import androidx.core.net.toUri
+import androidx.core.view.doOnAttach
+import androidx.core.view.doOnDetach
 import androidx.lifecycle.Lifecycle.Event.ON_STOP
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaItem.ClippingConfiguration
+import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.Player.Events
 import androidx.media3.common.Player.Listener
 import androidx.media3.common.Player.STATE_BUFFERING
 import androidx.media3.common.Player.STATE_ENDED
 import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.DefaultDataSource
+import androidx.media3.datasource.DefaultHttpDataSource
+import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.ui.PlayerView
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.attr.MeverContentViewerAttr.ContentViewerActionMenu
@@ -95,12 +106,14 @@ import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp0
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp10
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp14
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp6
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverBlack
 import com.dapascript.mever.core.common.ui.theme.MeverDark
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
@@ -115,6 +128,8 @@ import com.dapascript.mever.core.common.util.onCustomClick
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
+import java.io.File
+import kotlin.math.max
 
 @androidx.annotation.OptIn(UnstableApi::class)
 @SuppressLint("SourceLockedOrientationActivity", "ImplicitSamInstance")
@@ -136,7 +151,31 @@ fun MeverVideoPlayer(
 ) {
     val context = LocalContext.current
     val activity = LocalActivity.current
-    val player = remember(context) { ExoPlayer.Builder(context).build() }
+
+    // Player
+    val httpFactory = remember {
+        DefaultHttpDataSource.Factory()
+            .setConnectTimeoutMs(10_000)
+            .setReadTimeoutMs(10_000)
+            .setAllowCrossProtocolRedirects(true)
+    }
+    val dataSourceFactory = remember { DefaultDataSource.Factory(context, httpFactory) }
+    val mediaSourceFactory = remember { DefaultMediaSourceFactory(dataSourceFactory) }
+    val player = remember(context) {
+        ExoPlayer.Builder(context)
+            .setMediaSourceFactory(mediaSourceFactory)
+            .setLoadControl(
+                DefaultLoadControl.Builder()
+                    .setBufferDurationsMs(
+                        15_000, // minBuffer
+                        50_000, // maxBuffer
+                        1_500,  // bufferForPlayback
+                        3_000   // bufferForPlaybackAfterRebuffer
+                    )
+                    .build()
+            )
+            .build()
+    }
 
     // State
     var totalDuration by rememberSaveable { mutableLongStateOf(0L) }
@@ -150,8 +189,13 @@ fun MeverVideoPlayer(
     var showController by remember { mutableStateOf(false) }
     var showDropDownMenu by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var showErrorPlayingDialog by remember { mutableStateOf(false) }
     val lifecycleOwner by rememberUpdatedState(LocalLifecycleOwner.current)
     val shouldEnterPipMode by rememberUpdatedState(isVideoPlaying)
+    var viewAttached by remember { mutableStateOf(false) }
+    var didRecoverOnce by remember { mutableStateOf(false) }
+    var lastRect by remember { mutableStateOf<Rect?>(null) }
+    var pendingRect by remember { mutableStateOf<Rect?>(null) }
 
     // Fullscreen Handlers
     val enterFullScreen = {
@@ -169,7 +213,7 @@ fun MeverVideoPlayer(
         if (isPageVisible) {
             snapshotFlow { isScrolling }.first { it.not() }
             if (isInitialIndex && hasAutoplayed.not()) {
-                player.play()
+                player.playWhenReady = true
                 showController = true
                 hasAutoplayed = true
             }
@@ -178,9 +222,9 @@ fun MeverVideoPlayer(
         }
     }
 
-    LaunchedEffect(showController, showDropDownMenu, isFullScreen) {
+    LaunchedEffect(showController, showDropDownMenu, isVideoBuffering, isFullScreen) {
         hideSystemBar(activity, showController.not() && isFullScreen)
-        if (showController && showDropDownMenu.not()) {
+        if (showController && showDropDownMenu.not() && isVideoBuffering.not()) {
             delay(2000L)
             showController = false
         }
@@ -194,12 +238,34 @@ fun MeverVideoPlayer(
     }
 
     LaunchedEffect(isVideoBuffering) {
-        if (isVideoBuffering) {
-            delay(3000L)
-            val currentPosition = player.currentPosition
-            val seekBackPosition = (currentPosition - 10000L).coerceAtLeast(0L)
-            player.seekTo(seekBackPosition)
+        if (isVideoBuffering && isOnlineContent.not() && didRecoverOnce.not()) {
+            didRecoverOnce = true
+            delay(1500)
+            player.seekTo(max(0L, player.currentPosition - 5_000))
             player.playWhenReady = true
+        }
+        if (isVideoBuffering.not()) didRecoverOnce = false
+    }
+
+    LaunchedEffect(viewAttached, videoSource, isOnlineContent) {
+        if (viewAttached) {
+            val itemBuilder = MediaItem.Builder()
+                .setUri(
+                    if (isOnlineContent) videoSource.toUri()
+                    else fromFile(File(videoSource))
+                )
+                .setClipping(isOnlineContent)
+
+            player.setMediaItem(itemBuilder.build())
+            player.prepare()
+        }
+    }
+
+    LaunchedEffect(pendingRect, isPipEnabled, isVideoPlaying) {
+        if (isPipEnabled && isVideoPlaying && pendingRect != null && pendingRect != lastRect) {
+            delay(60)
+            activity.updatePipParams(autoEnter = true, sourceRect = pendingRect)
+            lastRect = pendingRect
         }
     }
 
@@ -217,9 +283,19 @@ fun MeverVideoPlayer(
                 isVideoBuffering = state == STATE_BUFFERING
             }
 
+            override fun onRenderedFirstFrame() {
+                super.onRenderedFirstFrame()
+                isVideoBuffering = false
+            }
+
             override fun onIsPlayingChanged(isPlaying: Boolean) {
                 super.onIsPlayingChanged(isPlaying)
                 isVideoPlaying = isPlaying
+            }
+
+            override fun onPlayerError(error: PlaybackException) {
+                super.onPlayerError(error)
+                showErrorPlayingDialog = true
             }
         }
         val onUserLeaveBehavior: () -> Unit = {
@@ -232,43 +308,60 @@ fun MeverVideoPlayer(
         val observer = LifecycleEventObserver { _, event ->
             if (event == ON_STOP && isPipEnabled.not()) player.pause()
         }
-        val mediaItem = MediaItem.Builder()
-            .setUri(videoSource)
-            .setClipping(isOnlineContent)
-            .build()
 
         lifecycleOwner.lifecycle.addObserver(observer)
+
         if (SDK_INT < S) activity.addOnUserLeaveHintListener(onUserLeaveBehavior)
 
         player.addListener(listener)
-        player.setMediaItem(mediaItem)
-        player.prepare()
 
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
             player.removeListener(listener)
             if (SDK_INT < S) activity.removeOnUserLeaveHintListener(onUserLeaveBehavior)
             if (SDK_INT >= S) activity.updatePipParams(autoEnter = false)
-            player.stop()
-            player.clearMediaItems()
             hideSystemBar(activity, isSystemBarVisible(activity).not())
         }
     }
 
     DisposableEffect(Unit) { onDispose { player.release() } }
 
+    MeverDialog(
+        showDialog = showErrorPlayingDialog,
+        meverDialogArgs = MeverDialogArgs(title = stringResource(R.string.error_title)),
+        hideInteractionButton = true
+    ) {
+        Text(
+            modifier = Modifier.fillMaxWidth(),
+            text = stringResource(R.string.failed_playback),
+            textAlign = TextAlign.Center,
+            style = typography.body1,
+            color = colorScheme.onPrimary
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(Dp14))
+                .onCustomClick { onClickBack() }
+                .padding(vertical = Dp8),
+            contentAlignment = Center
+        ) {
+            Text(
+                text = stringResource(R.string.close),
+                style = typography.bodyBold2,
+                color = colorScheme.primary
+            )
+        }
+    }
+
     Box(modifier = modifier) {
         VideoPlayer(
             modifier = Modifier
                 .fillMaxSize()
                 .onGloballyPositioned { layoutCoordinates ->
-                    val sourceRect = if (isVideoPlaying && isPipEnabled) {
+                    pendingRect = if (isVideoPlaying && isPipEnabled) {
                         layoutCoordinates.boundsInWindow().toAndroidRectF().toRect()
                     } else null
-                    activity.updatePipParams(
-                        autoEnter = isVideoPlaying && isPipEnabled,
-                        sourceRect = sourceRect
-                    )
                 },
             context = context,
             player = player,
@@ -307,7 +400,8 @@ fun MeverVideoPlayer(
             onChangeSeekbar = { position ->
                 player.seekTo(position.toLong())
                 showController = true
-            }
+            },
+            onViewAttached = { attached -> viewAttached = attached }
         )
         MeverPopupDropDownMenu(
             modifier = Modifier
@@ -377,7 +471,8 @@ private fun VideoPlayer(
     onClickFullScreen: () -> Unit,
     onClickActionMenu: (String) -> Unit,
     onClickBack: () -> Unit,
-    onChangeSeekbar: (Float) -> Unit
+    onChangeSeekbar: (Float) -> Unit,
+    onViewAttached: (Boolean) -> Unit
 ) = Box(
     modifier = modifier
         .background(MeverBlack)
@@ -392,8 +487,11 @@ private fun VideoPlayer(
             PlayerView(context).apply {
                 this.player = player
                 useController = false
+                doOnAttach { onViewAttached(true) }
+                doOnDetach { onViewAttached(false) }
             }
-        }
+        },
+        update = { view -> if (view.player !== player) view.player = player }
     )
     AnimatedVisibility(
         visible = isControllerVisible,

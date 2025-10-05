@@ -110,4 +110,5 @@
     <string name="ok">Oke</string>
     <string name="keyword_hint">Masukkan kata kunci…</string>
     <string name="no_result">Waduh, nggak ketemu hasilnya 😕</string>
+    <string name="failed_playback">Video ini gagal diputar 😕 harap coba lagi nanti ya.</string>
 </resources>

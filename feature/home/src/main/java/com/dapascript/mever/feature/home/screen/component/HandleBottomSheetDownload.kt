@@ -192,7 +192,7 @@ private fun MeverCheckBoxButton(
     Text(
         modifier = Modifier.weight(1f),
         text = value,
-        maxLines = 1,
+        maxLines = 2,
         overflow = Ellipsis,
         style = typography.body1,
         color = colorScheme.onPrimary

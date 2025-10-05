@@ -110,4 +110,5 @@
     <string name="ok">Okay</string>
     <string name="keyword_hint">Enter keywords…</string>
     <string name="no_result">No results found 😕</string>
+    <string name="failed_playback">This video failed to play 😕 please try again later.</string>
 </resources>
