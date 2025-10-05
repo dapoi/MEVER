@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE_MUSIC
 import com.dapascript.mever.core.common.util.getPlatformType
+import com.dapascript.mever.core.common.util.sanitizeFilename
 import com.dapascript.mever.core.common.util.state.UiState
 import com.dapascript.mever.core.common.util.state.UiState.StateFailed
 import com.dapascript.mever.core.common.util.state.UiState.StateInitial
@@ -154,7 +155,7 @@ class HomeLandingViewModel @Inject constructor(
     ) = ketch.download(
         url = url,
         path = meverFolder.path,
-        fileName = fileName,
+        fileName = sanitizeFilename(fileName),
         tag = if (selectedQuality.contains("kbps")) {
             selectedQuality = ""
             YOUTUBE_MUSIC.platformName

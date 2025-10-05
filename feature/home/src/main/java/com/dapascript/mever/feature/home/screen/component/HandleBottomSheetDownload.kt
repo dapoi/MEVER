@@ -32,6 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign.Companion.End
+import androidx.compose.ui.text.style.TextOverflow.Companion.Ellipsis
 import androidx.compose.ui.unit.Dp
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.component.MeverBottomSheet
@@ -78,7 +79,7 @@ internal fun HandleBottomSheetDownload(
                         .height(Dp250)
                         .padding(bottom = Dp32, start = Dp24, end = Dp24)
                         .clip(RoundedCornerShape(Dp12)),
-                    source = R.drawable.ic_music
+                    source = listContent.first().thumbnail.ifEmpty { R.drawable.ic_music }
                 )
                 Text(
                     text = stringResource(R.string.choose_file),
@@ -191,6 +192,8 @@ private fun MeverCheckBoxButton(
     Text(
         modifier = Modifier.weight(1f),
         text = value,
+        maxLines = 1,
+        overflow = Ellipsis,
         style = typography.body1,
         color = colorScheme.onPrimary
     )
