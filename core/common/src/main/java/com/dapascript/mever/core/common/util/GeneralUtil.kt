@@ -66,11 +66,11 @@ suspend fun fetchPhotoFromUrl(url: String) = withContext(IO) {
     }
 }
 
-suspend fun fetchVideoThumbnail(source: String): Bitmap? = withContext(IO) {
+suspend fun fetchVideoThumbnail(url: String): Bitmap? = withContext(IO) {
     val retriever = MediaMetadataRetriever()
     try {
         with(retriever) {
-            if (isValidUrl(source)) setDataSource(source, HashMap()) else setDataSource(source)
+            if (isValidUrl(url)) setDataSource(url, HashMap()) else setDataSource(url)
             getFrameAtTime(100000)
         }
     } catch (e: Exception) {
@@ -81,21 +81,24 @@ suspend fun fetchVideoThumbnail(source: String): Bitmap? = withContext(IO) {
     }
 }
 
-suspend fun getExtensionFromUrl(url: String, extensionFile: String) = withContext(IO) {
-    val client = OkHttpClient()
+suspend fun getExtensionFromUrl(
+    url: String,
+    extensionFromResponse: String
+) = withContext(IO) {
+    val okhttpClient = OkHttpClient()
     val request = Request.Builder()
         .url(url)
         .get()
         .build()
 
     try {
-        val client = client.newCall(request).execute()
+        val client = okhttpClient.newCall(request).execute()
         val contentType = client.body?.contentType()?.toString() ?: ""
-        if (extensionFile.isEmpty()) when {
+        if (extensionFromResponse.isEmpty()) when {
             contentType.contains("video") || contentType.contains("mp4") -> ".mp4"
             contentType.contains("audio") -> ".mp3"
             else -> ".jpg"
-        } else if (extensionFile == "All Images") ".jpg" else ".$extensionFile"
+        } else if (extensionFromResponse == "All Images") ".jpg" else ".$extensionFromResponse"
     } catch (e: Exception) {
         e.printStackTrace()
         null

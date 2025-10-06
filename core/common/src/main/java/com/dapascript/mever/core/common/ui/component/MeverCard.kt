@@ -1,5 +1,6 @@
 package com.dapascript.mever.core.common.ui.component
 
+import android.graphics.Bitmap
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandHorizontally
@@ -26,7 +27,11 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.ProgressIndicatorDefaults.ProgressAnimationSpec
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.Bottom
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterVertically
@@ -45,7 +50,6 @@ import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Filled
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Outlined
 import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardArgs
-import com.dapascript.mever.core.common.ui.attr.MeverImageAttr.getBitmapFromUrl
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp15
@@ -65,7 +69,10 @@ import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.calculateDownloadPercentage
 import com.dapascript.mever.core.common.util.calculateDownloadedMegabytes
 import com.dapascript.mever.core.common.util.convertFilename
+import com.dapascript.mever.core.common.util.fetchPhotoFromUrl
+import com.dapascript.mever.core.common.util.fetchVideoThumbnail
 import com.dapascript.mever.core.common.util.getContentType
+import com.dapascript.mever.core.common.util.getExtensionFromUrl
 import com.dapascript.mever.core.common.util.getTwoDecimals
 import com.dapascript.mever.core.common.util.isMusic
 import com.dapascript.mever.core.common.util.onCustomClick
@@ -73,6 +80,7 @@ import com.ketch.Status
 import com.ketch.Status.FAILED
 import com.ketch.Status.PAUSED
 import com.ketch.Status.SUCCESS
+import kotlinx.coroutines.delay
 
 @Composable
 fun MeverCard(
@@ -295,10 +303,34 @@ private fun getImageSource(
     status != SUCCESS -> {
         urlThumbnail?.takeIf { it.isNotEmpty() } ?: getBitmapFromUrl(
             url = url,
-            extensionFile = fileName.substringAfterLast(".")
+            extensionFromResponse = fileName.substringAfterLast(".")
         )
     }
     else -> path
+}
+
+@Composable
+private fun getBitmapFromUrl(url: String, extensionFromResponse: String): Bitmap? {
+    var resultExtracted by remember(url) { mutableStateOf<Bitmap?>(null) }
+
+    LaunchedEffect(url, resultExtracted) {
+        while (resultExtracted == null) {
+            try {
+                resultExtracted = if (
+                    getExtensionFromUrl(
+                        url = url,
+                        extensionFromResponse = extensionFromResponse
+                    ).orEmpty().contains("jpg")
+                ) {
+                    fetchPhotoFromUrl(url)
+                } else fetchVideoThumbnail(url)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            if (resultExtracted == null) delay(2000)
+        }
+    }
+    return resultExtracted
 }
 
 @Composable

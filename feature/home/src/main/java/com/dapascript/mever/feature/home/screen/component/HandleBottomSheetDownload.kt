@@ -9,12 +9,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -29,6 +31,7 @@ import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.StrokeCap.Companion.Round
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign.Companion.End
@@ -46,6 +49,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp250
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
+import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp20
 import com.dapascript.mever.core.common.util.isMusic
@@ -55,6 +59,7 @@ import com.dapascript.mever.core.data.model.local.ContentEntity
 @Composable
 internal fun HandleBottomSheetDownload(
     listContent: List<ContentEntity>,
+    isPreviewLoading: Boolean,
     modifier: Modifier = Modifier,
     onClickDownload: (String) -> Unit,
     onClickPreview: (Int) -> Unit,
@@ -92,6 +97,7 @@ internal fun HandleBottomSheetDownload(
                         MeverCheckBoxButton(
                             value = getValueSelector(index, content),
                             isChecked = selectMultipleItems.contains(index),
+                            isPreviewLoading = isPreviewLoading,
                             showPreviewButton = isMusic.not(),
                             onClickPreview = { onClickPreview(index) },
                             onChooseValue = {
@@ -161,6 +167,7 @@ internal fun HandleBottomSheetDownload(
 private fun MeverCheckBoxButton(
     value: String,
     isChecked: Boolean,
+    isPreviewLoading: Boolean,
     showPreviewButton: Boolean,
     modifier: Modifier = Modifier,
     onClickPreview: () -> Unit,
@@ -197,15 +204,25 @@ private fun MeverCheckBoxButton(
         style = typography.body1,
         color = colorScheme.onPrimary
     )
-    if (showPreviewButton) Text(
-        modifier = Modifier
-            .clip(RoundedCornerShape(Dp8))
-            .onCustomClick { onClickPreview() },
-        text = stringResource(R.string.preview),
-        textAlign = End,
-        style = typography.bodyBold2,
-        color = colorScheme.primary
-    )
+    if (showPreviewButton) {
+        when {
+            isPreviewLoading.not() -> Text(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(Dp8))
+                    .onCustomClick { if (isPreviewLoading.not()) onClickPreview() },
+                text = stringResource(R.string.preview),
+                textAlign = End,
+                style = typography.bodyBold2,
+                color = colorScheme.primary
+            )
+
+            else -> CircularProgressIndicator(
+                modifier = Modifier.size(Dp20),
+                strokeCap = Round,
+                color = MeverPurple
+            )
+        }
+    }
 }
 
 @Composable

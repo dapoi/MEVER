@@ -170,12 +170,11 @@ import com.ketch.Status.FAILED
 import com.ketch.Status.PAUSED
 import com.ketch.Status.SUCCESS
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.lang.System.currentTimeMillis
 import kotlin.random.Random
@@ -461,6 +460,7 @@ internal fun HomeDownloaderSection(
     var showFailedDialog by remember { mutableStateOf<Int?>(null) }
     var showPlatformSupportDialog by remember { mutableStateOf(false) }
     var isStorageFull by remember { mutableStateOf(false) }
+    var isPreviewLoading by remember { mutableStateOf(false) }
     val interstitialController = rememberInterstitialAd(
         onAdFailToLoad = { setStoragePermission = getStoragePermission() },
         onAdFailOrDismissed = { setStoragePermission = getStoragePermission() }
@@ -548,6 +548,7 @@ internal fun HomeDownloaderSection(
             .fillMaxWidth()
             .navigationBarsPadding(),
         listContent = contents,
+        isPreviewLoading = isPreviewLoading,
         onClickDownload = { url ->
             scope.launch {
                 startDownload(
@@ -555,7 +556,7 @@ internal fun HomeDownloaderSection(
                     fileName = contents.firstOrNull()?.fileName.orEmpty().ifEmpty {
                         changeToCurrentDate(currentTimeMillis()) + getExtensionFromUrl(
                             url = url,
-                            extensionFile = contents.find { it.url == url }?.type.orEmpty()
+                            extensionFromResponse = contents.find { it.url == url }?.type.orEmpty()
                         )
                     },
                     thumbnail = contents.firstOrNull()?.thumbnail.orEmpty()
@@ -565,12 +566,13 @@ internal fun HomeDownloaderSection(
         },
         onClickPreview = { initialIndex ->
             scope.launch {
-                val processedContents = coroutineScope {
-                    contents.mapIndexed { index, content ->
-                        async {
+                isPreviewLoading = true
+                try {
+                    val processedContents = withContext(Default) {
+                        contents.mapIndexed { index, content ->
                             val extension = getExtensionFromUrl(
                                 url = content.url,
-                                extensionFile = content.type
+                                extensionFromResponse = content.type
                             ).orEmpty()
 
                             Content(
@@ -581,9 +583,16 @@ internal fun HomeDownloaderSection(
                                 fileName = content.fileName
                             )
                         }
-                    }.awaitAll()
+                    }
+                    navController.navigateTo(
+                        GalleryContentDetailRoute(
+                            processedContents,
+                            initialIndex
+                        )
+                    )
+                } finally {
+                    isPreviewLoading = false
                 }
-                navController.navigateTo(GalleryContentDetailRoute(processedContents, initialIndex))
             }
         },
         onClickDismiss = { contents = emptyList() }
