@@ -56,7 +56,7 @@ class HomeLandingViewModel @Inject constructor(
      */
     var urlSocialMediaState by mutableStateOf(TextFieldValue(""))
     var selectedQuality by mutableStateOf("")
-    var showDonationDialog by mutableStateOf(true)
+    var shouldShowDonationOfferDialog by mutableStateOf(true)
     var contents by mutableStateOf<List<ContentEntity>>(emptyList())
     var errorMessage by mutableStateOf("")
     var storageInfo by mutableStateOf<StorageInfo?>(null)
@@ -206,5 +206,6 @@ class HomeLandingViewModel @Inject constructor(
 
     fun resetUrlIntent() = viewModelScope.launch {
         dataStore.saveUrlIntent("")
+        shouldShowDonationOfferDialog = true
     }
 }

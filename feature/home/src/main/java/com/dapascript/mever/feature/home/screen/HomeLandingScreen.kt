@@ -149,6 +149,7 @@ import com.dapascript.mever.core.common.util.navigateToMusic
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
+import com.dapascript.mever.core.common.util.storage.StorageUtil.StorageInfo
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getStorageInfo
 import com.dapascript.mever.core.common.util.storage.StorageUtil.isStorageFull
 import com.dapascript.mever.core.navigation.helper.navigateTo
@@ -436,7 +437,7 @@ private fun HomeScreenContent(
 }
 
 @Composable
-internal fun HomeDownloaderSection(
+private fun HomeDownloaderSection(
     viewModel: HomeLandingViewModel,
     context: Context,
     navController: NavController,
@@ -474,7 +475,23 @@ internal fun HomeDownloaderSection(
 
     LaunchedEffect(urlIntent) {
         if (urlIntent.isNotEmpty()) {
+            shouldShowDonationOfferDialog = false
             urlSocialMediaState = TextFieldValue(urlIntent)
+            checkStateBeforeDownload(
+                urlSocialMediaState = urlSocialMediaState,
+                storageInfo = storageInfo,
+                onActionStorageFull = {
+                    isStorageFull = true
+                    errorMessage = context.getString(R.string.storage_full)
+                },
+                onActionIsContentPlaylist = {
+                    errorMessage = context.getString(R.string.playlist_not_supported)
+                },
+                onActionIsContentYT = {
+                    showYoutubeChooseQualityModal = true
+                },
+                onActionDownload = { getApiDownloader() }
+            )
             delay(1000L)
             resetUrlIntent()
         }
@@ -492,11 +509,11 @@ internal fun HomeDownloaderSection(
         )
     }
 
-    LaunchedEffect(randomDonateDialogOffer, showDonationDialog) {
-        if (showDonationDialog) {
+    LaunchedEffect(randomDonateDialogOffer, shouldShowDonationOfferDialog) {
+        if (shouldShowDonationOfferDialog) {
             (0..3).random(Random).also { randomValue ->
                 randomDonateDialogOffer = randomValue
-                showDonationDialog = false
+                shouldShowDonationOfferDialog = false
             }
         }
     }
@@ -510,6 +527,21 @@ internal fun HomeDownloaderSection(
             permissions = setStoragePermission,
             onGranted = {
                 setStoragePermission = emptyList()
+                checkStateBeforeDownload(
+                    urlSocialMediaState = urlSocialMediaState,
+                    storageInfo = storageInfo,
+                    onActionStorageFull = {
+                        isStorageFull = true
+                        errorMessage = context.getString(R.string.storage_full)
+                    },
+                    onActionIsContentPlaylist = {
+                        errorMessage = context.getString(R.string.playlist_not_supported)
+                    },
+                    onActionIsContentYT = {
+                        showYoutubeChooseQualityModal = true
+                    },
+                    onActionDownload = { getApiDownloader() }
+                )
                 when {
                     isStorageFull(storageInfo) -> {
                         isStorageFull = true
@@ -931,7 +963,7 @@ internal fun HomeDownloaderSection(
 }
 
 @Composable
-internal fun HomeAiSection(
+private fun HomeAiSection(
     context: Context,
     prompt: String,
     deviceType: DeviceType,
@@ -1109,6 +1141,20 @@ internal fun HomeAiSection(
             ) { it() }
         }
     }
+}
+
+private fun checkStateBeforeDownload(
+    urlSocialMediaState: TextFieldValue,
+    storageInfo: StorageInfo?,
+    onActionStorageFull: () -> Unit,
+    onActionIsContentPlaylist: () -> Unit,
+    onActionIsContentYT: () -> Unit,
+    onActionDownload: () -> Unit
+) = when {
+    isStorageFull(storageInfo) -> onActionStorageFull()
+    urlSocialMediaState.text.contains("playlist") -> onActionIsContentPlaylist()
+    getPlatformType(urlSocialMediaState.text) == YOUTUBE -> onActionIsContentYT()
+    else -> onActionDownload()
 }
 
 private fun getListActionMenu(context: Context, hasDownloadProgress: Boolean) = listOf(
