@@ -59,7 +59,7 @@ import com.dapascript.mever.core.data.model.local.ContentEntity
 @Composable
 internal fun HandleBottomSheetDownload(
     listContent: List<ContentEntity>,
-    isPreviewLoading: Boolean,
+    loadingItemIndex: Int?,
     modifier: Modifier = Modifier,
     onClickDownload: (String) -> Unit,
     onClickPreview: (Int) -> Unit,
@@ -97,7 +97,7 @@ internal fun HandleBottomSheetDownload(
                         MeverCheckBoxButton(
                             value = getValueSelector(index, content),
                             isChecked = selectMultipleItems.contains(index),
-                            isPreviewLoading = isPreviewLoading,
+                            isPreviewLoading = loadingItemIndex == index,
                             showPreviewButton = isMusic.not(),
                             onClickPreview = { onClickPreview(index) },
                             onChooseValue = {

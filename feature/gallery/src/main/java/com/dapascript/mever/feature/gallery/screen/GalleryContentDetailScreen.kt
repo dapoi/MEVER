@@ -170,7 +170,7 @@ internal fun GalleryContentDetailScreen(
                 .fillMaxSize()
                 .background(MeverBlack),
             state = pagerState,
-            userScrollEnabled = isFullScreen.not(),
+            userScrollEnabled = isFullScreen.not() && args.contents.any { it.isOnlineContent }.not(),
             beyondViewportPageCount = 1,
             key = { page -> args.contents[page].id }
         ) { page ->

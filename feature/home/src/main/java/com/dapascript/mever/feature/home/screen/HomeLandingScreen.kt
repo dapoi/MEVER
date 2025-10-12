@@ -461,7 +461,7 @@ private fun HomeDownloaderSection(
     var showFailedDialog by remember { mutableStateOf<Int?>(null) }
     var showPlatformSupportDialog by remember { mutableStateOf(false) }
     var isStorageFull by remember { mutableStateOf(false) }
-    var isPreviewLoading by remember { mutableStateOf(false) }
+    var loadingItemIndex by remember { mutableStateOf<Int?>(null) }
     val interstitialController = rememberInterstitialAd(
         onAdFailToLoad = { setStoragePermission = getStoragePermission() },
         onAdFailOrDismissed = { setStoragePermission = getStoragePermission() }
@@ -542,22 +542,6 @@ private fun HomeDownloaderSection(
                     },
                     onActionDownload = { getApiDownloader() }
                 )
-                when {
-                    isStorageFull(storageInfo) -> {
-                        isStorageFull = true
-                        errorMessage = context.getString(R.string.storage_full)
-                    }
-
-                    urlSocialMediaState.text.contains("playlist") -> {
-                        errorMessage = context.getString(R.string.playlist_not_supported)
-                    }
-
-                    getPlatformType(urlSocialMediaState.text) == YOUTUBE -> {
-                        showYoutubeChooseQualityModal = true
-                    }
-
-                    else -> getApiDownloader()
-                }
             },
             onDenied = { isPermanentlyDeclined, retry ->
                 MeverDeclinedPermission(
@@ -580,7 +564,7 @@ private fun HomeDownloaderSection(
             .fillMaxWidth()
             .navigationBarsPadding(),
         listContent = contents,
-        isPreviewLoading = isPreviewLoading,
+        loadingItemIndex = loadingItemIndex,
         onClickDownload = { url ->
             scope.launch {
                 startDownload(
@@ -597,8 +581,8 @@ private fun HomeDownloaderSection(
             }
         },
         onClickPreview = { initialIndex ->
+            loadingItemIndex = initialIndex
             scope.launch {
-                isPreviewLoading = true
                 try {
                     val processedContents = withContext(Default) {
                         contents.mapIndexed { index, content ->
@@ -616,18 +600,21 @@ private fun HomeDownloaderSection(
                             )
                         }
                     }
-                    navController.navigateTo(
-                        GalleryContentDetailRoute(
-                            processedContents,
-                            initialIndex
+
+                    if (loadingItemIndex == initialIndex) {
+                        navController.navigateTo(
+                            GalleryContentDetailRoute(processedContents, initialIndex)
                         )
-                    )
+                    }
                 } finally {
-                    isPreviewLoading = false
+                    if (loadingItemIndex == initialIndex) loadingItemIndex = null
                 }
             }
         },
-        onClickDismiss = { contents = emptyList() }
+        onClickDismiss = {
+            loadingItemIndex = null
+            contents = emptyList()
+        }
     )
 
     HandleDialogExitConfirmation(
@@ -1208,3 +1195,4 @@ private fun handleClickButton(
         onIncrementClickCount()
     }
 }
+
