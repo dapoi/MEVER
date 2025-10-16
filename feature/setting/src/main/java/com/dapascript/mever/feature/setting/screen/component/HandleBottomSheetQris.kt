@@ -111,7 +111,8 @@ internal fun HandleBottomSheetQris(
 
     MeverBottomSheet(
         modifier = Modifier.wrapContentSize(),
-        showBottomSheet = showQrisDialog
+        showBottomSheet = showQrisDialog,
+        onDismissBottomSheet = { onDismiss(false) }
     ) {
         Column(
             modifier = Modifier.verticalScroll(rememberScrollState()),

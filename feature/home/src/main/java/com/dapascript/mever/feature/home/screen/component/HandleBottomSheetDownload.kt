@@ -73,8 +73,9 @@ internal fun HandleBottomSheetDownload(
     }
 
     MeverBottomSheet(
+        modifier = modifier,
         showBottomSheet = listContent.isNotEmpty(),
-        modifier = modifier
+        onDismissBottomSheet = onClickDismiss
     ) {
         Column(modifier = Modifier.wrapContentSize()) {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {

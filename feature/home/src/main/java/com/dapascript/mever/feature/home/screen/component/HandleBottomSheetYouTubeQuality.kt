@@ -50,8 +50,9 @@ internal fun HandleBottomSheetYouTubeQuality(
         mutableStateOf(if (qualityList.isNotEmpty()) qualityList.first() else "")
     }
     MeverBottomSheet(
+        modifier = modifier,
         showBottomSheet = showBottomSheet,
-        modifier = modifier
+        onDismissBottomSheet = onDismiss
     ) {
         Column(
             modifier = Modifier.wrapContentSize(),
