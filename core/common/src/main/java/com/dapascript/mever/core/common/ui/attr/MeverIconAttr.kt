@@ -1,5 +1,7 @@
 package com.dapascript.mever.core.common.ui.attr
 
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.theme.MeverCreamPink
 import com.dapascript.mever.core.common.ui.theme.MeverGreen
@@ -25,6 +27,13 @@ import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE_MUSIC
 
 object MeverIconAttr {
+    data class MeverIconArgs(
+        val icon: Int,
+        val iconBackgroundColor: Color,
+        val iconSize: Dp,
+        val iconPadding: Dp,
+    )
+
     fun getPlatformIcon(platform: String) = when {
         platform.contains(FACEBOOK.platformName) -> R.drawable.ic_facebook
         platform.contains(INSTAGRAM.platformName) -> R.drawable.ic_instagram

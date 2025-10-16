@@ -92,7 +92,7 @@
     <string name="close">Close</string>
     <string name="total_item_selected">%1$s item(s) selected</string>
     <string name="select_files">Select Files</string>
-    <string name="more">More</string>
+    <string name="more">More…</string>
     <string name="delete_all">Delete All</string>
     <string name="pause_all">Pause All</string>
     <string name="resume_all">Resume All</string>

@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
@@ -79,7 +80,6 @@ import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Filled
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Outlined
 import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardArgs
-import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
 import com.dapascript.mever.core.common.ui.attr.MeverIconAttr.getPlatformIcon
 import com.dapascript.mever.core.common.ui.attr.MeverIconAttr.getPlatformIconBackgroundColor
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.ActionMenu
@@ -89,7 +89,6 @@ import com.dapascript.mever.core.common.ui.component.MeverBannerAd
 import com.dapascript.mever.core.common.ui.component.MeverButton
 import com.dapascript.mever.core.common.ui.component.MeverCard
 import com.dapascript.mever.core.common.ui.component.MeverDeclinedPermission
-import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverDialogError
 import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
 import com.dapascript.mever.core.common.ui.component.MeverIcon
@@ -100,7 +99,6 @@ import com.dapascript.mever.core.common.ui.component.MeverTopBar
 import com.dapascript.mever.core.common.ui.component.rememberInterstitialAd
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp10
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp14
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp150
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp20
@@ -137,7 +135,6 @@ import com.dapascript.mever.core.common.util.PlatformType.PINTEREST
 import com.dapascript.mever.core.common.util.PlatformType.TIKTOK
 import com.dapascript.mever.core.common.util.PlatformType.TWITTER
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
-import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE_MUSIC
 import com.dapascript.mever.core.common.util.changeToCurrentDate
 import com.dapascript.mever.core.common.util.getExtensionFromUrl
 import com.dapascript.mever.core.common.util.getPlatformType
@@ -163,6 +160,7 @@ import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLand
 import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.getArtStyles
 import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.getInspirePrompt
 import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetDownload
+import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetPlatformSupport
 import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetYouTubeQuality
 import com.dapascript.mever.feature.home.screen.component.HandleDialogExitConfirmation
 import com.dapascript.mever.feature.home.screen.component.HandleDonationDialogOffer
@@ -660,6 +658,12 @@ private fun HomeDownloaderSection(
         onDismiss = { showYoutubeChooseQualityModal = false }
     )
 
+    HandleBottomSheetPlatformSupport(
+        modifier = Modifier.wrapContentSize(),
+        showPlatformSupportDialog = showPlatformSupportDialog,
+        onDismiss = { showPlatformSupportDialog = false }
+    )
+
     showDeleteDialog?.let { id ->
         MeverDialogError(
             showDialog = true,
@@ -691,40 +695,6 @@ private fun HomeDownloaderSection(
                 showFailedDialog = null
             }
         )
-    }
-
-    MeverDialog(
-        showDialog = showPlatformSupportDialog,
-        meverDialogArgs = MeverDialogArgs(
-            title = stringResource(R.string.platforms_supported)
-        ),
-        hideInteractionButton = true
-    ) {
-        Text(
-            modifier = Modifier.fillMaxWidth(),
-            text = "${
-                PlatformType.entries
-                    .filterNot { it in listOf(AI, ALL, EXPLORE, YOUTUBE, YOUTUBE_MUSIC) }
-                    .joinToString(separator = ", ") { it.platformName }
-            }, & ${stringResource(R.string.more)}",
-            textAlign = TextAlign.Center,
-            style = typography.body1,
-            color = colorScheme.onPrimary
-        )
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(Dp14))
-                .onCustomClick { showPlatformSupportDialog = false }
-                .padding(vertical = Dp8),
-            contentAlignment = Center
-        ) {
-            Text(
-                text = stringResource(R.string.close),
-                style = typography.bodyBold2,
-                color = colorScheme.primary
-            )
-        }
     }
 
     CompositionLocalProvider(LocalOverscrollFactory provides null) {
