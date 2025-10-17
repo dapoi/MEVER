@@ -71,14 +71,16 @@ internal fun HandleBottomSheetDownload(
     val isMusic = remember(listContent) {
         isMusic(listContent.firstOrNull()?.fileName.orEmpty())
     }
+    val scrollState = rememberScrollState()
 
     MeverBottomSheet(
         modifier = modifier,
         showBottomSheet = listContent.isNotEmpty(),
+        skipPartiallyExpanded = (scrollState.canScrollForward || scrollState.canScrollBackward).not(),
         onDismissBottomSheet = onClickDismiss
     ) {
         Column(modifier = Modifier.wrapContentSize()) {
-            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+            Column(modifier = Modifier.verticalScroll(scrollState)) {
                 if (isMusic) MeverImage(
                     modifier = Modifier
                         .fillMaxWidth()

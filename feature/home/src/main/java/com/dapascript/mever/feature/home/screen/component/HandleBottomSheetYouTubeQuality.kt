@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -49,13 +51,18 @@ internal fun HandleBottomSheetYouTubeQuality(
     var chooseQuality by remember(qualityList) {
         mutableStateOf(if (qualityList.isNotEmpty()) qualityList.first() else "")
     }
+    val scrollState = rememberScrollState()
+
     MeverBottomSheet(
         modifier = modifier,
         showBottomSheet = showBottomSheet,
+        skipPartiallyExpanded = (scrollState.canScrollForward || scrollState.canScrollBackward).not(),
         onDismissBottomSheet = onDismiss
     ) {
         Column(
-            modifier = Modifier.wrapContentSize(),
+            modifier = Modifier
+                .wrapContentSize()
+                .verticalScroll(scrollState),
             verticalArrangement = spacedBy(Dp8)
         ) {
             Text(
