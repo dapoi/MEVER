@@ -56,6 +56,7 @@ internal fun HandleBottomSheetYouTubeQuality(
     MeverBottomSheet(
         modifier = modifier,
         showBottomSheet = showBottomSheet,
+        shouldDismissOnClickOutside = true,
         skipPartiallyExpanded = (scrollState.canScrollForward || scrollState.canScrollBackward).not(),
         onDismissBottomSheet = onDismiss
     ) {

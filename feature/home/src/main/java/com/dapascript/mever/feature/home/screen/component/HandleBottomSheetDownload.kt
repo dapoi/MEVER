@@ -38,6 +38,7 @@ import androidx.compose.ui.text.style.TextAlign.Companion.End
 import androidx.compose.ui.text.style.TextOverflow.Companion.Ellipsis
 import androidx.compose.ui.unit.Dp
 import com.dapascript.mever.core.common.R
+import com.dapascript.mever.core.common.ui.component.MeverBannerAd
 import com.dapascript.mever.core.common.ui.component.MeverBottomSheet
 import com.dapascript.mever.core.common.ui.component.MeverImage
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
@@ -114,6 +115,11 @@ internal fun HandleBottomSheetDownload(
                     }
                 }
             }
+            MeverBannerAd(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = Dp8)
+            )
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
