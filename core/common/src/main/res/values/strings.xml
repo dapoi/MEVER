@@ -13,8 +13,8 @@
     <string name="view_all">View All</string>
     <string name="choose_preferrence">Choose Preference</string>
     <string name="system_default">System Default</string>
-    <string name="dark">Dark Mode</string>
-    <string name="light">Light Mode</string>
+    <string name="dark">Dark</string>
+    <string name="light">Light</string>
     <string name="error_title">Oops! Something went wrong</string>
     <string name="error_desc">An unexpected error occurred. Please try again later!</string>
     <string name="permission_request_title">Permission Needed</string>
@@ -111,4 +111,5 @@
     <string name="keyword_hint">Enter keywords…</string>
     <string name="no_result">No results found 😕</string>
     <string name="failed_playback">This video failed to play 😕 please try again later.</string>
+    <string name="disclaimer_supported_platforms">By using this app, you agree to follow each platform’s terms and copyright. Make sure you have the right to download and use the content under applicable laws.</string>
 </resources>

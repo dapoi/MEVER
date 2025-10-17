@@ -13,8 +13,8 @@
     <string name="view_all">Lihat Semua</string>
     <string name="choose_preferrence">Pilih Preferensi</string>
     <string name="system_default">Sesuai Sistem</string>
-    <string name="dark">Mode Gelap</string>
-    <string name="light">Mode Terang</string>
+    <string name="dark">Gelap</string>
+    <string name="light">Terang</string>
     <string name="error_title">Ups! Ada yang salah</string>
     <string name="error_desc">Terjadi kesalahan tak dikenal. Coba lagi nanti, ya!</string>
     <string name="permission_request_title">Perlu Izin Nih</string>
@@ -111,4 +111,5 @@
     <string name="keyword_hint">Masukkan kata kunci…</string>
     <string name="no_result">Waduh, nggak ketemu hasilnya 😕</string>
     <string name="failed_playback">Video ini gagal diputar 😕 harap coba lagi nanti ya.</string>
+    <string name="disclaimer_supported_platforms">Dengan menggunakan aplikasi ini, Anda setuju mematuhi ketentuan layanan dan hak cipta tiap platform. Pastikan Anda berhak mengunduh dan menggunakan konten sesuai hukum yang berlaku.</string>
 </resources>

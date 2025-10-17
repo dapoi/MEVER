@@ -50,103 +50,110 @@ fun HandleBottomSheetPlatformSupport(
     showPlatformSupportDialog: Boolean,
     modifier: Modifier = Modifier,
     onDismiss: () -> Unit
+) = MeverBottomSheet(
+    modifier = modifier,
+    skipPartiallyExpanded = false,
+    shouldDismissOnClickOutside = true,
+    showBottomSheet = showPlatformSupportDialog,
+    onDismissBottomSheet = onDismiss
 ) {
-    MeverBottomSheet(
-        modifier = modifier,
-        skipPartiallyExpanded = false,
-        shouldDismissOnClickOutside = true,
-        showBottomSheet = showPlatformSupportDialog,
-        onDismissBottomSheet = onDismiss
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = CenterHorizontally
     ) {
-        Column(
+        Text(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = Dp8),
+            text = stringResource(R.string.platforms_supported),
+            textAlign = TextAlign.Center,
+            style = typography.bodyBold1.copy(fontSize = Sp18),
+            color = colorScheme.onPrimary
+        )
+
+        HorizontalDivider(
             modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = CenterHorizontally
+            thickness = Dp1,
+            color = colorScheme.onPrimary.copy(alpha = 0.12f)
+        )
+        Column(
+            modifier = Modifier
+                .weight(weight = 1f, fill = false)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = Dp16),
+            verticalArrangement = Arrangement.spacedBy(Dp16)
         ) {
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = Dp8),
-                text = stringResource(R.string.platforms_supported),
-                textAlign = TextAlign.Center,
-                style = typography.bodyBold1.copy(fontSize = Sp18),
-                color = colorScheme.onPrimary
-            )
+            Spacer(modifier = Modifier.size(Dp4))
+            val platforms = PlatformType.entries
+                .filterNot { it in listOf(AI, ALL, EXPLORE, YOUTUBE, YOUTUBE_MUSIC) }
+                .map { it.platformName }
 
-            HorizontalDivider(
-                modifier = Modifier.fillMaxWidth(),
-                thickness = Dp1,
-                color = colorScheme.onPrimary.copy(alpha = 0.12f)
-            )
-            Column(
-                modifier = Modifier
-                    .weight(weight = 1f, fill = false)
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = Dp16),
-                verticalArrangement = Arrangement.spacedBy(Dp16)
-            ) {
-                Spacer(modifier = Modifier.size(Dp4))
-                val platforms = PlatformType.entries
-                    .filterNot { it in listOf(AI, ALL, EXPLORE, YOUTUBE, YOUTUBE_MUSIC) }
-                    .map { it.platformName }
+            platforms.forEachIndexed { index, platform ->
+                MeverPlatformSupportedItem(
+                    modifier = Modifier.fillMaxWidth(),
+                    iconSize = Dp48,
+                    iconPadding = Dp10,
+                    platformName = platform
+                )
 
-                platforms.forEachIndexed { index, platform ->
-                    MeverPlatformSupportedItem(
-                        modifier = Modifier.fillMaxWidth(),
-                        iconSize = Dp48,
-                        iconPadding = Dp10,
-                        platformName = platform
-                    )
-
-                    if (index < platforms.size - 1) {
-                        HorizontalDivider()
-                    }
+                if (index < platforms.size - 1) {
+                    HorizontalDivider()
                 }
-
-                HorizontalDivider()
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(Dp16),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .background(
-                                color = MeverLightViolet,
-                                shape = CircleShape
-                            )
-                            .size(Dp48),
-                        contentAlignment = Center
-                    ) {
-                        Text(
-                            text = "+2",
-                            textAlign = TextAlign.Center,
-                            style = typography.bodyBold1,
-                            color = MeverPurple
-                        )
-                    }
-                    Text(
-                        text = stringResource(R.string.more),
-                        style = typography.body1,
-                        color = colorScheme.onPrimary
-                    )
-                }
-
-                Spacer(modifier = Modifier.size(Dp4))
             }
-            HorizontalDivider(
-                modifier = Modifier.fillMaxWidth(),
-                thickness = Dp1,
-                color = colorScheme.onPrimary.copy(alpha = 0.12f)
-            )
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .onCustomClick { onDismiss() }
-                    .padding(Dp16),
-                text = stringResource(R.string.close),
-                textAlign = TextAlign.Center,
-                style = typography.bodyBold1,
-                color = colorScheme.primary
-            )
+
+            HorizontalDivider()
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(Dp16),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .background(
+                            color = MeverLightViolet,
+                            shape = CircleShape
+                        )
+                        .size(Dp48),
+                    contentAlignment = Center
+                ) {
+                    Text(
+                        text = "+2",
+                        textAlign = TextAlign.Center,
+                        style = typography.bodyBold1,
+                        color = MeverPurple
+                    )
+                }
+                Text(
+                    text = stringResource(R.string.more),
+                    style = typography.body1,
+                    color = colorScheme.onPrimary
+                )
+            }
+
+            Spacer(modifier = Modifier.size(Dp4))
         }
+        HorizontalDivider(
+            modifier = Modifier.fillMaxWidth(),
+            thickness = Dp1,
+            color = colorScheme.onPrimary.copy(alpha = 0.12f)
+        )
+        Text(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = Dp16, vertical = Dp8),
+            text = stringResource(R.string.disclaimer_supported_platforms),
+            textAlign = TextAlign.Center,
+            style = typography.body2,
+            color = colorScheme.onPrimary.copy(alpha = 0.6f)
+        )
+        Text(
+            modifier = Modifier
+                .fillMaxWidth()
+                .onCustomClick { onDismiss() }
+                .padding(horizontal = Dp16, vertical = Dp8),
+            text = stringResource(R.string.close),
+            textAlign = TextAlign.Center,
+            style = typography.bodyBold1,
+            color = colorScheme.primary
+        )
     }
 }
