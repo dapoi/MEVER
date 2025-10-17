@@ -1,7 +1,5 @@
 package com.dapascript.mever.core.common.ui.attr
 
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.Dp
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.theme.MeverCreamPink
 import com.dapascript.mever.core.common.ui.theme.MeverGreen
@@ -13,6 +11,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverLightPurple
 import com.dapascript.mever.core.common.ui.theme.MeverPink
 import com.dapascript.mever.core.common.ui.theme.MeverSoftGray
 import com.dapascript.mever.core.common.ui.theme.MeverSoftWhite
+import com.dapascript.mever.core.common.util.PlatformType.DOUYIN
 import com.dapascript.mever.core.common.util.PlatformType.FACEBOOK
 import com.dapascript.mever.core.common.util.PlatformType.INSTAGRAM
 import com.dapascript.mever.core.common.util.PlatformType.PINTEREST
@@ -27,14 +26,8 @@ import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE_MUSIC
 
 object MeverIconAttr {
-    data class MeverIconArgs(
-        val icon: Int,
-        val iconBackgroundColor: Color,
-        val iconSize: Dp,
-        val iconPadding: Dp,
-    )
-
     fun getPlatformIcon(platform: String) = when {
+        platform.contains(DOUYIN.platformName) -> R.drawable.ic_tiktok
         platform.contains(FACEBOOK.platformName) -> R.drawable.ic_facebook
         platform.contains(INSTAGRAM.platformName) -> R.drawable.ic_instagram
         platform.contains(PINTEREST.platformName) -> R.drawable.ic_pinterest
@@ -51,6 +44,7 @@ object MeverIconAttr {
     }
 
     fun getPlatformIconBackgroundColor(platform: String) = when {
+        platform.contains(DOUYIN.platformName) -> MeverLightGray
         platform.contains(FACEBOOK.platformName) -> MeverLightBlue
         platform.contains(INSTAGRAM.platformName) -> MeverCreamPink
         platform.contains(PINTEREST.platformName) -> MeverLightPink

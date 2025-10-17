@@ -33,6 +33,7 @@ import androidx.core.view.WindowCompat.getInsetsController
 import androidx.core.view.WindowInsetsCompat.Type.systemBars
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.util.PlatformType.ALL
+import com.dapascript.mever.core.common.util.PlatformType.DOUYIN
 import com.dapascript.mever.core.common.util.PlatformType.FACEBOOK
 import com.dapascript.mever.core.common.util.PlatformType.INSTAGRAM
 import com.dapascript.mever.core.common.util.PlatformType.PINTEREST
@@ -274,6 +275,7 @@ fun convertToTimeFormat(milliseconds: Long): String {
 }
 
 fun getPlatformType(url: String, type: String = "video"): PlatformType {
+    val listDouyinUrl = listOf("douyin.com", "iesdouyin.com", "douyinv.com", "douyin.su")
     val listFbUrl = listOf("facebook.com", "fb.com", "m.facebook.com", "fb.watch")
     val listInstagramUrl = listOf("instagram.com", "instagr.am", "ig.com")
     val listPinterestUrl = listOf("pinterest.com", "pin.it", "pinterest.co.uk")
@@ -287,7 +289,7 @@ fun getPlatformType(url: String, type: String = "video"): PlatformType {
     val listYouTubeUrl = listOf("youtube.com", "youtu.be", "m.youtube.com", "yt.com")
 
     return when {
-        listYouTubeUrl.any { url.contains(it) } && type.contains("audio") -> YOUTUBE_MUSIC
+        listDouyinUrl.any { url.contains(it) } -> DOUYIN
         listFbUrl.any { url.contains(it) } -> FACEBOOK
         listInstagramUrl.any { url.contains(it) } -> INSTAGRAM
         listPinterestUrl.any { url.contains(it) } -> PINTEREST
@@ -298,7 +300,9 @@ fun getPlatformType(url: String, type: String = "video"): PlatformType {
         listTiktokUrl.any { url.contains(it) } -> TIKTOK
         listTwitterUrl.any { url.contains(it) } -> TWITTER
         listVideyUrl.any { url.contains(it) } -> VIDEY
-        listYouTubeUrl.any { url.contains(it) } -> YOUTUBE
+        listYouTubeUrl.any { url.contains(it) } -> {
+            if (type.contains("audio")) YOUTUBE_MUSIC else YOUTUBE
+        }
         else -> ALL
     }
 }

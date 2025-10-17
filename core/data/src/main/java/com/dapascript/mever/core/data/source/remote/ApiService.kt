@@ -21,6 +21,11 @@ interface ApiService {
     @GET("app-config")
     suspend fun getAppConfig(): AppConfigResponse
 
+    @GET("douyin")
+    suspend fun getDouyinDownloader(
+        @Query("url") url: String
+    ): TiktokDownloaderResponse
+
     @GET("fb")
     suspend fun getFacebookDownloader(
         @Query("url") url: String

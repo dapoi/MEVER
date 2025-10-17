@@ -3,6 +3,7 @@ package com.dapascript.mever.core.common.util
 enum class PlatformType(val platformName: String) {
     AI("AI"),
     ALL("All"),
+    DOUYIN("Douyin"),
     EXPLORE("Explore"),
     FACEBOOK("Facebook"),
     INSTAGRAM("Instagram"),
