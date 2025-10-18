@@ -70,7 +70,6 @@ fun HandleBottomSheetPlatformSupport(
             style = typography.bodyBold1.copy(fontSize = Sp18),
             color = colorScheme.onPrimary
         )
-
         HorizontalDivider(
             modifier = Modifier.fillMaxWidth(),
             thickness = Dp1,
@@ -100,7 +99,6 @@ fun HandleBottomSheetPlatformSupport(
                     HorizontalDivider()
                 }
             }
-
             HorizontalDivider()
             Row(
                 horizontalArrangement = Arrangement.spacedBy(Dp16),
@@ -128,7 +126,6 @@ fun HandleBottomSheetPlatformSupport(
                     color = colorScheme.onPrimary
                 )
             }
-
             Spacer(modifier = Modifier.size(Dp4))
         }
         HorizontalDivider(
