@@ -1168,4 +1168,3 @@ private fun handleClickButton(
         onIncrementClickCount()
     }
 }
-
