@@ -186,7 +186,7 @@ fun MeverVideoPlayer(
 
     // UI State
     var hasAutoplayed by rememberSaveable { mutableStateOf(false) }
-    var showController by remember { mutableStateOf(false) }
+    var showController by remember { mutableStateOf(true) }
     var showDropDownMenu by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showErrorPlayingDialog by remember { mutableStateOf(false) }
@@ -320,6 +320,8 @@ fun MeverVideoPlayer(
             player.removeListener(listener)
             if (SDK_INT < S) activity.removeOnUserLeaveHintListener(onUserLeaveBehavior)
             if (SDK_INT >= S) activity.updatePipParams(autoEnter = false)
+            player.stop()
+            player.clearMediaItems()
             hideSystemBar(activity, isSystemBarVisible(activity).not())
         }
     }
