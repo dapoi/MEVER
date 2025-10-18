@@ -202,7 +202,7 @@ internal fun GalleryContentDetailScreen(
                     isOnlineContent = isOnlineContent,
                     isPageVisible = pagerState.currentPage == page,
                     isScrolling = pagerState.isScrollInProgress,
-                    isInitialIndex = args.initialIndex == page,
+                    isAutoplayTarget = args.initialIndex == page || args.contents[page].isOnlineContent,
                     isFullScreen = isFullScreen,
                     isPipEnabled = isPipEnabled,
                     onFullScreenChange = { isFullScreen = it },

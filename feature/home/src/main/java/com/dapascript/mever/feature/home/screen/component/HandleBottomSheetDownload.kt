@@ -62,7 +62,7 @@ internal fun HandleBottomSheetDownload(
     listContent: List<ContentEntity>,
     loadingItemIndex: Int?,
     modifier: Modifier = Modifier,
-    onClickDownload: (String) -> Unit,
+    onClickDownload: (List<String>) -> Unit,
     onClickPreview: (Int) -> Unit,
     onClickDismiss: () -> Unit
 ) {
@@ -81,7 +81,11 @@ internal fun HandleBottomSheetDownload(
         onDismissBottomSheet = onClickDismiss
     ) {
         Column(modifier = Modifier.wrapContentSize()) {
-            Column(modifier = Modifier.verticalScroll(scrollState)) {
+            Column(
+                modifier = Modifier
+                    .weight(weight = 1f, fill = false)
+                    .verticalScroll(scrollState)
+            ) {
                 if (isMusic) MeverImage(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -155,7 +159,7 @@ internal fun HandleBottomSheetDownload(
                     modifier = Modifier
                         .clip(RoundedCornerShape(Dp14))
                         .onCustomClick {
-                            selectMultipleItems.forEach { onClickDownload(listContent[it].url) }
+                            onClickDownload(selectMultipleItems.map { listContent[it].url })
                         }
                         .weight(1f)
                         .padding(vertical = Dp16),

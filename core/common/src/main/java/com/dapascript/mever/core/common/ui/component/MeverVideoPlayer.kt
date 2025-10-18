@@ -138,7 +138,7 @@ fun MeverVideoPlayer(
     fileName: String,
     isOnlineContent: Boolean,
     videoSource: String,
-    isInitialIndex: Boolean,
+    isAutoplayTarget: Boolean,
     isPageVisible: Boolean,
     isFullScreen: Boolean,
     isScrolling: Boolean,
@@ -209,10 +209,10 @@ fun MeverVideoPlayer(
 
     BackHandler(isFullScreen) { exitFullScreen() }
 
-    LaunchedEffect(isPageVisible, isInitialIndex, isScrolling) {
+    LaunchedEffect(isPageVisible, isAutoplayTarget, isScrolling) {
         if (isPageVisible) {
             snapshotFlow { isScrolling }.first { it.not() }
-            if (isInitialIndex && hasAutoplayed.not()) {
+            if (isAutoplayTarget && hasAutoplayed.not()) {
                 player.playWhenReady = true
                 showController = true
                 hasAutoplayed = true

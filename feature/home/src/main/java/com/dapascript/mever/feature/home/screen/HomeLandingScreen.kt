@@ -171,6 +171,9 @@ import com.ketch.Status.SUCCESS
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -563,19 +566,29 @@ private fun HomeDownloaderSection(
             .navigationBarsPadding(),
         listContent = contents,
         loadingItemIndex = loadingItemIndex,
-        onClickDownload = { url ->
+        onClickDownload = { urls ->
             scope.launch {
-                startDownload(
-                    url = url,
-                    fileName = contents.firstOrNull()?.fileName.orEmpty().ifEmpty {
-                        changeToCurrentDate(currentTimeMillis()) + getExtensionFromUrl(
-                            url = url,
-                            extensionFromResponse = contents.find { it.url == url }?.type.orEmpty()
-                        )
-                    },
-                    thumbnail = contents.firstOrNull()?.thumbnail.orEmpty()
-                )
-                contents = emptyList()
+                val byUrl = contents.associateBy { it.url }
+                try {
+                    coroutineScope {
+                        urls.map { url ->
+                            async {
+                                startDownload(
+                                    url = url,
+                                    fileName = byUrl[url]?.fileName.orEmpty().ifEmpty {
+                                        changeToCurrentDate(currentTimeMillis()) + getExtensionFromUrl(
+                                            url = url,
+                                            extensionFromResponse = byUrl[url]?.type.orEmpty()
+                                        )
+                                    },
+                                    thumbnail = byUrl[url]?.thumbnail.orEmpty()
+                                )
+                            }
+                        }.awaitAll()
+                    }
+                } finally {
+                    contents = emptyList()
+                }
             }
         },
         onClickPreview = { index ->
@@ -750,7 +763,7 @@ private fun HomeDownloaderSection(
                             contentAlignment = Center
                         ) {
                             Text(
-                                text = "+6",
+                                text = "+7",
                                 textAlign = TextAlign.Center,
                                 style = typography.bodyBold1,
                                 color = MeverPurple
