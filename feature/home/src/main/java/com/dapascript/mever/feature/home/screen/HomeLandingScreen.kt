@@ -578,12 +578,12 @@ private fun HomeDownloaderSection(
                 contents = emptyList()
             }
         },
-        onClickPreview = { initialIndex ->
-            loadingItemIndex = initialIndex
+        onClickPreview = { index ->
+            loadingItemIndex = index
             scope.launch {
                 try {
                     val processedContents = withContext(Default) {
-                        contents.mapIndexed { index, content ->
+                        contents[index].let { content ->
                             val extension = getExtensionFromUrl(
                                 url = content.url,
                                 extensionFromResponse = content.type
@@ -599,13 +599,16 @@ private fun HomeDownloaderSection(
                         }
                     }
 
-                    if (loadingItemIndex == initialIndex) {
+                    if (loadingItemIndex == index) {
                         navController.navigateTo(
-                            GalleryContentDetailRoute(processedContents, initialIndex)
+                            GalleryContentDetailRoute(
+                                contents = listOf(processedContents),
+                                initialIndex = index
+                            )
                         )
                     }
                 } finally {
-                    if (loadingItemIndex == initialIndex) loadingItemIndex = null
+                    if (loadingItemIndex == index) loadingItemIndex = null
                 }
             }
         },
