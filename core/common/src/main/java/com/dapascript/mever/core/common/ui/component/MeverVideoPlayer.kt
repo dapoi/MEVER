@@ -8,6 +8,10 @@ import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
 import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT
 import android.graphics.Rect
 import android.net.Uri.fromFile
+import android.os.Build.BRAND
+import android.os.Build.FINGERPRINT
+import android.os.Build.MODEL
+import android.os.Build.PRODUCT
 import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.S
 import androidx.activity.compose.BackHandler
@@ -93,7 +97,9 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.exoplayer.DefaultLoadControl
+import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.mediacodec.MediaCodecSelector.DEFAULT
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.ui.PlayerView
 import com.dapascript.mever.core.common.R
@@ -131,7 +137,7 @@ import kotlinx.coroutines.isActive
 import java.io.File
 import kotlin.math.max
 
-@androidx.annotation.OptIn(UnstableApi::class)
+@UnstableApi
 @SuppressLint("SourceLockedOrientationActivity", "ImplicitSamInstance")
 @Composable
 fun MeverVideoPlayer(
@@ -161,17 +167,13 @@ fun MeverVideoPlayer(
     }
     val dataSourceFactory = remember { DefaultDataSource.Factory(context, httpFactory) }
     val mediaSourceFactory = remember { DefaultMediaSourceFactory(dataSourceFactory) }
+    val renderersFactory = remember { renderersFactory(context) }
     val player = remember(context) {
-        ExoPlayer.Builder(context)
+        ExoPlayer.Builder(context, renderersFactory)
             .setMediaSourceFactory(mediaSourceFactory)
             .setLoadControl(
                 DefaultLoadControl.Builder()
-                    .setBufferDurationsMs(
-                        15_000, // minBuffer
-                        50_000, // maxBuffer
-                        1_500,  // bufferForPlayback
-                        3_000   // bufferForPlaybackAfterRebuffer
-                    )
+                    .setBufferDurationsMs(15_000, 50_000, 1_500, 3_000)
                     .build()
             )
             .build()
@@ -183,19 +185,17 @@ fun MeverVideoPlayer(
     var isVideoPlaying by remember { mutableStateOf(false) }
     var playbackState by remember { mutableStateOf<Int?>(null) }
     var isVideoBuffering by remember { mutableStateOf(false) }
-
-    // UI State
     var hasAutoplayed by rememberSaveable { mutableStateOf(false) }
     var showController by remember { mutableStateOf(true) }
     var showDropDownMenu by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showErrorPlayingDialog by remember { mutableStateOf(false) }
-    val lifecycleOwner by rememberUpdatedState(LocalLifecycleOwner.current)
-    val shouldEnterPipMode by rememberUpdatedState(isVideoPlaying)
     var viewAttached by remember { mutableStateOf(false) }
     var didRecoverOnce by remember { mutableStateOf(false) }
     var lastRect by remember { mutableStateOf<Rect?>(null) }
     var pendingRect by remember { mutableStateOf<Rect?>(null) }
+    val lifecycleOwner by rememberUpdatedState(LocalLifecycleOwner.current)
+    val shouldEnterPipMode by rememberUpdatedState(isVideoPlaying)
 
     // Fullscreen Handlers
     val enterFullScreen = {
@@ -739,3 +739,29 @@ private fun MediaItem.Builder.setClipping(isStreaming: Boolean) = if (isStreamin
             .build()
     )
 } else this
+
+private fun isProbablyEmulator(): Boolean {
+    val f = FINGERPRINT.lowercase()
+    val m = MODEL.lowercase()
+    val p = PRODUCT.lowercase()
+    val b = BRAND.lowercase()
+    return ("generic" in f || "unknown" in f
+            || "google_sdk" in p || "emulator" in p || "sdk" in p
+            || "genymotion" in b || "goldfish" in f || "ranchu" in f
+            || m.contains("emulator"))
+}
+
+@UnstableApi
+private fun renderersFactory(context: Context) = DefaultRenderersFactory(context)
+    .setEnableDecoderFallback(true)
+    .setMediaCodecSelector { mimeType, secure, tunneled ->
+        val all = DEFAULT.getDecoderInfos(mimeType, secure, tunneled)
+        if (isProbablyEmulator()) {
+            all.filter { info ->
+                val n = info.name.lowercase()
+                (n.startsWith("c2.android.") || n.startsWith("omx.google.")) && !n.contains("goldfish")
+            }
+        } else {
+            all
+        }
+    }
