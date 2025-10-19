@@ -892,16 +892,19 @@ private fun HomeDownloaderSection(
                                             if (isMusic(model.fileName).not()) {
                                                 navController.navigateTo(
                                                     GalleryContentDetailRoute(
-                                                        contents = downloadList.filterNot {
-                                                            isMusic(it.fileName)
-                                                        }.map {
-                                                            Content(
-                                                                id = it.id,
-                                                                isVideo = isVideo(it.path),
-                                                                primaryContent = it.path,
-                                                                fileName = it.fileName
-                                                            )
-                                                        },
+                                                        contents = downloadList
+                                                            .filterNot {
+                                                                isMusic(it.fileName)
+                                                                && it.status != SUCCESS
+                                                            }
+                                                            .map {
+                                                                Content(
+                                                                    id = it.id,
+                                                                    isVideo = isVideo(it.path),
+                                                                    primaryContent = it.path,
+                                                                    fileName = it.fileName
+                                                                )
+                                                            },
                                                         initialIndex = downloadList.filterNot {
                                                             isMusic(it.fileName)
                                                         }.indexOfFirst { it.id == id },
