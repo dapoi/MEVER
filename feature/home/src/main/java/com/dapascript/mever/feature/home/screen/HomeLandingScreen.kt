@@ -173,9 +173,11 @@ import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.lang.System.currentTimeMillis
@@ -569,20 +571,28 @@ private fun HomeDownloaderSection(
         onClickDownload = { urls ->
             scope.launch {
                 val byUrl = contents.associateBy { it.url }
+                val semaphore = Semaphore(3)
+
                 try {
-                    coroutineScope {
+                    supervisorScope {
                         urls.map { url ->
                             async {
-                                startDownload(
-                                    url = url,
-                                    fileName = byUrl[url]?.fileName.orEmpty().ifEmpty {
-                                        changeToCurrentDate(currentTimeMillis()) + getExtensionFromUrl(
+                                semaphore.withPermit {
+                                    runCatching {
+                                        val content = byUrl[url] ?: return@runCatching
+                                        val fileName = content.fileName.ifEmpty {
+                                            changeToCurrentDate(currentTimeMillis()) + getExtensionFromUrl(
+                                                url = url,
+                                                extensionFromResponse = content.type
+                                            )
+                                        }
+                                        startDownload(
                                             url = url,
-                                            extensionFromResponse = byUrl[url]?.type.orEmpty()
+                                            fileName = fileName,
+                                            thumbnail = content.thumbnail
                                         )
-                                    },
-                                    thumbnail = byUrl[url]?.thumbnail.orEmpty()
-                                )
+                                    }.onFailure { it.printStackTrace() }
+                                }
                             }
                         }.awaitAll()
                     }
