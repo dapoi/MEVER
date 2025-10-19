@@ -35,6 +35,7 @@ fun MeverBottomSheet(
     showBottomSheet: Boolean,
     modifier: Modifier = Modifier,
     skipPartiallyExpanded: Boolean = true,
+    shouldDismissOnBackPress: Boolean = true,
     shouldDismissOnClickOutside: Boolean = false,
     onDismissBottomSheet: () -> Unit,
     content: @Composable () -> Unit
@@ -71,7 +72,10 @@ fun MeverBottomSheet(
             topEnd = corner
         ) else ExpandedShape,
         containerColor = colorScheme.background,
-        properties = ModalBottomSheetProperties(shouldDismissOnClickOutside = shouldDismissOnClickOutside),
+        properties = ModalBottomSheetProperties(
+            shouldDismissOnClickOutside = shouldDismissOnClickOutside,
+            shouldDismissOnBackPress = shouldDismissOnBackPress
+        ),
         dragHandle = {
             HorizontalDivider(
                 thickness = Dp2,

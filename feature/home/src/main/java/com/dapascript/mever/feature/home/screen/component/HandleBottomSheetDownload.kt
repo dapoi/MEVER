@@ -77,6 +77,7 @@ internal fun HandleBottomSheetDownload(
     MeverBottomSheet(
         modifier = modifier,
         showBottomSheet = listContent.isNotEmpty(),
+        shouldDismissOnBackPress = false,
         skipPartiallyExpanded = (scrollState.canScrollForward || scrollState.canScrollBackward).not(),
         onDismissBottomSheet = onClickDismiss
     ) {
