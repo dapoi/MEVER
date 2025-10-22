@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetDefaults.ExpandedShape
+import androidx.compose.material3.BottomSheetDefaults.HiddenShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -34,6 +35,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
 fun MeverBottomSheet(
     showBottomSheet: Boolean,
     modifier: Modifier = Modifier,
+    isAlwaysRectangular: Boolean = false,
     skipPartiallyExpanded: Boolean = true,
     shouldDismissOnBackPress: Boolean = true,
     shouldDismissOnClickOutside: Boolean = false,
@@ -67,10 +69,14 @@ fun MeverBottomSheet(
     if (shouldShowBottomSheet) ModalBottomSheet(
         modifier = modifier,
         sheetState = sheetState,
-        shape = if (skipPartiallyExpanded.not()) RoundedCornerShape(
-            topStart = corner,
-            topEnd = corner
-        ) else ExpandedShape,
+        shape = when {
+            skipPartiallyExpanded.not() -> RoundedCornerShape(
+                topStart = corner,
+                topEnd = corner
+            )
+            isAlwaysRectangular -> HiddenShape
+            else -> ExpandedShape
+        },
         containerColor = colorScheme.background,
         properties = ModalBottomSheetProperties(
             shouldDismissOnClickOutside = shouldDismissOnClickOutside,

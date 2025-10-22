@@ -17,12 +17,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,12 +37,14 @@ import androidx.compose.ui.graphics.StrokeCap.Companion.Round
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign.Companion.End
+import androidx.compose.ui.text.style.TextAlign.Companion.Start
 import androidx.compose.ui.text.style.TextOverflow.Companion.Ellipsis
 import androidx.compose.ui.unit.Dp
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.component.MeverBannerAd
 import com.dapascript.mever.core.common.ui.component.MeverBottomSheet
 import com.dapascript.mever.core.common.ui.component.MeverImage
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp14
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
@@ -48,7 +52,6 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp20
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp250
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
@@ -56,6 +59,7 @@ import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp20
 import com.dapascript.mever.core.common.util.isMusic
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.data.model.local.ContentEntity
+import androidx.compose.ui.text.style.TextAlign.Companion.Center as TextAlignCenter
 
 @Composable
 internal fun HandleBottomSheetDownload(
@@ -66,22 +70,39 @@ internal fun HandleBottomSheetDownload(
     onClickPreview: (Int) -> Unit,
     onClickDismiss: () -> Unit
 ) {
-    var selectMultipleItems by remember(listContent) {
-        mutableStateOf(listContent.indices.toSet())
-    }
+    var selectMultipleItems by remember(listContent) { mutableStateOf(emptySet<Int>()) }
+    var showBottomSheet by remember { mutableStateOf(false) }
     val isMusic = remember(listContent) {
         isMusic(listContent.firstOrNull()?.fileName.orEmpty())
     }
     val scrollState = rememberScrollState()
 
+    LaunchedEffect(listContent) { showBottomSheet = listContent.isNotEmpty() }
+
     MeverBottomSheet(
         modifier = modifier,
-        showBottomSheet = listContent.isNotEmpty(),
+        isAlwaysRectangular = scrollState.canScrollForward || scrollState.canScrollBackward,
+        showBottomSheet = showBottomSheet,
         shouldDismissOnBackPress = false,
-        skipPartiallyExpanded = (scrollState.canScrollForward || scrollState.canScrollBackward).not(),
         onDismissBottomSheet = onClickDismiss
     ) {
         Column(modifier = Modifier.wrapContentSize()) {
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = Dp24),
+                text = stringResource(R.string.choose_file),
+                textAlign = if (isMusic) Start else TextAlignCenter,
+                style = typography.bodyBold1.copy(fontSize = Sp20),
+                color = colorScheme.onPrimary
+            )
+            HorizontalDivider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = Dp8),
+                thickness = Dp1,
+                color = colorScheme.onPrimary.copy(alpha = 0.12f)
+            )
             Column(
                 modifier = Modifier
                     .weight(weight = 1f, fill = false)
@@ -91,15 +112,9 @@ internal fun HandleBottomSheetDownload(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(Dp250)
-                        .padding(bottom = Dp32, start = Dp24, end = Dp24)
+                        .padding(vertical = Dp16, horizontal = Dp24)
                         .clip(RoundedCornerShape(Dp12)),
                     source = listContent.first().thumbnail.ifEmpty { R.drawable.ic_music }
-                )
-                Text(
-                    text = stringResource(R.string.choose_file),
-                    style = typography.bodyBold1.copy(fontSize = Sp20),
-                    color = colorScheme.onPrimary,
-                    modifier = Modifier.padding(horizontal = Dp24)
                 )
                 listContent.forEachIndexed { index, content ->
                     CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
@@ -120,6 +135,11 @@ internal fun HandleBottomSheetDownload(
                     }
                 }
             }
+            HorizontalDivider(
+                modifier = Modifier.fillMaxWidth(),
+                thickness = Dp1,
+                color = colorScheme.onPrimary.copy(alpha = 0.12f)
+            )
             MeverBannerAd(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -146,6 +166,7 @@ internal fun HandleBottomSheetDownload(
                         color = colorScheme.onPrimary
                     )
                 }
+                if (selectMultipleItems.isEmpty()) return@Row
                 Box(
                     modifier = Modifier
                         .width(Dp2)
@@ -155,7 +176,6 @@ internal fun HandleBottomSheetDownload(
                             shape = RoundedCornerShape(Dp8)
                         )
                 )
-                if (selectMultipleItems.isEmpty()) return@Row
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(Dp14))
