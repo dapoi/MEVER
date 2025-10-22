@@ -12,7 +12,7 @@ data class SoundCloudDownloaderResponse(
     data class DataContent(
         val url: String? = null,
         val title: String? = null,
-        val imageURL: String? = null
+        val thumbnail: String? = null
     )
 
     fun mapToEntity() = listOf(
@@ -20,7 +20,7 @@ data class SoundCloudDownloaderResponse(
             status = status ?: true,
             url = data?.url.orEmpty(),
             fileName = data?.title?.let { "$it.mp3" }.orEmpty(),
-            thumbnail = data?.imageURL.orEmpty()
+            thumbnail = data?.thumbnail.orEmpty()
         )
     )
 }
