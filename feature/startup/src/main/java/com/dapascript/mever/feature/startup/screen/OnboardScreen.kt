@@ -69,7 +69,7 @@ import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.getNotificationPermission
 import com.dapascript.mever.core.navigation.helper.navigateClearBackStack
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeLandingRoute
-import com.dapascript.mever.feature.startup.R
+import com.dapascript.mever.core.common.R
 import com.dapascript.mever.feature.startup.viewmodel.OnboardViewModel
 
 @Composable

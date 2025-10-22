@@ -10,6 +10,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement.SpaceAround
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Arrangement.SpaceEvenly
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -55,17 +57,21 @@ import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterEnd
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
+import androidx.compose.ui.Alignment.Companion.TopStart
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale.Companion.Crop
+import androidx.compose.ui.layout.ContentScale.Companion.FillBounds
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle.Companion.Italic
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow.Companion.Ellipsis
@@ -115,11 +121,15 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
 import com.dapascript.mever.core.common.ui.theme.MeverLightViolet
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
+import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp14
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp22
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp26
+import com.dapascript.mever.core.common.ui.theme.ThemeType
+import com.dapascript.mever.core.common.ui.theme.ThemeType.Dark
+import com.dapascript.mever.core.common.ui.theme.ThemeType.Light
 import com.dapascript.mever.core.common.util.DeviceType
 import com.dapascript.mever.core.common.util.DeviceType.DESKTOP
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
@@ -217,6 +227,7 @@ private fun HomeScreenContent(
         var generateButtonHeight by remember { mutableIntStateOf(0) }
         val context = LocalContext.current
         val showBadge = showBadge.collectAsStateValue()
+        val themeType = themeType.collectAsStateValue()
         val isImageGeneratorFeatureActive = isImageGeneratorFeatureActive.collectAsStateValue()
         val isGoImgFeatureActive = isGoImgFeatureActive.collectAsStateValue()
         val getButtonClickCount = getButtonClickCount.collectAsStateValue()
@@ -298,18 +309,55 @@ private fun HomeScreenContent(
                         ) { index ->
                             when (index) {
                                 0 -> {
-                                    HomeDownloaderSection(
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .padding(horizontal = Dp24)
-                                            .navigationBarsPadding(),
-                                        viewModel = this@with,
-                                        context = context,
-                                        navController = navController,
-                                        scope = scope,
-                                        getButtonClickCount = getButtonClickCount,
-                                        isImageGeneratorFeatureActive = isImageGeneratorFeatureActive
-                                    )
+                                    Box {
+                                        if (isImageGeneratorFeatureActive.not()) {
+                                            Column(
+                                                modifier = Modifier
+                                                    .align(TopStart)
+                                                    .aspectRatio(1f)
+                                            ) {
+                                                Box(modifier = Modifier.fillMaxWidth()) {
+                                                    Image(
+                                                        modifier = Modifier.fillMaxSize(),
+                                                        painter = painterResource(
+                                                            if (isDarkTheme(themeType)) {
+                                                                R.drawable.bg_onboard_dark
+                                                            } else R.drawable.bg_onboard_light
+                                                        ),
+                                                        contentDescription = "Background",
+                                                        contentScale = FillBounds,
+                                                        alpha = 0.2f
+                                                    )
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .fillMaxSize()
+                                                            .background(
+                                                                Brush.verticalGradient(
+                                                                    colors = listOf(
+                                                                        MeverTransparent,
+                                                                        colorScheme.background
+                                                                    ),
+                                                                    startY = 150f,
+                                                                    endY = 400f
+                                                                )
+                                                            )
+                                                    )
+                                                }
+                                            }
+                                        }
+                                        HomeDownloaderSection(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .padding(horizontal = Dp24)
+                                                .navigationBarsPadding(),
+                                            viewModel = this@with,
+                                            context = context,
+                                            navController = navController,
+                                            scope = scope,
+                                            getButtonClickCount = getButtonClickCount,
+                                            isImageGeneratorFeatureActive = isImageGeneratorFeatureActive
+                                        )
+                                    }
                                 }
 
                                 1 -> {
@@ -746,7 +794,7 @@ private fun HomeDownloaderSection(
             }
             item {
                 Spacer(modifier = Modifier.size(Dp24))
-                Row(
+                if (isImageGeneratorFeatureActive) Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = CenterVertically,
                     horizontalArrangement = spacedBy(Dp16)
@@ -789,6 +837,15 @@ private fun HomeDownloaderSection(
                         overflow = Ellipsis,
                         style = typography.bodyBold1,
                         color = MeverPurple
+                    )
+                } else {
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = stringResource(R.string.disclaimer_supported_platforms),
+                        textAlign = TextAlign.Center,
+                        fontStyle = Italic,
+                        style = typography.body3,
+                        color = colorScheme.onPrimary.copy(alpha = 0.6f)
                     )
                 }
             }
@@ -895,7 +952,7 @@ private fun HomeDownloaderSection(
                                                         contents = downloadList
                                                             .filterNot {
                                                                 isMusic(it.fileName)
-                                                                && it.status != SUCCESS
+                                                                        && it.status != SUCCESS
                                                             }
                                                             .map {
                                                                 Content(
@@ -1177,6 +1234,13 @@ private fun NavController.navigateToImageGenerator(
         totalImages = totalImages
     )
 )
+
+@Composable
+private fun isDarkTheme(themeType: ThemeType) = when (themeType) {
+    Light -> false
+    Dark -> true
+    else -> isSystemInDarkTheme()
+}
 
 private fun handleClickButton(
     buttonClickCount: Int,
