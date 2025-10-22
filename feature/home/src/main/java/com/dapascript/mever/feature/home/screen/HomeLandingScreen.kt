@@ -10,6 +10,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Arrangement.SpaceAround
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Arrangement.SpaceEvenly
@@ -749,7 +750,8 @@ private fun HomeDownloaderSection(
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = CenterVertically,
-                    horizontalArrangement = spacedBy(Dp16)
+                    horizontalArrangement = if (isImageGeneratorFeatureActive) spacedBy(Dp16)
+                    else Arrangement.Center
                 ) {
                     Row(horizontalArrangement = spacedBy((-Dp20))) {
                         val platforms = PlatformType.entries.filter {
@@ -780,7 +782,7 @@ private fun HomeDownloaderSection(
                             )
                         }
                     }
-                    Text(
+                    if (isImageGeneratorFeatureActive) Text(
                         modifier = Modifier
                             .clip(RoundedCornerShape(Dp8))
                             .onCustomClick { showPlatformSupportDialog = true },
@@ -895,7 +897,7 @@ private fun HomeDownloaderSection(
                                                         contents = downloadList
                                                             .filterNot {
                                                                 isMusic(it.fileName)
-                                                                && it.status != SUCCESS
+                                                                        && it.status != SUCCESS
                                                             }
                                                             .map {
                                                                 Content(
