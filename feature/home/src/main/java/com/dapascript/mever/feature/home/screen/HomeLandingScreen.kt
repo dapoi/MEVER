@@ -479,7 +479,6 @@ private fun HomeDownloaderSection(
 
     LaunchedEffect(urlIntent) {
         if (urlIntent.isNotEmpty()) {
-            shouldShowDonationOfferDialog = false
             urlSocialMediaState = TextFieldValue(urlIntent)
             checkStateBeforeDownload(
                 urlSocialMediaState = urlSocialMediaState,
@@ -513,8 +512,8 @@ private fun HomeDownloaderSection(
         )
     }
 
-    LaunchedEffect(randomDonateDialogOffer, shouldShowDonationOfferDialog) {
-        if (shouldShowDonationOfferDialog) {
+    LaunchedEffect(randomDonateDialogOffer, shouldShowDonationOfferDialog, urlIntent) {
+        if (shouldShowDonationOfferDialog && urlIntent.isEmpty()) {
             (0..3).random(Random).also { randomValue ->
                 randomDonateDialogOffer = randomValue
                 shouldShowDonationOfferDialog = false
