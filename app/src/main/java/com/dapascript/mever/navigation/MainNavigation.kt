@@ -9,7 +9,6 @@ import com.dapascript.mever.core.common.util.DeviceType
 import com.dapascript.mever.core.navigation.base.BaseNavGraph
 import com.dapascript.mever.core.navigation.helper.getCurrentRoute
 import com.dapascript.mever.core.navigation.helper.navigateClearBackStack
-import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeLandingRoute
 import com.dapascript.mever.core.navigation.route.StartupScreenRoute.SplashRoute
 import com.dapascript.mever.viewmodel.MainViewModel
 
@@ -24,7 +23,7 @@ internal fun MainNavigation(
 
     LaunchedEffect(Unit) {
         viewModel.navigationToHomeEvent.collect {
-            if (navController.getCurrentRoute() != HomeLandingRoute.toString()) {
+            if (navController.getCurrentRoute() != SplashRoute.toString()) {
                 navController.navigateClearBackStack(SplashRoute)
             }
         }

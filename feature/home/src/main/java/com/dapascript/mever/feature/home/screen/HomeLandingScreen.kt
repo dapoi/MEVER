@@ -174,7 +174,6 @@ import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.sync.Semaphore
@@ -480,6 +479,7 @@ private fun HomeDownloaderSection(
     LaunchedEffect(urlIntent) {
         if (urlIntent.isNotEmpty()) {
             urlSocialMediaState = TextFieldValue(urlIntent)
+            resetUrlIntent()
             checkStateBeforeDownload(
                 urlSocialMediaState = urlSocialMediaState,
                 storageInfo = storageInfo,
@@ -495,8 +495,6 @@ private fun HomeDownloaderSection(
                 },
                 onActionDownload = { getApiDownloader() }
             )
-            delay(1000L)
-            resetUrlIntent()
         }
     }
 
@@ -512,8 +510,8 @@ private fun HomeDownloaderSection(
         )
     }
 
-    LaunchedEffect(randomDonateDialogOffer, shouldShowDonationOfferDialog, urlIntent) {
-        if (shouldShowDonationOfferDialog && urlIntent.isEmpty()) {
+    LaunchedEffect(randomDonateDialogOffer, shouldShowDonationOfferDialog) {
+        if (shouldShowDonationOfferDialog) {
             (0..3).random(Random).also { randomValue ->
                 randomDonateDialogOffer = randomValue
                 shouldShowDonationOfferDialog = false

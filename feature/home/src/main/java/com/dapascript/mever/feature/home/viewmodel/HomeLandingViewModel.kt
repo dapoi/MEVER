@@ -206,6 +206,5 @@ class HomeLandingViewModel @Inject constructor(
 
     fun resetUrlIntent() = viewModelScope.launch {
         dataStore.saveUrlIntent("")
-        shouldShowDonationOfferDialog = true
     }
 }
