@@ -5,6 +5,7 @@ import android.widget.Toast.LENGTH_SHORT
 import androidx.activity.SystemBarStyle.Companion.dark
 import androidx.activity.SystemBarStyle.Companion.light
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.OptIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,6 +26,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.util.lerp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
@@ -51,6 +53,7 @@ import kotlinx.coroutines.launch
 import java.io.File
 import kotlin.math.absoluteValue
 
+@OptIn(UnstableApi::class)
 @Composable
 internal fun GalleryContentDetailScreen(
     navigator: NavController,

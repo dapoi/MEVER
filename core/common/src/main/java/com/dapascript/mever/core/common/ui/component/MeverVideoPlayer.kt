@@ -196,6 +196,7 @@ fun MeverVideoPlayer(
     var pendingRect by remember { mutableStateOf<Rect?>(null) }
     val lifecycleOwner by rememberUpdatedState(LocalLifecycleOwner.current)
     val shouldEnterPipMode by rememberUpdatedState(isVideoPlaying)
+    val isPipEnabledState by rememberUpdatedState(isPipEnabled)
 
     // Fullscreen Handlers
     val enterFullScreen = {
@@ -261,15 +262,15 @@ fun MeverVideoPlayer(
         }
     }
 
-    LaunchedEffect(pendingRect, isPipEnabled, isVideoPlaying) {
-        if (isPipEnabled && isVideoPlaying && pendingRect != null && pendingRect != lastRect) {
+    LaunchedEffect(pendingRect, isPipEnabledState, isVideoPlaying) {
+        if (isPipEnabledState && isVideoPlaying && pendingRect != null && pendingRect != lastRect) {
             delay(60)
             activity.updatePipParams(autoEnter = true, sourceRect = pendingRect)
             lastRect = pendingRect
         }
     }
 
-    DisposableEffect(videoSource, isPipEnabled) {
+    DisposableEffect(videoSource) {
         val listener = object : Listener {
             override fun onEvents(player: Player, events: Events) {
                 super.onEvents(player, events)
@@ -299,14 +300,20 @@ fun MeverVideoPlayer(
             }
         }
         val onUserLeaveBehavior: () -> Unit = {
-            if (shouldEnterPipMode && isPipEnabled) {
-                activity.enterPictureInPictureMode(
-                    PictureInPictureParams.Builder().build()
-                )
+            when {
+                shouldEnterPipMode && isPipEnabledState -> {
+                    activity.enterPictureInPictureMode(
+                        PictureInPictureParams.Builder().build()
+                    )
+                }
+
+                isPipEnabledState.not() -> {
+                    player.pause()
+                }
             }
         }
         val observer = LifecycleEventObserver { _, event ->
-            if (event == ON_STOP && isPipEnabled.not()) player.pause()
+            if (event == ON_STOP && isPipEnabledState.not()) player.pause()
         }
 
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -361,7 +368,7 @@ fun MeverVideoPlayer(
             modifier = Modifier
                 .fillMaxSize()
                 .onGloballyPositioned { layoutCoordinates ->
-                    pendingRect = if (isVideoPlaying && isPipEnabled) {
+                    pendingRect = if (isVideoPlaying && isPipEnabledState) {
                         layoutCoordinates.boundsInWindow().toAndroidRectF().toRect()
                     } else null
                 },
