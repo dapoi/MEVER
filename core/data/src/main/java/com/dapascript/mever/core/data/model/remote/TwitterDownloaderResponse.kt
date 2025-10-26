@@ -18,7 +18,7 @@ data class TwitterDownloaderResponse(
         ContentEntity(
             url = it.url.orEmpty(),
             status = status ?: true,
-            type = if (it.type?.lowercase() == "mp4") "mp4" else "jpg"
+            type = if (it.type.orEmpty().contains("mp4")) "mp4" else "jpg"
         )
     }
 }
