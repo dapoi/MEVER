@@ -14,15 +14,11 @@ data class TwitterDownloaderResponse(
         val url: String? = null
     )
 
-    fun mapToEntity() = when (data?.firstOrNull()?.type?.lowercase()) {
-        "mp4" -> data.take(1)
-        "jpg" -> data
-        else -> emptyList()
-    }.map {
+    fun mapToEntity() = data?.map {
         ContentEntity(
             url = it.url.orEmpty(),
             status = status ?: true,
-            type = it.type.orEmpty()
+            type = if (it.type?.lowercase() == "mp4") "mp4" else "jpg"
         )
     }
 }
