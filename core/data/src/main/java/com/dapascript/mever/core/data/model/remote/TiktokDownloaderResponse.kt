@@ -7,7 +7,7 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 data class TiktokDownloaderResponse(
     val status: Boolean? = null,
-    val data: DataContent
+    val data: DataContent? = null
 ) {
     @JsonClass(generateAdapter = true)
     data class DataContent(
@@ -25,7 +25,7 @@ data class TiktokDownloaderResponse(
 
     fun mapToEntity(): List<ContentEntity> {
         val contentList = mutableListOf<ContentEntity>()
-        data.photos?.forEach { photoUrl ->
+        data?.photos?.forEach { photoUrl ->
             contentList.add(
                 ContentEntity(
                     url = photoUrl,
@@ -34,7 +34,7 @@ data class TiktokDownloaderResponse(
                 )
             )
         }
-        data.video?.let { videoUrl ->
+        data?.video?.let { videoUrl ->
             contentList.add(
                 ContentEntity(
                     url = videoUrl,

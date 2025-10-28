@@ -7,7 +7,7 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 data class PinterestDownloaderResponse(
     val status: Boolean? = null,
-    val data: DataContent
+    val data: DataContent? = null
 ) {
     @JsonClass(generateAdapter = true)
     data class DataContent(
@@ -21,7 +21,7 @@ data class PinterestDownloaderResponse(
         )
     }
 
-    fun mapToEntity() = data.contents?.map {
+    fun mapToEntity() = data?.contents?.map {
         ContentEntity(
             url = it.url.orEmpty(),
             status = status ?: true,

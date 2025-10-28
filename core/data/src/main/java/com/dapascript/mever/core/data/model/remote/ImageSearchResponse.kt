@@ -5,7 +5,7 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class ImageSearchResponse(
-    val status: Boolean,
+    val status: Boolean? = null,
     val data: List<ImageSearchData>? = null
 ) {
     @JsonClass(generateAdapter = true)
@@ -27,7 +27,7 @@ data class ImageSearchResponse(
             url = it.url.orEmpty(),
             previewUrl = it.preview?.url.orEmpty(),
             id = it.id.orEmpty(),
-            status = status,
+            status = status ?: true,
             fileName = it.origin?.title.orEmpty()
         )
     }
