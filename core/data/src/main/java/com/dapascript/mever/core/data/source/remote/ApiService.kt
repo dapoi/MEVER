@@ -1,6 +1,7 @@
 package com.dapascript.mever.core.data.source.remote
 
 import com.dapascript.mever.core.data.model.remote.AppConfigResponse
+import com.dapascript.mever.core.data.model.remote.AppleMusicDownloaderResponse
 import com.dapascript.mever.core.data.model.remote.FacebookDownloaderResponse
 import com.dapascript.mever.core.data.model.remote.ImageAiResponse
 import com.dapascript.mever.core.data.model.remote.ImageSearchResponse
@@ -20,6 +21,11 @@ import retrofit2.http.Query
 interface ApiService {
     @GET("app-config")
     suspend fun getAppConfig(): AppConfigResponse
+
+    @GET("applemusic")
+    suspend fun getAppleMusicDownloader(
+        @Query("url") url: String
+    ): AppleMusicDownloaderResponse
 
     @GET("douyin")
     suspend fun getDouyinDownloader(

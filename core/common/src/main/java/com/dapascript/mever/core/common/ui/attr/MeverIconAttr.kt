@@ -11,6 +11,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverLightPurple
 import com.dapascript.mever.core.common.ui.theme.MeverPink
 import com.dapascript.mever.core.common.ui.theme.MeverSoftGray
 import com.dapascript.mever.core.common.ui.theme.MeverSoftWhite
+import com.dapascript.mever.core.common.util.PlatformType.APPLE_MUSIC
 import com.dapascript.mever.core.common.util.PlatformType.DOUYIN
 import com.dapascript.mever.core.common.util.PlatformType.FACEBOOK
 import com.dapascript.mever.core.common.util.PlatformType.INSTAGRAM
@@ -27,6 +28,7 @@ import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE_MUSIC
 
 object MeverIconAttr {
     fun getPlatformIcon(platform: String) = when {
+        platform.contains(APPLE_MUSIC.platformName) -> R.drawable.ic_apple
         platform.contains(DOUYIN.platformName) -> R.drawable.ic_tiktok
         platform.contains(FACEBOOK.platformName) -> R.drawable.ic_facebook
         platform.contains(INSTAGRAM.platformName) -> R.drawable.ic_instagram
@@ -44,7 +46,8 @@ object MeverIconAttr {
     }
 
     fun getPlatformIconBackgroundColor(platform: String) = when {
-        platform.contains(DOUYIN.platformName) -> MeverLightGray
+        platform.contains(APPLE_MUSIC.platformName) -> MeverPink
+        platform.contains(DOUYIN.platformName) -> MeverLightPurple
         platform.contains(FACEBOOK.platformName) -> MeverLightBlue
         platform.contains(INSTAGRAM.platformName) -> MeverCreamPink
         platform.contains(PINTEREST.platformName) -> MeverLightPink

@@ -33,6 +33,7 @@ import androidx.core.view.WindowCompat.getInsetsController
 import androidx.core.view.WindowInsetsCompat.Type.systemBars
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.util.PlatformType.ALL
+import com.dapascript.mever.core.common.util.PlatformType.APPLE_MUSIC
 import com.dapascript.mever.core.common.util.PlatformType.DOUYIN
 import com.dapascript.mever.core.common.util.PlatformType.FACEBOOK
 import com.dapascript.mever.core.common.util.PlatformType.INSTAGRAM
@@ -275,6 +276,7 @@ fun convertToTimeFormat(milliseconds: Long): String {
 }
 
 fun getPlatformType(url: String, type: String = "video"): PlatformType {
+    val listAppleMusicUrl = listOf("music.apple.com", "itunes.apple.com")
     val listDouyinUrl = listOf("douyin.com", "iesdouyin.com", "douyinv.com", "douyin.su")
     val listFbUrl = listOf("facebook.com", "fb.com", "m.facebook.com", "fb.watch")
     val listInstagramUrl = listOf("instagram.com", "instagr.am", "ig.com")
@@ -289,6 +291,7 @@ fun getPlatformType(url: String, type: String = "video"): PlatformType {
     val listYouTubeUrl = listOf("youtube.com", "youtu.be", "m.youtube.com", "yt.com")
 
     return when {
+        listAppleMusicUrl.any { url.contains(it) } -> APPLE_MUSIC
         listDouyinUrl.any { url.contains(it) } -> DOUYIN
         listFbUrl.any { url.contains(it) } -> FACEBOOK
         listInstagramUrl.any { url.contains(it) } -> INSTAGRAM

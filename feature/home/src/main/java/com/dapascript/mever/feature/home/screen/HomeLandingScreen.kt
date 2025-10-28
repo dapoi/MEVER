@@ -892,10 +892,7 @@ private fun HomeDownloaderSection(
                                                 navController.navigateTo(
                                                     GalleryContentDetailRoute(
                                                         contents = downloadList
-                                                            .filterNot {
-                                                                isMusic(it.fileName)
-                                                                        && it.status != SUCCESS
-                                                            }
+                                                            .filterNot { isMusic(it.fileName) }
                                                             .map {
                                                                 Content(
                                                                     id = it.id,

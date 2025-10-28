@@ -303,9 +303,7 @@ internal fun GalleryLandingScreen(
                             if (isMusic(model.fileName).not()) navController.navigateTo(
                                 GalleryContentDetailRoute(
                                     contents = downloadFilter
-                                        ?.filterNot {
-                                            isMusic(it.fileName) && it.status != SUCCESS
-                                        }
+                                        ?.filterNot { isMusic(it.fileName) }
                                         ?.map {
                                             Content(
                                                 id = it.id,

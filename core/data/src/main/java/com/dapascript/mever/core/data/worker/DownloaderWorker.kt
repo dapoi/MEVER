@@ -5,6 +5,7 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.WorkerParameters
 import com.dapascript.mever.core.common.util.PlatformType.AI
 import com.dapascript.mever.core.common.util.PlatformType.ALL
+import com.dapascript.mever.core.common.util.PlatformType.APPLE_MUSIC
 import com.dapascript.mever.core.common.util.PlatformType.DOUYIN
 import com.dapascript.mever.core.common.util.PlatformType.EXPLORE
 import com.dapascript.mever.core.common.util.PlatformType.FACEBOOK
@@ -68,6 +69,7 @@ class DownloaderWorker @AssistedInject constructor(
         selectedQuality: String,
         type: String
     ) = when (getPlatformType(url, type)) {
+        APPLE_MUSIC -> getAppleMusicDownloader(url).mapToEntity()
         DOUYIN -> getDouyinDownloader(url).mapToEntity()
         FACEBOOK -> getFacebookDownloader(url).mapToEntity()
         INSTAGRAM -> getInstagramDownloader(url).mapToEntity()
