@@ -184,6 +184,7 @@ internal fun ExploreLandingScreen(
                                                 Content(
                                                     id = contentIndex,
                                                     isVideo = false,
+                                                    isOnlineContent = true,
                                                     primaryContent = contentEntity.url,
                                                     secondaryContent = contentEntity.previewUrl,
                                                     fileName = contentEntity.fileName

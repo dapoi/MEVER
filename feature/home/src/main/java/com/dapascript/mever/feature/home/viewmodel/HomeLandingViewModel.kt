@@ -32,6 +32,7 @@ import com.ketch.Status.STARTED
 import com.ketch.Status.SUCCESS
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers.Default
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.asStateFlow
@@ -205,6 +206,7 @@ class HomeLandingViewModel @Inject constructor(
     }
 
     fun resetUrlIntent() = viewModelScope.launch {
+        delay(1000)
         dataStore.saveUrlIntent("")
     }
 }
