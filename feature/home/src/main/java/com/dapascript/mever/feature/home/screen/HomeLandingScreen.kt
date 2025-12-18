@@ -449,7 +449,9 @@ private fun HomeDownloaderSection(
     isImageGeneratorFeatureActive: Boolean,
     modifier: Modifier = Modifier
 ) = with(viewModel) {
-    val downloadList = downloadList.collectAsStateValue()?.reversed()
+    val downloadList = downloadList.collectAsStateValue()?.reversed()?.filterNot {
+        it.tag in setOf(AI.platformName, EXPLORE.platformName)
+    }
     val downloaderResponseState = downloaderResponseState.collectAsStateValue()
     val youtubeResolutions = youtubeResolutions.collectAsStateValue()
     val urlIntent = getUrlIntent.collectAsStateValue()
@@ -855,8 +857,9 @@ private fun HomeDownloaderSection(
             downloadList?.let { files ->
                 if (files.isNotEmpty()) {
                     items(
-                        items = files.toMutableStateList()
-                            .apply { if (size > 3) removeRange(3, size) },
+                        items = files.toMutableStateList().apply {
+                            if (size > 3) removeRange(3, size)
+                        },
                         key = { it.id },
                         contentType = { it.status.name }
                     ) { model ->
