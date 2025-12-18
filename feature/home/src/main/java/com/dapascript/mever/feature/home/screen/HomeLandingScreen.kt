@@ -109,7 +109,6 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp5
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp75
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
@@ -1111,20 +1110,6 @@ private fun HomeAiSection(
                 .fillMaxWidth()
                 .padding(top = Dp8)
         )
-        onClickGenerate?.let {
-            MeverButton(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(Dp64)
-                    .padding(top = Dp16),
-                title = stringResource(R.string.generate),
-                isEnabled = prompt.isNotEmpty(),
-                buttonType = Filled(
-                    backgroundColor = colorScheme.primary,
-                    contentColor = MeverWhite
-                )
-            ) { it() }
-        }
     }
 }
 
