@@ -215,7 +215,7 @@ internal fun HomeImageGeneratorResultScreen(
             showDialog = errorMessage.isNotEmpty(),
             errorTitle = stringResource(R.string.error_title),
             errorDescription = errorMessage,
-            primaryButtonText = stringResource(R.string.ok),
+            primaryButtonText = stringResource(R.string.retry),
             onClickPrimary = {
                 errorMessage = ""
                 getImageAiGenerator()
