@@ -27,7 +27,10 @@ class ImageGeneratorWorker @AssistedInject constructor(
 
     override suspend fun doApiCall(): ImageAiEntity {
         val prompt = inputData.getString(KEY_REQUEST_PROMPT).orEmpty()
-        return apiService.getImageAiGenerator(prompt).mapToEntity().let { content ->
+        return apiService.getImageAiGenerator(
+            if (prompt.contains("gambar", ignoreCase = true)) prompt
+            else "Buatkan gambar atau image: $prompt"
+        ).mapToEntity().let { content ->
             if (content.imagesUrl.isNotEmpty()) content
             else throw Throwable(context.getString(R.string.error_unknown))
         }

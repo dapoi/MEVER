@@ -7,15 +7,18 @@ import com.squareup.moshi.JsonClass
 data class ImageAiResponse(val data: ImageAiData) {
     @JsonClass(generateAdapter = true)
     data class ImageAiData(
-        val prompt: String,
-        val media: List<ImageAiMedia>? = null,
+        val prompt: String?,
+        val media: List<ImageAiMedia>? = null
     ) {
         @JsonClass(generateAdapter = true)
-        data class ImageAiMedia(val uri: String)
+        data class ImageAiMedia(val image: Image) {
+            @JsonClass(generateAdapter = true)
+            data class Image(val uri: String?)
+        }
     }
 
     fun mapToEntity() = ImageAiEntity(
-        prompt = data.prompt,
-        imagesUrl = data.media?.map { it.uri } ?: emptyList()
+        prompt = data.prompt.orEmpty(),
+        imagesUrl = data.media?.map { it.image.uri.orEmpty() } ?: emptyList()
     )
 }
