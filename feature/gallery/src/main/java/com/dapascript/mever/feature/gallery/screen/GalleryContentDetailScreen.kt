@@ -59,7 +59,7 @@ import kotlin.math.absoluteValue
 @OptIn(UnstableApi::class)
 @Composable
 internal fun GalleryContentDetailScreen(
-    navigator: NavController,
+    navController: NavController,
     viewModel: GalleryContentDetailViewModel = hiltViewModel()
 ) = with(viewModel) {
     var isFullScreen by rememberSaveable { mutableStateOf(false) }
@@ -145,7 +145,7 @@ internal fun GalleryContentDetailScreen(
                     } else {
                         scope.launch {
                             startDownload(imageExploreData.first, imageExploreData.second)
-                            navigator.navigateTo(
+                            navController.navigateTo(
                                 route = GalleryLandingRoute,
                                 popUpTo = GalleryContentDetailRoute::class,
                                 inclusive = true
@@ -220,7 +220,7 @@ internal fun GalleryContentDetailScreen(
                             file = File(primaryContent)
                         )
                     },
-                    onClickBack = { navigator.popBackStack() }
+                    onClickBack = { navController.popBackStack() }
                 ) else MeverPhotoViewer(
                     modifier = itemModifier,
                     fileName = fileName,
@@ -234,7 +234,7 @@ internal fun GalleryContentDetailScreen(
                             file = File(primaryContent)
                         )
                     },
-                    onClickBack = { navigator.popBackStack() },
+                    onClickBack = { navController.popBackStack() },
                     onClickDownload = { url, filename ->
                         setStoragePermission = getStoragePermission()
                         imageExploreData = Pair(url, sanitizeFilename(filename))

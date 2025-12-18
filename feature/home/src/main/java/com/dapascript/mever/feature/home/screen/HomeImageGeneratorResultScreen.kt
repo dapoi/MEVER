@@ -220,7 +220,7 @@ internal fun HomeImageGeneratorResultScreen(
                 errorMessage = ""
                 getImageAiGenerator()
             },
-            onClickSecondary = { errorMessage = "" }
+            onClickSecondary = { navController.popBackStack() }
         )
 
         AnimatedContent(
