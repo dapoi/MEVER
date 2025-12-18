@@ -48,6 +48,9 @@ import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getStorageInfo
 import com.dapascript.mever.core.common.util.storage.StorageUtil.isStorageFull
+import com.dapascript.mever.core.navigation.helper.navigateTo
+import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
+import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute
 import com.dapascript.mever.feature.gallery.viewmodel.GalleryContentDetailViewModel
 import kotlinx.coroutines.launch
 import java.io.File
@@ -142,10 +145,11 @@ internal fun GalleryContentDetailScreen(
                     } else {
                         scope.launch {
                             startDownload(imageExploreData.first, imageExploreData.second)
-                            val nextPage = pagerState.currentPage + 1
-                            if (nextPage < pagerState.pageCount) {
-                                pagerState.animateScrollToPage(nextPage)
-                            }
+                            navigator.navigateTo(
+                                route = GalleryLandingRoute,
+                                popUpTo = GalleryContentDetailRoute::class,
+                                inclusive = true
+                            )
                         }
                         Toast.makeText(
                             context,

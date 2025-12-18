@@ -179,7 +179,7 @@ internal fun ExploreLandingScreen(
                                 .clip(RoundedCornerShape(Dp8))
                                 .onCustomClick {
                                     navController.navigateTo(
-                                        GalleryContentDetailRoute(
+                                        route = GalleryContentDetailRoute(
                                             contents = result.mapIndexed { contentIndex, contentEntity ->
                                                 Content(
                                                     id = contentIndex,
