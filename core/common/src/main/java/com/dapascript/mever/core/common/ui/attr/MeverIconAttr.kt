@@ -11,11 +11,14 @@ import com.dapascript.mever.core.common.ui.theme.MeverLightPurple
 import com.dapascript.mever.core.common.ui.theme.MeverPink
 import com.dapascript.mever.core.common.ui.theme.MeverSoftGray
 import com.dapascript.mever.core.common.ui.theme.MeverSoftWhite
+import com.dapascript.mever.core.common.util.PlatformType.AI
 import com.dapascript.mever.core.common.util.PlatformType.APPLE_MUSIC
 import com.dapascript.mever.core.common.util.PlatformType.DOUYIN
+import com.dapascript.mever.core.common.util.PlatformType.EXPLORE
 import com.dapascript.mever.core.common.util.PlatformType.FACEBOOK
 import com.dapascript.mever.core.common.util.PlatformType.INSTAGRAM
 import com.dapascript.mever.core.common.util.PlatformType.PINTEREST
+import com.dapascript.mever.core.common.util.PlatformType.PIXIV
 import com.dapascript.mever.core.common.util.PlatformType.SOUNDCLOUD
 import com.dapascript.mever.core.common.util.PlatformType.SPOTIFY
 import com.dapascript.mever.core.common.util.PlatformType.TERABOX
@@ -28,11 +31,14 @@ import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE_MUSIC
 
 object MeverIconAttr {
     fun getPlatformIcon(platform: String) = when {
+        platform.contains(AI.platformName) -> R.drawable.ic_ai
         platform.contains(APPLE_MUSIC.platformName) -> R.drawable.ic_apple
         platform.contains(DOUYIN.platformName) -> R.drawable.ic_tiktok
+        platform.contains(EXPLORE.platformName) -> R.drawable.ic_language
         platform.contains(FACEBOOK.platformName) -> R.drawable.ic_facebook
         platform.contains(INSTAGRAM.platformName) -> R.drawable.ic_instagram
         platform.contains(PINTEREST.platformName) -> R.drawable.ic_pinterest
+        platform.contains(PIXIV.platformName) -> R.drawable.ic_pixiv
         platform.contains(SOUNDCLOUD.platformName) -> R.drawable.ic_soundcloud
         platform.contains(SPOTIFY.platformName) -> R.drawable.ic_spotify
         platform.contains(TERABOX.platformName) -> R.drawable.ic_terabox
@@ -46,11 +52,14 @@ object MeverIconAttr {
     }
 
     fun getPlatformIconBackgroundColor(platform: String) = when {
+        platform.contains(AI.platformName) -> MeverCreamPink
         platform.contains(APPLE_MUSIC.platformName) -> MeverPink
         platform.contains(DOUYIN.platformName) -> MeverLightPurple
+        platform.contains(EXPLORE.platformName) -> MeverLightBlue
         platform.contains(FACEBOOK.platformName) -> MeverLightBlue
         platform.contains(INSTAGRAM.platformName) -> MeverCreamPink
         platform.contains(PINTEREST.platformName) -> MeverLightPink
+        platform.contains(PIXIV.platformName) -> MeverLightBlue
         platform.contains(SOUNDCLOUD.platformName) -> MeverCreamPink
         platform.contains(SPOTIFY.platformName) -> MeverGreen
         platform.contains(TERABOX.platformName) -> MeverSoftWhite

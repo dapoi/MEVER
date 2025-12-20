@@ -784,7 +784,7 @@ private fun HomeDownloaderSection(
                             contentAlignment = Center
                         ) {
                             Text(
-                                text = "+7",
+                                text = "+8",
                                 textAlign = TextAlign.Center,
                                 style = typography.bodyBold1,
                                 color = MeverPurple
@@ -887,12 +887,7 @@ private fun HomeDownloaderSection(
                                 total = model.total,
                                 path = model.path,
                                 urlThumbnail = model.metaData,
-                                icon = if (model.tag.isNotEmpty() && model.tag !in setOf(
-                                        AI.platformName, EXPLORE.platformName
-                                    )
-                                ) {
-                                    getPlatformIcon(model.tag)
-                                } else null,
+                                icon = getPlatformIcon(model.tag),
                                 iconBackgroundColor = getPlatformIconBackgroundColor(model.tag),
                                 iconSize = Dp24,
                                 iconPadding = Dp5
