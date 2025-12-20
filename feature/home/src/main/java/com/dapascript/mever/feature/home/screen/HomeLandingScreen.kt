@@ -173,6 +173,7 @@ import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.sync.Semaphore
@@ -466,6 +467,8 @@ private fun HomeDownloaderSection(
     var showPlatformSupportDialog by remember { mutableStateOf(false) }
     var isStorageFull by remember { mutableStateOf(false) }
     var loadingItemIndex by remember { mutableStateOf<Int?>(null) }
+    var isDownloadProcessing by remember { mutableStateOf(false) }
+    var isInPreview by remember { mutableStateOf(false) }
     val interstitialController = rememberInterstitialAd(
         onAdFailToLoad = { setStoragePermission = getStoragePermission() },
         onAdFailOrDismissed = { setStoragePermission = getStoragePermission() }
@@ -566,8 +569,11 @@ private fun HomeDownloaderSection(
             .fillMaxWidth()
             .navigationBarsPadding(),
         listContent = contents,
+        isDownloadProcessing = isDownloadProcessing,
+        isInPreview = isInPreview,
         loadingItemIndex = loadingItemIndex,
         onClickDownload = { urls ->
+            isDownloadProcessing = true
             scope.launch {
                 val byUrl = contents.associateBy { it.url }
                 val semaphore = Semaphore(3)
@@ -575,7 +581,7 @@ private fun HomeDownloaderSection(
                 try {
                     supervisorScope {
                         urls.map { url ->
-                            async {
+                            async(IO) {
                                 semaphore.withPermit {
                                     runCatching {
                                         val content = byUrl[url] ?: return@runCatching
@@ -596,6 +602,7 @@ private fun HomeDownloaderSection(
                         }.awaitAll()
                     }
                 } finally {
+                    isDownloadProcessing = false
                     contents = emptyList()
                 }
             }
@@ -622,6 +629,8 @@ private fun HomeDownloaderSection(
                     }
 
                     if (loadingItemIndex == index) {
+                        isInPreview = true
+                        delay(150)
                         navController.navigateTo(
                             GalleryContentDetailRoute(
                                 contents = listOf(processedContents),
@@ -633,9 +642,11 @@ private fun HomeDownloaderSection(
                     if (loadingItemIndex == index) loadingItemIndex = null
                 }
             }
+            isInPreview = false
         },
         onClickDismiss = {
             loadingItemIndex = null
+            isInPreview = false
             contents = emptyList()
         }
     )

@@ -64,6 +64,8 @@ import androidx.compose.ui.text.style.TextAlign.Companion.Center as TextAlignCen
 @Composable
 internal fun HandleBottomSheetDownload(
     listContent: List<ContentEntity>,
+    isDownloadProcessing: Boolean,
+    isInPreview: Boolean,
     loadingItemIndex: Int?,
     modifier: Modifier = Modifier,
     onClickDownload: (List<String>) -> Unit,
@@ -77,7 +79,9 @@ internal fun HandleBottomSheetDownload(
     }
     val scrollState = rememberScrollState()
 
-    LaunchedEffect(listContent) { showBottomSheet = listContent.isNotEmpty() }
+    LaunchedEffect(listContent, isInPreview) {
+        showBottomSheet = listContent.isNotEmpty() && isInPreview.not()
+    }
 
     MeverBottomSheet(
         modifier = modifier,
@@ -179,14 +183,18 @@ internal fun HandleBottomSheetDownload(
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(Dp14))
-                        .onCustomClick {
+                        .onCustomClick(enabled = isDownloadProcessing.not()) {
                             onClickDownload(selectMultipleItems.map { listContent[it].url })
                         }
                         .weight(1f)
                         .padding(vertical = Dp16),
                     contentAlignment = Center
                 ) {
-                    Text(
+                    if (isDownloadProcessing) CircularProgressIndicator(
+                        modifier = Modifier.size(Dp20),
+                        strokeCap = Round,
+                        color = colorScheme.primary
+                    ) else Text(
                         text = stringResource(R.string.download),
                         style = typography.bodyBold1,
                         color = colorScheme.primary
