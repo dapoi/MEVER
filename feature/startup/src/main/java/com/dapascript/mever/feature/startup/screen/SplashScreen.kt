@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -26,6 +27,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
@@ -47,6 +49,7 @@ import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverDialogError
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp189
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp200
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp72
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
@@ -72,6 +75,7 @@ internal fun SplashScreen(
     ) {
         val isOnboarded = isOnboarded.collectAsStateValue()
         val appConfigState = appConfigState.collectAsStateValue()
+        val appVersion = getAppVersion.collectAsStateValue()
         val activity = LocalActivity.current
         val context = LocalContext.current
         val lifecycleOwner by rememberUpdatedState(LocalLifecycleOwner.current)
@@ -154,10 +158,10 @@ internal fun SplashScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MeverPurple),
-            contentAlignment = Center
+                .background(MeverPurple)
         ) {
             Column(
+                modifier = Modifier.align(Center),
                 horizontalAlignment = CenterHorizontally,
                 verticalArrangement = spacedBy(Dp8)
             ) {
@@ -208,6 +212,31 @@ internal fun SplashScreen(
                         color = MeverWhite
                     )
                 }
+            }
+            AnimatedVisibility(
+                modifier = Modifier
+                    .align(BottomCenter)
+                    .padding(bottom = Dp48),
+                visibleState = logoVisibleState,
+                enter = fadeIn(animationSpec = tween(300)) +
+                        slideInVertically(animationSpec = tween(300)) { it },
+                exit = slideOutVertically(
+                    animationSpec = tween(
+                        durationMillis = 250,
+                        delayMillis = 1000
+                    )
+                ) { it } + fadeOut(
+                    animationSpec = tween(
+                        durationMillis = 250,
+                        delayMillis = 1000
+                    )
+                )
+            ) {
+                Text(
+                    text = "v${appVersion}",
+                    style = typography.body1,
+                    color = MeverWhite
+                )
             }
         }
     }

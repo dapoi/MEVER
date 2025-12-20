@@ -1,6 +1,7 @@
 package com.dapascript.mever.viewmodel
 
 import androidx.lifecycle.viewModelScope
+import com.dapascript.mever.BuildConfig.VERSION_NAME
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.ui.theme.ThemeType.System
 import com.dapascript.mever.core.data.source.local.MeverDataStore
@@ -25,6 +26,10 @@ class MainViewModel @Inject constructor(
 
     private val _navigationToHomeEvent = Channel<Unit>()
     val navigationToHomeEvent = _navigationToHomeEvent.receiveAsFlow()
+
+    init {
+        viewModelScope.launch { dataStore.saveVersion(VERSION_NAME) }
+    }
 
     fun saveUrlIntent(url: String) {
         viewModelScope.launch {

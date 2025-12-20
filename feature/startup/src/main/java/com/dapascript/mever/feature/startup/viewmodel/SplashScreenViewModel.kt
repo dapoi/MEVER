@@ -40,6 +40,12 @@ class SplashScreenViewModel @Inject constructor(
         initialValue = false
     )
 
+    val getAppVersion = dataStore.getAppVersion.stateIn(
+        scope = viewModelScope,
+        started = WhileSubscribed(),
+        initialValue = "1.0.0"
+    )
+
     private val _appConfigState = MutableStateFlow<UiState<AppConfigEntity>>(StateInitial)
     val appConfigState = _appConfigState.asStateFlow()
 
@@ -67,7 +73,6 @@ class SplashScreenViewModel @Inject constructor(
                 )
                 _appConfigState.value = StateSuccess(mockAppConfig)
                 with(dataStore) {
-                    saveVersion(mockAppConfig.version)
                     setIsImageAiEnabled(mockAppConfig.isImageGeneratorFeatureActive)
                     setIsGoImgEnabled(mockAppConfig.isGoImgFeatureActive)
                     saveYoutubeVideoAndAudioQuality(mockAppConfig.videoResolutionsAndAudioQualities)
@@ -82,7 +87,6 @@ class SplashScreenViewModel @Inject constructor(
                     viewModelScope.launch {
                         it?.let {
                             with(dataStore) {
-                                saveVersion(it.version)
                                 setIsImageAiEnabled(it.isImageGeneratorFeatureActive)
                                 setIsGoImgEnabled(it.isGoImgFeatureActive)
                                 saveYoutubeVideoAndAudioQuality(it.videoResolutionsAndAudioQualities)

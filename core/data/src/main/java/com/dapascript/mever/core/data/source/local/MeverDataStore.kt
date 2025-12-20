@@ -26,6 +26,10 @@ class MeverDataStore @Inject constructor(
         }
     }
 
+    val getAppVersion = dataStore.data.map { preferences ->
+        preferences[KEY_VERSION] ?: "1.0.0"
+    }
+
     suspend fun setIsImageAiEnabled(isEnabled: Boolean) {
         dataStore.edit { preferences ->
             preferences[KEY_IS_IMAGE_AI_ENABLED] = isEnabled
