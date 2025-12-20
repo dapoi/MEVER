@@ -16,9 +16,11 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -34,10 +36,12 @@ import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -54,6 +58,7 @@ import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp120
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp150
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.MeverBlack
 import com.dapascript.mever.core.common.ui.theme.MeverDark
@@ -296,19 +301,34 @@ private fun PhotoViewer(
                 translationY = offsetY
             }
     ) {
-        var isImageError by remember { mutableStateOf(false) }
+        var isGeneralLoading by remember { mutableStateOf(false) }
         SubcomposeAsyncImage(
             modifier = Modifier.fillMaxSize(),
-            model = if (isImageError && secondaryImage.isNotEmpty()) secondaryImage else primaryImage,
+            model = secondaryImage.ifEmpty { primaryImage },
             contentDescription = "Photo Viewer",
             loading = {
                 if (secondaryImage.isNotEmpty()) Image(
                     modifier = Modifier.fillMaxSize(),
                     painter = rememberAsyncImagePainter(secondaryImage),
                     contentDescription = "Loading Image"
-                ) else null
+                ) else isGeneralLoading = true
             },
-            error = { isImageError = true }
+            error = {
+                Image(
+                    modifier = Modifier
+                        .size(Dp40)
+                        .align(Center),
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_broken_image),
+                    contentDescription = "Error Image"
+                )
+            },
+            onSuccess = { isGeneralLoading = false }
+        )
+        if (isGeneralLoading) CircularProgressIndicator(
+            modifier = Modifier
+                .size(Dp64)
+                .align(Center),
+            color = MeverWhite
         )
     }
 }
