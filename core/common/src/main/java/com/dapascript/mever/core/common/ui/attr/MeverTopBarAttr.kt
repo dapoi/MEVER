@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -22,6 +23,7 @@ import androidx.compose.ui.text.style.TextOverflow.Companion.Ellipsis
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.component.MeverActionButton
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.util.onCustomClick
 
@@ -83,8 +85,9 @@ object MeverTopBarAttr {
             exit = fadeOut()
         ) {
             Text(
+                modifier = Modifier.padding(horizontal = Dp8),
                 text = screenName.orEmpty(),
-                maxLines = 1,
+                maxLines = 2,
                 overflow = Ellipsis,
                 style = typography.h3.copy(fontWeight = Medium)
             )
