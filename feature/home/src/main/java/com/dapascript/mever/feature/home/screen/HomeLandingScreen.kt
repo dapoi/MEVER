@@ -396,6 +396,13 @@ private fun HomeScreenContent(
                 }
             }
         }
+        if (pagerState.currentPage == 0 && deviceType == PHONE && showBadge) {
+            MeverBannerAd(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(BottomCenter)
+            )
+        }
         AnimatedVisibility(
             modifier = Modifier.align(BottomCenter),
             visible = pagerState.currentPage == 1 && deviceType == PHONE,
