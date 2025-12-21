@@ -163,6 +163,7 @@ import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetDownl
 import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetPlatformSupport
 import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetYouTubeQuality
 import com.dapascript.mever.feature.home.screen.component.HandleDialogExitConfirmation
+import com.dapascript.mever.feature.home.screen.component.HandleDialogUnsupportedYt
 import com.dapascript.mever.feature.home.screen.component.HandleDonationDialogOffer
 import com.dapascript.mever.feature.home.viewmodel.HomeLandingViewModel
 import com.ketch.Status.FAILED
@@ -464,6 +465,7 @@ private fun HomeDownloaderSection(
     var setStoragePermission by remember { mutableStateOf<List<String>>(emptyList()) }
     var showDeleteDialog by remember { mutableStateOf<Int?>(null) }
     var showFailedDialog by remember { mutableStateOf<Int?>(null) }
+    var showUnsupportedYouTubeDialog by remember { mutableStateOf(false) }
     var showPlatformSupportDialog by remember { mutableStateOf(false) }
     var isStorageFull by remember { mutableStateOf(false) }
     var loadingItemIndex by remember { mutableStateOf<Int?>(null) }
@@ -495,7 +497,8 @@ private fun HomeDownloaderSection(
                     errorMessage = context.getString(R.string.playlist_not_supported)
                 },
                 onActionIsContentYT = {
-                    showYoutubeChooseQualityModal = true
+                    if (youtubeResolutions.isNotEmpty()) showYoutubeChooseQualityModal = true
+                    else showUnsupportedYouTubeDialog = true
                 },
                 onActionDownload = { getApiDownloader() }
             )
@@ -543,7 +546,8 @@ private fun HomeDownloaderSection(
                         errorMessage = context.getString(R.string.playlist_not_supported)
                     },
                     onActionIsContentYT = {
-                        showYoutubeChooseQualityModal = true
+                        if (youtubeResolutions.isNotEmpty()) showYoutubeChooseQualityModal = true
+                        else showUnsupportedYouTubeDialog = true
                     },
                     onActionDownload = { getApiDownloader() }
                 )
@@ -651,6 +655,8 @@ private fun HomeDownloaderSection(
         }
     )
 
+    HandleDialogUnsupportedYt(showUnsupportedYouTubeDialog) { showUnsupportedYouTubeDialog = false }
+
     HandleDialogExitConfirmation(
         showDialog = showCancelExitConfirmation,
         onClickPrimary = { activity.finish() },
@@ -697,6 +703,7 @@ private fun HomeDownloaderSection(
     HandleBottomSheetPlatformSupport(
         modifier = Modifier.wrapContentSize(),
         showPlatformSupportDialog = showPlatformSupportDialog,
+        youtubeResolutions = youtubeResolutions,
         onDismiss = { showPlatformSupportDialog = false }
     )
 
@@ -766,7 +773,7 @@ private fun HomeDownloaderSection(
                         val platforms = PlatformType.entries.filter {
                             it in listOf(FACEBOOK, INSTAGRAM, TIKTOK, TWITTER, PINTEREST)
                         }
-                        platforms.forEachIndexed { index, type ->
+                        platforms.forEach { type ->
                             MeverIcon(
                                 icon = getPlatformIcon(type.platformName),
                                 iconBackgroundColor = getPlatformIconBackgroundColor(type.platformName),
@@ -784,14 +791,15 @@ private fun HomeDownloaderSection(
                             contentAlignment = Center
                         ) {
                             Text(
-                                text = "+8",
+                                text = if (youtubeResolutions.isNotEmpty()) "+8" else "+7",
                                 textAlign = TextAlign.Center,
                                 style = typography.bodyBold1,
                                 color = MeverPurple
                             )
                         }
                     }
-                    if (isImageGeneratorFeatureActive) Text(
+                    if (isImageGeneratorFeatureActive.not()) Spacer(modifier = Modifier.size(Dp8))
+                    Text(
                         modifier = Modifier
                             .clip(RoundedCornerShape(Dp8))
                             .onCustomClick { showPlatformSupportDialog = true },

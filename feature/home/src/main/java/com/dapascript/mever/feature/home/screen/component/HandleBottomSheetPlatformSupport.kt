@@ -32,12 +32,15 @@ import com.dapascript.mever.core.common.util.PlatformType
 import com.dapascript.mever.core.common.util.PlatformType.AI
 import com.dapascript.mever.core.common.util.PlatformType.ALL
 import com.dapascript.mever.core.common.util.PlatformType.EXPLORE
+import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
+import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE_MUSIC
 import com.dapascript.mever.core.common.util.onCustomClick
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun HandleBottomSheetPlatformSupport(
     showPlatformSupportDialog: Boolean,
+    youtubeResolutions: List<String>,
     modifier: Modifier = Modifier,
     onDismiss: () -> Unit
 ) = MeverBottomSheet(
@@ -74,7 +77,17 @@ internal fun HandleBottomSheetPlatformSupport(
         ) {
             Spacer(modifier = Modifier.size(Dp4))
             val platforms = PlatformType.entries
-                .filterNot { it in listOf(AI, ALL, EXPLORE) }
+                .filterNot {
+                    it in buildSet {
+                        add(AI)
+                        add(ALL)
+                        add(EXPLORE)
+                        if (youtubeResolutions.isEmpty()) {
+                            add(YOUTUBE)
+                            add(YOUTUBE_MUSIC)
+                        }
+                    }
+                }
                 .map { it.platformName }
 
             platforms.forEachIndexed { index, platform ->

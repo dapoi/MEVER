@@ -52,12 +52,14 @@ class MeverDataStore @Inject constructor(
 
     suspend fun saveYoutubeVideoAndAudioQuality(qualities: Map<String, List<String>>) {
         dataStore.edit { preferences ->
-            preferences[KEY_RESOLUTIONS] = qualities.values.flatten().joinToString(",")
+            preferences[KEY_RESOLUTIONS] = if (qualities.isNotEmpty()) {
+                qualities.values.flatten().joinToString(",")
+            } else ""
         }
     }
 
     val getYoutubeVideoAndAudioQuality = dataStore.data.map { preferences ->
-        preferences[KEY_RESOLUTIONS]?.split(",") ?: listOf("360p", "480p", "720p", "1080p")
+        preferences[KEY_RESOLUTIONS]?.split(",")?.filter { it.isNotEmpty() } ?: emptyList()
     }
 
     suspend fun setIsOnboarded(isOnboarded: Boolean) {

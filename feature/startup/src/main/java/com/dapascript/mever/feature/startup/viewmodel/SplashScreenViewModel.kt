@@ -54,7 +54,7 @@ class SplashScreenViewModel @Inject constructor(
     }
 
     fun getAppConfig() {
-        if (DEBUG || _appConfigState.value is StateFailed) {
+        if (DEBUG) {
             _appConfigState.value = StateLoading
             viewModelScope.launch {
                 delay(500)
