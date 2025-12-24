@@ -10,7 +10,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Arrangement.SpaceAround
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Arrangement.SpaceEvenly
@@ -26,9 +25,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -38,6 +39,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -55,10 +57,13 @@ import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterEnd
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
+import androidx.compose.ui.Alignment.Companion.CenterStart
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.ColorFilter.Companion.tint
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -67,6 +72,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow.Companion.Ellipsis
@@ -109,6 +115,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp5
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp52
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp75
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
@@ -116,6 +123,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverLightViolet
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
+import com.dapascript.mever.core.common.ui.theme.MeverYellow
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp14
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp22
@@ -128,7 +136,6 @@ import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.PlatformType
 import com.dapascript.mever.core.common.util.PlatformType.AI
 import com.dapascript.mever.core.common.util.PlatformType.ALL
-import com.dapascript.mever.core.common.util.PlatformType.EXPLORE
 import com.dapascript.mever.core.common.util.PlatformType.FACEBOOK
 import com.dapascript.mever.core.common.util.PlatformType.INSTAGRAM
 import com.dapascript.mever.core.common.util.PlatformType.PINTEREST
@@ -255,7 +262,11 @@ private fun HomeScreenContent(
                 topBarArgs = TopBarArgs(
                     iconBack = R.drawable.ic_mever,
                     actionMenus = getListActionMenu(context, showBadge)
-                        .filterNot { it.first == stringResource(R.string.explore) && isGoImgFeatureActive.not() }
+                        .filterNot {
+                            it.first == stringResource(R.string.explore) &&
+                                    (isGoImgFeatureActive.not() || deviceType == PHONE &&
+                                            isImageGeneratorFeatureActive.not())
+                        }
                         .map { (name, resource) ->
                             ActionMenu(
                                 icon = resource,
@@ -309,6 +320,7 @@ private fun HomeScreenContent(
                                         navController = navController,
                                         scope = scope,
                                         getButtonClickCount = getButtonClickCount,
+                                        isExploreImageFeatureActive = isGoImgFeatureActive,
                                         isImageGeneratorFeatureActive = isImageGeneratorFeatureActive
                                     )
                                 }
@@ -357,7 +369,9 @@ private fun HomeScreenContent(
                             navController = navController,
                             scope = scope,
                             getButtonClickCount = getButtonClickCount,
-                            isImageGeneratorFeatureActive = isImageGeneratorFeatureActive
+                            isExploreImageFeatureActive = isGoImgFeatureActive,
+                            isImageGeneratorFeatureActive = isImageGeneratorFeatureActive,
+                            isPhoneDevice = false
                         )
                         HomeAiSection(
                             modifier = Modifier
@@ -454,11 +468,13 @@ private fun HomeDownloaderSection(
     navController: NavController,
     scope: CoroutineScope,
     getButtonClickCount: Int,
+    isExploreImageFeatureActive: Boolean,
     isImageGeneratorFeatureActive: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isPhoneDevice: Boolean = true
 ) = with(viewModel) {
     val downloadList = downloadList.collectAsStateValue()?.reversed()?.filterNot {
-        it.tag in setOf(AI.platformName, EXPLORE.platformName)
+        it.tag == AI.platformName
     }
     val downloaderResponseState = downloaderResponseState.collectAsStateValue()
     val youtubeResolutions = youtubeResolutions.collectAsStateValue()
@@ -749,11 +765,16 @@ private fun HomeDownloaderSection(
 
     CompositionLocalProvider(LocalOverscrollFactory provides null) {
         LazyColumn(modifier = modifier) {
+            if (isImageGeneratorFeatureActive.not() && isPhoneDevice) item {
+                Spacer(modifier = Modifier.size(Dp32))
+            }
             item {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
                     text = stringResource(R.string.downloader_title),
-                    textAlign = if (isImageGeneratorFeatureActive.not()) TextAlign.Center else TextAlign.Start,
+                    textAlign = if (isImageGeneratorFeatureActive.not() && isPhoneDevice) {
+                        TextAlign.Center
+                    } else TextAlign.Start,
                     style = typography.h2.copy(fontSize = if (isImageGeneratorFeatureActive) Sp22 else Sp26),
                     color = colorScheme.onPrimary
                 )
@@ -763,18 +784,19 @@ private fun HomeDownloaderSection(
                 Text(
                     modifier = Modifier.fillMaxWidth(),
                     text = stringResource(R.string.downloader_desc),
-                    textAlign = if (isImageGeneratorFeatureActive.not()) TextAlign.Center else TextAlign.Start,
+                    textAlign = if (isImageGeneratorFeatureActive.not() && isPhoneDevice) {
+                        TextAlign.Center
+                    } else TextAlign.Start,
                     style = typography.body2,
                     color = colorScheme.secondary
                 )
             }
-            item {
+            if (isImageGeneratorFeatureActive || isPhoneDevice.not()) item {
                 Spacer(modifier = Modifier.size(Dp24))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = CenterVertically,
-                    horizontalArrangement = if (isImageGeneratorFeatureActive) spacedBy(Dp16)
-                    else Arrangement.Center
+                    horizontalArrangement = spacedBy(Dp16)
                 ) {
                     Row(horizontalArrangement = spacedBy((-Dp20))) {
                         val platforms = PlatformType.entries.filter {
@@ -805,7 +827,6 @@ private fun HomeDownloaderSection(
                             )
                         }
                     }
-                    if (isImageGeneratorFeatureActive.not()) Spacer(modifier = Modifier.size(Dp8))
                     Text(
                         modifier = Modifier
                             .clip(RoundedCornerShape(Dp8))
@@ -818,41 +839,83 @@ private fun HomeDownloaderSection(
                     )
                 }
             }
-            item {
-                Spacer(modifier = Modifier.size(Dp24))
-                MeverTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    context = context,
-                    value = urlSocialMediaState,
-                    onValueChange = { urlSocialMediaState = it }
-                )
-            }
-            item {
-                Spacer(modifier = Modifier.size(Dp10))
-                MeverButton(
+            if (isImageGeneratorFeatureActive || isPhoneDevice.not()) {
+                item {
+                    Spacer(modifier = Modifier.size(Dp24))
+                    MeverTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        context = context,
+                        value = urlSocialMediaState,
+                        onValueChange = { urlSocialMediaState = it }
+                    )
+                    Spacer(modifier = Modifier.size(Dp10))
+                    MeverButton(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(Dp40),
+                        title = stringResource(R.string.download),
+                        buttonType = Filled(
+                            backgroundColor = colorScheme.primary,
+                            contentColor = MeverWhite
+                        ),
+                        isEnabled = getPlatformType(
+                            urlSocialMediaState.text.trim()
+                        ) != ALL && showLoading.not(),
+                        isLoading = showLoading
+                    ) {
+                        handleClickButton(
+                            buttonClickCount = getButtonClickCount,
+                            onIncrementClickCount = { incrementClickCount() },
+                            onShowAds = { interstitialController.showAd() },
+                            onClickAction = {
+                                if (showLoading.not()) setStoragePermission = getStoragePermission()
+                            }
+                        )
+                    }
+                    Spacer(modifier = Modifier.size(Dp24))
+                }
+            } else item {
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(Dp40),
-                    title = stringResource(R.string.download),
-                    buttonType = Filled(
-                        backgroundColor = colorScheme.primary,
-                        contentColor = MeverWhite
-                    ),
-                    isEnabled = getPlatformType(
-                        urlSocialMediaState.text.trim()
-                    ) != ALL && showLoading.not(),
-                    isLoading = showLoading
+                        .padding(vertical = Dp24),
+                    verticalAlignment = CenterVertically,
+                    horizontalArrangement = spacedBy(Dp8)
                 ) {
-                    handleClickButton(
-                        buttonClickCount = getButtonClickCount,
-                        onIncrementClickCount = { incrementClickCount() },
-                        onShowAds = { interstitialController.showAd() },
-                        onClickAction = {
-                            if (showLoading.not()) setStoragePermission = getStoragePermission()
-                        }
+                    MeverTextField(
+                        modifier = Modifier.weight(1f),
+                        context = context,
+                        value = urlSocialMediaState,
+                        onValueChange = { urlSocialMediaState = it }
                     )
+                    MeverButton(
+                        modifier = Modifier.size(Dp48),
+                        title = "",
+                        buttonType = Filled(
+                            backgroundColor = colorScheme.primary,
+                            contentColor = MeverWhite
+                        ),
+                        shape = CircleShape,
+                        isEnabled = getPlatformType(
+                            urlSocialMediaState.text.trim()
+                        ) != ALL && showLoading.not(),
+                        isLoading = showLoading
+                    ) {
+                        handleClickButton(
+                            buttonClickCount = getButtonClickCount,
+                            onIncrementClickCount = { incrementClickCount() },
+                            onShowAds = { interstitialController.showAd() },
+                            onClickAction = {
+                                if (showLoading.not()) setStoragePermission =
+                                    getStoragePermission()
+                            }
+                        )
+                    }
                 }
-                Spacer(modifier = Modifier.size(Dp24))
+                if (isExploreImageFeatureActive) {
+                    BannerExploreImage(isPhoneDevice) { navController.navigateTo(ExploreLandingRoute) }
+                    Spacer(modifier = Modifier.size(Dp8))
+                }
             }
             stickyHeader {
                 Row(
@@ -1131,6 +1194,46 @@ private fun HomeAiSection(
                 .fillMaxWidth()
                 .padding(top = Dp8)
         )
+    }
+}
+
+@Composable
+private fun BannerExploreImage(isPhoneDevice: Boolean, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(Dp52)
+            .background(color = colorScheme.primary, shape = RoundedCornerShape(Dp12))
+            .clip(RoundedCornerShape(Dp12))
+            .onCustomClick { onClick() }
+    ) {
+        Image(
+            modifier = Modifier
+                .fillMaxHeight()
+                .width(Dp52)
+                .align(CenterStart)
+                .offset(x = (-Dp16), y = Dp12),
+            imageVector = ImageVector.vectorResource(FeatureHomeR.drawable.ic_explore),
+            colorFilter = tint(MeverWhite),
+            alpha = 0.3f,
+            contentDescription = "Explore Image"
+        )
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            verticalAlignment = CenterVertically,
+            horizontalArrangement = SpaceEvenly
+        ) {
+            Text(
+                text = stringResource(R.string.find_image),
+                style = if (isPhoneDevice) typography.bodyBold1 else typography.bodyBold2,
+                color = MeverWhite
+            )
+            Icon(
+                painter = painterResource(R.drawable.ic_arrow_started),
+                tint = MeverYellow,
+                contentDescription = "Arrow Right"
+            )
+        }
     }
 }
 

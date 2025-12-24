@@ -70,6 +70,7 @@ import com.dapascript.mever.core.common.util.getNotificationPermission
 import com.dapascript.mever.core.navigation.helper.navigateClearBackStack
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeLandingRoute
 import com.dapascript.mever.feature.startup.R
+import com.dapascript.mever.core.common.R as coreUiR
 import com.dapascript.mever.feature.startup.viewmodel.OnboardViewModel
 
 @Composable
@@ -210,7 +211,7 @@ private fun ButtonOnboardSection(
         )
         Spacer(modifier = Modifier.size(Dp16))
         Icon(
-            painter = painterResource(R.drawable.ic_arrow_started),
+            painter = painterResource(coreUiR.drawable.ic_arrow_started),
             tint = MeverYellow,
             contentDescription = "Arrow Right"
         )

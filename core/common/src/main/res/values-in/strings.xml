@@ -113,4 +113,5 @@
     <string name="failed_playback">Video ini gagal diputar 😕 harap coba lagi nanti ya.</string>
     <string name="disclaimer_supported_platforms">Dengan menggunakan aplikasi ini, Anda setuju mematuhi ketentuan layanan dan hak cipta tiap platform. Pastikan Anda berhak mengunduh dan menggunakan konten sesuai hukum yang berlaku.</string>
     <string name="unsupported_yt">Maaf… Unduhan dari YouTube tidak tersedia saat ini</string>
+    <string name="find_image">Temukan gambar menarik di sini!</string>
 </resources>

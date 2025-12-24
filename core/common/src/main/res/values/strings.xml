@@ -113,4 +113,5 @@
     <string name="failed_playback">This video failed to play 😕 please try again later.</string>
     <string name="disclaimer_supported_platforms">By using this app, you agree to follow each platform’s terms and copyright. Make sure you have the right to download and use the content under applicable laws.</string>
     <string name="unsupported_yt">Sorry… YouTube downloads aren’t available right now</string>
+    <string name="find_image">Find more exciting images here!</string>
 </resources>
