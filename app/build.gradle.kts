@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "com.dapascript.mever"
-        versionCode = 20251225
+        versionCode = 20251231
         versionName = "1.6.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
