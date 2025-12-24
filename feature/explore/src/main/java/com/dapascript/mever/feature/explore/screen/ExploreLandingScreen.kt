@@ -96,7 +96,7 @@ internal fun ExploreLandingScreen(
     ) {
         LaunchedEffect(query) {
             snapshotFlow { query }
-                .debounce(1000)
+                .debounce(1500)
                 .map { it.trim() }
                 .distinctUntilChanged()
                 .collectLatest {
