@@ -142,8 +142,8 @@ import kotlin.math.max
 @Composable
 fun MeverVideoPlayer(
     fileName: String,
-    isOnlineContent: Boolean,
     videoSource: String,
+    isPreview: Boolean,
     isAutoplayTarget: Boolean,
     isPageVisible: Boolean,
     isFullScreen: Boolean,
@@ -239,7 +239,7 @@ fun MeverVideoPlayer(
     }
 
     LaunchedEffect(isVideoBuffering) {
-        if (isVideoBuffering && isOnlineContent.not() && didRecoverOnce.not()) {
+        if (isVideoBuffering && isPreview.not() && didRecoverOnce.not()) {
             didRecoverOnce = true
             delay(1500)
             player.seekTo(max(0L, player.currentPosition - 5_000))
@@ -248,14 +248,14 @@ fun MeverVideoPlayer(
         if (isVideoBuffering.not()) didRecoverOnce = false
     }
 
-    LaunchedEffect(viewAttached, videoSource, isOnlineContent) {
+    LaunchedEffect(viewAttached, videoSource, isPreview) {
         if (viewAttached) {
             val itemBuilder = MediaItem.Builder()
                 .setUri(
-                    if (isOnlineContent) videoSource.toUri()
+                    if (isPreview) videoSource.toUri()
                     else fromFile(File(videoSource))
                 )
-                .setClipping(isOnlineContent)
+                .setClipping(isPreview)
 
             player.setMediaItem(itemBuilder.build())
             player.prepare()
@@ -375,7 +375,7 @@ fun MeverVideoPlayer(
             context = context,
             player = player,
             title = fileName,
-            isStreaming = isOnlineContent,
+            isStreaming = isPreview,
             isVideoBuffering = isVideoBuffering,
             iconPlayOrPause = if (isVideoPlaying) R.drawable.ic_pause else R.drawable.ic_play,
             isControllerVisible = showController,

@@ -183,10 +183,10 @@ internal fun ExploreLandingScreen(
                                             contents = result.mapIndexed { contentIndex, contentEntity ->
                                                 Content(
                                                     id = contentIndex,
+                                                    isDownloadable = true,
+                                                    isPreview = true,
                                                     isVideo = false,
-                                                    isOnlineContent = true,
                                                     primaryContent = contentEntity.url,
-                                                    secondaryContent = contentEntity.previewUrl,
                                                     fileName = contentEntity.fileName
                                                 )
                                             },

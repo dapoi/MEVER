@@ -45,8 +45,11 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import coil3.compose.AsyncImagePainter.State.Error
+import coil3.compose.AsyncImagePainter.State.Loading
 import coil3.compose.SubcomposeAsyncImage
-import coil3.compose.rememberAsyncImagePainter
+import coil3.compose.SubcomposeAsyncImageContent
+import coil3.compose.SubcomposeAsyncImageScope
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Outlined
 import com.dapascript.mever.core.common.ui.attr.MeverContentViewerAttr.ContentViewerActionMenu
@@ -58,7 +61,6 @@ import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp120
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp150
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.MeverBlack
 import com.dapascript.mever.core.common.ui.theme.MeverDark
@@ -68,15 +70,16 @@ import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.hideSystemBar
 import com.dapascript.mever.core.common.util.isSystemBarVisible
+import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
 @Composable
 fun MeverPhotoViewer(
     fileName: String,
-    isOnlineContent: Boolean,
+    isDownloadable: Boolean,
+    isPreview: Boolean,
     primaryImage: String,
-    secondaryImage: String,
     modifier: Modifier = Modifier,
     onClickBack: () -> Unit,
     onClickDelete: () -> Unit,
@@ -89,6 +92,7 @@ fun MeverPhotoViewer(
     var isPhotoTouched by remember { mutableStateOf(true) }
     var showDropDownMenu by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var showButton by remember { mutableStateOf(false) }
     var isZoomed by remember { mutableStateOf(false) }
     var dragY by remember { mutableFloatStateOf(0f) }
     val density = LocalDensity.current
@@ -125,12 +129,32 @@ fun MeverPhotoViewer(
                 .wrapContentSize()
                 .align(Center),
             primaryImage = primaryImage,
-            secondaryImage = secondaryImage,
             isPhotoTouched = isPhotoTouched,
             onPhotoTouched = { isPhotoTouched = it },
-            onZooming = { isZoomed = it }
+            onZooming = { isZoomed = it },
+            onState = {
+                when (painter.state.collectAsStateValue()) {
+                    is Loading -> CircularProgressIndicator(
+                        modifier = Modifier
+                            .size(Dp64)
+                            .align(Center),
+                        color = MeverWhite
+                    )
+
+                    is Error -> Image(
+                        modifier = Modifier.fillMaxSize(),
+                        imageVector = ImageVector.vectorResource(R.drawable.ic_broken_image),
+                        contentDescription = "Error Image"
+                    )
+
+                    else -> {
+                        showButton = isDownloadable
+                        SubcomposeAsyncImageContent(modifier = Modifier.fillMaxSize())
+                    }
+                }
+            }
         )
-        if (secondaryImage.isNotEmpty()) MeverButton(
+        if (showButton) MeverButton(
             modifier = Modifier
                 .align(BottomCenter)
                 .padding(bottom = Dp150),
@@ -139,7 +163,7 @@ fun MeverPhotoViewer(
                 contentColor = MeverWhite,
                 borderColor = MeverWhite
             )
-        ) { onClickDownload(primaryImage.ifEmpty { secondaryImage }, fileName) }
+        ) { onClickDownload(primaryImage, fileName) }
         AnimatedVisibility(
             visible = isPhotoTouched.not(),
             enter = fadeIn(),
@@ -150,7 +174,7 @@ fun MeverPhotoViewer(
                     .padding(horizontal = Dp24)
                     .systemBarsPadding(),
                 topBarArgs = TopBarArgs(
-                    actionMenus = if (isOnlineContent.not()) listOf(
+                    actionMenus = if (isPreview.not()) listOf(
                         ActionMenu(
                             icon = R.drawable.ic_more,
                             nameIcon = "More",
@@ -217,11 +241,11 @@ fun MeverPhotoViewer(
 @Composable
 private fun PhotoViewer(
     primaryImage: String,
-    secondaryImage: String,
     isPhotoTouched: Boolean,
     modifier: Modifier = Modifier,
     onPhotoTouched: (Boolean) -> Unit,
-    onZooming: (Boolean) -> Unit
+    onZooming: (Boolean) -> Unit,
+    onState: @Composable (SubcomposeAsyncImageScope.() -> Unit)
 ) {
     var scale by remember { mutableFloatStateOf(1f) }
     var offsetX by remember { mutableFloatStateOf(0f) }
@@ -301,34 +325,10 @@ private fun PhotoViewer(
                 translationY = offsetY
             }
     ) {
-        var isGeneralLoading by remember { mutableStateOf(false) }
         SubcomposeAsyncImage(
-            modifier = Modifier.fillMaxSize(),
-            model = secondaryImage.ifEmpty { primaryImage },
-            contentDescription = "Photo Viewer",
-            loading = {
-                if (secondaryImage.isNotEmpty()) Image(
-                    modifier = Modifier.fillMaxSize(),
-                    painter = rememberAsyncImagePainter(secondaryImage),
-                    contentDescription = "Loading Image"
-                ) else isGeneralLoading = true
-            },
-            error = {
-                Image(
-                    modifier = Modifier
-                        .size(Dp40)
-                        .align(Center),
-                    imageVector = ImageVector.vectorResource(R.drawable.ic_broken_image),
-                    contentDescription = "Error Image"
-                )
-            },
-            onSuccess = { isGeneralLoading = false }
-        )
-        if (isGeneralLoading) CircularProgressIndicator(
-            modifier = Modifier
-                .size(Dp64)
-                .align(Center),
-            color = MeverWhite
-        )
+            modifier = Modifier.wrapContentSize(),
+            model = primaryImage,
+            contentDescription = "Photo Viewer"
+        ) { onState() }
     }
 }

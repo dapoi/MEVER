@@ -1,7 +1,5 @@
 package com.dapascript.mever.feature.gallery.screen
 
-import android.widget.Toast
-import android.widget.Toast.LENGTH_SHORT
 import androidx.activity.SystemBarStyle.Companion.dark
 import androidx.activity.SystemBarStyle.Companion.light
 import androidx.activity.enableEdgeToEdge
@@ -119,11 +117,6 @@ internal fun GalleryContentDetailScreen(
             primaryButtonText = stringResource(R.string.ok),
             onClickPrimary = {
                 errorMessage = ""
-                Toast.makeText(
-                    context,
-                    context.getString(R.string.image_has_been_downloaded),
-                    LENGTH_SHORT
-                ).show()
                 scope.launch {
                     startDownload(imageExploreData.first, imageExploreData.second)
                     val nextPage = pagerState.currentPage + 1
@@ -143,20 +136,13 @@ internal fun GalleryContentDetailScreen(
                     setStoragePermission = emptyList()
                     if (isStorageFull(storageInfo)) {
                         errorMessage = context.getString(R.string.storage_full)
-                    } else {
-                        scope.launch {
-                            startDownload(imageExploreData.first, imageExploreData.second)
-                            navController.navigateTo(
-                                route = GalleryLandingRoute,
-                                popUpTo = GalleryContentDetailRoute::class,
-                                inclusive = true
-                            )
-                        }
-                        Toast.makeText(
-                            context,
-                            context.getString(R.string.image_has_been_downloaded),
-                            LENGTH_SHORT
-                        ).show()
+                    } else scope.launch {
+                        startDownload(imageExploreData.first, imageExploreData.second)
+                        navController.navigateTo(
+                            route = GalleryLandingRoute,
+                            popUpTo = GalleryContentDetailRoute::class,
+                            inclusive = true
+                        )
                     }
                 },
                 onDenied = { isPermanentlyDeclined, retry ->
@@ -207,10 +193,10 @@ internal fun GalleryContentDetailScreen(
                     modifier = itemModifier,
                     fileName = convertFilename(fileName),
                     videoSource = primaryContent,
-                    isOnlineContent = isOnlineContent,
+                    isPreview = isPreview,
                     isPageVisible = pagerState.currentPage == page,
                     isScrolling = pagerState.isScrollInProgress,
-                    isAutoplayTarget = args.initialIndex == page || args.contents[page].isOnlineContent,
+                    isAutoplayTarget = args.initialIndex == page || args.contents[page].isPreview,
                     isFullScreen = isFullScreen,
                     isPipEnabled = isPipEnabled,
                     onFullScreenChange = { isFullScreen = it },
@@ -225,9 +211,9 @@ internal fun GalleryContentDetailScreen(
                 ) else MeverPhotoViewer(
                     modifier = itemModifier,
                     fileName = convertFilename(fileName),
-                    isOnlineContent = isOnlineContent,
+                    isDownloadable = isDownloadable,
+                    isPreview = isPreview,
                     primaryImage = primaryContent,
-                    secondaryImage = secondaryContent,
                     onClickDelete = { deleteContent(id) },
                     onClickShare = {
                         shareContent(

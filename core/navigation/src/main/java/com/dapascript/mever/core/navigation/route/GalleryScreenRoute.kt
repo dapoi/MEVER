@@ -19,10 +19,10 @@ sealed class GalleryScreenRoute {
         data class Content(
             val id: Int,
             val isVideo: Boolean,
-            val isOnlineContent: Boolean = false,
-            val fileName: String = "",
-            val primaryContent: String = "",
-            val secondaryContent: String = ""
+            val fileName: String,
+            val primaryContent: String,
+            val isDownloadable: Boolean = false,
+            val isPreview: Boolean = false
         ) : GalleryScreenRoute()
 
         companion object {
