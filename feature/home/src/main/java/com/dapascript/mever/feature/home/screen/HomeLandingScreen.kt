@@ -25,11 +25,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -57,13 +55,10 @@ import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterEnd
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
-import androidx.compose.ui.Alignment.Companion.CenterStart
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.ColorFilter.Companion.tint
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -72,7 +67,6 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow.Companion.Ellipsis
@@ -647,7 +641,7 @@ private fun HomeDownloaderSection(
 
                             Content(
                                 id = index,
-                                isOnlineContent = true,
+                                isPreview = true,
                                 isVideo = isVideo(extension),
                                 primaryContent = content.url,
                                 fileName = content.fileName
@@ -1207,17 +1201,6 @@ private fun BannerExploreImage(isPhoneDevice: Boolean, onClick: () -> Unit) {
             .clip(RoundedCornerShape(Dp12))
             .onCustomClick { onClick() }
     ) {
-        Image(
-            modifier = Modifier
-                .fillMaxHeight()
-                .width(Dp52)
-                .align(CenterStart)
-                .offset(x = (-Dp16), y = Dp12),
-            imageVector = ImageVector.vectorResource(FeatureHomeR.drawable.ic_explore),
-            colorFilter = tint(MeverWhite),
-            alpha = 0.3f,
-            contentDescription = "Explore Image"
-        )
         Row(
             modifier = Modifier.fillMaxSize(),
             verticalAlignment = CenterVertically,
