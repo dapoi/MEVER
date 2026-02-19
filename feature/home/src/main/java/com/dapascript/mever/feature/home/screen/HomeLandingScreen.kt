@@ -1183,11 +1183,6 @@ private fun HomeAiSection(
                 }
             }
         }
-        if (onClickGenerate == null) MeverBannerAd(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = Dp8)
-        )
     }
 }
 
@@ -1274,14 +1269,7 @@ private fun handleClickButton(
     onIncrementClickCount: () -> Unit,
     onShowAds: () -> Unit,
     onClickAction: () -> Unit
-) = when {
-    buttonClickCount % 4 == 0 -> {
-        onShowAds()
-        onIncrementClickCount()
-    }
-
-    else -> {
-        onClickAction()
-        onIncrementClickCount()
-    }
+) {
+    if (buttonClickCount > 0 && buttonClickCount % 3 == 0) onShowAds() else onClickAction()
+    onIncrementClickCount()
 }
