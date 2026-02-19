@@ -21,8 +21,9 @@ open class MainApp : Application(), Configuration.Provider {
         WorkManager.initialize(this, workManagerConfiguration)
     }
 
-    override val workManagerConfiguration: Configuration
-        get() = Configuration.Builder()
+    override fun getWorkManagerConfiguration(): Configuration {
+        return Configuration.Builder()
             .setWorkerFactory(factory)
             .build()
+    }
 }

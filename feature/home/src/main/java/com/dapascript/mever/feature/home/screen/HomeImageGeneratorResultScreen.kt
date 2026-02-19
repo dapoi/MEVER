@@ -52,6 +52,7 @@ import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -118,6 +119,7 @@ internal fun HomeImageGeneratorResultScreen(
 ) = with(viewModel) {
     val activity = LocalActivity.current
     val context = LocalContext.current
+    val resources = LocalResources.current
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
     val aiResponseState = aiResponseState.collectAsStateValue()
@@ -150,7 +152,7 @@ internal fun HomeImageGeneratorResultScreen(
                 onFailed = { message ->
                     showShimmer = false
                     aiImages = emptyList()
-                    errorMessage = message ?: context.getString(R.string.error_desc)
+                    errorMessage = message ?: resources.getString(R.string.error_desc)
                 }
             )
         }
@@ -171,11 +173,11 @@ internal fun HomeImageGeneratorResultScreen(
                     setStoragePermission = emptyList()
                     when {
                         isStorageFull(storageInfo) -> {
-                            errorMessage = context.getString(R.string.storage_full)
+                            errorMessage = resources.getString(R.string.storage_full)
                         }
 
                         isDownloadAllClicked -> {
-                            aiImages.map { url -> scope.launch { startDownload(url = url) } }
+                            aiImages.forEach { url -> scope.launch { startDownload(url = url) } }
                             navController.navigateTo(
                                 route = GalleryLandingRoute,
                                 popUpTo = HomeImageGeneratorResultRoute::class,
@@ -184,8 +186,9 @@ internal fun HomeImageGeneratorResultScreen(
                         }
 
                         else -> {
-                            snackbarMessage.value =
-                                context.getString(R.string.image_has_been_downloaded)
+                            snackbarMessage.value = resources.getString(
+                                R.string.image_has_been_downloaded
+                            )
                             scope.launch { startDownload(url = imageSelected.orEmpty()) }
                             if (aiImages.size <= 1) navController.navigateTo(
                                 route = GalleryLandingRoute,
@@ -332,7 +335,7 @@ private fun ImageGeneratorResultContent(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = spacedBy(Dp8)
         ) {
-            aiImages.map { url ->
+            aiImages.forEach { url ->
                 MeverImage(
                     modifier = Modifier
                         .weight(1f)
@@ -378,7 +381,7 @@ private fun ImageGeneratorResultContent(
         )
         getMenuActions(context, hasCopied)
             .filterNot { (_, icon) -> icon == R.drawable.ic_download && aiImages.size <= 1 }
-            .map { (title, icon) ->
+            .forEach { (title, icon) ->
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -442,7 +445,7 @@ private fun ImageGeneratorResultContent(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = spacedBy(Dp8)
             ) {
-                aiImages.map { url ->
+                aiImages.forEach { url ->
                     MeverImage(
                         modifier = Modifier
                             .weight(1f)
@@ -494,7 +497,7 @@ private fun ImageGeneratorResultContent(
             Spacer(modifier = Modifier.weight(1f))
             getMenuActions(context, hasCopied)
                 .filterNot { (_, icon) -> icon == R.drawable.ic_download && aiImages.size <= 1 }
-                .map { (title, icon) ->
+                .forEach { (title, icon) ->
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()

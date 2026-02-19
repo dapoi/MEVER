@@ -1,5 +1,6 @@
 package com.dapascript.mever.feature.gallery.screen
 
+import android.annotation.SuppressLint
 import androidx.activity.SystemBarStyle.Companion.dark
 import androidx.activity.SystemBarStyle.Companion.light
 import androidx.activity.enableEdgeToEdge
@@ -21,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.util.lerp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -55,6 +57,7 @@ import kotlinx.coroutines.launch
 import java.io.File
 import kotlin.math.absoluteValue
 
+@SuppressLint("FrequentlyChangingValue")
 @OptIn(UnstableApi::class)
 @Composable
 internal fun GalleryContentDetailScreen(
@@ -68,6 +71,7 @@ internal fun GalleryContentDetailScreen(
     val pagerState = rememberPagerState(args.initialIndex) { args.contents.size }
     val context = LocalContext.current
     val activity = LocalActivity.current
+    val resources = LocalResources.current
     val themeType = themeType.collectAsStateValue()
     val isPipEnabled = isPipEnabled.collectAsStateValue()
     val scope = rememberCoroutineScope()
@@ -135,7 +139,7 @@ internal fun GalleryContentDetailScreen(
                 onGranted = {
                     setStoragePermission = emptyList()
                     if (isStorageFull(storageInfo)) {
-                        errorMessage = context.getString(R.string.storage_full)
+                        errorMessage = resources.getString(R.string.storage_full)
                     } else scope.launch {
                         startDownload(imageExploreData.first, imageExploreData.second)
                         navController.navigateTo(

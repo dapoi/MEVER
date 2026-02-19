@@ -64,9 +64,9 @@ internal fun HandleBottomSheetQris(
 ) {
     val context = LocalContext.current
     val activity = LocalActivity.current
-    val resource = LocalResources.current
+    val resources = LocalResources.current
     val scope = rememberCoroutineScope()
-    val bitmap = remember { decodeResource(resource, R.drawable.qris) }
+    val bitmap = remember { decodeResource(resources, R.drawable.qris) }
     var isSaveSuccess by remember { mutableStateOf(false) }
     var setStoragePermission by remember { mutableStateOf<List<String>>(emptyList()) }
 
@@ -74,7 +74,7 @@ internal fun HandleBottomSheetQris(
         if (isSaveSuccess) {
             Toast.makeText(
                 context,
-                context.getString(R.string.image_has_been_downloaded),
+                resources.getString(R.string.image_has_been_downloaded),
                 Toast.LENGTH_SHORT
             ).show()
             onDismiss(false)

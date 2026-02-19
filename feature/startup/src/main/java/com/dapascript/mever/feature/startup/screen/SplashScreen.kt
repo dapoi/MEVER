@@ -33,7 +33,7 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter.Companion.tint
 import androidx.compose.ui.layout.ContentScale.Companion.Crop
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -77,7 +77,7 @@ internal fun SplashScreen(
         val appConfigState = appConfigState.collectAsStateValue()
         val appVersion = getAppVersion.collectAsStateValue()
         val activity = LocalActivity.current
-        val context = LocalContext.current
+        val resources = LocalResources.current
         val lifecycleOwner by rememberUpdatedState(LocalLifecycleOwner.current)
         var showMaintenanceModal by remember { mutableStateOf(false) }
         var errorMessage by remember { mutableStateOf("") }
@@ -97,7 +97,7 @@ internal fun SplashScreen(
                     }
                 },
                 onFailed = { message ->
-                    errorMessage = message ?: context.getString(R.string.error_desc)
+                    errorMessage = message ?: resources.getString(R.string.error_desc)
                 }
             )
         }

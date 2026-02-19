@@ -496,7 +496,7 @@ private fun HomeDownloaderSection(
     LaunchedEffect(downloadList) {
         downloadList
             ?.filter { it.status == SUCCESS }
-            ?.map { syncToGallery(context, it.fileName) }
+            ?.forEach { syncToGallery(context, it.fileName) }
     }
 
     LaunchedEffect(urlIntent) {
