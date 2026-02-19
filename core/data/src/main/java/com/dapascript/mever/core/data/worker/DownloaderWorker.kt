@@ -26,7 +26,6 @@ import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_REQUEST_S
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_REQUEST_URL
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_RESPONSE_CONTENTS
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_RESPONSE_TYPE
-import com.dapascript.mever.core.data.R
 import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.dapascript.mever.core.data.source.remote.ApiService
 import com.dapascript.mever.core.data.util.MoshiHelper
@@ -54,13 +53,7 @@ class DownloaderWorker @AssistedInject constructor(
         val type = inputData.getString(KEY_RESPONSE_TYPE) ?: "video"
         return apiService.getApiDownloader(link, selectedQuality, type).let { contents ->
             contents?.firstOrNull()?.run {
-                when {
-                    status -> contents
-                    message.contains("30") -> throw Throwable(
-                        context.getString(R.string.max_duration_exceeded)
-                    )
-                    else -> emptyList()
-                }
+                if (status) contents else emptyList()
             } ?: emptyList()
         }
     }
