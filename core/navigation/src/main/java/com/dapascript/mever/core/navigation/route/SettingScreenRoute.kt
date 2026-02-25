@@ -6,28 +6,29 @@ import com.dapascript.mever.core.common.ui.theme.ThemeType
 import com.dapascript.mever.core.navigation.helper.generateCustomNavType
 import kotlinx.serialization.Serializable
 
-@Serializable
-sealed class SettingScreenRoute {
+sealed interface SettingScreenRoute {
     @Serializable
-    data object SettingLandingRoute
+    data object SettingLandingRoute : SettingScreenRoute
 
     @Serializable
-    data class SettingLanguageRoute(val languageData: LanguageData) : SettingScreenRoute() {
+    data class SettingLanguageRoute(val languageData: LanguageData) : SettingScreenRoute {
         @Serializable
-        data class LanguageData(val languageCode: String) : SettingScreenRoute()
+        data class LanguageData(val languageCode: String)
 
         companion object {
             val typeMap = mapOf(generateCustomNavType<LanguageData>())
-            fun getArgs(savedStateHandle: SavedStateHandle) = savedStateHandle.toRoute<SettingLanguageRoute>(typeMap)
+            fun getArgs(
+                savedStateHandle: SavedStateHandle
+            ) = savedStateHandle.toRoute<SettingLanguageRoute>(typeMap)
         }
     }
 
     @Serializable
-    data class SettingThemeRoute(val themeType: ThemeType) : SettingScreenRoute()
+    data class SettingThemeRoute(val themeType: ThemeType) : SettingScreenRoute
 
     @Serializable
-    data object SettingAppreciateRoute
+    data object SettingAppreciateRoute : SettingScreenRoute
 
     @Serializable
-    data object SettingAboutAppRoute
+    data object SettingAboutAppRoute : SettingScreenRoute
 }
