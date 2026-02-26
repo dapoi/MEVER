@@ -32,25 +32,24 @@ jobs:
           echo "BASE_URL_DEBUG=${{ secrets.BASE_URL_DEBUG }}" >> env.properties
           echo "BASE_URL_RELEASE=${{ secrets.BASE_URL_RELEASE }}" >> env.properties
 
-      - name: Build Release AAB
-        run: ./gradlew bundleRelease
+      - name: Decode Keystore
+        run: |
+          echo "${{ secrets.SIGNING_KEY_BASE64 }}" | base64 --decode > ${{ github.workspace }}/keystore.jks
 
-      - name: Sign AAB
-        id: sign_aab
-        uses: r0adkll/sign-android-release@v1
-        with:
-          releaseDirectory: app/build/outputs/bundle/release
-          signingKeyBase64: ${{ secrets.SIGNING_KEY_BASE64 }}
-          alias: ${{ secrets.KEY_ALIAS }}
-          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
-          keyPassword: ${{ secrets.KEY_PASSWORD }}
+      - name: Build Release AAB
+        env:
+          KEYSTORE_PATH: ${{ github.workspace }}/keystore.jks
+          KEY_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: ./gradlew bundleRelease
 
       - name: Upload to Play Store Open Testing
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_JSON }}
           packageName: com.dapascript.mever
-          releaseFiles: ${{ steps.sign_aab.outputs.signedReleaseFile }}
+          releaseFiles: app/build/outputs/bundle/release/app-release.aab
           track: alpha
           status: completed
           whatsNewDirectory: distribution/whatsnew
