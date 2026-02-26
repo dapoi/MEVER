@@ -8,6 +8,7 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    if: github.actor == 'dapoi'
 
     steps:
       - name: Checkout code
