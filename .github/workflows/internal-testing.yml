@@ -1,4 +1,4 @@
-name: Internal Testing Build & Deploy
+name: Open Testing Build & Deploy
 
 on:
   push:
@@ -46,7 +46,7 @@ jobs:
           serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_JSON }}
           packageName: com.dapascript.mever
           releaseFiles: ${{ steps.sign_aab.outputs.signedReleaseFile }}
-          track: internal
+          track: alpha
           status: completed
           whatsNewDirectory: distribution/whatsnew
 
