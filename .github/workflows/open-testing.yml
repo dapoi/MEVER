@@ -26,6 +26,11 @@ jobs:
       - name: Set up env.properties
         run: |
           echo "ADMOB_ID=${{ secrets.ADMOB_ID }}" >> env.properties
+          echo "AD_BANNER_UNIT_ID=${{ secrets.AD_BANNER_UNIT_ID }}" >> env.properties
+          echo "AD_INTERSTITIAL_UNIT_ID=${{ secrets.AD_INTERSTITIAL_UNIT_ID }}" >> env.properties
+          echo "API_KEY_DEBUG=${{ secrets.API_KEY_DEBUG }}" >> env.properties
+          echo "BASE_URL_DEBUG=${{ secrets.BASE_URL_DEBUG }}" >> env.properties
+          echo "BASE_URL_RELEASE=${{ secrets.BASE_URL_RELEASE }}" >> env.properties
 
       - name: Build Release AAB
         run: ./gradlew bundleRelease
