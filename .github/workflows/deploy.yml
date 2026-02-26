@@ -1,4 +1,4 @@
-name: Open Testing Build & Deploy
+name: Build & Deploy
 
 on:
   push:
@@ -44,13 +44,22 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: ./gradlew bundleRelease
 
-      - name: Upload to Play Store Open Testing
+      - name: Determine Track
+        id: track
+        run: |
+          if [[ "${{ github.ref_name }}" == *"-beta" ]]; then
+            echo "track=beta" >> $GITHUB_OUTPUT
+          else
+            echo "track=production" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload to Play Store
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_JSON }}
           packageName: com.dapascript.mever
           releaseFiles: app/build/outputs/bundle/release/app-release.aab
-          track: beta
+          track: ${{ steps.track.outputs.track }}
           status: completed
           whatsNewDirectory: distribution/whatsnew
 
