@@ -3,7 +3,7 @@ name: Open Testing Build & Deploy
 on:
   push:
     tags:
-      - 'v*-internal'
+      - 'v*-open-testing'
 
 jobs:
   build-and-deploy:
