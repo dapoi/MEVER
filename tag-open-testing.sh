@@ -12,7 +12,7 @@ if [ -z "$VERSION" ]; then
   exit 1
 fi
 
-TAG="v$VERSION-open-testing"
+TAG="v$VERSION"
 
 echo "🚀 Tagging open testing build: $TAG"
 
