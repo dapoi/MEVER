@@ -48,4 +48,14 @@ object CollectionLibs {
             releaseImplementation(libs.chucker.release.get())
         }
     }
+
+    fun Project.testDependencies() {
+        dependencies {
+            testImplementation(libs.coroutines.test.get())
+            testImplementation(libs.mockito.core.get())
+            testImplementation(libs.mockito.kotlin.get())
+            testImplementation(libs.mockito.inline.get())
+            testImplementation(libs.arch.core.testing.get())
+        }
+    }
 }

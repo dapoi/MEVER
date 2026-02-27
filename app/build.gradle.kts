@@ -69,4 +69,10 @@ dependencies {
     implementation(projects.feature.home)
     implementation(projects.feature.setting)
     implementation(projects.feature.startup)
+
+    testImplementation(libs.coroutines.test)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.kotlin)
+    testImplementation(libs.mockito.inline)
+    testImplementation(libs.arch.core.testing)
 }

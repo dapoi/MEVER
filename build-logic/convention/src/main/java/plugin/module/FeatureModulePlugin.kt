@@ -3,6 +3,7 @@ package plugin.module
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.dependencies
+import util.CollectionLibs.testDependencies
 import util.ConstantLibs.coreModules
 import util.alias
 import util.implementation
@@ -22,6 +23,8 @@ class FeatureModulePlugin : Plugin<Project> {
                     implementation(project(module))
                 }
             }
+
+            testDependencies()
         }
     }
 }
