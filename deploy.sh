@@ -17,7 +17,8 @@ echo "🎯 Choose deployment track:"
 echo "  1) Beta (Open Testing)"
 echo "  2) Production"
 echo ""
-read "TRACK_CHOICE?Enter choice (1/2): "
+printf "Enter choice (1/2): "
+read TRACK_CHOICE
 
 if [ "$TRACK_CHOICE" = "1" ]; then
   TRACK="beta"
