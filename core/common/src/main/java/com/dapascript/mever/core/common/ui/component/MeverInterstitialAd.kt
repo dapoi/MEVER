@@ -19,16 +19,13 @@ import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 
 @Composable
-fun rememberInterstitialAd(
-    onAdFailToLoad: (() -> Unit)? = null,
-    onAdFailOrDismissed: (() -> Unit)? = null
-): InterstitialAdController {
+fun rememberInterstitialAd(onAdComplete: (() -> Unit)? = null): InterstitialAdController {
     val context = LocalContext.current
     val activity = LocalActivity.current
     var interstitialAd by remember { mutableStateOf<InterstitialAd?>(null) }
     var adIsLoading by remember { mutableStateOf(false) }
-    val isAdReadyState = remember { mutableStateOf(false) }
     var isUserTriggered by remember { mutableStateOf(false) }
+    var showAd: () -> Unit = {}
 
     fun loadAd() {
         if (adIsLoading || interstitialAd != null) return
@@ -43,16 +40,17 @@ fun rememberInterstitialAd(
                 override fun onAdLoaded(ad: InterstitialAd) {
                     interstitialAd = ad
                     adIsLoading = false
-                    isAdReadyState.value = true
-                    isUserTriggered = false
+                    if (isUserTriggered) {
+                        isUserTriggered = false
+                        showAd()
+                    }
                 }
 
                 override fun onAdFailedToLoad(error: LoadAdError) {
                     interstitialAd = null
                     adIsLoading = false
-                    isAdReadyState.value = false
                     if (isUserTriggered) {
-                        onAdFailToLoad?.invoke()
+                        onAdComplete?.invoke()
                         isUserTriggered = false
                     }
                 }
@@ -60,27 +58,20 @@ fun rememberInterstitialAd(
         )
     }
 
-    DisposableEffect(Unit) {
-        onDispose {
-            interstitialAd = null
-            isAdReadyState.value = false
-        }
-    }
+    DisposableEffect(Unit) { onDispose { interstitialAd = null } }
 
-    val showAd = {
+    showAd = {
         if (interstitialAd != null) {
             interstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
                 override fun onAdDismissedFullScreenContent() {
                     interstitialAd = null
-                    isAdReadyState.value = false
                     loadAd()
-                    onAdFailOrDismissed?.invoke()
+                    onAdComplete?.invoke()
                 }
 
                 override fun onAdFailedToShowFullScreenContent(p0: AdError) {
                     interstitialAd = null
-                    isAdReadyState.value = false
-                    onAdFailOrDismissed?.invoke()
+                    onAdComplete?.invoke()
                 }
             }
             interstitialAd?.show(activity)
@@ -92,5 +83,5 @@ fun rememberInterstitialAd(
 
     LaunchedEffect(Unit) { loadAd() }
 
-    return InterstitialAdController(isAdReadyState) { showAd() }
+    return InterstitialAdController { showAd() }
 }

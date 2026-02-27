@@ -35,6 +35,7 @@ import com.dapascript.mever.core.common.ui.component.MeverDialogError
 import com.dapascript.mever.core.common.ui.component.MeverPermissionHandler
 import com.dapascript.mever.core.common.ui.component.MeverPhotoViewer
 import com.dapascript.mever.core.common.ui.component.MeverVideoPlayer
+import com.dapascript.mever.core.common.ui.component.rememberInterstitialAd
 import com.dapascript.mever.core.common.ui.theme.MeverBlack
 import com.dapascript.mever.core.common.ui.theme.MeverDark
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
@@ -44,6 +45,7 @@ import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.convertFilename
 import com.dapascript.mever.core.common.util.getStoragePermission
 import com.dapascript.mever.core.common.util.goToSetting
+import com.dapascript.mever.core.common.util.handleClickButton
 import com.dapascript.mever.core.common.util.sanitizeFilename
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
@@ -74,7 +76,9 @@ internal fun GalleryContentDetailScreen(
     val resources = LocalResources.current
     val themeType = themeType.collectAsStateValue()
     val isPipEnabled = isPipEnabled.collectAsStateValue()
+    val getButtonClickCount = getButtonClickCount.collectAsStateValue()
     val scope = rememberCoroutineScope()
+    val interstitialAd = rememberInterstitialAd { setStoragePermission = getStoragePermission() }
     val darkTheme = when (themeType) {
         Light -> false
         Dark -> true
@@ -140,13 +144,14 @@ internal fun GalleryContentDetailScreen(
                     setStoragePermission = emptyList()
                     if (isStorageFull(storageInfo)) {
                         errorMessage = resources.getString(R.string.storage_full)
-                    } else scope.launch {
+                    } else {
                         startDownload(imageExploreData.first, imageExploreData.second)
                         navController.navigateTo(
                             route = GalleryLandingRoute,
                             popUpTo = GalleryContentDetailRoute::class,
                             inclusive = true
                         )
+                        imageExploreData = Pair("", "")
                     }
                 },
                 onDenied = { isPermanentlyDeclined, retry ->
@@ -227,8 +232,15 @@ internal fun GalleryContentDetailScreen(
                     },
                     onClickBack = { navController.popBackStack() },
                     onClickDownload = { url, filename ->
-                        setStoragePermission = getStoragePermission()
-                        imageExploreData = Pair(url, sanitizeFilename(filename))
+                        handleClickButton(
+                            buttonClickCount = getButtonClickCount,
+                            onIncrementClickCount = {
+                                incrementClickCount()
+                                imageExploreData = Pair(url, sanitizeFilename(filename))
+                            },
+                            onShowAds = { interstitialAd.showAd() },
+                            onClickAction = { setStoragePermission = getStoragePermission() }
+                        )
                     }
                 )
             }

@@ -30,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,6 +46,7 @@ import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
+import com.dapascript.mever.core.common.ui.component.MeverBannerAd
 import com.dapascript.mever.core.common.ui.component.MeverDialogError
 import com.dapascript.mever.core.common.ui.component.MeverImage
 import com.dapascript.mever.core.common.ui.component.MeverTextField
@@ -135,88 +137,100 @@ internal fun ExploreLandingScreen(
             }
         )
 
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = Dp64)
-        ) {
-            MeverTextField(
+        Box {
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = Dp24)
-                    .background(colorScheme.background),
-                context = context,
-                value = TextFieldValue(query),
-                leadingIcon = R.drawable.ic_search,
-                hint = R.string.keyword_hint,
-                onValueChange = { query = it.text }
-            )
-            Spacer(modifier = Modifier.height(Dp16))
-            HorizontalDivider(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .shadow(Dp3),
-                thickness = Dp1,
-                color = colorScheme.onPrimary.copy(alpha = 0.12f)
-            )
-            Spacer(modifier = Modifier.height(Dp1))
-            contents?.let { result ->
-                if (result.isNotEmpty()) LazyVerticalStaggeredGrid(
-                    modifier = Modifier.fillMaxSize(),
-                    columns = if (deviceType == PHONE) StaggeredGridCells.Fixed(2)
-                    else StaggeredGridCells.Adaptive(Dp150),
-                    contentPadding = PaddingValues(Dp24),
-                    verticalItemSpacing = Dp16,
+                    .padding(top = Dp64)
+            ) {
+                MeverTextField(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = Dp24)
+                        .background(colorScheme.background),
+                    context = context,
+                    value = TextFieldValue(query),
+                    leadingIcon = R.drawable.ic_search,
+                    hint = R.string.keyword_hint,
+                    onValueChange = { query = it.text }
+                )
+                Spacer(modifier = Modifier.height(Dp16))
+                HorizontalDivider(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .shadow(Dp3),
+                    thickness = Dp1,
+                    color = colorScheme.onPrimary.copy(alpha = 0.12f)
+                )
+                Spacer(modifier = Modifier.height(Dp1))
+                contents?.let { result ->
+                    if (result.isNotEmpty()) LazyVerticalStaggeredGrid(
+                        modifier = Modifier.fillMaxSize(),
+                        columns = if (deviceType == PHONE) StaggeredGridCells.Fixed(2)
+                        else StaggeredGridCells.Adaptive(Dp150),
+                        contentPadding = PaddingValues(
+                            start = Dp24,
+                            end = Dp24,
+                            top = Dp24,
+                            bottom = Dp64
+                        ),
+                        verticalItemSpacing = Dp16,
+                        horizontalArrangement = spacedBy(Dp16)
+                    ) {
+                        itemsIndexed(
+                            items = result,
+                            key = { _, item -> item.id },
+                            contentType = { _, item -> item.url }
+                        ) { index, item ->
+                            MeverImage(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(Dp8))
+                                    .onCustomClick {
+                                        navController.navigateTo(
+                                            route = GalleryContentDetailRoute(
+                                                contents = result.mapIndexed { contentIndex, contentEntity ->
+                                                    Content(
+                                                        id = contentIndex,
+                                                        isDownloadable = true,
+                                                        isPreview = true,
+                                                        isVideo = false,
+                                                        primaryContent = contentEntity.url,
+                                                        fileName = contentEntity.fileName
+                                                    )
+                                                },
+                                                initialIndex = index
+                                            )
+                                        )
+                                    },
+                                source = item.previewUrl
+                            )
+                        }
+                    } else KeywordNotFoundComponent()
+                } ?: LazyVerticalGrid(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(start = Dp24, end = Dp24, top = Dp24, bottom = Dp0),
+                    columns = if (deviceType == PHONE) GridCells.Fixed(2)
+                    else GridCells.Adaptive(Dp150),
+                    contentPadding = PaddingValues(Dp0),
+                    verticalArrangement = spacedBy(Dp16),
                     horizontalArrangement = spacedBy(Dp16)
                 ) {
-                    itemsIndexed(
-                        items = result,
-                        key = { _, item -> item.id },
-                        contentType = { _, item -> item.url }
-                    ) { index, item ->
-                        MeverImage(
+                    items(20) {
+                        Box(
                             modifier = Modifier
+                                .size(Dp150)
                                 .clip(RoundedCornerShape(Dp8))
-                                .onCustomClick {
-                                    navController.navigateTo(
-                                        route = GalleryContentDetailRoute(
-                                            contents = result.mapIndexed { contentIndex, contentEntity ->
-                                                Content(
-                                                    id = contentIndex,
-                                                    isDownloadable = true,
-                                                    isPreview = true,
-                                                    isVideo = false,
-                                                    primaryContent = contentEntity.url,
-                                                    fileName = contentEntity.fileName
-                                                )
-                                            },
-                                            initialIndex = index
-                                        )
-                                    )
-                                },
-                            source = item.previewUrl
+                                .background(meverShimmer())
                         )
                     }
-                } else KeywordNotFoundComponent()
-            } ?: LazyVerticalGrid(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(Dp24),
-                columns = if (deviceType == PHONE) GridCells.Fixed(2)
-                else GridCells.Adaptive(Dp150),
-                contentPadding = PaddingValues(Dp0),
-                verticalArrangement = spacedBy(Dp16),
-                horizontalArrangement = spacedBy(Dp16)
-            ) {
-                items(20) {
-                    Box(
-                        modifier = Modifier
-                            .size(Dp150)
-                            .clip(RoundedCornerShape(Dp8))
-                            .background(meverShimmer())
-                    )
                 }
             }
+            MeverBannerAd(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(BottomCenter)
+            )
         }
     }
 }

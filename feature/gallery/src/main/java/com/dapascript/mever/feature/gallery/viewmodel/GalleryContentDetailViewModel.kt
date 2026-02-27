@@ -18,7 +18,7 @@ import javax.inject.Inject
 @HiltViewModel
 class GalleryContentDetailViewModel @Inject constructor(
     private val ketch: Ketch,
-    dataStore: MeverDataStore,
+    private val dataStore: MeverDataStore,
     savedStateHandle: SavedStateHandle
 ) : BaseViewModel() {
 
@@ -37,6 +37,12 @@ class GalleryContentDetailViewModel @Inject constructor(
         initialValue = true
     )
 
+    val getButtonClickCount = dataStore.clickCount.stateIn(
+        scope = viewModelScope,
+        started = WhileSubscribed(),
+        initialValue = 1
+    )
+
     fun startDownload(
         url: String,
         fileName: String
@@ -52,5 +58,9 @@ class GalleryContentDetailViewModel @Inject constructor(
 
     fun deleteContent(id: Int) = viewModelScope.launch {
         ketch.clearDb(id)
+    }
+
+    fun incrementClickCount() = viewModelScope.launch {
+        dataStore.incrementClickCount()
     }
 }

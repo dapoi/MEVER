@@ -141,6 +141,7 @@ import com.dapascript.mever.core.common.util.getExtensionFromUrl
 import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.getStoragePermission
 import com.dapascript.mever.core.common.util.goToSetting
+import com.dapascript.mever.core.common.util.handleClickButton
 import com.dapascript.mever.core.common.util.isMusic
 import com.dapascript.mever.core.common.util.isVideo
 import com.dapascript.mever.core.common.util.navigateToMusic
@@ -226,22 +227,13 @@ private fun HomeScreenContent(
         val pagerState = rememberPagerState(pageCount = { tabItems.size })
         val scrollState = rememberScrollState()
         val scope = rememberCoroutineScope()
-        val interstitialController = rememberInterstitialAd(
-            onAdFailToLoad = {
-                navController.navigateToImageGenerator(
-                    prompt = promptState.text,
-                    artStyle = selectedArtStyle.second,
-                    totalImages = selectedImageCount
-                )
-            },
-            onAdFailOrDismissed = {
-                navController.navigateToImageGenerator(
-                    prompt = promptState.text,
-                    artStyle = selectedArtStyle.second,
-                    totalImages = selectedImageCount
-                )
-            }
-        )
+        val interstitialController = rememberInterstitialAd {
+            navController.navigateToImageGenerator(
+                prompt = promptState.text,
+                artStyle = selectedArtStyle.second,
+                totalImages = selectedImageCount
+            )
+        }
 
         Column(
             modifier = Modifier
@@ -488,10 +480,9 @@ private fun HomeDownloaderSection(
     var loadingItemIndex by remember { mutableStateOf<Int?>(null) }
     var isDownloadProcessing by remember { mutableStateOf(false) }
     var isInPreview by remember { mutableStateOf(false) }
-    val interstitialController = rememberInterstitialAd(
-        onAdFailToLoad = { setStoragePermission = getStoragePermission() },
-        onAdFailOrDismissed = { setStoragePermission = getStoragePermission() }
-    )
+    val interstitialController = rememberInterstitialAd {
+        setStoragePermission = getStoragePermission()
+    }
 
     LaunchedEffect(downloadList) {
         downloadList
@@ -1263,13 +1254,3 @@ private fun NavController.navigateToImageGenerator(
         totalImages = totalImages
     )
 )
-
-private fun handleClickButton(
-    buttonClickCount: Int,
-    onIncrementClickCount: () -> Unit,
-    onShowAds: () -> Unit,
-    onClickAction: () -> Unit
-) {
-    if (buttonClickCount > 0 && buttonClickCount % 3 == 0) onShowAds() else onClickAction()
-    onIncrementClickCount()
-}

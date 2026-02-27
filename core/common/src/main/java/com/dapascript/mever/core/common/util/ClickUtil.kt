@@ -64,3 +64,13 @@ fun Modifier.onCustomClick(
         onClick = { handler.processClick(onClick) }
     )
 }
+
+fun handleClickButton(
+    buttonClickCount: Int,
+    onIncrementClickCount: () -> Unit,
+    onShowAds: () -> Unit,
+    onClickAction: () -> Unit
+) {
+    if (buttonClickCount > 0 && buttonClickCount % 3 == 0) onShowAds() else onClickAction()
+    onIncrementClickCount()
+}
