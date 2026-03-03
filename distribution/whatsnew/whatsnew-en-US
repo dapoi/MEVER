@@ -1,2 +1,4 @@
-- Fixed some buttons not responding correctly when tapped
-- General improvements to make the app run more smoothly and reliably
+- Improved app responsiveness — buttons and taps now feel snappier
+- Fixed an issue where some buttons didn't respond correctly when tapped
+- Smoother experience when browsing and viewing content in the gallery
+- General performance improvements and under-the-hood fixes

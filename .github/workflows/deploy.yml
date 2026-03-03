@@ -37,30 +37,72 @@ jobs:
         run: |
           echo "${{ secrets.SIGNING_KEY_BASE64 }}" | base64 --decode > ${{ github.workspace }}/keystore.jks
 
-      - name: Build Release AAB
+      - name: Build Release AAB & APK
         env:
           KEYSTORE_PATH: ${{ github.workspace }}/keystore.jks
           KEY_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: ./gradlew bundleRelease
+        run: ./gradlew bundleRelease assembleRelease
 
-      - name: Determine Track
-        id: track
+      - name: Determine Flags
+        id: flags
         run: |
           if [[ "${{ github.ref_name }}" == *"-beta" ]]; then
             echo "track=beta" >> $GITHUB_OUTPUT
+            echo "prerelease=true" >> $GITHUB_OUTPUT
           else
             echo "track=production" >> $GITHUB_OUTPUT
+            echo "prerelease=false" >> $GITHUB_OUTPUT
+          fi
+
+          TAG_MESSAGE=$(git tag -l --format='%(contents)' "${{ github.ref_name }}")
+
+          if [[ "$TAG_MESSAGE" == *"upload_play_store=true"* ]]; then
+            echo "upload_play_store=true" >> $GITHUB_OUTPUT
+          else
+            echo "upload_play_store=false" >> $GITHUB_OUTPUT
+          fi
+
+          if [[ "$TAG_MESSAGE" == *"upload_github_release=true"* ]]; then
+            echo "upload_github_release=true" >> $GITHUB_OUTPUT
+          else
+            echo "upload_github_release=false" >> $GITHUB_OUTPUT
           fi
 
       - name: Upload to Play Store
+        if: steps.flags.outputs.upload_play_store == 'true'
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_JSON }}
           packageName: com.dapascript.mever
           releaseFiles: app/build/outputs/bundle/release/app-release.aab
-          track: ${{ steps.track.outputs.track }}
+          track: ${{ steps.flags.outputs.track }}
           status: completed
           whatsNewDirectory: distribution/whatsnew
 
+      - name: Read What's New
+        if: steps.flags.outputs.upload_github_release == 'true'
+        id: whatsnew
+        run: |
+          NOTES_FILE="distribution/whatsnew/whatsnew-en-US"
+          if [ -f "$NOTES_FILE" ]; then
+            NOTES=$(cat "$NOTES_FILE")
+          else
+            NOTES="Release ${{ github.ref_name }}"
+          fi
+          echo "notes<<EOF" >> $GITHUB_OUTPUT
+          echo "$NOTES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        if: steps.flags.outputs.upload_github_release == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: "MEVER ${{ github.ref_name }}"
+          body: ${{ steps.whatsnew.outputs.notes }}
+          prerelease: ${{ steps.flags.outputs.prerelease }}
+          files: app/build/outputs/apk/release/app-release.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
