@@ -152,7 +152,8 @@ internal fun ExploreLandingScreen(
                     value = TextFieldValue(query),
                     leadingIcon = R.drawable.ic_search,
                     hint = R.string.keyword_hint,
-                    onValueChange = { query = it.text }
+                    onValueChange = { query = it.text },
+                    onClickLeadingIcon = {}
                 )
                 Spacer(modifier = Modifier.height(Dp16))
                 HorizontalDivider(
