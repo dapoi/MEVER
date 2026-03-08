@@ -196,7 +196,7 @@ internal fun GalleryLandingScreen(
         LaunchedEffect(downloadList) {
             downloadList
                 ?.filter { it.status == SUCCESS }
-                ?.map { syncToGallery(context, it.fileName) }
+                ?.forEach { syncToGallery(context, it.fileName) }
         }
 
         LaunchedEffect(lifecycleOwner.value) {
@@ -270,8 +270,8 @@ internal fun GalleryLandingScreen(
                     PAUSE_ALL -> pauseAllDownloads()
                     HIDE_FILTER -> showFilter = false
                     SHOW_FILTER -> showFilter = true
-                    else -> downloadList?.filter { model -> model.status == PAUSED }?.map { model ->
-                        resumeDownload(model.id)
+                    else -> downloadList?.filter { model -> model.status == PAUSED }?.forEach {
+                        resumeDownload(it.id)
                     }
                 }
             }
@@ -562,7 +562,7 @@ private fun FilterContent(
             ) { onClickFilter(ALL) }
             platformTypes
                 .filterNot { it == ALL }
-                .map { type ->
+                .forEach { type ->
                     MeverButton(
                         title = if (type == EXPLORE) stringResource(R.string.explore)
                         else type.platformName,

@@ -376,20 +376,6 @@ private fun HomeScreenContent(
                             onImageCountSelected = { selectedImageCount = it },
                             onArtStyleSelected = { name, prompt ->
                                 selectedArtStyle = Pair(name, prompt)
-                            },
-                            onClickGenerate = {
-                                handleClickButton(
-                                    buttonClickCount = getButtonClickCount,
-                                    onIncrementClickCount = { incrementClickCount() },
-                                    onShowAds = { interstitialController.showAd() },
-                                    onClickAction = {
-                                        navController.navigateToImageGenerator(
-                                            prompt = promptState.text,
-                                            artStyle = selectedArtStyle.second,
-                                            totalImages = selectedImageCount
-                                        )
-                                    }
-                                )
                             }
                         )
                     }
@@ -447,6 +433,7 @@ private fun HomeScreenContent(
     }
 }
 
+@Suppress("ASSIGNED_VALUE_IS_NEVER_READ")
 @Composable
 private fun HomeDownloaderSection(
     viewModel: HomeLandingViewModel,
@@ -1025,8 +1012,7 @@ private fun HomeAiSection(
     modifier: Modifier = Modifier,
     onPromptChange: (String) -> Unit,
     onImageCountSelected: (Int) -> Unit,
-    onArtStyleSelected: (String, String) -> Unit,
-    onClickGenerate: (() -> Unit)? = null
+    onArtStyleSelected: (String, String) -> Unit
 ) = CompositionLocalProvider(LocalOverscrollFactory provides null) {
     val imagesCountGenerated = remember { List(4) { it + 1 } }
     val artStyles = remember { getArtStyles(context) }
