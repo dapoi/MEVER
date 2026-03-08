@@ -16,16 +16,18 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavDeepLink
 import androidx.navigation.NavGraphBuilder
+import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navDeepLink
+import androidx.navigation.toRoute
 import kotlinx.serialization.json.Json
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.typeOf
 
 inline fun <reified T : Any> NavGraphBuilder.composableScreen(
-    customArgs: Map<KType, NavType<*>>? = null,
+    vararg customArgs: Pair<KType, NavType<*>>,
     deepLinks: List<NavDeepLink>? = null,
     enterTransition: EnterTransition? = null,
     exitTransition: ExitTransition? = null,
@@ -34,7 +36,7 @@ inline fun <reified T : Any> NavGraphBuilder.composableScreen(
     noinline content: @Composable (AnimatedContentScope.(NavBackStackEntry) -> Unit)
 ) {
     composable<T>(
-        typeMap = customArgs ?: emptyMap(),
+        typeMap = mapOf(*customArgs),
         deepLinks = deepLinks ?: emptyList(),
         enterTransition = { enterTransition ?: slideIntoContainer(Start, tween(350)) },
         exitTransition = { exitTransition ?: fadeOut(tween(350)) },
@@ -60,7 +62,11 @@ inline fun <reified T : Any> customNavType(
     }
 }
 
-inline fun <reified T : Any> generateCustomNavType() = typeOf<T>() to customNavType<T>()
+inline fun <reified T : Any> createCustomArgs() = typeOf<T>() to customNavType<T>()
+
+inline fun <reified T : Any> SavedStateHandle.getArgs(
+    vararg types: Pair<KType, NavType<*>>
+): T = toRoute(typeMap = mapOf(*types))
 
 @SuppressLint("RestrictedApi")
 fun NavController.navigateTo(

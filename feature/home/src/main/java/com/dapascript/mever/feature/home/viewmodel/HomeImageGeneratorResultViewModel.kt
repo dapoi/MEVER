@@ -1,7 +1,6 @@
 package com.dapascript.mever.feature.home.viewmodel
 
 import androidx.lifecycle.SavedStateHandle
-import androidx.navigation.toRoute
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.util.PlatformType.AI
 import com.dapascript.mever.core.common.util.changeToCurrentDate
@@ -13,6 +12,7 @@ import com.dapascript.mever.core.common.util.state.UiState.StateSuccess
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFolder
 import com.dapascript.mever.core.data.model.local.ImageAiEntity
 import com.dapascript.mever.core.data.repository.MeverRepository
+import com.dapascript.mever.core.navigation.helper.getArgs
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeImageGeneratorResultRoute
 import com.ketch.Ketch
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,7 +28,7 @@ class HomeImageGeneratorResultViewModel @Inject constructor(
     private val repository: MeverRepository
 ) : BaseViewModel() {
     private val meverFolder by lazy { getMeverFolder() }
-    val args by lazy { savedStateHandle.toRoute<HomeImageGeneratorResultRoute>() }
+    val args by lazy { savedStateHandle.getArgs<HomeImageGeneratorResultRoute>() }
 
     private val _aiResponseState = MutableStateFlow<UiState<ImageAiEntity>>(StateInitial)
     val aiResponseState = _aiResponseState.asStateFlow()

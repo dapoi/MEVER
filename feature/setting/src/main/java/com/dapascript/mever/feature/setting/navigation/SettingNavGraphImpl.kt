@@ -5,10 +5,12 @@ import androidx.navigation.NavGraphBuilder
 import com.dapascript.mever.core.common.util.DeviceType
 import com.dapascript.mever.core.navigation.base.BaseNavGraph
 import com.dapascript.mever.core.navigation.helper.composableScreen
+import com.dapascript.mever.core.navigation.helper.createCustomArgs
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingAboutAppRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingAppreciateRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLandingRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLanguageRoute
+import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLanguageRoute.LanguageData
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingThemeRoute
 import com.dapascript.mever.feature.setting.screen.SettingAboutAppScreen
 import com.dapascript.mever.feature.setting.screen.SettingAppreciateScreen
@@ -24,7 +26,9 @@ class SettingNavGraphImpl @Inject constructor() : BaseNavGraph {
         navGraphBuilder: NavGraphBuilder
     ) = with(navGraphBuilder) {
         composableScreen<SettingLandingRoute> { SettingLandingScreen(navController, deviceType) }
-        composableScreen<SettingLanguageRoute>(SettingLanguageRoute.typeMap) { SettingLanguageScreen(navController) }
+        composableScreen<SettingLanguageRoute>(
+            createCustomArgs<LanguageData>()
+        ) { SettingLanguageScreen(navController) }
         composableScreen<SettingThemeRoute> { SettingThemeScreen(navController) }
         composableScreen<SettingAppreciateRoute> { SettingAppreciateScreen(navController) }
         composableScreen<SettingAboutAppRoute> { SettingAboutAppScreen(navController) }

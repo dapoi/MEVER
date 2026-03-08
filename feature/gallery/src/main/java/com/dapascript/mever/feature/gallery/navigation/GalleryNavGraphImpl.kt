@@ -13,7 +13,9 @@ import androidx.navigation.NavGraphBuilder
 import com.dapascript.mever.core.common.util.DeviceType
 import com.dapascript.mever.core.navigation.base.BaseNavGraph
 import com.dapascript.mever.core.navigation.helper.composableScreen
+import com.dapascript.mever.core.navigation.helper.createCustomArgs
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
+import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute.Content
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute
 import com.dapascript.mever.feature.gallery.screen.GalleryContentDetailScreen
 import com.dapascript.mever.feature.gallery.screen.GalleryLandingScreen
@@ -27,7 +29,7 @@ class GalleryNavGraphImpl @Inject constructor() : BaseNavGraph {
     ) = with(navGraphBuilder) {
         composableScreen<GalleryLandingRoute> { GalleryLandingScreen(navController) }
         composableScreen<GalleryContentDetailRoute>(
-            customArgs = GalleryContentDetailRoute.typeMap,
+            createCustomArgs<List<Content>>(),
             enterTransition = fadeIn(spring(stiffness = StiffnessHigh)) + scaleIn(
                 initialScale = .8f,
                 animationSpec = spring(
