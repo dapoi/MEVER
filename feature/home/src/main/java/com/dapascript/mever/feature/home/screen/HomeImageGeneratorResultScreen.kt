@@ -51,6 +51,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale.Companion.FillBounds
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
@@ -329,7 +330,8 @@ private fun ImageGeneratorResultContent(
                     scaleX = 1.1f
                     clip = true
                 },
-            source = imageSelected
+            source = imageSelected,
+            contentScale = FillBounds
         )
         if (aiImages.size > 1) Row(
             modifier = Modifier.fillMaxWidth(),
