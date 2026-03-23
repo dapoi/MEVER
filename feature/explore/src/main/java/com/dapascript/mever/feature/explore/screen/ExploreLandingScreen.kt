@@ -51,7 +51,6 @@ import com.dapascript.mever.core.common.ui.component.MeverDialogError
 import com.dapascript.mever.core.common.ui.component.MeverImage
 import com.dapascript.mever.core.common.ui.component.MeverTextField
 import com.dapascript.mever.core.common.ui.component.meverShimmer
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp0
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp150
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
@@ -59,6 +58,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp3
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
 import com.dapascript.mever.core.common.util.DeviceType
@@ -173,7 +173,7 @@ internal fun ExploreLandingScreen(
                             start = Dp24,
                             end = Dp24,
                             top = Dp24,
-                            bottom = Dp64
+                            bottom = Dp80
                         ),
                         verticalItemSpacing = Dp16,
                         horizontalArrangement = spacedBy(Dp16)
@@ -210,10 +210,10 @@ internal fun ExploreLandingScreen(
                 } ?: LazyVerticalGrid(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(start = Dp24, end = Dp24, top = Dp24, bottom = Dp0),
+                        .padding(horizontal = Dp24),
                     columns = if (deviceType == PHONE) GridCells.Fixed(2)
                     else GridCells.Adaptive(Dp150),
-                    contentPadding = PaddingValues(Dp0),
+                    contentPadding = PaddingValues(vertical = Dp24),
                     verticalArrangement = spacedBy(Dp16),
                     horizontalArrangement = spacedBy(Dp16)
                 ) {
@@ -230,6 +230,7 @@ internal fun ExploreLandingScreen(
             MeverBannerAd(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(bottom = Dp16)
                     .align(BottomCenter)
             )
         }
