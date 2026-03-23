@@ -111,9 +111,8 @@ class GalleryLandingViewModel @Inject constructor(
     fun refreshDatabase() {
         viewModelScope.launch {
             val existingNames = getMeverFiles(meverFolder)
-                ?.map { it.name.lowercase() }
-                ?.toSet()
-                ?: emptySet()
+                .map { it.name.lowercase() }
+                .toSet()
             val downloads = downloadList.value ?: return@launch
 
             downloads

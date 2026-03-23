@@ -1,17 +1,17 @@
 package com.dapascript.mever.core.common.util.storage
 
-import android.app.usage.StorageStatsManager
 import android.content.Context
-import android.content.Context.STORAGE_SERVICE
-import android.content.Context.STORAGE_STATS_SERVICE
+import android.os.Build.VERSION.SDK_INT
+import android.os.Build.VERSION_CODES.R
+import android.os.Environment
 import android.os.Environment.DIRECTORY_DOWNLOADS
 import android.os.Environment.getExternalStoragePublicDirectory
+import android.os.StatFs
 import android.os.storage.StorageManager
-import android.os.storage.StorageManager.UUID_DEFAULT
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.util.UUID
+import kotlin.math.roundToInt
 
 object StorageUtil {
 
@@ -26,18 +26,21 @@ object StorageUtil {
     )
 
     fun getStorageInfo(context: Context): StorageInfo {
-        val storageManager = context.getSystemService(STORAGE_SERVICE) as StorageManager
-        val statsManager = context.getSystemService(STORAGE_STATS_SERVICE) as StorageStatsManager
+        val storageManager = context.getSystemService(StorageManager::class.java)
 
-        val storageVolume = storageManager.primaryStorageVolume
-        val uuidStr = storageVolume.uuid ?: UUID_DEFAULT.toString()
-        val uuid = UUID.fromString(uuidStr)
-
-        val totalBytes = statsManager.getTotalBytes(uuid)
-        val freeBytes = statsManager.getFreeBytes(uuid)
-        val usedBytes = totalBytes - freeBytes
-
-        val usedPercent = ((usedBytes.toDouble() / totalBytes.toDouble()) * 100).toInt()
+        val primaryDir = if (SDK_INT >= R) {
+            storageManager.primaryStorageVolume.directory
+        } else {
+            @Suppress("DEPRECATION")
+            Environment.getExternalStorageDirectory()
+        } ?: Environment.getDataDirectory()
+        val statFs = StatFs(primaryDir.absolutePath)
+        val totalBytes = statFs.totalBytes
+        val freeBytes = statFs.availableBytes
+        val usedBytes = (totalBytes - freeBytes).coerceAtLeast(0L)
+        val usedPercent = if (totalBytes > 0L) {
+            ((usedBytes * 100.0) / totalBytes).roundToInt()
+        } else 0
         val freePercent = 100 - usedPercent
 
         return StorageInfo(
@@ -61,7 +64,7 @@ object StorageUtil {
         return folder
     }
 
-    suspend fun getMeverFiles(dir: File): List<File>? = withContext(IO) {
+    suspend fun getMeverFiles(dir: File): List<File> = withContext(IO) {
         if ((dir.exists() && dir.isDirectory).not()) return@withContext emptyList()
         dir.listFiles()?.asSequence()
             ?.filter { it.isFile && it.extension.lowercase() in allowExt }
