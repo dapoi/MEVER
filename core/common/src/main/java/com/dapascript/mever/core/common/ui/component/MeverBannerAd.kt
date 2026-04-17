@@ -70,5 +70,5 @@ private fun getAdaptiveAdSize(context: Context): AdSize {
     }
 
     val adWidth = (adWidthPixels / displayMetrics.density).toInt()
-    return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(context, adWidth)
+    return AdSize.getCurrentOrientationInlineAdaptiveBannerAdSize(context, adWidth)
 }

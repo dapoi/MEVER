@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -52,13 +53,14 @@ import com.dapascript.mever.core.common.ui.component.MeverImage
 import com.dapascript.mever.core.common.ui.component.MeverTextField
 import com.dapascript.mever.core.common.ui.component.meverShimmer
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp120
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp150
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp3
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp88
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
 import com.dapascript.mever.core.common.util.DeviceType
@@ -173,7 +175,7 @@ internal fun ExploreLandingScreen(
                             start = Dp24,
                             end = Dp24,
                             top = Dp24,
-                            bottom = Dp80
+                            bottom = Dp120
                         ),
                         verticalItemSpacing = Dp16,
                         horizontalArrangement = spacedBy(Dp16)
@@ -230,7 +232,8 @@ internal fun ExploreLandingScreen(
             MeverBannerAd(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = Dp16)
+                    .heightIn(max = Dp88)
+                    .padding(bottom = Dp8)
                     .align(BottomCenter)
             )
         }
