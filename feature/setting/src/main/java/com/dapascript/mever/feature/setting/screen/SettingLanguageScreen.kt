@@ -71,9 +71,9 @@ internal fun SettingLanguageScreen(
                 .collect {
                     if (titleHeight == 0) return@collect
                     val threshold = titleHeight / 2
-                    if (scrollState.value > threshold && scrollState.value < titleHeight) {
+                    if (scrollState.value in (threshold + 1)..<titleHeight) {
                         scope.launch { scrollState.animateScrollTo(titleHeight) }
-                    } else if (scrollState.value > 0 && scrollState.value <= threshold) {
+                    } else if (scrollState.value in 1..threshold) {
                         scope.launch { scrollState.animateScrollTo(0) }
                     }
                 }

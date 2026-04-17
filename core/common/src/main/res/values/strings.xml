@@ -114,4 +114,10 @@
     <string name="disclaimer_supported_platforms">By using this app, you agree to follow each platform’s terms and copyright. Make sure you have the right to download and use the content under applicable laws.</string>
     <string name="unsupported_yt">Sorry… YouTube downloads aren’t available right now</string>
     <string name="find_image">Find more exciting images here!</string>
+    <string name="lets_start">Let’s Get Started!</string>
+    <string name="easy_to_use">Easy to use and 100% free!</string>
+    <string name="supports">Supports</string>
+    <string name="multiple">Multiple</string>
+    <string name="source">Source</string>
+    <string name="download_easily">Download media from Social Media easily.</string>
 </resources>

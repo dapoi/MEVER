@@ -8,6 +8,7 @@ import android.os.LocaleList
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.app.AppCompatDelegate.setApplicationLocales
 import androidx.core.os.LocaleListCompat
+import java.util.Locale
 
 object LanguageManager {
     fun changeLanguage(context: Context, languageCode: String) {
@@ -26,7 +27,7 @@ object LanguageManager {
         } else {
             AppCompatDelegate.getApplicationLocales().get(0)
         }
-        return locale?.toLanguageTag() ?: "en"
+        return locale?.toLanguageTag() ?: Locale.getDefault().language
     }
 
     fun appLanguages() = listOf(

@@ -40,6 +40,7 @@ import androidx.compose.ui.layout.ContentScale.Companion.Fit
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
@@ -61,7 +62,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.MeverYellow
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
-import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp40
+import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp36
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp50
 import com.dapascript.mever.core.common.util.DeviceType
 import com.dapascript.mever.core.common.util.DeviceType.DESKTOP
@@ -70,8 +71,8 @@ import com.dapascript.mever.core.common.util.getNotificationPermission
 import com.dapascript.mever.core.navigation.helper.navigateClearBackStack
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeLandingRoute
 import com.dapascript.mever.feature.startup.R
-import com.dapascript.mever.core.common.R as coreUiR
 import com.dapascript.mever.feature.startup.viewmodel.OnboardViewModel
+import com.dapascript.mever.core.common.R as coreUiR
 
 @Composable
 internal fun OnboardScreen(
@@ -205,7 +206,7 @@ private fun ButtonOnboardSection(
     onClick = onClick,
     content = {
         Text(
-            text = "Let's Started",
+            text = stringResource(coreUiR.string.lets_start),
             style = typography.body1.copy(fontSize = Sp18),
             color = MeverWhite
         )
@@ -221,32 +222,37 @@ private fun ButtonOnboardSection(
 @Composable
 private fun DescriptionOnboardSection(modifier: Modifier = Modifier) = Column(modifier = modifier) {
     Text(
-        text = "Easy to use and 100% free",
+        text = stringResource(coreUiR.string.easy_to_use),
         style = typography.body2,
         color = colorScheme.secondary
     )
     Spacer(modifier = Modifier.size(Dp8))
     Text(
-        text = "Supports",
-        style = typography.h2.copy(fontSize = Sp40),
+        text = stringResource(coreUiR.string.supports),
+        style = typography.h2.copy(fontSize = Sp36),
         color = colorScheme.onPrimary
     )
     Spacer(modifier = Modifier.size(Dp4))
     Text(
         text = buildAnnotatedString {
             val baseStyle = SpanStyle(
-                fontSize = typography.h2.copy(fontSize = Sp40).fontSize,
+                fontSize = typography.h2.copy(fontSize = Sp36).fontSize,
                 fontFamily = typography.h2.fontFamily,
                 fontWeight = typography.h2.fontWeight
             )
-            withStyle(baseStyle.copy(color = MeverPurple)) { append("Multiple ") }
-            withStyle(baseStyle.copy(color = colorScheme.onPrimary)) { append("Source") }
+            withStyle(baseStyle.copy(color = MeverPurple)) {
+                append(stringResource(coreUiR.string.multiple))
+            }
+            append(" ")
+            withStyle(baseStyle.copy(color = colorScheme.onPrimary)) {
+                append(stringResource(coreUiR.string.source))
+            }
         },
         lineHeight = Sp50
     )
     Spacer(modifier = Modifier.size(Dp8))
     Text(
-        text = "Download media from Social Media easily.",
+        text = stringResource(coreUiR.string.download_easily),
         style = typography.body2,
         color = colorScheme.secondary
     )
