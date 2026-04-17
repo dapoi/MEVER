@@ -71,6 +71,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.ColorFilter.Companion.tint
 import androidx.compose.ui.graphics.toAndroidRectF
+import androidx.compose.ui.keepScreenOn
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
@@ -363,7 +364,7 @@ fun MeverVideoPlayer(
         }
     }
 
-    Box(modifier = modifier) {
+    Box(modifier = modifier.keepScreenOn()) {
         VideoPlayer(
             modifier = Modifier
                 .fillMaxSize()
