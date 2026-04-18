@@ -141,8 +141,10 @@ import com.dapascript.mever.core.common.util.changeToCurrentDate
 import com.dapascript.mever.core.common.util.getExtensionFromUrl
 import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.getStoragePermission
+import com.dapascript.mever.core.common.util.goToDnsSetting
 import com.dapascript.mever.core.common.util.goToSetting
 import com.dapascript.mever.core.common.util.handleClickButton
+import com.dapascript.mever.core.common.util.isCustomDnsActive
 import com.dapascript.mever.core.common.util.isMusic
 import com.dapascript.mever.core.common.util.isVideo
 import com.dapascript.mever.core.common.util.navigateToMusic
@@ -466,6 +468,7 @@ private fun HomeDownloaderSection(
     var showUnsupportedYouTubeDialog by remember { mutableStateOf(false) }
     var showPlatformSupportDialog by remember { mutableStateOf(false) }
     var isStorageFull by remember { mutableStateOf(false) }
+    var isCustomDnsActive by remember { mutableStateOf(false) }
     var loadingItemIndex by remember { mutableStateOf<Int?>(null) }
     var isDownloadProcessing by remember { mutableStateOf(false) }
     var isInPreview by remember { mutableStateOf(false) }
@@ -673,13 +676,28 @@ private fun HomeDownloaderSection(
         showDialog = errorMessage.isNotEmpty(),
         errorTitle = stringResource(R.string.error_title),
         errorDescription = errorMessage,
-        primaryButtonText = stringResource(if (isStorageFull) R.string.ok else R.string.retry),
+        primaryButtonText = stringResource(
+            when {
+                isStorageFull -> R.string.ok
+                isCustomDnsActive -> R.string.go_to_settings
+                else -> R.string.retry
+            }
+        ),
         onClickPrimary = {
-            if (isStorageFull) isStorageFull = false else getApiDownloader()
+            when {
+                isStorageFull -> isStorageFull = false
+                isCustomDnsActive -> {
+                    activity.goToDnsSetting()
+                    isCustomDnsActive = false
+                }
+
+                else -> getApiDownloader()
+            }
             errorMessage = ""
         },
         onClickSecondary = {
             isStorageFull = false
+            isCustomDnsActive = false
             errorMessage = ""
         }
     )
@@ -842,7 +860,18 @@ private fun HomeDownloaderSection(
                             onIncrementClickCount = { incrementClickCount() },
                             onShowAds = { interstitialController.showAd() },
                             onClickAction = {
-                                if (showLoading.not()) setStoragePermission = getStoragePermission()
+                                when {
+                                    isCustomDnsActive(context) -> {
+                                        isCustomDnsActive = true
+                                        errorMessage = context.getString(
+                                            R.string.disable_custom_dns
+                                        )
+                                    }
+
+                                    showLoading.not() -> {
+                                        setStoragePermission = getStoragePermission()
+                                    }
+                                }
                             }
                         )
                     }
@@ -880,8 +909,18 @@ private fun HomeDownloaderSection(
                             onIncrementClickCount = { incrementClickCount() },
                             onShowAds = { interstitialController.showAd() },
                             onClickAction = {
-                                if (showLoading.not()) setStoragePermission =
-                                    getStoragePermission()
+                                when {
+                                    isCustomDnsActive(context) -> {
+                                        isCustomDnsActive = true
+                                        errorMessage = context.getString(
+                                            R.string.disable_custom_dns
+                                        )
+                                    }
+
+                                    showLoading.not() -> {
+                                        setStoragePermission = getStoragePermission()
+                                    }
+                                }
                             }
                         )
                     }

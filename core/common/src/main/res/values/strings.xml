@@ -120,4 +120,5 @@
     <string name="multiple">Multiple</string>
     <string name="source">Source</string>
     <string name="download_easily">Download media from Social Media easily.</string>
+    <string name="disable_custom_dns">Please disable custom DNS to use the app.</string>
 </resources>

@@ -1,5 +1,6 @@
 package com.dapascript.mever.core.common.util
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ContentValues
 import android.content.Context
@@ -20,6 +21,7 @@ import android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI
 import android.provider.MediaStore.MediaColumns.DISPLAY_NAME
 import android.provider.MediaStore.MediaColumns.MIME_TYPE
 import android.provider.MediaStore.MediaColumns.RELATIVE_PATH
+import android.provider.Settings
 import android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS
 import android.provider.Settings.EXTRA_APP_PACKAGE
 import android.util.Patterns.WEB_URL
@@ -309,6 +311,7 @@ fun getPlatformType(url: String, type: String = "video"): PlatformType {
         listYouTubeUrl.any { url.contains(it) } -> {
             if (type.contains("audio")) YOUTUBE_MUSIC else YOUTUBE
         }
+
         else -> ALL
     }
 }
@@ -363,4 +366,10 @@ fun getAppVersion(context: Context): String {
         e.printStackTrace()
         "1.0"
     }
+}
+
+@SuppressLint("MissingPermission")
+fun isCustomDnsActive(context: Context): Boolean {
+    val privateDnsMode = Settings.Global.getString(context.contentResolver, "private_dns_mode")
+    return privateDnsMode == "hostname"
 }
