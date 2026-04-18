@@ -6,6 +6,7 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 data class AppConfigResponse(
     val version: String,
+    val isForceUpdateRequired: Boolean,
     val isImageGeneratorFeatureActive: Boolean,
     val isGoImgFeatureActive: Boolean,
     val youtubeResolutions: List<String>,
@@ -14,6 +15,7 @@ data class AppConfigResponse(
 ) {
     fun mapToEntity() = AppConfigEntity(
         version = version,
+        isForceUpdateRequired = isForceUpdateRequired,
         isImageGeneratorFeatureActive = isImageGeneratorFeatureActive,
         isGoImgFeatureActive = isGoImgFeatureActive,
         videoResolutionsAndAudioQualities = mapOf(
