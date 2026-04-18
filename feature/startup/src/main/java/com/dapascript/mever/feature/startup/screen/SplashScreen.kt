@@ -1,5 +1,8 @@
 package com.dapascript.mever.feature.startup.screen
 
+import android.app.Activity.RESULT_CANCELED
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
@@ -38,6 +41,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle.Event.ON_RESUME
 import androidx.lifecycle.Lifecycle.Event.ON_STOP
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -55,6 +59,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
+import com.dapascript.mever.core.common.util.InAppUpdateManager
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.hideSystemBar
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
@@ -62,6 +67,8 @@ import com.dapascript.mever.core.navigation.helper.navigateClearBackStack
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeLandingRoute
 import com.dapascript.mever.core.navigation.route.StartupScreenRoute.OnboardRoute
 import com.dapascript.mever.feature.startup.viewmodel.SplashScreenViewModel
+import com.google.android.play.core.install.model.UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS
+import com.google.android.play.core.install.model.UpdateAvailability.UPDATE_AVAILABLE
 
 @Composable
 internal fun SplashScreen(
@@ -80,8 +87,15 @@ internal fun SplashScreen(
         val resources = LocalResources.current
         val lifecycleOwner by rememberUpdatedState(LocalLifecycleOwner.current)
         var showMaintenanceModal by remember { mutableStateOf(false) }
+        var forceUpdateInProgress by remember { mutableStateOf(false) }
         var errorMessage by remember { mutableStateOf("") }
         val logoVisibleState = remember { MutableTransitionState(false) }
+        val inAppUpdateManager = remember { InAppUpdateManager(activity) }
+        val updateLauncher = rememberLauncherForActivityResult(
+            contract = StartIntentSenderForResult()
+        ) { result ->
+            if (result.resultCode == RESULT_CANCELED) activity.finish()
+        }
 
         LaunchedEffect(Unit) { getAppConfig() }
 
@@ -90,10 +104,20 @@ internal fun SplashScreen(
         LaunchedEffect(appConfigState) {
             appConfigState.handleUiState(
                 onSuccess = { response ->
-                    if (response.maintenanceDay != null && today == response.maintenanceDay) {
-                        showMaintenanceModal = true
-                    } else {
-                        logoVisibleState.targetState = false
+                    when {
+                        response.maintenanceDay != null && today == response.maintenanceDay -> {
+                            showMaintenanceModal = true
+                        }
+
+                        response.isForceUpdateRequired -> {
+                            forceUpdateInProgress = true
+                            inAppUpdateManager.startUpdate(
+                                updateAvailability = UPDATE_AVAILABLE,
+                                launcher = updateLauncher
+                            )
+                        }
+
+                        else -> logoVisibleState.targetState = false
                     }
                 },
                 onFailed = { message ->
@@ -149,7 +173,14 @@ internal fun SplashScreen(
 
         DisposableEffect(lifecycleOwner) {
             val observer = LifecycleEventObserver { _, event ->
-                hideSystemBar(activity, event != ON_STOP)
+                hideSystemBar(activity = activity, value = event != ON_STOP)
+
+                if (event == ON_RESUME && forceUpdateInProgress) {
+                    inAppUpdateManager.startUpdate(
+                        updateAvailability = DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS,
+                        launcher = updateLauncher
+                    )
+                }
             }
             lifecycleOwner.lifecycle.addObserver(observer)
             onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }

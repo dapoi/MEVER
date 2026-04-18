@@ -8,7 +8,6 @@ import androidx.activity.SystemBarStyle.Companion.dark
 import androidx.activity.SystemBarStyle.Companion.light
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -32,15 +31,12 @@ import com.dapascript.mever.core.common.ui.theme.ThemeType.Light
 import com.dapascript.mever.core.common.util.DeviceType.DESKTOP
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.DeviceType.TABLET
-import com.dapascript.mever.core.common.util.InAppUpdateManager
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.navigation.base.BaseNavGraph
 import com.dapascript.mever.navigation.MainNavigation
 import com.dapascript.mever.viewmodel.MainViewModel
 import com.google.android.gms.ads.MobileAds
-import com.google.android.play.core.install.model.UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS
-import com.google.android.play.core.install.model.UpdateAvailability.UPDATE_AVAILABLE
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -51,20 +47,11 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var navGraphs: Set<@JvmSuppressWildcards BaseNavGraph>
 
-    private lateinit var inAppUpdateManager: InAppUpdateManager
     private val viewModel: MainViewModel by viewModels()
-    private val updateLauncher = registerForActivityResult(StartIntentSenderForResult()) {
-        if (it.resultCode == RESULT_CANCELED) finish()
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         MobileAds.initialize(this)
-        inAppUpdateManager = InAppUpdateManager(this)
-        inAppUpdateManager.startUpdate(
-            updateAvailability = UPDATE_AVAILABLE,
-            launcher = updateLauncher
-        )
         enableEdgeToEdge()
         handleShareIntent(intent)
         setContent {
@@ -135,13 +122,5 @@ class MainActivity : AppCompatActivity() {
                 this.intent.action = ""
             }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        inAppUpdateManager.startUpdate(
-            updateAvailability = DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS,
-            launcher = updateLauncher
-        )
     }
 }
