@@ -38,6 +38,8 @@ object MeverTopBarAttr {
 
     data class TopBarArgs(
         val actionMenus: List<ActionMenu> = emptyList(),
+        val hideDefaultTopBar: Boolean = false,
+        val isCenterTitle: Boolean = true,
         val iconBack: Int? = null,
         val title: String? = null,
         val topBarColor: Color? = null,

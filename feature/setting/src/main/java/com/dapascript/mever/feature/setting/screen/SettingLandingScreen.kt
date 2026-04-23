@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -146,8 +145,7 @@ internal fun SettingLandingScreen(
         topBarArgs = TopBarArgs(
             title = if (isExpanded.not()) stringResource(R.string.settings) else "",
             onClickBack = { navController.popBackStack() }
-        ),
-        allowScreenOverlap = true
+        )
     ) {
         LaunchedEffect(listState, titleHeight) {
             delay(1000L)
@@ -222,8 +220,7 @@ internal fun SettingLandingScreen(
         SettingLandingContent(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = Dp64)
-                .systemBarsPadding(),
+                .padding(top = Dp64),
             context = context,
             usedStorage = usedStorage,
             statusColor = statusColor,

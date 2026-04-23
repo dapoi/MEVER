@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -145,7 +144,6 @@ internal fun GalleryLandingScreen(
     }
 
     BaseScreen(
-        useCenterTopBar = showSelector.not(),
         topBarArgs = TopBarArgs(
             actionMenus = if (isExpanded.not() && downloadFilter.isNullOrEmpty().not()) {
                 listOf(
@@ -164,6 +162,7 @@ internal fun GalleryLandingScreen(
 
                 else -> ""
             },
+            isCenterTitle = showSelector.not(),
             iconBack = if (showSelector) R.drawable.ic_clear else null,
             onClickBack = {
                 if (showSelector) {
@@ -171,9 +170,8 @@ internal fun GalleryLandingScreen(
                     showDropDownMenu = false
                     clearSelection()
                 } else navController.popBackStack()
-            },
-        ),
-        allowScreenOverlap = true
+            }
+        )
     ) {
         LaunchedEffect(listState, titleHeight) {
             delay(500L)
@@ -287,8 +285,7 @@ internal fun GalleryLandingScreen(
             downloadList = downloadFilter,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = Dp64)
-                .systemBarsPadding(),
+                .padding(top = Dp64),
             onClickFilter = {
                 scope.launch {
                     listState.scrollToItem(0)
@@ -516,7 +513,6 @@ private fun GalleryContentSection(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = Dp64)
-                .systemBarsPadding()
         ) {
             Text(
                 text = stringResource(R.string.gallery),

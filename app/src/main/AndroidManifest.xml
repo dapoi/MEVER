@@ -43,7 +43,7 @@
         tools:targetApi="36">
         <activity
             android:name=".screen.MainActivity"
-            android:configChanges="locale|orientation|screenSize|smallestScreenSize|screenLayout|keyboardHidden|layoutDirection"
+            android:configChanges="locale|orientation|screenSize|smallestScreenSize|screenLayout|keyboardHidden|layoutDirection|uiMode|density|colorMode"
             android:exported="true"
             android:launchMode="singleTask"
             android:supportsPictureInPicture="true"

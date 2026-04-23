@@ -139,7 +139,7 @@ internal fun HomeImageGeneratorResultScreen(
             title = stringResource(R.string.image_generator),
             onClickBack = { showCancelExitConfirmation = true }
         ),
-        allowScreenOverlap = true
+        useNavigationBarsPadding = true
     ) {
         LaunchedEffect(Unit) { getImageAiGenerator() }
 

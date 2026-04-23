@@ -49,6 +49,7 @@ import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
+import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverDialogError
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp189
@@ -76,9 +77,8 @@ internal fun SplashScreen(
     viewModel: SplashScreenViewModel = hiltViewModel()
 ) = with(viewModel) {
     BaseScreen(
-        useSystemBarsPadding = false,
-        allowScreenOverlap = true,
-        hideDefaultTopBar = true
+        topBarArgs = TopBarArgs(hideDefaultTopBar = true),
+        useStatusBarsPadding = false
     ) {
         val isOnboarded = isOnboarded.collectAsStateValue()
         val appConfigState = appConfigState.collectAsStateValue()

@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.dapascript.mever.core.common.base.BaseScreen
+import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverPermissionHandler
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp0
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
@@ -81,9 +82,8 @@ internal fun OnboardScreen(
     viewModel: OnboardViewModel = hiltViewModel()
 ) = with(viewModel) {
     BaseScreen(
-        useSystemBarsPadding = false,
-        allowScreenOverlap = true,
-        hideDefaultTopBar = true
+        topBarArgs = TopBarArgs(hideDefaultTopBar = true),
+        useStatusBarsPadding = false
     ) {
         var buttonSize by remember { mutableStateOf(Dp0) }
         var setRequestPermission by remember { mutableStateOf<List<String>>(emptyList()) }

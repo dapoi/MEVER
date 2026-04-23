@@ -72,13 +72,12 @@ internal fun SettingAboutAppScreen(
     }
 
     BaseScreen(
-        useSystemBarsPadding = false,
-        allowScreenOverlap = true,
         topBarArgs = TopBarArgs(
             title = "",
             iconBackColor = MeverWhite,
             onClickBack = { navController.popBackStack() }
-        )
+        ),
+        useStatusBarsPadding = false
     ) {
         DisposableEffect(darkTheme) {
             activity.enableEdgeToEdge(

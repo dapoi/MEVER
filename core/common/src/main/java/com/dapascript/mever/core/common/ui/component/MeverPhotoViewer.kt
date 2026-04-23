@@ -14,11 +14,11 @@ import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
@@ -172,7 +172,7 @@ fun MeverPhotoViewer(
             MeverTopBar(
                 modifier = Modifier
                     .padding(horizontal = Dp24)
-                    .systemBarsPadding(),
+                    .navigationBarsPadding(),
                 topBarArgs = TopBarArgs(
                     actionMenus = if (isPreview.not()) listOf(
                         ActionMenu(
@@ -187,8 +187,7 @@ fun MeverPhotoViewer(
                     iconBackColor = MeverWhite,
                     actionMenusColor = MeverWhite,
                     onClickBack = onClickBack
-                ),
-                useCenterTopBar = false
+                )
             )
         }
         MeverPopupDropDownMenu(

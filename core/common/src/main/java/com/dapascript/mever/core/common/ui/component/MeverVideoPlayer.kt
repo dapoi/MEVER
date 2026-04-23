@@ -14,6 +14,7 @@ import android.os.Build.MODEL
 import android.os.Build.PRODUCT
 import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.S
+import android.os.Build.VERSION_CODES.VANILLA_ICE_CREAM
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring.DampingRatioNoBouncy
@@ -202,11 +203,23 @@ fun MeverVideoPlayer(
     // Fullscreen Handlers
     val enterFullScreen = {
         onFullScreenChange(true)
-        activity.requestedOrientation = SCREEN_ORIENTATION_USER_LANDSCAPE
+        if (SDK_INT < VANILLA_ICE_CREAM) {
+            try {
+                activity.requestedOrientation = SCREEN_ORIENTATION_USER_LANDSCAPE
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
     val exitFullScreen = {
         onFullScreenChange(false)
-        activity.requestedOrientation = SCREEN_ORIENTATION_USER_PORTRAIT
+        if (SDK_INT < VANILLA_ICE_CREAM) {
+            try {
+                activity.requestedOrientation = SCREEN_ORIENTATION_USER_PORTRAIT
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     BackHandler(isFullScreen) { exitFullScreen() }
@@ -529,8 +542,7 @@ private fun VideoPlayer(
                     iconBackColor = MeverWhite,
                     actionMenusColor = MeverWhite,
                     onClickBack = onClickBack
-                ),
-                useCenterTopBar = false
+                )
             )
             VideoCenterControlSection(
                 modifier = Modifier.align(Center),

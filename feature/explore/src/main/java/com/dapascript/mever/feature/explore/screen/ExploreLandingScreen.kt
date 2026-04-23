@@ -95,8 +95,7 @@ internal fun ExploreLandingScreen(
         topBarArgs = TopBarArgs(
             title = stringResource(R.string.explore),
             onClickBack = { navController.popBackStack() }
-        ),
-        allowScreenOverlap = true
+        )
     ) {
         LaunchedEffect(query) {
             snapshotFlow { query }

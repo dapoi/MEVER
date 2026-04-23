@@ -30,6 +30,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
+import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverDeclinedPermission
 import com.dapascript.mever.core.common.ui.component.MeverDialogError
 import com.dapascript.mever.core.common.ui.component.MeverPermissionHandler
@@ -86,9 +87,8 @@ internal fun GalleryContentDetailScreen(
     }
 
     BaseScreen(
-        useSystemBarsPadding = false,
-        allowScreenOverlap = true,
-        hideDefaultTopBar = true,
+        topBarArgs = TopBarArgs(hideDefaultTopBar = true),
+        useStatusBarsPadding = false,
         lockOrientation = false
     ) {
         DisposableEffect(darkTheme) {

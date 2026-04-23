@@ -28,7 +28,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -197,14 +196,11 @@ internal fun HomeLandingScreen(
     viewModel: HomeLandingViewModel = hiltViewModel()
 ) = with(viewModel) {
     BaseScreen(
-        useSystemBarsPadding = true,
-        allowScreenOverlap = true,
-        hideDefaultTopBar = true
+        topBarArgs = TopBarArgs(hideDefaultTopBar = true),
+        useStatusBarsPadding = true
     ) {
         HomeScreenContent(
-            modifier = Modifier
-                .fillMaxSize()
-                .systemBarsPadding(),
+            modifier = Modifier.fillMaxSize(),
             viewModel = this,
             deviceType = deviceType,
             navController = navController

@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
@@ -66,8 +65,7 @@ internal fun SettingThemeScreen(
         topBarArgs = TopBarArgs(
             title = if (isExpanded.not()) stringResource(R.string.theme) else "",
             onClickBack = { navController.popBackStack() }
-        ),
-        allowScreenOverlap = true
+        )
     ) {
         LaunchedEffect(scrollState, titleHeight) {
             snapshotFlow { scrollState.isScrollInProgress }
@@ -87,7 +85,6 @@ internal fun SettingThemeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = Dp64)
-                .systemBarsPadding()
         ) {
             if (isExpanded.not()) HorizontalDivider(
                 modifier = Modifier
