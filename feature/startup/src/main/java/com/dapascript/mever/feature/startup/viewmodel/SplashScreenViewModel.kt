@@ -1,6 +1,5 @@
 package com.dapascript.mever.feature.startup.viewmodel
 
-import android.content.Context
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.util.state.UiState
@@ -13,7 +12,6 @@ import com.dapascript.mever.core.data.model.local.AppConfigEntity
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.source.local.MeverDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
@@ -26,8 +24,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SplashScreenViewModel @Inject constructor(
     private val dataStore: MeverDataStore,
-    private val meverRepository: MeverRepository,
-    @param:ApplicationContext private val context: Context
+    private val meverRepository: MeverRepository
 ) : BaseViewModel() {
 
     val today by lazy {
@@ -59,10 +56,7 @@ class SplashScreenViewModel @Inject constructor(
             viewModelScope.launch {
                 delay(500)
                 val mockAppConfig = AppConfigEntity(
-                    version = context.packageManager.getPackageInfo(
-                        context.packageName,
-                        0
-                    ).versionName.orEmpty(),
+                    version = "1.0.0",
                     isImageGeneratorFeatureActive = true,
                     isGoImgFeatureActive = true,
                     videoResolutionsAndAudioQualities = mapOf(

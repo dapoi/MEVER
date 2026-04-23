@@ -28,6 +28,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -44,6 +45,10 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
+import com.dapascript.mever.core.common.util.LanguageManager
+import com.dapascript.mever.core.common.util.state.collectAsStateValue
+import com.dapascript.mever.core.navigation.helper.navigateClearBackStack
+import com.dapascript.mever.core.navigation.route.StartupScreenRoute.SplashRoute
 import com.dapascript.mever.feature.setting.viewmodel.SettingLanguageViewModel
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
@@ -53,8 +58,10 @@ internal fun SettingLanguageScreen(
     navController: NavController,
     viewModel: SettingLanguageViewModel = hiltViewModel()
 ) = with(viewModel) {
+    val context = LocalContext.current
     val scrollState = rememberScrollState()
     val scope = rememberCoroutineScope()
+    val isFirstChangeLanguage = isFirstChangeLanguage.collectAsStateValue()
     val isExpanded by remember { derivedStateOf { scrollState.value < titleHeight / 2 } }
 
     BaseScreen(
@@ -136,8 +143,18 @@ internal fun SettingLanguageScreen(
                         languages.forEach { (language, code) ->
                             MeverRadioButton(
                                 value = language,
-                                isChoosen = getLanguageCode == code,
-                                onValueChoose = { changeLanguage(code) }
+                                isChoosen = languageCode == code,
+                                onValueChoose = {
+                                    LanguageManager.changeLanguage(
+                                        context = context,
+                                        languageCode = code
+                                    )
+                                    languageCode = code
+                                    if (isFirstChangeLanguage) {
+                                        setIsFirstChangeLanguage(false)
+                                        navController.navigateClearBackStack(SplashRoute)
+                                    }
+                                }
                             )
                         }
                     }

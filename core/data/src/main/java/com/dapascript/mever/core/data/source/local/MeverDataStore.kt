@@ -117,6 +117,16 @@ class MeverDataStore @Inject constructor(
         preferences[KEY_PIP] ?: true
     }
 
+    suspend fun setIsFirstTimeChangeLanguage(isFirst: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[KEY_IS_FIRST_CHANGE_LANGUAGE] = isFirst
+        }
+    }
+
+    val isFirstTimeChangeLanguage = dataStore.data.map { preferences ->
+        preferences[KEY_IS_FIRST_CHANGE_LANGUAGE] ?: true
+    }
+
     companion object {
         private val KEY_VERSION = stringPreferencesKey("version")
         private val KEY_IS_IMAGE_AI_ENABLED = booleanPreferencesKey("is_image_ai_enabled")
@@ -127,5 +137,6 @@ class MeverDataStore @Inject constructor(
         private val KEY_CLICK_COUNT = intPreferencesKey("click_count")
         private val KEY_URL_INTENT = stringPreferencesKey("url_intent")
         private val KEY_PIP = booleanPreferencesKey("pip_enabled")
+        private val KEY_IS_FIRST_CHANGE_LANGUAGE = booleanPreferencesKey("is_first_change_language")
     }
 }

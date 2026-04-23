@@ -68,7 +68,7 @@ class SplashScreenViewModelTest {
         whenever(context.packageManager).thenReturn(packageManager)
         whenever(packageManager.getPackageInfo("com.dapascript.mever", 0)).thenReturn(packageInfo)
 
-        viewModel = SplashScreenViewModel(dataStore, repository, context)
+        viewModel = SplashScreenViewModel(dataStore, repository)
     }
 
     @After
@@ -88,7 +88,7 @@ class SplashScreenViewModelTest {
     @Test
     fun `isOnboarded collects true when dataStore returns true`() = testScope.runTest {
         whenever(dataStore.isOnboarded).thenReturn(flowOf(true))
-        val vm = SplashScreenViewModel(dataStore, repository, context)
+        val vm = SplashScreenViewModel(dataStore, repository)
         val values = mutableListOf<Boolean>()
         val job = launch { vm.isOnboarded.collect { values.add(it) } }
         advanceUntilIdle()
@@ -99,7 +99,7 @@ class SplashScreenViewModelTest {
     @Test
     fun `getAppVersion collects value from dataStore`() = testScope.runTest {
         whenever(dataStore.getAppVersion).thenReturn(flowOf("2.5.0"))
-        val vm = SplashScreenViewModel(dataStore, repository, context)
+        val vm = SplashScreenViewModel(dataStore, repository)
         val values = mutableListOf<String>()
         val job = launch { vm.getAppVersion.collect { values.add(it) } }
         advanceUntilIdle()
