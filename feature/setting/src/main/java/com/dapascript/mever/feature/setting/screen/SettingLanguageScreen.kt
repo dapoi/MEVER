@@ -61,7 +61,7 @@ internal fun SettingLanguageScreen(
     val context = LocalContext.current
     val scrollState = rememberScrollState()
     val scope = rememberCoroutineScope()
-    val isFirstChangeLanguage = isFirstChangeLanguage.collectAsStateValue()
+    val isFirstTimeChangeLanguage = isFirstTimeChangeLanguage.collectAsStateValue()
     val isExpanded by remember { derivedStateOf { scrollState.value < titleHeight / 2 } }
 
     BaseScreen(
@@ -150,8 +150,8 @@ internal fun SettingLanguageScreen(
                                         languageCode = code
                                     )
                                     languageCode = code
-                                    if (isFirstChangeLanguage) {
-                                        setIsFirstChangeLanguage(false)
+                                    if (isFirstTimeChangeLanguage) {
+                                        setIsFirstTimeChangeLanguage(false)
                                         navController.navigateClearBackStack(SplashRoute)
                                     }
                                 }

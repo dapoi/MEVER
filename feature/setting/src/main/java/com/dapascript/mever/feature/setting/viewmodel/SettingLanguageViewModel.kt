@@ -24,7 +24,7 @@ class SettingLanguageViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val dataStore: MeverDataStore
 ) : BaseViewModel() {
-    val isFirstChangeLanguage = dataStore.isFirstTimeChangeLanguage.stateIn(
+    val isFirstTimeChangeLanguage = dataStore.isFirstTimeChangeLanguage.stateIn(
         scope = viewModelScope,
         started = WhileSubscribed(),
         initialValue = true
@@ -37,7 +37,7 @@ class SettingLanguageViewModel @Inject constructor(
     var titleHeight by mutableIntStateOf(0)
     var languageCode by mutableStateOf(args.languageData.languageCode)
 
-    fun setIsFirstChangeLanguage(isFirst: Boolean) {
+    fun setIsFirstTimeChangeLanguage(isFirst: Boolean) {
         viewModelScope.launch {
             dataStore.setIsFirstTimeChangeLanguage(isFirst)
         }
