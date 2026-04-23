@@ -127,6 +127,7 @@ import com.dapascript.mever.core.common.util.DeviceType.DESKTOP
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.DeviceType.TABLET
 import com.dapascript.mever.core.common.util.LocalActivity
+import com.dapascript.mever.core.common.util.LocalDeviceType
 import com.dapascript.mever.core.common.util.PlatformType
 import com.dapascript.mever.core.common.util.PlatformType.AI
 import com.dapascript.mever.core.common.util.PlatformType.ALL
@@ -192,17 +193,15 @@ import com.dapascript.mever.feature.home.R as FeatureHomeR
 @Composable
 internal fun HomeLandingScreen(
     navController: NavController,
-    deviceType: DeviceType,
     viewModel: HomeLandingViewModel = hiltViewModel()
 ) = with(viewModel) {
     BaseScreen(
-        topBarArgs = TopBarArgs(hideDefaultTopBar = true),
+        hideDefaultTopBar = true,
         useStatusBarsPadding = true
     ) {
         HomeScreenContent(
             modifier = Modifier.fillMaxSize(),
             viewModel = this,
-            deviceType = deviceType,
             navController = navController
         )
     }
@@ -212,12 +211,12 @@ internal fun HomeLandingScreen(
 private fun HomeScreenContent(
     viewModel: HomeLandingViewModel,
     navController: NavController,
-    deviceType: DeviceType,
     modifier: Modifier = Modifier
 ) = with(viewModel) {
     BoxWithConstraints(modifier = modifier) {
         var generateButtonHeight by remember { mutableIntStateOf(0) }
         val context = LocalContext.current
+        val deviceType = LocalDeviceType.current
         val showBadge = showBadge.collectAsStateValue()
         val isImageGeneratorFeatureActive = isImageGeneratorFeatureActive.collectAsStateValue()
         val isGoImgFeatureActive = isGoImgFeatureActive.collectAsStateValue()

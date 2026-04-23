@@ -182,6 +182,7 @@ fun MeverPhotoViewer(
                         )
                     ) else emptyList(),
                     title = fileName,
+                    isCenterTitle = false,
                     topBarColor = MeverTransparent,
                     titleColor = MeverWhite,
                     iconBackColor = MeverWhite,

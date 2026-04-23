@@ -48,7 +48,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.dapascript.mever.core.common.base.BaseScreen
-import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverPermissionHandler
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp0
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
@@ -65,9 +64,9 @@ import com.dapascript.mever.core.common.ui.theme.MeverYellow
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp36
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp50
-import com.dapascript.mever.core.common.util.DeviceType
 import com.dapascript.mever.core.common.util.DeviceType.DESKTOP
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
+import com.dapascript.mever.core.common.util.LocalDeviceType
 import com.dapascript.mever.core.common.util.getNotificationPermission
 import com.dapascript.mever.core.navigation.helper.navigateClearBackStack
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeLandingRoute
@@ -78,16 +77,16 @@ import com.dapascript.mever.core.common.R as coreUiR
 @Composable
 internal fun OnboardScreen(
     navController: NavController,
-    deviceType: DeviceType,
     viewModel: OnboardViewModel = hiltViewModel()
 ) = with(viewModel) {
     BaseScreen(
-        topBarArgs = TopBarArgs(hideDefaultTopBar = true),
+        hideDefaultTopBar = true,
         useStatusBarsPadding = false
     ) {
         var buttonSize by remember { mutableStateOf(Dp0) }
         var setRequestPermission by remember { mutableStateOf<List<String>>(emptyList()) }
         val context = LocalContext.current
+        val deviceType = LocalDeviceType.current
         val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
 
         if (setRequestPermission.isNotEmpty()) {

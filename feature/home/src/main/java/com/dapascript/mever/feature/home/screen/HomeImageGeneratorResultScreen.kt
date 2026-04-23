@@ -92,6 +92,7 @@ import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
 import com.dapascript.mever.core.common.util.DeviceType
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.LocalActivity
+import com.dapascript.mever.core.common.util.LocalDeviceType
 import com.dapascript.mever.core.common.util.copyToClipboard
 import com.dapascript.mever.core.common.util.fetchPhotoFromUrl
 import com.dapascript.mever.core.common.util.getStoragePermission
@@ -115,12 +116,12 @@ import java.io.FileOutputStream
 @Composable
 internal fun HomeImageGeneratorResultScreen(
     navController: NavController,
-    deviceType: DeviceType,
     viewModel: HomeImageGeneratorResultViewModel = hiltViewModel()
 ) = with(viewModel) {
     val activity = LocalActivity.current
     val context = LocalContext.current
     val resources = LocalResources.current
+    val deviceType = LocalDeviceType.current
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
     val aiResponseState = aiResponseState.collectAsStateValue()

@@ -32,6 +32,7 @@ import com.dapascript.mever.core.common.util.DeviceType.DESKTOP
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.DeviceType.TABLET
 import com.dapascript.mever.core.common.util.LocalActivity
+import com.dapascript.mever.core.common.util.LocalDeviceType
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.navigation.base.BaseNavGraph
 import com.dapascript.mever.navigation.MainNavigation
@@ -73,10 +74,12 @@ class MainActivity : AppCompatActivity() {
             ) {
                 ApplyEdgeToEdgeSystemBars(darkTheme)
                 Surface(modifier = Modifier.fillMaxSize(), color = colorScheme.background) {
-                    CompositionLocalProvider(LocalActivity provides this) {
+                    CompositionLocalProvider(
+                        LocalActivity provides this,
+                        LocalDeviceType provides deviceType
+                    ) {
                         MainNavigation(
                             navGraphs = navGraphs,
-                            deviceType = deviceType,
                             viewModel = viewModel
                         )
                     }

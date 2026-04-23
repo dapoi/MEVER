@@ -93,6 +93,7 @@ import com.dapascript.mever.core.common.util.DeviceType
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.DeviceType.TABLET
 import com.dapascript.mever.core.common.util.LanguageManager.getLanguageCode
+import com.dapascript.mever.core.common.util.LocalDeviceType
 import com.dapascript.mever.core.common.util.getNotificationPermission
 import com.dapascript.mever.core.common.util.navigateToGmail
 import com.dapascript.mever.core.common.util.navigateToNotificationSettings
@@ -116,13 +117,13 @@ import kotlinx.coroutines.flow.filter
 @Composable
 internal fun SettingLandingScreen(
     navController: NavController,
-    deviceType: DeviceType,
     viewModel: SettingLandingViewModel = hiltViewModel()
 ) = with(viewModel) {
     val themeType = themeType.collectAsStateValue()
     val isPipEnabled = isPipEnabled.collectAsStateValue()
     val storageInfo = storageInfo.collectAsStateValue()
     val context = LocalContext.current
+    val deviceType = LocalDeviceType.current
     val listState = rememberLazyListState()
     val showAppreciateDialog = remember { mutableStateOf<AppreciateType?>(null) }
     val statusColor = remember(storageInfo?.usedPercent) {

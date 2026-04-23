@@ -63,8 +63,8 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp88
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
-import com.dapascript.mever.core.common.util.DeviceType
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
+import com.dapascript.mever.core.common.util.LocalDeviceType
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.data.model.local.ContentEntity
@@ -82,10 +82,10 @@ import kotlinx.coroutines.flow.map
 @Composable
 internal fun ExploreLandingScreen(
     navController: NavController,
-    deviceType: DeviceType,
     viewModel: ExploreLandingViewModel = hiltViewModel()
 ) = with(viewModel) {
     val context = LocalContext.current
+    val deviceType = LocalDeviceType.current
     val exploreResponseState = exploreResponseState.collectAsStateValue()
     var contents by remember { mutableStateOf<List<ContentEntity>?>(null) }
     var errorMessage by remember { mutableStateOf("") }

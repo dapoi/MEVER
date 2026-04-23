@@ -5,7 +5,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
-import com.dapascript.mever.core.common.util.DeviceType
 import com.dapascript.mever.core.navigation.base.BaseNavGraph
 import com.dapascript.mever.core.navigation.helper.getCurrentRoute
 import com.dapascript.mever.core.navigation.helper.navigateClearBackStack
@@ -15,7 +14,6 @@ import com.dapascript.mever.viewmodel.MainViewModel
 @Composable
 internal fun MainNavigation(
     navGraphs: Set<@JvmSuppressWildcards BaseNavGraph>,
-    deviceType: DeviceType,
     viewModel: MainViewModel,
     modifier: Modifier = Modifier
 ) {
@@ -37,7 +35,6 @@ internal fun MainNavigation(
         navGraphs.forEach { navGraph ->
             navGraph.createGraph(
                 navController = navController,
-                deviceType = deviceType,
                 navGraphBuilder = this
             )
         }

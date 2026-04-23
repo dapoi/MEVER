@@ -2,7 +2,6 @@ package com.dapascript.mever.core.common.base
 
 import android.annotation.SuppressLint
 import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-import android.os.Build.VERSION.SDK_INT
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -23,6 +22,7 @@ import com.dapascript.mever.core.common.util.LocalActivity
 @Composable
 fun BaseScreen(
     topBarArgs: TopBarArgs = TopBarArgs(),
+    hideDefaultTopBar: Boolean = false,
     useStatusBarsPadding: Boolean = true,
     useNavigationBarsPadding: Boolean = false,
     lockOrientation: Boolean = true,
@@ -31,7 +31,7 @@ fun BaseScreen(
     val activity = LocalActivity.current
 
     LaunchedEffect(lockOrientation) {
-        if (lockOrientation && SDK_INT < 36) {
+        if (lockOrientation) {
             try {
                 activity.requestedOrientation = SCREEN_ORIENTATION_PORTRAIT
             } catch (e: Exception) {
@@ -42,6 +42,7 @@ fun BaseScreen(
 
     BaseScreenContent(
         topBarArgs = this@with,
+        hideDefaultTopBar = hideDefaultTopBar,
         useStatusBarsPadding = useStatusBarsPadding,
         useNavigationBarsPadding = useNavigationBarsPadding,
         content = content
@@ -51,6 +52,7 @@ fun BaseScreen(
 @Composable
 private fun BaseScreenContent(
     topBarArgs: TopBarArgs,
+    hideDefaultTopBar: Boolean,
     useStatusBarsPadding: Boolean,
     useNavigationBarsPadding: Boolean,
     content: @Composable () -> Unit
@@ -61,7 +63,7 @@ private fun BaseScreenContent(
             .getSystemBarsPadding(useStatusBarsPadding, useNavigationBarsPadding)
     ) {
         content()
-        if (topBarArgs.hideDefaultTopBar.not()) MeverTopBar(
+        if (hideDefaultTopBar.not()) MeverTopBar(
             topBarArgs = topBarArgs,
             modifier = Modifier.padding(PaddingValues(horizontal = Dp24))
         )
