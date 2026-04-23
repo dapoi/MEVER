@@ -75,9 +75,9 @@ internal fun SettingThemeScreen(
                 .collect {
                     if (titleHeight == 0) return@collect
                     val threshold = titleHeight / 2
-                    if (scrollState.value > threshold && scrollState.value < titleHeight) {
+                    if (scrollState.value in (threshold + 1)..<titleHeight) {
                         scope.launch { scrollState.animateScrollTo(titleHeight) }
-                    } else if (scrollState.value > 0 && scrollState.value <= threshold) {
+                    } else if (scrollState.value in 1..threshold) {
                         scope.launch { scrollState.animateScrollTo(0) }
                     }
                 }
@@ -140,7 +140,7 @@ internal fun SettingThemeScreen(
                             modifier = Modifier.padding(horizontal = Dp24)
                         )
                         Spacer(modifier = Modifier.height(Dp20))
-                        ThemeType.entries.map { type ->
+                        ThemeType.entries.forEach { type ->
                             MeverRadioButton(
                                 value = stringResource(type.themeResId),
                                 isChoosen = themeType == type
