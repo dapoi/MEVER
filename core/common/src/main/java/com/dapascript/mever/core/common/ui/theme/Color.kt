@@ -59,7 +59,7 @@ sealed class MeverThemeColors(
         onSecondary = MeverWhite,
         onSecondaryContainer = MeverBlack,
         surface = MeverDarkGray,
-        onSurface = MeverGray,
+        onSurface = MeverDarkGray,
         onSurfaceVariant = MeverLightGray.copy(0.1f),
         background = MeverDark
     )

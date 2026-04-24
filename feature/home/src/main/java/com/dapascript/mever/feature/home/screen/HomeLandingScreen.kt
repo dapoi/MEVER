@@ -37,7 +37,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -92,6 +91,7 @@ import com.dapascript.mever.core.common.ui.component.MeverCard
 import com.dapascript.mever.core.common.ui.component.MeverDeclinedPermission
 import com.dapascript.mever.core.common.ui.component.MeverDialogError
 import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
+import com.dapascript.mever.core.common.ui.component.MeverFeaturesBanner
 import com.dapascript.mever.core.common.ui.component.MeverIcon
 import com.dapascript.mever.core.common.ui.component.MeverPermissionHandler
 import com.dapascript.mever.core.common.ui.component.MeverTabs
@@ -109,7 +109,6 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp5
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp52
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp75
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
@@ -117,7 +116,6 @@ import com.dapascript.mever.core.common.ui.theme.MeverLightViolet
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
-import com.dapascript.mever.core.common.ui.theme.MeverYellow
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp14
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp22
@@ -304,7 +302,6 @@ private fun HomeScreenContent(
                                         navController = navController,
                                         scope = scope,
                                         getButtonClickCount = getButtonClickCount,
-                                        isExploreImageFeatureActive = isGoImgFeatureActive,
                                         isImageGeneratorFeatureActive = isImageGeneratorFeatureActive
                                     )
                                 }
@@ -353,7 +350,6 @@ private fun HomeScreenContent(
                             navController = navController,
                             scope = scope,
                             getButtonClickCount = getButtonClickCount,
-                            isExploreImageFeatureActive = isGoImgFeatureActive,
                             isImageGeneratorFeatureActive = isImageGeneratorFeatureActive,
                             isPhoneDevice = false
                         )
@@ -440,7 +436,6 @@ private fun HomeDownloaderSection(
     navController: NavController,
     scope: CoroutineScope,
     getButtonClickCount: Int,
-    isExploreImageFeatureActive: Boolean,
     isImageGeneratorFeatureActive: Boolean,
     modifier: Modifier = Modifier,
     isPhoneDevice: Boolean = true
@@ -826,53 +821,7 @@ private fun HomeDownloaderSection(
                     )
                 }
             }
-            if (isImageGeneratorFeatureActive || isPhoneDevice.not()) {
-                item {
-                    Spacer(modifier = Modifier.size(Dp24))
-                    MeverTextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        context = context,
-                        value = urlSocialMediaState,
-                        onValueChange = { urlSocialMediaState = it }
-                    )
-                    Spacer(modifier = Modifier.size(Dp10))
-                    MeverButton(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(Dp40),
-                        title = stringResource(R.string.download),
-                        buttonType = Filled(
-                            backgroundColor = colorScheme.primary,
-                            contentColor = MeverWhite
-                        ),
-                        isEnabled = getPlatformType(
-                            urlSocialMediaState.text.trim()
-                        ) != ALL && showLoading.not(),
-                        isLoading = showLoading
-                    ) {
-                        handleClickButton(
-                            buttonClickCount = getButtonClickCount,
-                            onIncrementClickCount = { incrementClickCount() },
-                            onShowAds = { interstitialController.showAd() },
-                            onClickAction = {
-                                when {
-                                    isCustomDnsActive(context) -> {
-                                        isCustomDnsActive = true
-                                        errorMessage = context.getString(
-                                            R.string.disable_custom_dns
-                                        )
-                                    }
-
-                                    showLoading.not() -> {
-                                        setStoragePermission = getStoragePermission()
-                                    }
-                                }
-                            }
-                        )
-                    }
-                    Spacer(modifier = Modifier.size(Dp24))
-                }
-            } else item {
+            item {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -920,10 +869,22 @@ private fun HomeDownloaderSection(
                         )
                     }
                 }
-                if (isExploreImageFeatureActive) {
-                    BannerExploreImage(isPhoneDevice) { navController.navigateTo(ExploreLandingRoute) }
-                    Spacer(modifier = Modifier.size(Dp8))
-                }
+//                Row(
+//                    modifier = Modifier.fillMaxWidth(),
+//                    horizontalArrangement = spacedBy(Dp16)
+//                ) {
+//                    listOf(
+//                        R.drawable.ic_facebook to FACEBOOK.platformName,
+//                        R.drawable.ic_instagram to INSTAGRAM.platformName,
+//                    ).forEach {
+//                        MeverFeaturesBanner(
+//                            modifier = Modifier.weight(1f),
+//                            icon = it.first,
+//                            title = it.second
+//                        ) { }
+//                    }
+//                }
+                Spacer(modifier = Modifier.size(Dp8))
             }
             stickyHeader {
                 Row(
@@ -1195,35 +1156,6 @@ private fun HomeAiSection(
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun BannerExploreImage(isPhoneDevice: Boolean, onClick: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(Dp52)
-            .background(color = colorScheme.primary, shape = RoundedCornerShape(Dp12))
-            .clip(RoundedCornerShape(Dp12))
-            .onCustomClick { onClick() }
-    ) {
-        Row(
-            modifier = Modifier.fillMaxSize(),
-            verticalAlignment = CenterVertically,
-            horizontalArrangement = SpaceEvenly
-        ) {
-            Text(
-                text = stringResource(R.string.find_image),
-                style = if (isPhoneDevice) typography.bodyBold1 else typography.bodyBold2,
-                color = MeverWhite
-            )
-            Icon(
-                painter = painterResource(R.drawable.ic_arrow_started),
-                tint = MeverYellow,
-                contentDescription = "Arrow Right"
-            )
         }
     }
 }
