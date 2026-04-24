@@ -70,6 +70,7 @@ dependencies {
     implementation(projects.feature.home)
     implementation(projects.feature.setting)
     implementation(projects.feature.startup)
+    implementation(projects.feature.wa)
 
     testImplementation(libs.coroutines.test)
     testImplementation(libs.mockito.core)

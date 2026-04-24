@@ -160,6 +160,7 @@ import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryCont
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingAppreciateRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLandingRoute
+import com.dapascript.mever.core.navigation.route.WaScreenRoute.WaStatusRoute
 import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.getArtStyles
 import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.getInspirePrompt
 import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetDownload
@@ -902,7 +903,7 @@ private fun HomeDownloaderSection(
                         ) {
                             navController.navigateTo(
                                 route = when (index) {
-                                    0 -> {}
+                                    0 -> WaStatusRoute
                                     else -> ExploreLandingRoute
                                 }
                             )
