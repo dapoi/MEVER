@@ -521,10 +521,7 @@ private fun HomeDownloaderSection(
         )
     }
 
-    LaunchedEffect(
-        randomDonateDialogOffer,
-        shouldShowDonationOfferDialog
-    ) {
+    LaunchedEffect(randomDonateDialogOffer, shouldShowDonationOfferDialog) {
         if (shouldShowDonationOfferDialog) {
             (0..3).random(Random).also { randomValue ->
                 randomDonateDialogOffer = randomValue
