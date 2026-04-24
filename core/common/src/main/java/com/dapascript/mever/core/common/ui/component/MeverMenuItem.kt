@@ -10,15 +10,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color.Companion.Unspecified
 import androidx.compose.ui.graphics.ColorFilter.Companion.tint
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
@@ -34,7 +31,6 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverLightGray
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
-import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.onCustomClick
 
 @Composable
@@ -108,17 +104,9 @@ fun MeverMenuItem(
             }
 
             is Switch -> {
-                Switch(
+                MeverSwitch(
                     modifier = Modifier.align(CenterVertically),
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = MeverWhite,
-                        checkedTrackColor = colors.alwaysPurple,
-                        uncheckedThumbColor = colors.grayLightGray,
-                        uncheckedTrackColor = colors.lightGrayDarkGray,
-                        uncheckedBorderColor = Unspecified
-                    ),
-                    checked = trailingType.switchState,
-                    onCheckedChange = null
+                    isChecked = trailingType.switchState
                 )
             }
         }
