@@ -1,12 +1,12 @@
 package com.dapascript.mever.core.common.ui.component
 
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign.Companion.Center
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
+import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 
 @Composable
@@ -31,7 +31,7 @@ fun MeverDeclinedPermission(
             text = stringResource(R.string.permission_request_media),
             textAlign = Center,
             style = typography.body1,
-            color = colorScheme.onPrimary
+            color = colors.blackWhite
         )
     }
 }

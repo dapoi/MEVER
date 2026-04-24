@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.ProgressIndicatorDefaults.ProgressAnimationSpec
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -64,6 +63,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp88
 import com.dapascript.mever.core.common.ui.theme.MeverGray
 import com.dapascript.mever.core.common.ui.theme.MeverLightGray
 import com.dapascript.mever.core.common.ui.theme.MeverRed
+import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.calculateDownloadPercentage
@@ -127,7 +127,7 @@ fun MeverCard(
                             else R.drawable.ic_round_unchecked
                         ),
                         contentDescription = "Radio button",
-                        tint = colorScheme.primary
+                        tint = colors.alwaysPurple
                     )
                 }
                 Spacer(modifier = Modifier.size(Dp24))
@@ -187,6 +187,7 @@ fun MeverCard(
                                 path.substringAfterLast("/").ifEmpty { fileName }
                             ),
                             style = typography.bodyBold2,
+                            color = colors.blackWhite,
                             maxLines = 1,
                             overflow = Ellipsis
                         )
@@ -228,7 +229,7 @@ fun MeverCard(
                                         totalBytes = total
                                     ),
                                     style = typography.label2,
-                                    color = colorScheme.primary
+                                    color = colors.alwaysPurple
                                 )
                                 if (status != FAILED) Text(
                                     text = "${
@@ -247,7 +248,7 @@ fun MeverCard(
                                     .fillMaxWidth()
                                     .height(Dp5)
                                     .padding(bottom = Dp2),
-                                color = if (status == FAILED) MeverRed else colorScheme.primary,
+                                color = if (status == FAILED) MeverRed else colors.alwaysPurple,
                                 trackColor = MeverLightGray,
                                 gapSize = -Dp15,
                                 strokeCap = Round,
@@ -261,7 +262,7 @@ fun MeverCard(
                                 .size(Dp24)
                                 .align(Bottom),
                             painter = getImagePainter(status),
-                            colorFilter = tint(colorScheme.onPrimary),
+                            colorFilter = tint(colors.blackWhite),
                             contentDescription = "Play/Pause/Retry"
                         )
                     } else if (showSelector.not()) Row(
@@ -273,14 +274,14 @@ fun MeverCard(
                         MeverButton(
                             title = stringResource(R.string.share),
                             buttonType = Outlined(
-                                contentColor = colorScheme.primary,
-                                borderColor = colorScheme.primary
+                                contentColor = colors.alwaysPurple,
+                                borderColor = colors.alwaysPurple
                             )
                         ) { onClickShare?.invoke() }
                         MeverButton(
                             title = stringResource(R.string.delete_button),
                             buttonType = Filled(
-                                backgroundColor = colorScheme.primary,
+                                backgroundColor = colors.alwaysPurple,
                                 contentColor = MeverWhite
                             )
                         ) { onClickDelete?.invoke() }

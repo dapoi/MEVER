@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -53,6 +52,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp20
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
+import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.util.onCustomClick
 
@@ -124,7 +124,7 @@ private fun DialogContent(
 ) = with(meverDialogArgs) {
     Column(
         modifier = modifier
-            .background(backgroundColor ?: colorScheme.background)
+            .background(backgroundColor ?: colors.whiteDark)
             .padding(top = Dp12, start = Dp16, end = Dp16, bottom = Dp8),
         verticalArrangement = spacedBy(Dp12),
         horizontalAlignment = CenterHorizontally
@@ -133,7 +133,7 @@ private fun DialogContent(
             text = title,
             textAlign = TextAlign.Center,
             style = typography.bodyBold1,
-            color = titleColor ?: colorScheme.onPrimary
+            color = titleColor ?: colors.blackWhite
         )
         contentBody()
         if (hideInteractionButton.not()) Row(
@@ -152,7 +152,7 @@ private fun DialogContent(
                 Text(
                     text = secondaryButtonText ?: stringResource(R.string.cancel),
                     style = typography.bodyBold2,
-                    color = secondaryButtonColor ?: colorScheme.onPrimary
+                    color = secondaryButtonColor ?: colors.blackWhite
                 )
             }
             Box(
@@ -160,7 +160,7 @@ private fun DialogContent(
                     .width(Dp2)
                     .height(Dp20)
                     .background(
-                        color = colorScheme.onPrimary.copy(alpha = .08f),
+                        color = colors.blackWhite.copy(alpha = .08f),
                         shape = RoundedCornerShape(Dp8)
                     )
             )
@@ -175,7 +175,7 @@ private fun DialogContent(
                 Text(
                     text = primaryButtonText ?: stringResource(R.string.yes),
                     style = typography.bodyBold2,
-                    color = primaryButtonColor ?: colorScheme.primary
+                    color = primaryButtonColor ?: colors.alwaysPurple
                 )
             }
         }

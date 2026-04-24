@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
@@ -18,6 +17,7 @@ import androidx.compose.ui.unit.Dp
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp250
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
+import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import androidx.compose.ui.text.style.TextAlign.Companion.Center as TextAlignCenter
 
@@ -45,6 +45,6 @@ fun MeverEmptyItem(
         text = description,
         textAlign = TextAlignCenter,
         style = typography.body1,
-        color = colorScheme.onPrimary
+        color = colors.blackWhite
     )
 }

@@ -84,6 +84,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp90
 import com.dapascript.mever.core.common.ui.theme.MeverOrange
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverRed
+import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp20
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp22
@@ -201,7 +202,7 @@ internal fun SettingLandingScreen(
                             text = stringResource(R.string.permission_request_notification),
                             textAlign = Center,
                             style = typography.body1,
-                            color = colorScheme.onPrimary,
+                            color = colors.blackWhite,
                             modifier = Modifier.padding(vertical = Dp8)
                         )
                     }
@@ -283,7 +284,7 @@ private fun SettingLandingContent(
                         .fillMaxWidth()
                         .shadow(Dp3),
                     thickness = Dp1,
-                    color = colorScheme.onPrimary.copy(alpha = 0.12f)
+                    color = colors.blackWhite.copy(alpha = 0.12f)
                 )
             }
             LazyColumn(
@@ -300,7 +301,7 @@ private fun SettingLandingContent(
                         Text(
                             text = stringResource(R.string.settings),
                             style = typography.h2.copy(fontSize = Sp32),
-                            color = colorScheme.onPrimary,
+                            color = colors.blackWhite,
                             modifier = Modifier.padding(horizontal = Dp24)
                         )
                     }
@@ -334,7 +335,7 @@ private fun SettingLandingContent(
                         Text(
                             text = stringResource(title),
                             style = typography.h3,
-                            color = colorScheme.onPrimary,
+                            color = colors.blackWhite,
                             modifier = Modifier.padding(start = Dp24, end = Dp24, bottom = Dp12)
                         )
                     }
@@ -421,7 +422,7 @@ private fun AvailableStorageSection(
                 Text(
                     text = "$usedPercent%",
                     style = typography.body1.copy(fontSize = Sp20),
-                    color = colorScheme.onPrimary
+                    color = colors.blackWhite
                 )
             }
             Column(
@@ -436,7 +437,7 @@ private fun AvailableStorageSection(
                 Text(
                     text = getUsedOfTotalText(context, this@with),
                     style = typography.body2,
-                    color = colorScheme.onPrimary
+                    color = colors.blackWhite
                 )
             }
         }

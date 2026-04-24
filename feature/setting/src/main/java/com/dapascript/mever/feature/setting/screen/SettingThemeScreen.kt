@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -44,6 +43,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp3
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
+import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.ui.theme.ThemeType
@@ -92,7 +92,7 @@ internal fun SettingThemeScreen(
                     .padding(top = Dp1)
                     .shadow(Dp3),
                 thickness = Dp1,
-                color = colorScheme.onPrimary.copy(alpha = 0.12f)
+                color = colors.blackWhite.copy(alpha = 0.12f)
             )
             CompositionLocalProvider(LocalOverscrollFactory provides null) {
                 Column(
@@ -109,7 +109,7 @@ internal fun SettingThemeScreen(
                         Text(
                             text = stringResource(R.string.theme),
                             style = typography.h2.copy(fontSize = Sp32),
-                            color = colorScheme.onPrimary,
+                            color = colors.blackWhite,
                             modifier = Modifier.padding(horizontal = Dp24)
                         )
                     }
@@ -133,7 +133,7 @@ internal fun SettingThemeScreen(
                         Text(
                             text = stringResource(R.string.choose_preferrence),
                             style = typography.h3,
-                            color = colorScheme.onPrimary,
+                            color = colors.blackWhite,
                             modifier = Modifier.padding(horizontal = Dp24)
                         )
                         Spacer(modifier = Modifier.height(Dp20))

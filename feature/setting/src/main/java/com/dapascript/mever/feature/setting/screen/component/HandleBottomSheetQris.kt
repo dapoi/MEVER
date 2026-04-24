@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -49,6 +48,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp20
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp500
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
+import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.getStoragePermission
@@ -57,6 +57,7 @@ import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.saveBitmapToStorage
 import kotlinx.coroutines.launch
 
+@Suppress("ASSIGNED_VALUE_IS_NEVER_READ")
 @Composable
 internal fun HandleBottomSheetQris(
     showQrisDialog: Boolean,
@@ -138,7 +139,7 @@ internal fun HandleBottomSheetQris(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = Dp24)
-                    .background(colorScheme.background),
+                    .background(colors.whiteDark),
                 verticalAlignment = CenterVertically,
                 horizontalArrangement = SpaceBetween
             ) {
@@ -153,7 +154,7 @@ internal fun HandleBottomSheetQris(
                     Text(
                         text = stringResource(R.string.cancel),
                         style = typography.bodyBold1,
-                        color = colorScheme.onPrimary
+                        color = colors.blackWhite
                     )
                 }
                 Box(
@@ -161,7 +162,7 @@ internal fun HandleBottomSheetQris(
                         .width(Dp2)
                         .height(Dp20)
                         .background(
-                            color = colorScheme.onPrimary.copy(alpha = .08f),
+                            color = colors.blackWhite.copy(alpha = .08f),
                             shape = RoundedCornerShape(Dp8)
                         )
                 )
@@ -179,7 +180,7 @@ internal fun HandleBottomSheetQris(
                     Text(
                         text = stringResource(R.string.download),
                         style = typography.bodyBold1,
-                        color = colorScheme.primary
+                        color = colors.alwaysPurple
                     )
                 }
             }

@@ -2,9 +2,8 @@ package com.dapascript.mever.feature.setting.screen
 
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -24,6 +23,7 @@ import com.dapascript.mever.core.common.ui.component.MeverMenuItem
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
+import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.feature.setting.screen.attr.HandleAppreciateDialogAttr.AppreciateType
@@ -42,7 +42,7 @@ internal fun SettingAppreciateScreen(navController: NavController) {
     BaseScreen(
         topBarArgs = TopBarArgs(
             title = "",
-            onClickBack = { navController.navigateUp() }
+            onClickBack = { navController.popBackStack() }
         )
     ) {
         showAppreciateDialog?.let { type ->
@@ -55,16 +55,16 @@ internal fun SettingAppreciateScreen(navController: NavController) {
         HandleBottomSheetQris(showBottomSheetQris) { showBottomSheetQris = it }
 
         Column(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxSize(),
             verticalArrangement = spacedBy(Dp16)
         ) {
             Text(
                 text = stringResource(R.string.appreciate),
                 style = typography.h2.copy(fontSize = Sp32),
-                color = colorScheme.onPrimary,
+                color = colors.blackWhite,
                 modifier = Modifier.padding(top = Dp16)
             )
-            getSettingMenus()[1].menus.map {
+            getSettingMenus().first().menus.forEach {
                 MeverMenuItem(
                     menuArgs = MenuItemArgs(
                         leadingTitle = stringResource(it.leadingTitle),

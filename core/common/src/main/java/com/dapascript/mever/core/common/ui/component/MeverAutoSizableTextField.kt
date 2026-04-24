@@ -16,7 +16,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -41,6 +40,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp22
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp3
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
+import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.util.clearFocusOnKeyboardDismiss
@@ -89,7 +89,7 @@ fun MeverAutoSizableTextField(
     Column(
         modifier = Modifier
             .shadow(elevation = Dp3, shape = shape)
-            .background(color = colorScheme.surface, shape = shape)
+            .background(color = colors.whiteDarkGray, shape = shape)
             .clip(shape),
         verticalArrangement = SpaceBetween
     ) {
@@ -101,7 +101,7 @@ fun MeverAutoSizableTextField(
                 .clearFocusOnKeyboardDismiss(focusManager),
             textStyle = typography.body1.copy(
                 fontSize = nFontSize,
-                color = colorScheme.onPrimary
+                color = colors.blackWhite
             ),
             interactionSource = interactionSource,
             keyboardOptions = KeyboardOptions(keyboardType = Uri, imeAction = Done),
@@ -113,7 +113,7 @@ fun MeverAutoSizableTextField(
             decorationBox = { innerTextField ->
                 if (value.isEmpty()) Text(
                     text = stringResource(R.string.type_anything),
-                    style = typography.body1.copy(color = colorScheme.secondary)
+                    style = typography.body1.copy(color = colors.grayLightGray)
                 )
                 innerTextField()
             }
@@ -130,7 +130,7 @@ fun MeverAutoSizableTextField(
                     .clip(shape)
                     .onCustomClick { onClickInspire() },
                 painter = painterResource(R.drawable.ic_inspire),
-                tint = colorScheme.onPrimary,
+                tint = colors.blackWhite,
                 contentDescription = "Inspire"
             )
             if (value.isNotEmpty()) Icon(
@@ -139,7 +139,7 @@ fun MeverAutoSizableTextField(
                     .clip(shape)
                     .onCustomClick { onValueChange("") },
                 imageVector = ImageVector.vectorResource(R.drawable.ic_clear),
-                tint = colorScheme.onPrimary,
+                tint = colors.blackWhite,
                 contentDescription = "Clear"
             )
             Text(

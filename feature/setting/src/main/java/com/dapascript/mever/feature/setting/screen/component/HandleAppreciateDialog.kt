@@ -2,7 +2,6 @@ package com.dapascript.mever.feature.setting.screen.component
 
 import android.content.Context
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -12,6 +11,7 @@ import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
 import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
+import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.util.copyToClipboard
 import com.dapascript.mever.feature.setting.screen.attr.HandleAppreciateDialogAttr.AppreciateType
@@ -42,7 +42,7 @@ internal fun HandleAppreciateDialog(
             text = address,
             textAlign = Center,
             style = typography.body1,
-            color = colorScheme.onPrimary,
+            color = colors.blackWhite,
             modifier = Modifier.padding(vertical = Dp8)
         )
     }

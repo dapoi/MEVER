@@ -36,7 +36,7 @@
     <string name="empty_list_desc">Belum ada yang kamu unduh nih~</string>
     <string name="gallery">Galeri</string>
     <string name="settings">Pengaturan</string>
-    <string name="explore">Jelajah</string>
+    <string name="explore">Cari Gambar</string>
     <string name="application">Aplikasi</string>
     <string name="language">Bahasa</string>
     <string name="notification">Notifikasi</string>
@@ -113,7 +113,7 @@
     <string name="failed_playback">Video ini gagal diputar 😕 harap coba lagi nanti ya.</string>
     <string name="disclaimer_supported_platforms">Dengan menggunakan aplikasi ini, Anda setuju mematuhi ketentuan layanan dan hak cipta tiap platform. Pastikan Anda berhak mengunduh dan menggunakan konten sesuai hukum yang berlaku.</string>
     <string name="unsupported_yt">Maaf… Unduhan dari YouTube tidak tersedia saat ini</string>
-    <string name="find_image">Temukan gambar menarik di sini!</string>
+    <string name="find_image">Temukan Gambar Menarik!</string>
     <string name="lets_start">Yuk Mulai!</string>
     <string name="easy_to_use">Mudah digunakan dan 100% gratis!</string>
     <string name="supports">Mendukung</string>
@@ -121,4 +121,5 @@
     <string name="source">Sumber</string>
     <string name="download_easily">Unduh dengan mudah dari berbagai platform media sosial favoritmu</string>
     <string name="disable_custom_dns">Tolong matikan DNS kustom untuk menggunakan aplikasi ini.</string>
+    <string name="view_wa_status">Lihat Status Whatsapp</string>
 </resources>

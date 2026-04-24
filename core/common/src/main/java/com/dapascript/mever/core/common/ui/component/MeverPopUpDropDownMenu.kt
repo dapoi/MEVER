@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment.Companion.TopEnd
@@ -15,6 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.window.PopupProperties
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
+import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 
 @Composable
@@ -37,7 +37,7 @@ fun <T> MeverPopupDropDownMenu(
         DropdownMenu(
             expanded = showDropDownMenu,
             properties = PopupProperties(focusable = false),
-            containerColor = backgroundColor ?: colorScheme.onPrimaryContainer,
+            containerColor = backgroundColor ?: colors.whiteDark,
             shape = shape ?: RoundedCornerShape(Dp8),
             onDismissRequest = { onDismissDropDownMenu(false) }
         ) {
@@ -47,7 +47,7 @@ fun <T> MeverPopupDropDownMenu(
                         Text(
                             text = label(item),
                             style = typography.body1,
-                            color = textColor ?: colorScheme.onPrimary
+                            color = textColor ?: colors.blackWhite
                         )
                     },
                     onClick = {

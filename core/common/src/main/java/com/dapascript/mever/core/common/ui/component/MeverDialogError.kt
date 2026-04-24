@@ -2,7 +2,6 @@ package com.dapascript.mever.core.common.ui.component
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
@@ -14,6 +13,7 @@ import androidx.compose.ui.text.style.TextAlign.Companion.Center
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp200
+import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 
 @Composable
@@ -51,7 +51,7 @@ fun MeverDialogError(
             text = errorDescription,
             textAlign = Center,
             style = typography.body1,
-            color = colorScheme.onPrimary
+            color = colors.blackWhite
         )
     }
 }

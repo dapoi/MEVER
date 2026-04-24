@@ -10,7 +10,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
@@ -26,6 +25,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
+import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
 import com.dapascript.mever.core.common.util.PlatformType
@@ -61,12 +61,12 @@ internal fun HandleBottomSheetPlatformSupport(
             text = stringResource(R.string.platforms_supported),
             textAlign = TextAlign.Center,
             style = typography.bodyBold1.copy(fontSize = Sp18),
-            color = colorScheme.onPrimary
+            color = colors.blackWhite
         )
         HorizontalDivider(
             modifier = Modifier.fillMaxWidth(),
             thickness = Dp1,
-            color = colorScheme.onPrimary.copy(alpha = 0.12f)
+            color = colors.blackWhite.copy(alpha = 0.12f)
         )
         Column(
             modifier = Modifier
@@ -105,7 +105,7 @@ internal fun HandleBottomSheetPlatformSupport(
         HorizontalDivider(
             modifier = Modifier.fillMaxWidth(),
             thickness = Dp1,
-            color = colorScheme.onPrimary.copy(alpha = 0.12f)
+            color = colors.blackWhite.copy(alpha = 0.12f)
         )
         Text(
             modifier = Modifier
@@ -114,7 +114,7 @@ internal fun HandleBottomSheetPlatformSupport(
             text = stringResource(R.string.disclaimer_supported_platforms),
             textAlign = TextAlign.Center,
             style = typography.body2,
-            color = colorScheme.onPrimary.copy(alpha = 0.6f)
+            color = colors.blackWhite.copy(alpha = 0.6f)
         )
         Text(
             modifier = Modifier
@@ -124,7 +124,7 @@ internal fun HandleBottomSheetPlatformSupport(
             text = stringResource(R.string.close),
             textAlign = TextAlign.Center,
             style = typography.bodyBold1,
-            color = colorScheme.primary
+            color = colors.alwaysPurple
         )
     }
 }

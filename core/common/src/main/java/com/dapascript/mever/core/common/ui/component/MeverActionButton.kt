@@ -13,7 +13,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Badge
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment.Companion.Center
@@ -28,6 +27,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
+import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.util.onCustomClick
 
 @Composable
@@ -67,10 +67,10 @@ fun MeverActionButton(
         if (showBadge) Badge(
             modifier = Modifier
                 .size(Dp15)
-                .border(width = Dp2, color = colorScheme.background, shape = CircleShape)
+                .border(width = Dp2, color = colors.whiteDark, shape = CircleShape)
                 .align(TopEnd)
                 .clip(CircleShape),
-            containerColor = colorScheme.primary
+            containerColor = colors.alwaysPurple
         )
     }
 }

@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -37,7 +38,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -114,6 +114,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
 import com.dapascript.mever.core.common.ui.theme.MeverLightViolet
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
+import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp14
@@ -217,7 +218,6 @@ private fun HomeScreenContent(
         val deviceType = LocalDeviceType.current
         val showBadge = showBadge.collectAsStateValue()
         val isImageGeneratorFeatureActive = isImageGeneratorFeatureActive.collectAsStateValue()
-        val isGoImgFeatureActive = isGoImgFeatureActive.collectAsStateValue()
         val getButtonClickCount = getButtonClickCount.collectAsStateValue()
         val tabItems = remember { tabItems(context) }
         val pagerState = rememberPagerState(pageCount = { tabItems.size })
@@ -243,19 +243,21 @@ private fun HomeScreenContent(
                     .padding(horizontal = Dp24),
                 topBarArgs = TopBarArgs(
                     iconBack = R.drawable.ic_mever,
-                    actionMenus = getListActionMenu(context, showBadge)
-                        .filterNot {
-                            it.first == stringResource(R.string.explore) &&
-                                    (isGoImgFeatureActive.not() || deviceType == PHONE &&
-                                            isImageGeneratorFeatureActive.not())
+                    actionMenus = getListActionMenu(
+                        context,
+                        showBadge
+                    ).map { (name, resource) ->
+                        ActionMenu(
+                            icon = resource,
+                            nameIcon = name,
+                            showBadge = showBadge && name == stringResource(R.string.gallery),
+                        ) {
+                            navController.handleClickActionMenu(
+                                context,
+                                name
+                            )
                         }
-                        .map { (name, resource) ->
-                            ActionMenu(
-                                icon = resource,
-                                nameIcon = name,
-                                showBadge = showBadge && name == stringResource(R.string.gallery),
-                            ) { navController.handleClickActionMenu(context, name) }
-                        }
+                    }
                 )
             )
             Column(
@@ -280,8 +282,7 @@ private fun HomeScreenContent(
                                 .nestedScroll(remember {
                                     object : NestedScrollConnection {
                                         override fun onPreScroll(
-                                            available: Offset,
-                                            source: NestedScrollSource
+                                            available: Offset, source: NestedScrollSource
                                         ) = if (available.y > 0) Offset.Zero
                                         else Offset(
                                             x = 0f,
@@ -328,7 +329,10 @@ private fun HomeScreenContent(
                                         },
                                         onImageCountSelected = { selectedImageCount = it },
                                         onArtStyleSelected = { name, prompt ->
-                                            selectedArtStyle = Pair(name, prompt)
+                                            selectedArtStyle = Pair(
+                                                name,
+                                                prompt
+                                            )
                                         }
                                     )
                                 }
@@ -369,7 +373,10 @@ private fun HomeScreenContent(
                             },
                             onImageCountSelected = { selectedImageCount = it },
                             onArtStyleSelected = { name, prompt ->
-                                selectedArtStyle = Pair(name, prompt)
+                                selectedArtStyle = Pair(
+                                    name,
+                                    prompt
+                                )
                             }
                         )
                     }
@@ -392,10 +399,13 @@ private fun HomeScreenContent(
         ) {
             Column(
                 modifier = Modifier
-                    .padding(start = Dp24, end = Dp24, bottom = Dp24)
-                    .onGloballyPositioned {
-                        generateButtonHeight = it.size.height
-                    },
+                    .padding(
+                        start = Dp24,
+                        end = Dp24,
+                        bottom = Dp24
+                    )
+                    .navigationBarsPadding()
+                    .onGloballyPositioned { generateButtonHeight = it.size.height },
                 horizontalAlignment = CenterHorizontally,
                 verticalArrangement = spacedBy(Dp16)
             ) {
@@ -406,7 +416,7 @@ private fun HomeScreenContent(
                     title = stringResource(R.string.generate),
                     isEnabled = promptState.text.isNotEmpty(),
                     buttonType = Filled(
-                        backgroundColor = colorScheme.primary,
+                        backgroundColor = colors.alwaysPurple,
                         contentColor = MeverWhite
                     )
                 ) {
@@ -446,6 +456,7 @@ private fun HomeDownloaderSection(
     val downloaderResponseState = downloaderResponseState.collectAsStateValue()
     val youtubeResolutions = youtubeResolutions.collectAsStateValue()
     val urlIntent = getUrlIntent.collectAsStateValue()
+    val isGoImgFeatureActive = isGoImgFeatureActive.collectAsStateValue()
     val activity = LocalActivity.current
     val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
     var showLoading by remember { mutableStateOf(false) }
@@ -469,7 +480,12 @@ private fun HomeDownloaderSection(
     LaunchedEffect(downloadList) {
         downloadList
             ?.filter { it.status == SUCCESS }
-            ?.forEach { syncToGallery(context, it.fileName) }
+            ?.forEach {
+                syncToGallery(
+                    context,
+                    it.fileName
+                )
+            }
     }
 
     LaunchedEffect(urlIntent) {
@@ -507,7 +523,10 @@ private fun HomeDownloaderSection(
         )
     }
 
-    LaunchedEffect(randomDonateDialogOffer, shouldShowDonationOfferDialog) {
+    LaunchedEffect(
+        randomDonateDialogOffer,
+        shouldShowDonationOfferDialog
+    ) {
         if (shouldShowDonationOfferDialog) {
             (0..3).random(Random).also { randomValue ->
                 randomDonateDialogOffer = randomValue
@@ -539,8 +558,7 @@ private fun HomeDownloaderSection(
                         if (youtubeResolutions.isNotEmpty()) showYoutubeChooseQualityModal = true
                         else showUnsupportedYouTubeDialog = true
                     },
-                    onActionDownload = { getApiDownloader() }
-                )
+                    onActionDownload = { getApiDownloader() })
             },
             onDenied = { isPermanentlyDeclined, retry ->
                 MeverDeclinedPermission(
@@ -550,10 +568,8 @@ private fun HomeDownloaderSection(
                         activity.goToSetting()
                     },
                     onRetry = { retry() },
-                    onDismiss = { setStoragePermission = emptyList() }
-                )
-            }
-        )
+                    onDismiss = { setStoragePermission = emptyList() })
+            })
     }
 
     BackHandler(showLoading) { showCancelExitConfirmation = true }
@@ -758,7 +774,7 @@ private fun HomeDownloaderSection(
                         TextAlign.Center
                     } else TextAlign.Start,
                     style = typography.h2.copy(fontSize = if (isImageGeneratorFeatureActive) Sp22 else Sp26),
-                    color = colorScheme.onPrimary
+                    color = colors.blackWhite
                 )
             }
             item {
@@ -770,7 +786,7 @@ private fun HomeDownloaderSection(
                         TextAlign.Center
                     } else TextAlign.Start,
                     style = typography.body2,
-                    color = colorScheme.secondary
+                    color = colors.grayLightGray
                 )
             }
             if (isImageGeneratorFeatureActive || isPhoneDevice.not()) item {
@@ -782,7 +798,13 @@ private fun HomeDownloaderSection(
                 ) {
                     Row(horizontalArrangement = spacedBy((-Dp20))) {
                         val platforms = PlatformType.entries.filter {
-                            it in listOf(FACEBOOK, INSTAGRAM, TIKTOK, TWITTER, PINTEREST)
+                            it in listOf(
+                                FACEBOOK,
+                                INSTAGRAM,
+                                TIKTOK,
+                                TWITTER,
+                                PINTEREST
+                            )
                         }
                         platforms.forEach { type ->
                             MeverIcon(
@@ -839,7 +861,7 @@ private fun HomeDownloaderSection(
                         modifier = Modifier.size(Dp48),
                         title = "",
                         buttonType = Filled(
-                            backgroundColor = colorScheme.primary,
+                            backgroundColor = colors.alwaysPurple,
                             contentColor = MeverWhite
                         ),
                         shape = CircleShape,
@@ -869,27 +891,41 @@ private fun HomeDownloaderSection(
                         )
                     }
                 }
-//                Row(
-//                    modifier = Modifier.fillMaxWidth(),
-//                    horizontalArrangement = spacedBy(Dp16)
-//                ) {
-//                    listOf(
-//                        R.drawable.ic_facebook to FACEBOOK.platformName,
-//                        R.drawable.ic_instagram to INSTAGRAM.platformName,
-//                    ).forEach {
-//                        MeverFeaturesBanner(
-//                            modifier = Modifier.weight(1f),
-//                            icon = it.first,
-//                            title = it.second
-//                        ) { }
-//                    }
-//                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(IntrinsicSize.Max),
+                    horizontalArrangement = spacedBy(Dp16)
+                ) {
+                    listOfNotNull(
+                        R.drawable.ic_wa to stringResource(R.string.view_wa_status),
+                        if (isGoImgFeatureActive) {
+                            R.drawable.ic_explore_image to stringResource(R.string.find_image)
+                        } else null
+                    ).forEachIndexed { index, data ->
+                        MeverFeaturesBanner(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight(),
+                            icon = data.first,
+                            title = data.second,
+                            showArrow = isGoImgFeatureActive.not()
+                        ) {
+                            navController.navigateTo(
+                                route = when (index) {
+                                    0 -> {}
+                                    else -> ExploreLandingRoute
+                                }
+                            )
+                        }
+                    }
+                }
                 Spacer(modifier = Modifier.size(Dp8))
             }
             stickyHeader {
                 Row(
                     modifier = Modifier
-                        .background(color = colorScheme.background)
+                        .background(color = colors.whiteDark)
                         .fillMaxWidth()
                         .padding(top = Dp16),
                     verticalAlignment = CenterVertically,
@@ -898,12 +934,12 @@ private fun HomeDownloaderSection(
                     Text(
                         text = stringResource(R.string.recently_downloaded),
                         style = typography.bodyBold1,
-                        color = colorScheme.onPrimary
+                        color = colors.blackWhite
                     )
                     if (downloadList.isNullOrEmpty().not()) Text(
                         text = stringResource(R.string.view_all),
                         style = typography.body2,
-                        color = colorScheme.primary,
+                        color = colors.alwaysPurple,
                         modifier = Modifier
                             .animateItem()
                             .clip(RoundedCornerShape(Dp8))
@@ -915,11 +951,13 @@ private fun HomeDownloaderSection(
                 if (files.isNotEmpty()) {
                     items(
                         items = files.toMutableStateList().apply {
-                            if (size > 3) removeRange(3, size)
+                            if (size > 3) removeRange(
+                                3,
+                                size
+                            )
                         },
                         key = { it.id },
-                        contentType = { it.status.name }
-                    ) { model ->
+                        contentType = { it.status.name }) { model ->
                         MeverCard(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(Dp12))
@@ -946,16 +984,18 @@ private fun HomeDownloaderSection(
                                             if (isMusic(model.fileName).not()) {
                                                 navController.navigateTo(
                                                     GalleryContentDetailRoute(
-                                                        contents = downloadList
-                                                            .filterNot { isMusic(it.fileName) }
-                                                            .map {
-                                                                Content(
-                                                                    id = it.id,
-                                                                    isVideo = isVideo(it.path),
-                                                                    primaryContent = it.path,
-                                                                    fileName = it.fileName
-                                                                )
-                                                            },
+                                                        contents = downloadList.filterNot {
+                                                            isMusic(
+                                                                it.fileName
+                                                            )
+                                                        }.map {
+                                                            Content(
+                                                                id = it.id,
+                                                                isVideo = isVideo(it.path),
+                                                                primaryContent = it.path,
+                                                                fileName = it.fileName
+                                                            )
+                                                        },
                                                         initialIndex = downloadList.filterNot {
                                                             isMusic(it.fileName)
                                                         }.indexOfFirst { it.id == id },
@@ -982,8 +1022,7 @@ private fun HomeDownloaderSection(
                                     file = File(model.path)
                                 )
                             },
-                            onClickDelete = { showDeleteDialog = model.id }
-                        )
+                            onClickDelete = { showDeleteDialog = model.id })
                     }
                     item { Spacer(modifier = Modifier.size(Dp24)) }
                 } else item {
@@ -1021,7 +1060,7 @@ private fun HomeAiSection(
                     modifier = Modifier.padding(bottom = Dp16),
                     text = stringResource(R.string.image_generator),
                     style = typography.h2.copy(fontSize = Sp22),
-                    color = colorScheme.onPrimary
+                    color = colors.blackWhite
                 )
             }
             item {
@@ -1029,7 +1068,7 @@ private fun HomeAiSection(
                     modifier = Modifier.padding(bottom = Dp24),
                     text = stringResource(R.string.image_generator_desc),
                     style = typography.body2,
-                    color = colorScheme.secondary
+                    color = colors.grayLightGray
                 )
             }
             item {
@@ -1050,7 +1089,7 @@ private fun HomeAiSection(
                     modifier = Modifier.padding(vertical = Dp24),
                     text = stringResource(R.string.total_images),
                     style = typography.bodyBold1,
-                    color = colorScheme.onPrimary
+                    color = colors.blackWhite
                 )
             }
             item {
@@ -1065,11 +1104,11 @@ private fun HomeAiSection(
                                 .height(Dp40),
                             title = count.toString(),
                             buttonType = if (totalImageSelected == count) Filled(
-                                backgroundColor = colorScheme.primary,
+                                backgroundColor = colors.alwaysPurple,
                                 contentColor = MeverWhite
                             ) else Outlined(
-                                borderColor = colorScheme.primary,
-                                contentColor = colorScheme.primary
+                                borderColor = colors.alwaysPurple,
+                                contentColor = colors.alwaysPurple
                             ),
                             shape = RoundedCornerShape(Dp12)
                         ) { if (totalImageSelected != count) onImageCountSelected(count) }
@@ -1081,23 +1120,28 @@ private fun HomeAiSection(
                     Text(
                         text = stringResource(R.string.art_style),
                         style = typography.bodyBold1,
-                        color = colorScheme.onPrimary
+                        color = colors.blackWhite
                     )
                     Spacer(modifier = Modifier.size(Dp4))
                     Text(
                         text = stringResource(R.string.optional),
                         style = typography.body2,
-                        color = colorScheme.onPrimary
+                        color = colors.blackWhite
                     )
                     if (artStyleSelected.isNotEmpty()) Box(modifier = Modifier.weight(1f)) {
                         Text(
                             modifier = Modifier
                                 .align(CenterEnd)
                                 .clip(RoundedCornerShape(Dp12))
-                                .onCustomClick { onArtStyleSelected("", "") },
+                                .onCustomClick {
+                                    onArtStyleSelected(
+                                        "",
+                                        ""
+                                    )
+                                },
                             text = stringResource(R.string.clear),
                             style = typography.bodyBold2,
-                            color = colorScheme.primary
+                            color = colors.alwaysPurple
                         )
                     }
                 }
@@ -1129,17 +1173,19 @@ private fun HomeAiSection(
                                         .size(imageSize)
                                         .clip(RoundedCornerShape(Dp12))
                                         .then(
-                                            if (artStyleSelected == it.styleName) Modifier
-                                                .border(
-                                                    width = Dp4,
-                                                    color = colorScheme.primary,
-                                                    shape = RoundedCornerShape(Dp12)
-                                                )
+                                            if (artStyleSelected == it.styleName) Modifier.border(
+                                                width = Dp4,
+                                                color = colors.alwaysPurple,
+                                                shape = RoundedCornerShape(Dp12)
+                                            )
                                             else Modifier
                                         )
                                         .onCustomClick {
                                             if (artStyleSelected != it.styleName) {
-                                                onArtStyleSelected(it.styleName, it.promptKeywords)
+                                                onArtStyleSelected(
+                                                    it.styleName,
+                                                    it.promptKeywords
+                                                )
                                             }
                                         },
                                     painter = painterResource(it.image),
@@ -1150,7 +1196,7 @@ private fun HomeAiSection(
                             Text(
                                 text = it.styleName,
                                 style = typography.bodyBold3,
-                                color = colorScheme.onPrimary
+                                color = colors.blackWhite
                             )
                         }
                     }
@@ -1175,7 +1221,6 @@ private fun checkStateBeforeDownload(
 }
 
 private fun getListActionMenu(context: Context, hasDownloadProgress: Boolean) = listOf(
-    context.getString(R.string.explore) to FeatureHomeR.drawable.ic_explore,
     context.getString(R.string.gallery) to if (hasDownloadProgress) FeatureHomeR.drawable.ic_notification
     else FeatureHomeR.drawable.ic_gallery,
     context.getString(R.string.settings) to FeatureHomeR.drawable.ic_setting
@@ -1187,7 +1232,6 @@ private fun tabItems(context: Context) = listOf(
 )
 
 private fun NavController.handleClickActionMenu(context: Context, name: String) = when (name) {
-    context.getString(R.string.explore) -> navigateTo(ExploreLandingRoute)
     context.getString(R.string.gallery) -> navigateToGalleryScreen()
     context.getString(R.string.settings) -> navigateToSettingScreen()
     else -> Unit
@@ -1198,9 +1242,7 @@ private fun NavController.navigateToGalleryScreen() = navigateTo(GalleryLandingR
 private fun NavController.navigateToSettingScreen() = navigateTo(SettingLandingRoute)
 
 private fun NavController.navigateToImageGenerator(
-    prompt: String,
-    artStyle: String,
-    totalImages: Int
+    prompt: String, artStyle: String, totalImages: Int
 ) = navigateTo(
     HomeImageGeneratorResultRoute(
         prompt = prompt,

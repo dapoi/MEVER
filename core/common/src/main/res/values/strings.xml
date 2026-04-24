@@ -36,7 +36,7 @@
     <string name="empty_list_desc">Looks like you haven’t saved anything yet~</string>
     <string name="gallery">Gallery</string>
     <string name="settings">Settings</string>
-    <string name="explore">Explore</string>
+    <string name="explore">Find Image</string>
     <string name="application">Application</string>
     <string name="language">Language</string>
     <string name="notification">Notification</string>
@@ -113,7 +113,7 @@
     <string name="failed_playback">This video failed to play 😕 please try again later.</string>
     <string name="disclaimer_supported_platforms">By using this app, you agree to follow each platform’s terms and copyright. Make sure you have the right to download and use the content under applicable laws.</string>
     <string name="unsupported_yt">Sorry… YouTube downloads aren’t available right now</string>
-    <string name="find_image">Find more exciting images here!</string>
+    <string name="find_image">Find Awesome Images!</string>
     <string name="lets_start">Let’s Get Started!</string>
     <string name="easy_to_use">Easy to use and 100% free!</string>
     <string name="supports">Supports</string>
@@ -121,4 +121,5 @@
     <string name="source">Source</string>
     <string name="download_easily">Download media from Social Media easily.</string>
     <string name="disable_custom_dns">Please disable custom DNS to use the app.</string>
+    <string name="view_wa_status">View WhatsApp Status</string>
 </resources>

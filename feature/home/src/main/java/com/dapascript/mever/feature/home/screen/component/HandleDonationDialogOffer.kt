@@ -3,7 +3,6 @@ package com.dapascript.mever.feature.home.screen.component
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
@@ -17,6 +16,7 @@ import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
 import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp150
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp200
+import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import androidx.compose.ui.Alignment.Companion.Center as AlignmentCenter
 
@@ -53,7 +53,7 @@ internal fun HandleDonationDialogOffer(
             text = stringResource(R.string.donation_desc),
             textAlign = Center,
             style = typography.body1,
-            color = colorScheme.onPrimary
+            color = colors.blackWhite
         )
     }
 }

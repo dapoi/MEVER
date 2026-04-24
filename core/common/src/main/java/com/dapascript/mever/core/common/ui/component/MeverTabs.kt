@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -45,6 +44,7 @@ import com.dapascript.mever.core.common.ui.attr.MeverTabsAttr.TabPosition
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
+import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 
@@ -53,8 +53,8 @@ fun MeverTabs(
     items: List<String>,
     pagerState: PagerState,
     modifier: Modifier = Modifier,
-    containerColor: Color = colorScheme.onSecondaryContainer,
-    indicatorColor: Color = colorScheme.background,
+    containerColor: Color = colors.lightSoftPurpleBlack,
+    indicatorColor: Color = colors.whiteDark,
     onChangeTab: (Int) -> Unit
 ) = CustomTab(
     modifier = modifier,
@@ -66,7 +66,7 @@ fun MeverTabs(
         Text(
             text = title,
             style = typography.body2,
-            color = if (pagerState.currentPage == index) colorScheme.primary else colorScheme.onPrimary,
+            color = if (pagerState.currentPage == index) colors.alwaysPurple else colors.blackWhite,
             modifier = Modifier
                 .wrapContentWidth(CenterHorizontally)
                 .padding(horizontal = Dp16, vertical = Dp8)
@@ -82,7 +82,7 @@ fun MeverTabs(
 private fun CustomTab(
     modifier: Modifier = Modifier,
     containerColor: Color = MeverWhite,
-    indicatorColor: Color = colorScheme.background,
+    indicatorColor: Color = colors.whiteDark,
     containerShape: Shape = CircleShape,
     indicatorShape: Shape = CircleShape,
     paddingValues: PaddingValues = PaddingValues(Dp4),

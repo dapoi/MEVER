@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -21,7 +22,6 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -61,6 +61,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp3
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp88
+import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
@@ -148,7 +149,7 @@ internal fun ExploreLandingScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = Dp24)
-                        .background(colorScheme.background),
+                        .background(colors.whiteDark),
                     context = context,
                     value = TextFieldValue(query),
                     leadingIcon = R.drawable.ic_search,
@@ -162,7 +163,7 @@ internal fun ExploreLandingScreen(
                         .fillMaxWidth()
                         .shadow(Dp3),
                     thickness = Dp1,
-                    color = colorScheme.onPrimary.copy(alpha = 0.12f)
+                    color = colors.blackWhite.copy(alpha = 0.12f)
                 )
                 Spacer(modifier = Modifier.height(Dp1))
                 contents?.let { result ->
@@ -232,8 +233,8 @@ internal fun ExploreLandingScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(max = Dp88)
-                    .padding(bottom = Dp8)
                     .align(BottomCenter)
+                    .navigationBarsPadding()
             )
         }
     }
@@ -249,7 +250,7 @@ private fun KeywordNotFoundComponent() {
         Image(
             modifier = Modifier.size(Dp64),
             painter = painterResource(R.drawable.ic_clear),
-            colorFilter = tint(colorScheme.onPrimary.copy(0.4f)),
+            colorFilter = tint(colors.blackWhite.copy(0.4f)),
             contentDescription = null
         )
         Spacer(modifier = Modifier.height(Dp16))
@@ -258,7 +259,7 @@ private fun KeywordNotFoundComponent() {
             text = stringResource(R.string.no_result),
             textAlign = TextAlign.Center,
             style = typography.body1.copy(fontSize = Sp18),
-            color = colorScheme.onPrimary.copy(0.4f)
+            color = colors.blackWhite.copy(0.4f)
         )
     }
 }

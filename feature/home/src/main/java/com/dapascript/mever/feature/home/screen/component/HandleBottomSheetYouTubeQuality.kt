@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -36,6 +35,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp20
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
+import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
 import com.dapascript.mever.core.common.util.onCustomClick
@@ -71,9 +71,9 @@ internal fun HandleBottomSheetYouTubeQuality(
                 text = stringResource(R.string.choose_quality),
                 textAlign = TextAlign.Center,
                 style = typography.bodyBold1.copy(fontSize = Sp18),
-                color = colorScheme.onPrimary
+                color = colors.blackWhite
             )
-            qualityList.map { quality ->
+            qualityList.forEach { quality ->
                 MeverRadioButton(
                     value = getQualityContent(quality),
                     isChoosen = chooseQuality == quality
@@ -97,7 +97,7 @@ internal fun HandleBottomSheetYouTubeQuality(
                     Text(
                         text = stringResource(R.string.cancel),
                         style = typography.bodyBold1,
-                        color = colorScheme.onPrimary
+                        color = colors.blackWhite
                     )
                 }
                 Box(
@@ -105,7 +105,7 @@ internal fun HandleBottomSheetYouTubeQuality(
                         .width(Dp2)
                         .height(Dp20)
                         .background(
-                            color = colorScheme.onPrimary.copy(alpha = .08f),
+                            color = colors.blackWhite.copy(alpha = .08f),
                             shape = RoundedCornerShape(Dp8)
                         )
                 )
@@ -120,7 +120,7 @@ internal fun HandleBottomSheetYouTubeQuality(
                     Text(
                         text = stringResource(R.string.apply),
                         style = typography.bodyBold1,
-                        color = colorScheme.primary
+                        color = colors.alwaysPurple
                     )
                 }
             }

@@ -11,7 +11,6 @@ import androidx.compose.material3.BottomSheetDefaults.ExpandedShape
 import androidx.compose.material3.BottomSheetDefaults.HiddenShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.SheetValue.Expanded
@@ -29,6 +28,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp0
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
+import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -77,7 +77,7 @@ fun MeverBottomSheet(
             isAlwaysRectangular -> HiddenShape
             else -> ExpandedShape
         },
-        containerColor = colorScheme.background,
+        containerColor = colors.whiteDark,
         properties = ModalBottomSheetProperties(
             shouldDismissOnClickOutside = shouldDismissOnClickOutside,
             shouldDismissOnBackPress = shouldDismissOnBackPress
@@ -85,7 +85,7 @@ fun MeverBottomSheet(
         dragHandle = {
             HorizontalDivider(
                 thickness = Dp2,
-                color = colorScheme.onPrimary,
+                color = colors.blackWhite,
                 modifier = Modifier
                     .width(Dp80)
                     .padding(vertical = Dp24)

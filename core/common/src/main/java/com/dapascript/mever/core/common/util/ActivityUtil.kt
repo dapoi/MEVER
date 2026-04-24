@@ -7,9 +7,11 @@ import android.provider.Settings
 import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.staticCompositionLocalOf
+import com.dapascript.mever.core.common.ui.theme.MeverColors
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
 
 val LocalActivity = staticCompositionLocalOf<ComponentActivity> { noLocalProvided() }
+val LocalColors = staticCompositionLocalOf<MeverColors> { error("No colors provided") }
 val LocalDeviceType = staticCompositionLocalOf { PHONE }
 
 private fun noLocalProvided(): Nothing {

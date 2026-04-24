@@ -21,7 +21,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -56,6 +55,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp250
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
+import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp20
 import com.dapascript.mever.core.common.util.isMusic
@@ -100,14 +100,14 @@ internal fun HandleBottomSheetDownload(
                 text = stringResource(R.string.choose_file),
                 textAlign = if (isMusic) Start else TextAlignCenter,
                 style = typography.bodyBold1.copy(fontSize = Sp20),
-                color = colorScheme.onPrimary
+                color = colors.blackWhite
             )
             HorizontalDivider(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = Dp8),
                 thickness = Dp1,
-                color = colorScheme.onPrimary.copy(alpha = 0.12f)
+                color = colors.blackWhite.copy(alpha = 0.12f)
             )
             Column(
                 modifier = Modifier
@@ -144,7 +144,7 @@ internal fun HandleBottomSheetDownload(
             HorizontalDivider(
                 modifier = Modifier.fillMaxWidth(),
                 thickness = Dp1,
-                color = colorScheme.onPrimary.copy(alpha = 0.12f)
+                color = colors.blackWhite.copy(alpha = 0.12f)
             )
             MeverBannerAd(
                 modifier = Modifier
@@ -170,7 +170,7 @@ internal fun HandleBottomSheetDownload(
                     Text(
                         text = stringResource(R.string.cancel),
                         style = typography.bodyBold1,
-                        color = colorScheme.onPrimary
+                        color = colors.blackWhite
                     )
                 }
                 if (selectMultipleItems.isEmpty()) return@Row
@@ -179,7 +179,7 @@ internal fun HandleBottomSheetDownload(
                         .width(Dp2)
                         .height(Dp20)
                         .background(
-                            color = colorScheme.onPrimary.copy(alpha = .08f),
+                            color = colors.blackWhite.copy(alpha = .08f),
                             shape = RoundedCornerShape(Dp8)
                         )
                 )
@@ -196,11 +196,11 @@ internal fun HandleBottomSheetDownload(
                     if (isDownloadProcessing) CircularProgressIndicator(
                         modifier = Modifier.size(Dp20),
                         strokeCap = Round,
-                        color = colorScheme.primary
+                        color = colors.alwaysPurple
                     ) else Text(
                         text = stringResource(R.string.download),
                         style = typography.bodyBold1,
-                        color = colorScheme.primary
+                        color = colors.alwaysPurple
                     )
                 }
             }
@@ -238,7 +238,7 @@ private fun MeverCheckBoxButton(
                 else R.drawable.ic_round_unchecked
             ),
             contentDescription = "Radio button",
-            tint = colorScheme.primary
+            tint = colors.alwaysPurple
         )
     }
     Text(
@@ -247,7 +247,7 @@ private fun MeverCheckBoxButton(
         maxLines = 2,
         overflow = Ellipsis,
         style = typography.body1,
-        color = colorScheme.onPrimary
+        color = colors.blackWhite
     )
     if (showPreviewButton) {
         when {
@@ -258,7 +258,7 @@ private fun MeverCheckBoxButton(
                 text = stringResource(R.string.preview),
                 textAlign = End,
                 style = typography.bodyBold2,
-                color = colorScheme.primary
+                color = colors.alwaysPurple
             )
 
             else -> CircularProgressIndicator(

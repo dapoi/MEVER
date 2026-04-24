@@ -2,7 +2,6 @@ package com.dapascript.mever.core.common.ui.component
 
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
@@ -11,6 +10,7 @@ import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.actions
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.navigationIcon
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.title
+import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -30,9 +30,9 @@ fun MeverTopBar(
             actions = actions(actionMenus),
             colors = topAppBarColors(
                 containerColor = topBarColor ?: MeverTransparent,
-                navigationIconContentColor = iconBackColor ?: colorScheme.onPrimary,
-                titleContentColor = titleColor ?: colorScheme.onPrimary,
-                actionIconContentColor = actionMenusColor ?: colorScheme.onPrimary
+                navigationIconContentColor = iconBackColor ?: colors.blackWhite,
+                titleContentColor = titleColor ?: colors.blackWhite,
+                actionIconContentColor = actionMenusColor ?: colors.blackWhite
             )
         )
     } else {
@@ -46,9 +46,9 @@ fun MeverTopBar(
             actions = actions(actionMenus),
             colors = topAppBarColors(
                 containerColor = topBarColor ?: MeverTransparent,
-                navigationIconContentColor = iconBackColor ?: colorScheme.onPrimary,
-                titleContentColor = titleColor ?: colorScheme.onPrimary,
-                actionIconContentColor = actionMenusColor ?: colorScheme.onPrimary
+                navigationIconContentColor = iconBackColor ?: colors.blackWhite,
+                titleContentColor = titleColor ?: colors.blackWhite,
+                actionIconContentColor = actionMenusColor ?: colors.blackWhite
             )
         )
     }

@@ -9,13 +9,13 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverTopBar
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
+import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.util.LocalActivity
 
 @SuppressLint("SourceLockedOrientationActivity")
@@ -59,7 +59,7 @@ private fun BaseScreenContent(
 ) {
     Box(
         modifier = Modifier
-            .background(color = colorScheme.background)
+            .background(color = colors.whiteDark)
             .getSystemBarsPadding(useStatusBarsPadding, useNavigationBarsPadding)
     ) {
         content()

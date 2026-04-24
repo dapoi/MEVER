@@ -15,7 +15,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -37,6 +36,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp3
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
+import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.util.clearFocusOnKeyboardDismiss
 import com.dapascript.mever.core.common.util.onCustomClick
@@ -62,7 +62,7 @@ fun MeverTextField(
         modifier = modifier
             .padding(vertical = Dp3)
             .shadow(elevation = Dp3, shape = shape)
-            .background(color = colorScheme.surface, shape = shape)
+            .background(color = colors.whiteDarkGray, shape = shape)
             .clip(shape),
         verticalAlignment = CenterVertically
     ) {
@@ -79,7 +79,7 @@ fun MeverTextField(
                 },
             painter = painterResource(leadingIcon ?: R.drawable.ic_link),
             contentDescription = "Leading icon",
-            tint = colorScheme.onPrimary
+            tint = colors.blackWhite
         )
         BasicTextField(
             modifier = Modifier
@@ -90,14 +90,14 @@ fun MeverTextField(
             interactionSource = interactionSource,
             maxLines = maxLines,
             singleLine = singleLine,
-            cursorBrush = SolidColor(colorScheme.onPrimary),
-            textStyle = typography.body2.copy(color = colorScheme.onPrimary),
+            cursorBrush = SolidColor(colors.blackWhite),
+            textStyle = typography.body2.copy(color = colors.blackWhite),
             keyboardOptions = KeyboardOptions(keyboardType = Uri, imeAction = Done),
             keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
             decorationBox = { innerTextField ->
                 if (value.text.isEmpty()) Text(
                     text = stringResource(hint ?: R.string.paste_url),
-                    style = typography.body2.copy(color = colorScheme.secondary)
+                    style = typography.body2.copy(color = colors.grayLightGray)
                 )
                 innerTextField()
             }
@@ -114,7 +114,7 @@ fun MeverTextField(
                     modifier = Modifier.fillMaxSize(),
                     painter = painterResource(R.drawable.ic_clear),
                     contentDescription = "Clear",
-                    tint = colorScheme.onPrimary
+                    tint = colors.blackWhite
                 )
             }
         }

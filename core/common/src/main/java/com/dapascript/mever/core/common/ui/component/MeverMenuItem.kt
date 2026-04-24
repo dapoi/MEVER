@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -33,6 +32,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp50
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverLightGray
+import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.onCustomClick
@@ -72,7 +72,7 @@ fun MeverMenuItem(
             Text(
                 text = leadingTitle,
                 style = typography.bodyBold1,
-                color = colorScheme.onPrimary
+                color = colors.blackWhite
             )
         }
         when (trailingType) {
@@ -84,7 +84,7 @@ fun MeverMenuItem(
                     Text(
                         text = title,
                         style = typography.body2,
-                        color = trailingType.trailingTitleColor ?: colorScheme.onPrimary
+                        color = trailingType.trailingTitleColor ?: colors.blackWhite
                     )
                 }
                 Box(
@@ -98,7 +98,7 @@ fun MeverMenuItem(
                 ) {
                     Image(
                         painter = painterResource(R.drawable.ic_back),
-                        colorFilter = tint(color = colorScheme.onPrimary),
+                        colorFilter = tint(color = colors.blackWhite),
                         contentDescription = "Arrow Right",
                         modifier = Modifier
                             .size(Dp16)
@@ -112,9 +112,9 @@ fun MeverMenuItem(
                     modifier = Modifier.align(CenterVertically),
                     colors = SwitchDefaults.colors(
                         checkedThumbColor = MeverWhite,
-                        checkedTrackColor = colorScheme.primary,
-                        uncheckedThumbColor = colorScheme.secondary,
-                        uncheckedTrackColor = colorScheme.onSurfaceVariant,
+                        checkedTrackColor = colors.alwaysPurple,
+                        uncheckedThumbColor = colors.grayLightGray,
+                        uncheckedTrackColor = colors.lightGrayDarkGray,
                         uncheckedBorderColor = Unspecified
                     ),
                     checked = trailingType.switchState,

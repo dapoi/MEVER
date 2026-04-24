@@ -44,7 +44,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults.Thumb
 import androidx.compose.material3.SliderDefaults.Track
@@ -124,6 +123,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverBlack
 import com.dapascript.mever.core.common.ui.theme.MeverDark
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
+import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
@@ -346,7 +346,7 @@ fun MeverVideoPlayer(
             text = stringResource(R.string.failed_playback),
             textAlign = TextAlign.Center,
             style = typography.body1,
-            color = colorScheme.onPrimary
+            color = colors.blackWhite
         )
         Box(
             modifier = Modifier
@@ -359,7 +359,7 @@ fun MeverVideoPlayer(
             Text(
                 text = stringResource(R.string.close),
                 style = typography.bodyBold2,
-                color = colorScheme.primary
+                color = colors.alwaysPurple
             )
         }
     }

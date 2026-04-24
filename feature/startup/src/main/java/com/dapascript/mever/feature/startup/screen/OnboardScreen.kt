@@ -25,7 +25,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults.buttonColors
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -57,6 +56,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
+import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
@@ -164,7 +164,7 @@ internal fun OnboardScreen(
                         .matchParentSize()
                         .background(
                             brush = Brush.horizontalGradient(
-                                colors = listOf(MeverTransparent, colorScheme.background),
+                                colors = listOf(MeverTransparent, colors.whiteDark),
                                 startX = 100f,
                                 endX = 1000f
                             )
@@ -223,13 +223,13 @@ private fun DescriptionOnboardSection(modifier: Modifier = Modifier) = Column(mo
     Text(
         text = stringResource(coreUiR.string.easy_to_use),
         style = typography.body2,
-        color = colorScheme.secondary
+        color = colors.grayLightGray
     )
     Spacer(modifier = Modifier.size(Dp8))
     Text(
         text = stringResource(coreUiR.string.supports),
         style = typography.h2.copy(fontSize = Sp36),
-        color = colorScheme.onPrimary
+        color = colors.blackWhite
     )
     Spacer(modifier = Modifier.size(Dp4))
     Text(
@@ -243,7 +243,7 @@ private fun DescriptionOnboardSection(modifier: Modifier = Modifier) = Column(mo
                 append(stringResource(coreUiR.string.multiple))
             }
             append(" ")
-            withStyle(baseStyle.copy(color = colorScheme.onPrimary)) {
+            withStyle(baseStyle.copy(color = colors.blackWhite)) {
                 append(stringResource(coreUiR.string.source))
             }
         },
@@ -253,6 +253,6 @@ private fun DescriptionOnboardSection(modifier: Modifier = Modifier) = Column(mo
     Text(
         text = stringResource(coreUiR.string.download_easily),
         style = typography.body2,
-        color = colorScheme.secondary
+        color = colors.grayLightGray
     )
 }

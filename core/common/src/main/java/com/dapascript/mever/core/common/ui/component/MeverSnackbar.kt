@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarDuration.Short
 import androidx.compose.material3.SnackbarHost
@@ -21,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
+import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.util.onCustomClick
 
@@ -30,8 +30,8 @@ fun MeverSnackbar(
     modifier: Modifier = Modifier,
     actionMessage: String? = null,
     duration: SnackbarDuration = Short,
-    snackbarColor: Color = colorScheme.primary,
-    snackbarContentColor: Color = colorScheme.onSecondary,
+    snackbarColor: Color = colors.alwaysPurple,
+    snackbarContentColor: Color = colors.alwaysWhite,
     onClickSnackbarAction: (() -> Unit)? = null
 ) {
     val snackbarHostState = remember { SnackbarHostState() }

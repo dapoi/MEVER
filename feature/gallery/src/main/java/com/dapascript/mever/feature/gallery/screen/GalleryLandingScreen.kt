@@ -20,7 +20,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -71,6 +70,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp5
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
+import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
@@ -238,6 +238,7 @@ internal fun GalleryLandingScreen(
             },
             label = { it.getText(context) },
             showDropDownMenu = showDropDownMenu,
+            backgroundColor = colors.whiteDarkGray,
             onDismissDropDownMenu = {
                 if (isSelectedAll.not()) {
                     showDropDownMenu = it
@@ -426,7 +427,7 @@ private fun GalleryContentSection(
                                 Text(
                                     text = stringResource(R.string.gallery),
                                     style = typography.h2.copy(fontSize = Sp32),
-                                    color = colorScheme.onPrimary,
+                                    color = colors.blackWhite,
                                     modifier = Modifier
                                         .padding(top = Dp16, start = Dp24, end = Dp24)
                                         .onGloballyPositioned { onSetTitleHeight(it.size.height) }
@@ -437,7 +438,7 @@ private fun GalleryContentSection(
                             if (platformTypes.size > 1 && showSelector.not()) {
                                 FilterContent(
                                     modifier = Modifier
-                                        .background(colorScheme.background)
+                                        .background(colors.whiteDark)
                                         .fillMaxWidth()
                                         .horizontalScroll(headerScroll)
                                         .padding(
@@ -456,7 +457,7 @@ private fun GalleryContentSection(
                                         .fillMaxWidth()
                                         .shadow(Dp3),
                                     thickness = Dp1,
-                                    color = colorScheme.onPrimary.copy(alpha = 0.12f)
+                                    color = colors.blackWhite.copy(alpha = 0.12f)
                                 )
                             }
                         }
@@ -499,7 +500,7 @@ private fun GalleryContentSection(
                     Text(
                         text = stringResource(R.string.gallery),
                         style = typography.h2.copy(fontSize = Sp32),
-                        color = colorScheme.onPrimary,
+                        color = colors.blackWhite,
                         modifier = Modifier.padding(top = Dp80, start = Dp24, end = Dp24)
                     )
                     MeverEmptyItem(
@@ -517,7 +518,7 @@ private fun GalleryContentSection(
             Text(
                 text = stringResource(R.string.gallery),
                 style = typography.h2.copy(fontSize = Sp32),
-                color = colorScheme.onPrimary,
+                color = colors.blackWhite,
                 modifier = Modifier.padding(
                     top = Dp16,
                     start = Dp24,
@@ -572,9 +573,9 @@ private fun FilterContent(
 
 @Composable
 private fun getButtonType(isFilled: Boolean) = if (isFilled) Filled(
-    backgroundColor = colorScheme.primary,
+    backgroundColor = colors.alwaysPurple,
     contentColor = MeverWhite
 ) else Outlined(
-    borderColor = colorScheme.primary,
-    contentColor = colorScheme.primary
+    borderColor = colors.alwaysPurple,
+    contentColor = colors.alwaysPurple
 )

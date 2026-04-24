@@ -31,7 +31,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -85,6 +84,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp52
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
+import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp14
@@ -348,7 +348,7 @@ private fun ImageGeneratorResultContent(
                             if (imageSelected == url) {
                                 Modifier.border(
                                     width = Dp4,
-                                    color = colorScheme.primary,
+                                    color = colors.alwaysPurple,
                                     shape = RoundedCornerShape(Dp10)
                                 )
                             } else {
@@ -370,7 +370,7 @@ private fun ImageGeneratorResultContent(
         Text(
             text = stringResource(R.string.prompt),
             style = typography.bodyBold1,
-            color = colorScheme.onPrimary
+            color = colors.blackWhite
         )
         MeverAutoSizableTextField(
             modifier = Modifier
@@ -389,7 +389,7 @@ private fun ImageGeneratorResultContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .shadow(elevation = Dp2, shape = RoundedCornerShape(Dp12))
-                        .background(color = colorScheme.surface, shape = RoundedCornerShape(Dp12))
+                        .background(color = colors.whiteDarkGray, shape = RoundedCornerShape(Dp12))
                         .clip(RoundedCornerShape(Dp12))
                         .onCustomClick {
                             when (icon) {
@@ -408,13 +408,13 @@ private fun ImageGeneratorResultContent(
                         Icon(
                             modifier = Modifier.size(Dp20),
                             imageVector = ImageVector.vectorResource(icon),
-                            tint = colorScheme.onPrimary.copy(alpha = 0.4f),
+                            tint = colors.blackWhite.copy(alpha = 0.4f),
                             contentDescription = "Copy Prompt"
                         )
                         Text(
                             text = title,
                             style = typography.bodyBold2,
-                            color = colorScheme.onPrimary
+                            color = colors.blackWhite
                         )
                     }
                 }
@@ -458,7 +458,7 @@ private fun ImageGeneratorResultContent(
                                 if (imageSelected == url) {
                                     Modifier.border(
                                         width = Dp4,
-                                        color = colorScheme.primary,
+                                        color = colors.alwaysPurple,
                                         shape = RoundedCornerShape(Dp10)
                                     )
                                 } else {
@@ -485,7 +485,7 @@ private fun ImageGeneratorResultContent(
             Text(
                 text = stringResource(R.string.prompt),
                 style = typography.bodyBold1,
-                color = colorScheme.onPrimary
+                color = colors.blackWhite
             )
             MeverAutoSizableTextField(
                 modifier = Modifier
@@ -506,7 +506,7 @@ private fun ImageGeneratorResultContent(
                             .fillMaxWidth()
                             .shadow(elevation = Dp2, shape = RoundedCornerShape(Dp12))
                             .background(
-                                color = colorScheme.surface,
+                                color = colors.whiteDarkGray,
                                 shape = RoundedCornerShape(Dp12)
                             )
                             .clip(RoundedCornerShape(Dp12))
@@ -527,13 +527,13 @@ private fun ImageGeneratorResultContent(
                             Icon(
                                 modifier = Modifier.size(Dp20),
                                 imageVector = ImageVector.vectorResource(icon),
-                                tint = colorScheme.onPrimary.copy(alpha = 0.4f),
+                                tint = colors.blackWhite.copy(alpha = 0.4f),
                                 contentDescription = "Copy Prompt"
                             )
                             Text(
                                 text = title,
                                 style = typography.bodyBold2,
-                                color = colorScheme.onPrimary
+                                color = colors.blackWhite
                             )
                         }
                     }
@@ -555,13 +555,13 @@ private fun ImageGeneratorResultContent(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(color = colorScheme.background)
+                    .background(color = colors.whiteDark)
             ) {
                 if (scrollState.canScrollBackward || scrollState.canScrollForward) {
                     HorizontalDivider(
                         modifier = Modifier.fillMaxWidth(),
                         thickness = Dp2,
-                        color = colorScheme.onPrimary.copy(alpha = 0.12f)
+                        color = colors.blackWhite.copy(alpha = 0.12f)
                     )
                 }
                 Row(
@@ -577,8 +577,8 @@ private fun ImageGeneratorResultContent(
                             .height(Dp52),
                         title = stringResource(R.string.regenerate),
                         buttonType = Outlined(
-                            borderColor = colorScheme.primary,
-                            contentColor = colorScheme.primary
+                            borderColor = colors.alwaysPurple,
+                            contentColor = colors.alwaysPurple
                         )
                     ) { onClickRegenerate() }
                     MeverButton(
@@ -587,7 +587,7 @@ private fun ImageGeneratorResultContent(
                             .height(Dp52),
                         title = stringResource(R.string.download),
                         buttonType = Filled(
-                            backgroundColor = colorScheme.primary,
+                            backgroundColor = colors.alwaysPurple,
                             contentColor = MeverWhite
                         )
                     ) { onClickDownload() }

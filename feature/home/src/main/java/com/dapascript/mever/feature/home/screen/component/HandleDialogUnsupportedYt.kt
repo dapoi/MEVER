@@ -4,7 +4,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
@@ -18,6 +17,7 @@ import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
 import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp200
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
+import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.util.onCustomClick
 
@@ -45,7 +45,7 @@ internal fun HandleDialogUnsupportedYt(
             text = stringResource(R.string.unsupported_yt),
             textAlign = TextAlign.Center,
             style = typography.body1,
-            color = colorScheme.onPrimary
+            color = colors.blackWhite
         )
         Text(
             modifier = Modifier
@@ -55,7 +55,7 @@ internal fun HandleDialogUnsupportedYt(
             text = stringResource(R.string.ok),
             textAlign = TextAlign.Center,
             style = typography.bodyBold1,
-            color = colorScheme.primary
+            color = colors.alwaysPurple
         )
     }
 }
