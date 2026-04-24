@@ -1,4 +1,4 @@
-package com.dapascript.mever.feature.home.viewmodel
+package com.dapascript.mever.feature.ai.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.SavedStateHandle
@@ -27,28 +27,31 @@ import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.verifyNoInteractions
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class HomeImageGeneratorResultViewModelTest {
-
+class AiImageResultViewModelTest {
     @get:Rule
     val instantExecutorRule = InstantTaskExecutorRule()
 
     private val testDispatcher = StandardTestDispatcher()
     private val testScope = TestScope(testDispatcher)
 
-    @Mock lateinit var ketch: Ketch
-    @Mock lateinit var repository: MeverRepository
+    @Mock
+    lateinit var ketch: Ketch
+    @Mock
+    lateinit var repository: MeverRepository
 
-    private lateinit var viewModel: HomeImageGeneratorResultViewModel
+    private lateinit var viewModel: AiImageResultViewModel
 
     private val fakeImageAi = ImageAiEntity(
-        imagesUrl = listOf("https://ai-img1.jpg", "https://ai-img2.jpg")
+        imagesUrl = listOf(
+            "https://ai-img1.jpg",
+            "https://ai-img2.jpg"
+        )
     )
 
     /** Helper to reflectively get the backing _aiResponseState flow */
     @Suppress("UNCHECKED_CAST")
     private fun backingFlow(): MutableStateFlow<UiState<ImageAiEntity>> {
-        val field = HomeImageGeneratorResultViewModel::class.java
-            .getDeclaredField("_aiResponseState")
+        val field = AiImageResultViewModel::class.java.getDeclaredField("_aiResponseState")
         field.isAccessible = true
         return field.get(viewModel) as MutableStateFlow<UiState<ImageAiEntity>>
     }
@@ -59,7 +62,11 @@ class HomeImageGeneratorResultViewModelTest {
         Dispatchers.setMain(testDispatcher)
         // Empty SavedStateHandle - args is lazy and only accessed when getImageAiGenerator() is called.
         // We test state directly via the backing flow, avoiding the toRoute() navigation internals.
-        viewModel = HomeImageGeneratorResultViewModel(SavedStateHandle(), ketch, repository)
+        viewModel = AiImageResultViewModel(
+            SavedStateHandle(),
+            ketch,
+            repository
+        )
     }
 
     @After
@@ -90,7 +97,9 @@ class HomeImageGeneratorResultViewModelTest {
         advanceUntilIdle()
         job.cancel()
         assertTrue(states.any { it is UiState.StateSuccess })
-        assertEquals(fakeImageAi, (states.first { it is UiState.StateSuccess } as UiState.StateSuccess).data)
+        assertEquals(
+            fakeImageAi,
+            (states.first { it is UiState.StateSuccess } as UiState.StateSuccess).data)
     }
 
     @Test
@@ -101,7 +110,9 @@ class HomeImageGeneratorResultViewModelTest {
         advanceUntilIdle()
         job.cancel()
         assertTrue(states.any { it is UiState.StateFailed })
-        assertEquals("AI error", (states.first { it is UiState.StateFailed } as UiState.StateFailed).message)
+        assertEquals(
+            "AI error",
+            (states.first { it is UiState.StateFailed } as UiState.StateFailed).message)
     }
 
     @Test
@@ -121,4 +132,3 @@ class HomeImageGeneratorResultViewModelTest {
         assertTrue(viewModel.aiResponseState.value !is UiState.StateLoading)
     }
 }
-

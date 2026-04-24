@@ -1,4 +1,4 @@
-package com.dapascript.mever.feature.home.screen
+package com.dapascript.mever.feature.ai.screen
 
 import android.content.Context
 import android.graphics.Bitmap.CompressFormat.PNG
@@ -55,17 +55,20 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.style.TextAlign.Companion.Center
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Filled
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Outlined
+import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverAutoSizableTextField
 import com.dapascript.mever.core.common.ui.component.MeverBannerAd
 import com.dapascript.mever.core.common.ui.component.MeverButton
 import com.dapascript.mever.core.common.ui.component.MeverDeclinedPermission
+import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverDialogError
 import com.dapascript.mever.core.common.ui.component.MeverImage
 import com.dapascript.mever.core.common.ui.component.MeverPermissionHandler
@@ -104,19 +107,18 @@ import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getStorageInfo
 import com.dapascript.mever.core.common.util.storage.StorageUtil.isStorageFull
 import com.dapascript.mever.core.navigation.helper.navigateTo
+import com.dapascript.mever.core.navigation.route.AiScreenRoute.AiImageResultRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute
-import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeImageGeneratorResultRoute
-import com.dapascript.mever.feature.home.screen.attr.HomeImageGeneratorResultAttr.getMenuActions
-import com.dapascript.mever.feature.home.screen.component.HandleDialogExitConfirmation
-import com.dapascript.mever.feature.home.viewmodel.HomeImageGeneratorResultViewModel
+import com.dapascript.mever.feature.ai.screen.attr.AiImageResultAttr.getMenuActions
+import com.dapascript.mever.feature.ai.viewmodel.AiImageResultViewModel
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 
 @Composable
-internal fun HomeImageGeneratorResultScreen(
+internal fun AiImageResultScreen(
     navController: NavController,
-    viewModel: HomeImageGeneratorResultViewModel = hiltViewModel()
+    viewModel: AiImageResultViewModel = hiltViewModel()
 ) = with(viewModel) {
     val activity = LocalActivity.current
     val context = LocalContext.current
@@ -182,7 +184,7 @@ internal fun HomeImageGeneratorResultScreen(
                             aiImages.forEach { url -> scope.launch { startDownload(url = url) } }
                             navController.navigateTo(
                                 route = GalleryLandingRoute,
-                                popUpTo = HomeImageGeneratorResultRoute::class,
+                                popUpTo = AiImageResultRoute::class,
                                 inclusive = true
                             )
                         }
@@ -194,7 +196,7 @@ internal fun HomeImageGeneratorResultScreen(
                             scope.launch { startDownload(url = imageSelected.orEmpty()) }
                             if (aiImages.size <= 1) navController.navigateTo(
                                 route = GalleryLandingRoute,
-                                popUpTo = HomeImageGeneratorResultRoute::class,
+                                popUpTo = AiImageResultRoute::class,
                                 inclusive = true
                             ) else aiImages = aiImages.toMutableStateList().apply {
                                 removeAt(aiImages.indexOf(imageSelected))
@@ -692,5 +694,28 @@ private fun ImageGeneratorLoading(
                     .background(meverShimmer())
             )
         }
+    }
+}
+
+@Composable
+private fun HandleDialogExitConfirmation(
+    showDialog: Boolean,
+    onClickPrimary: () -> Unit,
+    onClickSecondary: () -> Unit
+) {
+    MeverDialog(
+        showDialog = showDialog,
+        meverDialogArgs = MeverDialogArgs(
+            title = stringResource(R.string.cancel_fetch_title),
+            onClickPrimaryButton = onClickPrimary,
+            onClickSecondaryButton = onClickSecondary
+        )
+    ) {
+        Text(
+            text = stringResource(R.string.cancel_fetch_desc),
+            textAlign = Center,
+            style = typography.body1,
+            color = colors.blackWhite
+        )
     }
 }

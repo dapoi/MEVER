@@ -1,7 +1,6 @@
 package com.dapascript.mever.feature.home.screen
 
 import android.content.Context
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.fadeIn
@@ -154,11 +153,11 @@ import com.dapascript.mever.core.common.util.storage.StorageUtil.StorageInfo
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getStorageInfo
 import com.dapascript.mever.core.common.util.storage.StorageUtil.isStorageFull
 import com.dapascript.mever.core.navigation.helper.navigateTo
+import com.dapascript.mever.core.navigation.route.AiScreenRoute.AiImageResultRoute
 import com.dapascript.mever.core.navigation.route.ExploreScreenRoute.ExploreLandingRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute.Content
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute
-import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeImageGeneratorResultRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingAppreciateRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLandingRoute
 import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.getArtStyles
@@ -166,7 +165,6 @@ import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.getIn
 import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetDownload
 import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetPlatformSupport
 import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetYouTubeQuality
-import com.dapascript.mever.feature.home.screen.component.HandleDialogExitConfirmation
 import com.dapascript.mever.feature.home.screen.component.HandleDialogUnsupportedYt
 import com.dapascript.mever.feature.home.screen.component.HandleDonationDialogOffer
 import com.dapascript.mever.feature.home.viewmodel.HomeLandingViewModel
@@ -460,7 +458,6 @@ private fun HomeDownloaderSection(
     val activity = LocalActivity.current
     val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
     var showLoading by remember { mutableStateOf(false) }
-    var showCancelExitConfirmation by remember { mutableStateOf(false) }
     var showYoutubeChooseQualityModal by remember { mutableStateOf(false) }
     var randomDonateDialogOffer by remember { mutableIntStateOf(0) }
     var setStoragePermission by remember { mutableStateOf<List<String>>(emptyList()) }
@@ -572,8 +569,6 @@ private fun HomeDownloaderSection(
             })
     }
 
-    BackHandler(showLoading) { showCancelExitConfirmation = true }
-
     HandleBottomSheetDownload(
         modifier = Modifier
             .fillMaxWidth()
@@ -662,12 +657,6 @@ private fun HomeDownloaderSection(
     )
 
     HandleDialogUnsupportedYt(showUnsupportedYouTubeDialog) { showUnsupportedYouTubeDialog = false }
-
-    HandleDialogExitConfirmation(
-        showDialog = showCancelExitConfirmation,
-        onClickPrimary = { activity.finish() },
-        onClickSecondary = { showCancelExitConfirmation = false }
-    )
 
     HandleDonationDialogOffer(
         showDialog = randomDonateDialogOffer == 1,
@@ -1242,9 +1231,11 @@ private fun NavController.navigateToGalleryScreen() = navigateTo(GalleryLandingR
 private fun NavController.navigateToSettingScreen() = navigateTo(SettingLandingRoute)
 
 private fun NavController.navigateToImageGenerator(
-    prompt: String, artStyle: String, totalImages: Int
+    prompt: String,
+    artStyle: String,
+    totalImages: Int
 ) = navigateTo(
-    HomeImageGeneratorResultRoute(
+    route = AiImageResultRoute(
         prompt = prompt,
         artStyle = artStyle,
         totalImages = totalImages
