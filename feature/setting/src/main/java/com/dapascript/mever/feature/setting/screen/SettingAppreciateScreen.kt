@@ -21,8 +21,10 @@ import com.dapascript.mever.core.common.ui.attr.MeverMenuItemAttr.MenuItemArgs.T
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverMenuItem
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
@@ -55,16 +57,18 @@ internal fun SettingAppreciateScreen(navController: NavController) {
         HandleBottomSheetQris(showBottomSheetQris) { showBottomSheetQris = it }
 
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = Dp24),
             verticalArrangement = spacedBy(Dp16)
         ) {
             Text(
+                modifier = Modifier.padding(top = Dp80),
                 text = stringResource(R.string.appreciate),
                 style = typography.h2.copy(fontSize = Sp32),
-                color = colors.blackWhite,
-                modifier = Modifier.padding(top = Dp16)
+                color = colors.blackWhite
             )
-            getSettingMenus().first().menus.forEach {
+            getSettingMenus()[1].menus.forEach {
                 MeverMenuItem(
                     menuArgs = MenuItemArgs(
                         leadingTitle = stringResource(it.leadingTitle),
