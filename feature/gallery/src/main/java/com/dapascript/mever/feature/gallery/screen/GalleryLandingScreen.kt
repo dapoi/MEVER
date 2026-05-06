@@ -416,83 +416,81 @@ private fun GalleryContentSection(
 
         downloadList?.let {
             if (downloadList.isNotEmpty()) {
-                Column(modifier = modifier) {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxWidth(),
-                        state = listState,
-                        contentPadding = PaddingValues(bottom = Dp80)
-                    ) {
-                        if (showSelector.not()) {
-                            item {
-                                Text(
-                                    text = stringResource(R.string.gallery),
-                                    style = typography.h2.copy(fontSize = Sp32),
-                                    color = colors.blackWhite,
-                                    modifier = Modifier
-                                        .padding(top = Dp16, start = Dp24, end = Dp24)
-                                        .onGloballyPositioned { onSetTitleHeight(it.size.height) }
-                                )
-                            }
-                        }
-                        stickyHeader {
-                            if (platformTypes.size > 1 && showSelector.not()) {
-                                FilterContent(
-                                    modifier = Modifier
-                                        .background(colors.whiteDark)
-                                        .fillMaxWidth()
-                                        .horizontalScroll(headerScroll)
-                                        .padding(
-                                            start = Dp24,
-                                            end = Dp24,
-                                            top = Dp16,
-                                            bottom = Dp24
-                                        ),
-                                    platformTypes = platformTypes,
-                                    selectedFilter = selectedFilter
-                                ) { filter -> onClickFilter(filter) }
-                            }
-                            if (isExpanded.not()) {
-                                HorizontalDivider(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .shadow(Dp3),
-                                    thickness = Dp1,
-                                    color = colors.blackWhite.copy(alpha = 0.12f)
-                                )
-                            }
-                        }
-                        items(
-                            items = downloadList,
-                            key = { it.id },
-                            contentType = { it.status.name }
-                        ) {
-                            MeverCard(
-                                modifier = Modifier.animateItem(),
-                                showSelector = showSelector,
-                                isSelected = it in selectedItems,
-                                cardArgs = MeverCardArgs(
-                                    source = it.url,
-                                    tag = it.tag,
-                                    fileName = it.fileName,
-                                    status = it.status,
-                                    progress = it.progress,
-                                    total = it.total,
-                                    path = it.path,
-                                    urlThumbnail = it.metaData,
-                                    icon = getPlatformIcon(it.tag),
-                                    iconBackgroundColor = getPlatformIconBackgroundColor(
-                                        it.tag
-                                    ),
-                                    iconSize = Dp24,
-                                    iconPadding = Dp5
-                                ),
-                                onClickCard = { onClickCard(it) },
-                                onClickDelete = { onClickDelete(it) },
-                                onClickLong = { onClickLong(it) },
-                                onClickShare = { onClickShare(it) },
-                                onClickSelectedItem = { onClickSelectedItem(it) }
+                LazyColumn(
+                    modifier = modifier,
+                    state = listState,
+                    contentPadding = PaddingValues(bottom = Dp80)
+                ) {
+                    if (showSelector.not()) {
+                        item {
+                            Text(
+                                text = stringResource(R.string.gallery),
+                                style = typography.h2.copy(fontSize = Sp32),
+                                color = colors.blackWhite,
+                                modifier = Modifier
+                                    .padding(top = Dp16, start = Dp24, end = Dp24)
+                                    .onGloballyPositioned { onSetTitleHeight(it.size.height) }
                             )
                         }
+                    }
+                    stickyHeader {
+                        if (platformTypes.size > 1 && showSelector.not()) {
+                            FilterContent(
+                                modifier = Modifier
+                                    .background(colors.whiteDark)
+                                    .fillMaxWidth()
+                                    .horizontalScroll(headerScroll)
+                                    .padding(
+                                        start = Dp24,
+                                        end = Dp24,
+                                        top = Dp16,
+                                        bottom = Dp24
+                                    ),
+                                platformTypes = platformTypes,
+                                selectedFilter = selectedFilter
+                            ) { filter -> onClickFilter(filter) }
+                        }
+                        if (isExpanded.not()) {
+                            HorizontalDivider(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .shadow(Dp3),
+                                thickness = Dp1,
+                                color = colors.blackWhite.copy(alpha = 0.12f)
+                            )
+                        }
+                    }
+                    items(
+                        items = downloadList,
+                        key = { it.id },
+                        contentType = { it.status.name }
+                    ) {
+                        MeverCard(
+                            modifier = Modifier.animateItem(),
+                            showSelector = showSelector,
+                            isSelected = it in selectedItems,
+                            cardArgs = MeverCardArgs(
+                                source = it.url,
+                                tag = it.tag,
+                                fileName = it.fileName,
+                                status = it.status,
+                                progress = it.progress,
+                                total = it.total,
+                                path = it.path,
+                                urlThumbnail = it.metaData,
+                                icon = getPlatformIcon(it.tag),
+                                iconBackgroundColor = getPlatformIconBackgroundColor(
+                                    it.tag
+                                ),
+                                iconSize = Dp24,
+                                iconPadding = Dp5
+                            ),
+                            onClickCard = { onClickCard(it) },
+                            onClickDelete = { onClickDelete(it) },
+                            onClickLong = { onClickLong(it) },
+                            onClickShare = { onClickShare(it) },
+                            onClickSelectedItem = { onClickSelectedItem(it) }
+                        )
                     }
                 }
             } else {
