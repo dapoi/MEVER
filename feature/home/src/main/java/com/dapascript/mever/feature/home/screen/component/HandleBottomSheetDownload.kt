@@ -278,7 +278,7 @@ private fun getValueSelector(
     stringResource(R.string.quality, content.quality)
 } else content.fileName.ifEmpty {
     when {
-        content.type.contains("mp4") -> stringResource(R.string.video)
+        content.type.contains("mp4") -> stringResource(R.string.video, index + 1)
         content.type.contains("mp3") -> stringResource(R.string.audio)
         else -> stringResource(R.string.image, index + 1)
     }
