@@ -11,12 +11,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale.Companion.Crop
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp250
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import androidx.compose.ui.text.style.TextAlign.Companion.Center as TextAlignCenter
@@ -37,10 +36,9 @@ fun MeverEmptyItem(
     Image(
         modifier = Modifier.size(size),
         painter = painterResource(image),
-        contentScale = Crop,
         contentDescription = "Empty Ilustration"
     )
-    Spacer(modifier = Modifier.size(Dp8))
+    Spacer(modifier = Modifier.size(Dp16))
     Text(
         text = description,
         textAlign = TextAlignCenter,

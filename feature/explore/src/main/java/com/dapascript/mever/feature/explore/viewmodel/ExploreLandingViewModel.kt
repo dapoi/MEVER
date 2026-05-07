@@ -34,15 +34,17 @@ class ExploreLandingViewModel @Inject constructor(
         onFailed = { _exploreResponseState.value = StateFailed(it) }
     )
 
+    fun randomQuery() = setOf(
+        "technology",
+        "cute animal",
+        "automotive",
+        "nature",
+        "waifu"
+    ).random()
+
     init {
         getExploreContents(
-            if (DEBUG) setOf(
-                "technology",
-                "cute animal",
-                "wallpaper",
-                "automotive",
-                "nature"
-            ).random() else ""
+            if (DEBUG) randomQuery() else ""
         )
     }
 }

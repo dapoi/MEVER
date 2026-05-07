@@ -131,11 +131,12 @@ internal fun ExploreLandingScreen(
             errorDescription = errorMessage,
             onClickPrimary = {
                 errorMessage = ""
-                getExploreContents(query)
+                getExploreContents(query.ifEmpty { randomQuery() })
             },
             onClickSecondary = {
                 contents = emptyList()
                 errorMessage = ""
+                navController.popBackStack()
             }
         )
 

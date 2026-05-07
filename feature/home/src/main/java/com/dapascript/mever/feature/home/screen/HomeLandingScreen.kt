@@ -102,6 +102,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp150
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp20
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp200
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
@@ -1025,9 +1026,9 @@ private fun HomeDownloaderSection(
                     item { Spacer(modifier = Modifier.size(Dp24)) }
                 } else item {
                     MeverEmptyItem(
-                        modifier = Modifier.padding(top = Dp32),
-                        image = R.drawable.ic_not_found,
-                        size = Dp150.plus(Dp16),
+                        modifier = Modifier.padding(top = Dp24),
+                        image = R.drawable.ic_empty_file,
+                        size = Dp200,
                         description = stringResource(R.string.empty_list_desc)
                     )
                 }

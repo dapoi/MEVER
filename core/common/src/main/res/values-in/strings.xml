@@ -42,7 +42,7 @@
     <string name="notification">Notifikasi</string>
     <string name="theme">Tema</string>
     <string name="pip">Layar Mengambang</string>
-    <string name="appreciate">Dukungan</string>
+    <string name="appreciate">Apresiasi</string>
     <string name="bitcoin">Bitcoin</string>
     <string name="paypal">PayPal</string>
     <string name="qris">QRIS</string>
@@ -109,7 +109,7 @@
     <string name="playlist_not_supported">Belum bisa download playlist nih 😅</string>
     <string name="ok">Oke</string>
     <string name="keyword_hint">Masukkan kata kunci…</string>
-    <string name="no_result">Waduh, nggak ketemu hasilnya 😕</string>
+    <string name="no_result">Waduh, nggak ketemu hasilnya</string>
     <string name="failed_playback">Video ini gagal diputar 😕 harap coba lagi nanti ya.</string>
     <string name="disclaimer_supported_platforms">Dengan menggunakan aplikasi ini, Anda setuju mematuhi ketentuan layanan dan hak cipta tiap platform. Pastikan Anda berhak mengunduh dan menggunakan konten sesuai hukum yang berlaku.</string>
     <string name="unsupported_yt">Maaf… Unduhan dari YouTube tidak tersedia saat ini</string>

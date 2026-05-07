@@ -201,6 +201,7 @@ internal fun WaStatusScreen(
 
         MeverDialogError(
             showDialog = showWaNotInstalledDialog,
+            errorImage = R.drawable.ic_storage,
             errorTitle = stringResource(R.string.error_title),
             errorDescription = stringResource(R.string.wa_not_installed),
             primaryButtonText = stringResource(R.string.install),
@@ -368,7 +369,7 @@ private fun WaStatusContent(
                 } else {
                     MeverEmptyItem(
                         modifier = Modifier.weight(1f),
-                        image = R.drawable.ic_not_found,
+                        image = R.drawable.ic_empty_file,
                         size = Dp150.plus(Dp16),
                         description = stringResource(R.string.empty_wa_status_desc)
                     )
@@ -377,7 +378,7 @@ private fun WaStatusContent(
         } else {
             MeverEmptyItem(
                 modifier = Modifier.fillMaxSize(),
-                image = R.drawable.ic_not_found,
+                image = R.drawable.ic_empty_file,
                 size = Dp150.plus(Dp16),
                 description = stringResource(R.string.empty_wa_status_desc)
             )

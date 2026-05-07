@@ -63,7 +63,7 @@ import com.dapascript.mever.core.common.ui.component.meverShimmer
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp150
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp189
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp200
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp3
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp5
@@ -496,14 +496,17 @@ private fun GalleryContentSection(
             } else {
                 Column(modifier = Modifier.fillMaxSize()) {
                     Text(
+                        modifier = Modifier.padding(top = Dp80, start = Dp24, end = Dp24),
                         text = stringResource(R.string.gallery),
                         style = typography.h2.copy(fontSize = Sp32),
-                        color = colors.blackWhite,
-                        modifier = Modifier.padding(top = Dp80, start = Dp24, end = Dp24)
+                        color = colors.blackWhite
                     )
                     MeverEmptyItem(
-                        image = R.drawable.ic_not_found,
-                        size = Dp189,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = Dp24),
+                        image = R.drawable.ic_empty_file,
+                        size = Dp200,
                         description = stringResource(R.string.empty_list_desc)
                     )
                 }

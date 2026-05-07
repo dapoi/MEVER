@@ -44,7 +44,7 @@ internal fun HandleDonationDialogOffer(
         ) {
             Image(
                 modifier = Modifier.size(Dp150),
-                painter = painterResource(R.drawable.ic_coffee),
+                painter = painterResource(R.drawable.ic_wallet),
                 contentScale = FillBounds,
                 contentDescription = "Donation Icon"
             )

@@ -154,7 +154,7 @@ internal fun SplashScreen(
                 modifier = Modifier
                     .size(Dp200)
                     .align(CenterHorizontally),
-                painter = painterResource(R.drawable.ic_coffee),
+                painter = painterResource(R.drawable.ic_storage),
                 contentScale = Crop,
                 contentDescription = "Maintenance Image"
             )

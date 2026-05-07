@@ -6,7 +6,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale.Companion.Crop
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign.Companion.Center
@@ -43,7 +42,6 @@ fun MeverDialogError(
                     .size(Dp200)
                     .align(CenterHorizontally),
                 painter = painterResource(it),
-                contentScale = Crop,
                 contentDescription = "Error Image"
             )
         }
