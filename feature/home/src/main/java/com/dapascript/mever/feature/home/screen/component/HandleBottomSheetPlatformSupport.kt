@@ -66,7 +66,7 @@ internal fun HandleBottomSheetPlatformSupport(
         HorizontalDivider(
             modifier = Modifier.fillMaxWidth(),
             thickness = Dp1,
-            color = colors.blackWhite.copy(alpha = 0.12f)
+            color = colors.lightGrayDarkGray
         )
         Column(
             modifier = Modifier
@@ -98,14 +98,18 @@ internal fun HandleBottomSheetPlatformSupport(
                     platformName = platform
                 )
 
-                if (index < platforms.size - 1) HorizontalDivider()
+                if (index < platforms.size - 1) HorizontalDivider(
+                    modifier = Modifier.fillMaxWidth(),
+                    thickness = Dp1,
+                    color = colors.lightGrayDarkGray
+                )
             }
             Spacer(modifier = Modifier.size(Dp4))
         }
         HorizontalDivider(
             modifier = Modifier.fillMaxWidth(),
             thickness = Dp1,
-            color = colors.blackWhite.copy(alpha = 0.12f)
+            color = colors.lightGrayDarkGray
         )
         Text(
             modifier = Modifier

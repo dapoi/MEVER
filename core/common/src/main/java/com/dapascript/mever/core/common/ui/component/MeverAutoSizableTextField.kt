@@ -145,7 +145,8 @@ fun MeverAutoSizableTextField(
             Text(
                 modifier = Modifier.weight(1f),
                 text = "${value.length} / 1000",
-                textAlign = End
+                textAlign = End,
+                color = colors.grayLightGray
             )
         }
     }

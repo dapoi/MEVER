@@ -327,12 +327,7 @@ private fun ImageGeneratorResultContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(1f)
-                .clip(RoundedCornerShape(Dp12))
-                .graphicsLayer {
-                    scaleY = 1.1f
-                    scaleX = 1.1f
-                    clip = true
-                },
+                .clip(RoundedCornerShape(Dp12)),
             source = imageSelected,
             contentScale = FillBounds
         )

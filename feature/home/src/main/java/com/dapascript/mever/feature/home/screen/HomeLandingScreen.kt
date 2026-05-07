@@ -572,9 +572,7 @@ private fun HomeDownloaderSection(
     }
 
     HandleBottomSheetDownload(
-        modifier = Modifier
-            .fillMaxWidth()
-            .navigationBarsPadding(),
+        modifier = Modifier.fillMaxWidth(),
         listContent = contents,
         isDownloadProcessing = isDownloadProcessing,
         isInPreview = isInPreview,

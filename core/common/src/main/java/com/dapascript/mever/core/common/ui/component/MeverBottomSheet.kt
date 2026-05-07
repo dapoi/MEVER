@@ -24,11 +24,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.window.DialogWindowProvider
+import androidx.core.view.WindowCompat
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp0
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
+import com.dapascript.mever.core.common.ui.theme.MeverWhite
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -74,6 +78,7 @@ fun MeverBottomSheet(
                 topStart = corner,
                 topEnd = corner
             )
+
             isAlwaysRectangular -> HiddenShape
             else -> ExpandedShape
         },
@@ -92,5 +97,19 @@ fun MeverBottomSheet(
             )
         },
         onDismissRequest = onDismissBottomSheet
-    ) { content() }
+    ) {
+        val view = LocalView.current
+        val isAppInDarkMode = colors.whiteDark != MeverWhite
+
+        LaunchedEffect(view, isAppInDarkMode) {
+            val window = (view.parent as? DialogWindowProvider)?.window
+            if (window != null) {
+                WindowCompat.setDecorFitsSystemWindows(window, false)
+                WindowCompat.getInsetsController(
+                    window, view
+                ).isAppearanceLightNavigationBars = isAppInDarkMode.not()
+            }
+        }
+        content()
+    }
 }
