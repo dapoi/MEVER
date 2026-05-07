@@ -59,6 +59,7 @@ class SplashScreenViewModel @Inject constructor(
                     version = "1.0.0",
                     isImageGeneratorFeatureActive = true,
                     isGoImgFeatureActive = true,
+                    isWhatsAppStatusFeatureActive = true,
                     videoResolutionsAndAudioQualities = mapOf(
                         "video" to listOf("360p", "480p", "720p"),
                         "audio" to listOf("128kbps")
@@ -69,6 +70,7 @@ class SplashScreenViewModel @Inject constructor(
                 with(dataStore) {
                     setIsImageAiEnabled(mockAppConfig.isImageGeneratorFeatureActive)
                     setIsGoImgEnabled(mockAppConfig.isGoImgFeatureActive)
+                    setIsWhatsAppStatusFeatureActive(mockAppConfig.isWhatsAppStatusFeatureActive)
                     saveYoutubeVideoAndAudioQuality(mockAppConfig.videoResolutionsAndAudioQualities)
                 }
             }
@@ -83,6 +85,7 @@ class SplashScreenViewModel @Inject constructor(
                             with(dataStore) {
                                 setIsImageAiEnabled(it.isImageGeneratorFeatureActive)
                                 setIsGoImgEnabled(it.isGoImgFeatureActive)
+                                setIsWhatsAppStatusFeatureActive(it.isWhatsAppStatusFeatureActive)
                                 saveYoutubeVideoAndAudioQuality(it.videoResolutionsAndAudioQualities)
                             }
                         }

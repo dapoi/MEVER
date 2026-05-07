@@ -110,6 +110,12 @@ class HomeLandingViewModel @Inject constructor(
         initialValue = true
     )
 
+    val isWhatsAppStatusFeatureActive = dataStore.isWhatsAppStatusFeatureActive.stateIn(
+        scope = viewModelScope,
+        started = WhileSubscribed(),
+        initialValue = true
+    )
+
     val youtubeResolutions = dataStore.getYoutubeVideoAndAudioQuality.stateIn(
         scope = viewModelScope,
         started = WhileSubscribed(),

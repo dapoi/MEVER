@@ -50,6 +50,16 @@ class MeverDataStore @Inject constructor(
         preferences[KEY_IS_GO_IMG_ENABLED] ?: true
     }
 
+    suspend fun setIsWhatsAppStatusFeatureActive(isActive: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[KEY_IS_WHATSAPP_STATUS_FEATURE_ACTIVE] = isActive
+        }
+    }
+
+    val isWhatsAppStatusFeatureActive = dataStore.data.map { preferences ->
+        preferences[KEY_IS_WHATSAPP_STATUS_FEATURE_ACTIVE] ?: true
+    }
+
     suspend fun saveYoutubeVideoAndAudioQuality(qualities: Map<String, List<String>>) {
         dataStore.edit { preferences ->
             preferences[KEY_RESOLUTIONS] = if (qualities.isNotEmpty()) {
@@ -131,6 +141,7 @@ class MeverDataStore @Inject constructor(
         private val KEY_VERSION = stringPreferencesKey("version")
         private val KEY_IS_IMAGE_AI_ENABLED = booleanPreferencesKey("is_image_ai_enabled")
         private val KEY_IS_GO_IMG_ENABLED = booleanPreferencesKey("is_go_img_enabled")
+        private val KEY_IS_WHATSAPP_STATUS_FEATURE_ACTIVE = booleanPreferencesKey("is_whatsapp_status_feature_active")
         private val KEY_RESOLUTIONS = stringPreferencesKey("youtube_resolutions")
         private val KEY_IS_ONBOARDED = booleanPreferencesKey("is_onboarded")
         private val KEY_THEME = stringPreferencesKey("theme")

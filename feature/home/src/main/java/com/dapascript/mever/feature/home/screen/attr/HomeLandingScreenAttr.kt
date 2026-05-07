@@ -10,6 +10,7 @@ object HomeLandingScreenAttr {
         val featureName: String,
         val icon: Int,
         val route: Any,
+        val isEnabled: Boolean? = null,
         val arrowColor: Color? = null
     )
 

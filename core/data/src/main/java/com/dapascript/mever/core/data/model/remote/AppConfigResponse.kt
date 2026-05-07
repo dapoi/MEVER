@@ -9,6 +9,7 @@ data class AppConfigResponse(
     val isForceUpdateRequired: Boolean,
     val isImageGeneratorFeatureActive: Boolean,
     val isGoImgFeatureActive: Boolean,
+    val isWhatsAppStatusFeatureActive: Boolean,
     val youtubeResolutions: List<String>,
     val audioQualities: List<String>,
     val maintenanceDay: String? = null
@@ -18,6 +19,7 @@ data class AppConfigResponse(
         isForceUpdateRequired = isForceUpdateRequired,
         isImageGeneratorFeatureActive = isImageGeneratorFeatureActive,
         isGoImgFeatureActive = isGoImgFeatureActive,
+        isWhatsAppStatusFeatureActive = isWhatsAppStatusFeatureActive,
         videoResolutionsAndAudioQualities = mapOf(
             "video" to youtubeResolutions,
             "audio" to audioQualities

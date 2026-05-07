@@ -457,7 +457,6 @@ private fun HomeDownloaderSection(
     val downloaderResponseState = downloaderResponseState.collectAsStateValue()
     val youtubeResolutions = youtubeResolutions.collectAsStateValue()
     val urlIntent = getUrlIntent.collectAsStateValue()
-    val isGoImgFeatureActive = isGoImgFeatureActive.collectAsStateValue()
     val activity = LocalActivity.current
     val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
     var showLoading by remember { mutableStateOf(false) }
@@ -889,9 +888,13 @@ private fun HomeDownloaderSection(
                         .height(IntrinsicSize.Max),
                     horizontalArrangement = spacedBy(Dp16)
                 ) {
-                    val features = getFeaturesSectionItem(context)
+                    val features = getFeaturesSectionItem(
+                        viewModel = this@with,
+                        context = context
+                    )
+                    val activeFeatures = features.filter { it.isEnabled == true }
 
-                    features.forEach { data ->
+                    activeFeatures.forEach { data ->
                         MeverFeaturesBanner(
                             modifier = Modifier
                                 .weight(1f)
@@ -899,7 +902,7 @@ private fun HomeDownloaderSection(
                             icon = data.icon,
                             title = data.featureName,
                             arrowColor = data.arrowColor,
-                            isSingleItem = features.size == 1
+                            isSingleItem = activeFeatures.size == 1
                         ) { navController.navigateTo(data.route) }
                     }
                 }
@@ -1190,20 +1193,30 @@ private fun HomeAiSection(
 }
 
 @Composable
-private fun getFeaturesSectionItem(context: Context) = listOf(
-    FeaturesOption(
-        featureName = context.getString(R.string.view_wa_status),
-        icon = R.drawable.ic_wa,
-        arrowColor = MeverWaGreen,
-        route = WaStatusRoute
-    ),
-    FeaturesOption(
-        featureName = context.getString(R.string.find_image),
-        icon = R.drawable.ic_explore_image,
-        arrowColor = colors.purpleYellow,
-        route = ExploreLandingRoute
+private fun getFeaturesSectionItem(
+    viewModel: HomeLandingViewModel,
+    context: Context
+): List<FeaturesOption> = with(viewModel) {
+    val isWhatsAppStatusFeatureActive = isWhatsAppStatusFeatureActive.collectAsStateValue()
+    val isGoImgFeatureActive = isGoImgFeatureActive.collectAsStateValue()
+
+    return listOf(
+        FeaturesOption(
+            featureName = context.getString(R.string.view_wa_status),
+            icon = R.drawable.ic_wa,
+            arrowColor = MeverWaGreen,
+            isEnabled = isWhatsAppStatusFeatureActive,
+            route = WaStatusRoute
+        ),
+        FeaturesOption(
+            featureName = context.getString(R.string.find_image),
+            icon = R.drawable.ic_explore_image,
+            arrowColor = colors.purpleYellow,
+            isEnabled = isGoImgFeatureActive,
+            route = ExploreLandingRoute
+        )
     )
-)
+}
 
 private fun checkStateBeforeDownload(
     urlSocialMediaState: TextFieldValue,

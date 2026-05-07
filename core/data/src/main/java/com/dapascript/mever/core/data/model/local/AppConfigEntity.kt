@@ -4,6 +4,7 @@ data class AppConfigEntity(
     val version: String,
     val isImageGeneratorFeatureActive: Boolean,
     val isGoImgFeatureActive: Boolean,
+    val isWhatsAppStatusFeatureActive: Boolean,
     val videoResolutionsAndAudioQualities: Map<String, List<String>>,
     val maintenanceDay: String?,
     val isForceUpdateRequired: Boolean = false
