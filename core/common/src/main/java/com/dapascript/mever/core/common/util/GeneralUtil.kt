@@ -10,6 +10,7 @@ import android.content.Intent.ACTION_VIEW
 import android.content.Intent.EXTRA_EMAIL
 import android.content.Intent.EXTRA_SUBJECT
 import android.content.Intent.EXTRA_TEXT
+import android.content.pm.PackageManager.NameNotFoundException
 import android.graphics.Bitmap
 import android.graphics.Bitmap.CompressFormat.JPEG
 import android.graphics.BitmapFactory.decodeStream
@@ -372,4 +373,11 @@ fun getAppVersion(context: Context): String {
 fun isCustomDnsActive(context: Context): Boolean {
     val privateDnsMode = Settings.Global.getString(context.contentResolver, "private_dns_mode")
     return privateDnsMode == "hostname"
+}
+
+fun isAppInstalled(context: Context, packageName: String) = try {
+    context.packageManager.getPackageInfo(packageName, 0)
+    true
+} catch (_: NameNotFoundException) {
+    false
 }

@@ -122,4 +122,8 @@
     <string name="download_easily">Download media from Social Media easily.</string>
     <string name="disable_custom_dns">Please disable custom DNS to use the app.</string>
     <string name="view_wa_status">View WhatsApp Status</string>
+    <string name="empty_wa_status_desc">No status found. Please check your WhatsApp first.</string>
+    <string name="wa_not_installed">WhatsApp is not installed on this device.</string>
+    <string name="install">Install</string>
+    <string name="permission_request_wa">We need access to your storage to show WhatsApp status media.</string>
 </resources>

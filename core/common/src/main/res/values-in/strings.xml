@@ -122,4 +122,8 @@
     <string name="download_easily">Unduh dengan mudah dari berbagai platform media sosial favoritmu</string>
     <string name="disable_custom_dns">Tolong matikan DNS kustom untuk menggunakan aplikasi ini.</string>
     <string name="view_wa_status">Lihat Status Whatsapp</string>
+    <string name="empty_wa_status_desc">Belum ada status yang ditemukan. Lihat dulu di WhatsApp ya.</string>
+    <string name="wa_not_installed">WhatsApp tidak terpasang di perangkat ini.</string>
+    <string name="install">Pasang</string>
+    <string name="permission_request_wa">Kami butuh akses ke penyimpananmu untuk menampilkan status WhatsApp.</string>
 </resources>

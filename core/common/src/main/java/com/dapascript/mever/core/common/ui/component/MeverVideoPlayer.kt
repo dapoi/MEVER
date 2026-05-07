@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
 import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT
 import android.graphics.Rect
-import android.net.Uri.fromFile
 import android.os.Build.BRAND
 import android.os.Build.FINGERPRINT
 import android.os.Build.MODEL
@@ -135,7 +134,6 @@ import com.dapascript.mever.core.common.util.onCustomClick
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
-import java.io.File
 import kotlin.math.max
 
 @UnstableApi
@@ -252,10 +250,7 @@ fun MeverVideoPlayer(
     LaunchedEffect(viewAttached, videoSource, isPreview) {
         if (viewAttached) {
             val itemBuilder = MediaItem.Builder()
-                .setUri(
-                    if (isPreview) videoSource.toUri()
-                    else fromFile(File(videoSource))
-                )
+                .setUri(videoSource.toUri())
                 .setClipping(isPreview)
 
             player.setMediaItem(itemBuilder.build())

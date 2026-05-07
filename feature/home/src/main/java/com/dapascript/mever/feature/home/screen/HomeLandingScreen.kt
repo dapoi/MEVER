@@ -555,7 +555,8 @@ private fun HomeDownloaderSection(
                         if (youtubeResolutions.isNotEmpty()) showYoutubeChooseQualityModal = true
                         else showUnsupportedYouTubeDialog = true
                     },
-                    onActionDownload = { getApiDownloader() })
+                    onActionDownload = { getApiDownloader() }
+                )
             },
             onDenied = { isPermanentlyDeclined, retry ->
                 MeverDeclinedPermission(
@@ -565,8 +566,10 @@ private fun HomeDownloaderSection(
                         activity.goToSetting()
                     },
                     onRetry = { retry() },
-                    onDismiss = { setStoragePermission = emptyList() })
-            })
+                    onDismiss = { setStoragePermission = emptyList() }
+                )
+            }
+        )
     }
 
     HandleBottomSheetDownload(

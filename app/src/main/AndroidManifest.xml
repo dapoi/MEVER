@@ -27,6 +27,10 @@
     <uses-permission
         android:name="android.permission.WAKE_LOCK"
         tools:node="replace" />
+    <queries>
+        <package android:name="com.whatsapp" />
+        <package android:name="com.whatsapp.w4b" />
+    </queries>
 
     <application
         android:name=".MainApp"

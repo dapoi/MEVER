@@ -99,7 +99,7 @@ class MainActivity : AppCompatActivity() {
         LaunchedEffect(darkTheme) {
             enableEdgeToEdge(
                 statusBarStyle = if (darkTheme) {
-                    dark(scrim = MeverDark.toArgb())
+                    dark(scrim = MeverTransparent.toArgb())
                 } else {
                     light(
                         scrim = MeverTransparent.toArgb(),
@@ -107,7 +107,7 @@ class MainActivity : AppCompatActivity() {
                     )
                 },
                 navigationBarStyle = if (darkTheme) {
-                    dark(scrim = MeverDark.toArgb())
+                    dark(scrim = MeverTransparent.toArgb())
                 } else {
                     light(
                         scrim = MeverTransparent.toArgb(),

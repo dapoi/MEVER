@@ -87,7 +87,7 @@ internal fun SettingAboutAppScreen(
             onDispose {
                 activity.enableEdgeToEdge(
                     statusBarStyle = if (darkTheme) {
-                        dark(scrim = MeverDark.toArgb())
+                        dark(scrim = MeverTransparent.toArgb())
                     } else {
                         light(
                             scrim = MeverTransparent.toArgb(),
@@ -95,7 +95,7 @@ internal fun SettingAboutAppScreen(
                         )
                     },
                     navigationBarStyle = if (darkTheme) {
-                        dark(scrim = MeverDark.toArgb())
+                        dark(scrim = MeverTransparent.toArgb())
                     } else {
                         light(
                             scrim = MeverTransparent.toArgb(),
