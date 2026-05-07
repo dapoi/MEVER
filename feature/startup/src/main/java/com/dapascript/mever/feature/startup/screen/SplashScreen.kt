@@ -112,7 +112,11 @@ internal fun SplashScreen(
                             forceUpdateInProgress = true
                             inAppUpdateManager.startUpdate(
                                 updateAvailability = UPDATE_AVAILABLE,
-                                launcher = updateLauncher
+                                launcher = updateLauncher,
+                                onUpdateNotAvailable = {
+                                    forceUpdateInProgress = false
+                                    logoVisibleState.targetState = false
+                                }
                             )
                         }
 
@@ -177,7 +181,11 @@ internal fun SplashScreen(
                 if (event == ON_RESUME && forceUpdateInProgress) {
                     inAppUpdateManager.startUpdate(
                         updateAvailability = DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS,
-                        launcher = updateLauncher
+                        launcher = updateLauncher,
+                        onUpdateNotAvailable = {
+                            forceUpdateInProgress = false
+                            logoVisibleState.targetState = false
+                        }
                     )
                 }
             }

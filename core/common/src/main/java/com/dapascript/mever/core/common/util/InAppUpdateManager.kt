@@ -9,30 +9,35 @@ import com.google.android.play.core.install.model.AppUpdateType.IMMEDIATE
 
 class InAppUpdateManager(context: Context) {
     private val appUpdateManager = AppUpdateManagerFactory.create(context.applicationContext)
-    private val appUpdateInfoTask = appUpdateManager.appUpdateInfo
 
     fun startUpdate(
         updateAvailability: Int,
-        launcher: ActivityResultLauncher<IntentSenderRequest>
-    ) = try {
-        appUpdateInfoTask.addOnSuccessListener { appUpdateInfo ->
+        launcher: ActivityResultLauncher<IntentSenderRequest>,
+        onUpdateNotAvailable: () -> Unit
+    ) {
+        appUpdateManager.appUpdateInfo.addOnSuccessListener { appUpdateInfo ->
             if (
                 appUpdateInfo.updateAvailability() == updateAvailability
                 && appUpdateInfo.isUpdateTypeAllowed(IMMEDIATE)
             ) {
-                val updateOptions = AppUpdateOptions.newBuilder(IMMEDIATE)
-                    .setAllowAssetPackDeletion(true)
-                    .build()
-                appUpdateManager.startUpdateFlowForResult(
-                    appUpdateInfo,
-                    launcher,
-                    updateOptions
-                )
+                try {
+                    val updateOptions = AppUpdateOptions.newBuilder(IMMEDIATE)
+                        .setAllowAssetPackDeletion(true)
+                        .build()
+
+                    appUpdateManager.startUpdateFlowForResult(
+                        appUpdateInfo,
+                        launcher,
+                        updateOptions
+                    )
+                } catch (_: Exception) {
+                    onUpdateNotAvailable()
+                }
+            } else {
+                onUpdateNotAvailable()
             }
+        }.addOnFailureListener {
+            onUpdateNotAvailable()
         }
-        true
-    } catch (e: Exception) {
-        e.printStackTrace()
-        false
     }
 }
