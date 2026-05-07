@@ -141,7 +141,7 @@ import kotlin.math.max
 @Composable
 fun MeverVideoPlayer(
     fileName: String,
-    videoSource: String,
+    video: String,
     isPreview: Boolean,
     isAutoplayTarget: Boolean,
     isPageVisible: Boolean,
@@ -253,10 +253,10 @@ fun MeverVideoPlayer(
         if (isVideoBuffering.not()) didRecoverOnce = false
     }
 
-    LaunchedEffect(viewAttached, videoSource, isPreview) {
+    LaunchedEffect(viewAttached, video, isPreview) {
         if (viewAttached) {
             val itemBuilder = MediaItem.Builder()
-                .setUri(videoSource.toUri())
+                .setUri(video.toUri())
                 .setClipping(isPreview)
 
             player.setMediaItem(itemBuilder.build())
@@ -272,7 +272,7 @@ fun MeverVideoPlayer(
         }
     }
 
-    DisposableEffect(videoSource) {
+    DisposableEffect(video) {
         val listener = object : Listener {
             override fun onEvents(player: Player, events: Events) {
                 super.onEvents(player, events)

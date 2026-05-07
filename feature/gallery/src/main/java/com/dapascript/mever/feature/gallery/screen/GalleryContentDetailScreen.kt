@@ -199,7 +199,7 @@ internal fun GalleryContentDetailScreen(
                 if (isVideo) MeverVideoPlayer(
                     modifier = itemModifier,
                     fileName = convertFilename(fileName),
-                    videoSource = media,
+                    video = media,
                     isPreview = isPreview,
                     isPageVisible = pagerState.currentPage == page,
                     isScrolling = pagerState.isScrollInProgress,
@@ -219,7 +219,7 @@ internal fun GalleryContentDetailScreen(
                 ) else MeverPhotoViewer(
                     modifier = itemModifier,
                     fileName = convertFilename(fileName),
-                    primaryImage = media,
+                    image = media,
                     isDownloadable = isDownloadable,
                     isPreview = isPreview,
                     isDeletable = isDeletable,

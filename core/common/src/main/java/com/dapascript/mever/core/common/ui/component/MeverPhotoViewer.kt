@@ -77,7 +77,7 @@ import kotlin.math.roundToInt
 @Composable
 fun MeverPhotoViewer(
     fileName: String,
-    primaryImage: String,
+    image: String,
     isDownloadable: Boolean,
     isPreview: Boolean,
     isDeletable: Boolean,
@@ -134,7 +134,7 @@ fun MeverPhotoViewer(
             modifier = Modifier
                 .wrapContentSize()
                 .align(Center),
-            primaryImage = primaryImage,
+            primaryImage = image,
             isPhotoTouched = isPhotoTouched,
             onPhotoTouched = { isPhotoTouched = it },
             onZooming = { isZoomed = it },
@@ -169,7 +169,7 @@ fun MeverPhotoViewer(
                 contentColor = MeverWhite,
                 borderColor = MeverWhite
             )
-        ) { onClickDownload(primaryImage, fileName) }
+        ) { onClickDownload(image, fileName) }
         AnimatedVisibility(
             visible = isPhotoTouched.not(),
             enter = fadeIn(),
