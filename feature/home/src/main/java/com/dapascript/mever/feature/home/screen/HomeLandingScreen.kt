@@ -378,6 +378,20 @@ private fun HomeScreenContent(
                                     name,
                                     prompt
                                 )
+                            },
+                            onClickGenerateImage = {
+                                handleClickButton(
+                                    buttonClickCount = getButtonClickCount,
+                                    onIncrementClickCount = { incrementClickCount() },
+                                    onShowAds = { interstitialController.showAd() },
+                                    onClickAction = {
+                                        navController.navigateToImageGenerator(
+                                            prompt = promptState.text,
+                                            artStyle = selectedArtStyle.second,
+                                            totalImages = selectedImageCount
+                                        )
+                                    }
+                                )
                             }
                         )
                     }
@@ -413,7 +427,7 @@ private fun HomeScreenContent(
                 MeverButton(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(Dp40),
+                        .height(Dp48),
                     title = stringResource(R.string.generate),
                     isEnabled = promptState.text.isNotEmpty(),
                     buttonType = Filled(
@@ -1032,7 +1046,8 @@ private fun HomeAiSection(
     modifier: Modifier = Modifier,
     onPromptChange: (String) -> Unit,
     onImageCountSelected: (Int) -> Unit,
-    onArtStyleSelected: (String, String) -> Unit
+    onArtStyleSelected: (String, String) -> Unit,
+    onClickGenerateImage: (() -> Unit)? = null
 ) = CompositionLocalProvider(LocalOverscrollFactory provides null) {
     val imagesCountGenerated = remember { List(4) { it + 1 } }
     val artStyles = remember { getArtStyles(context) }
@@ -1185,6 +1200,20 @@ private fun HomeAiSection(
                         }
                     }
                 }
+            }
+            if (deviceType != PHONE) item {
+                Spacer(modifier = Modifier.size(Dp32))
+                MeverButton(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(Dp48),
+                    title = stringResource(R.string.generate),
+                    buttonType = Filled(
+                        backgroundColor = colors.alwaysPurple,
+                        contentColor = MeverWhite
+                    ),
+                    isEnabled = prompt.isNotEmpty()
+                ) { onClickGenerateImage?.invoke() }
             }
         }
     }
