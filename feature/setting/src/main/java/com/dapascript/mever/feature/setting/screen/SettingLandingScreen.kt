@@ -4,11 +4,14 @@ import android.content.Context
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.text.format.Formatter
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.background
@@ -30,7 +33,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -298,12 +300,18 @@ private fun SettingLandingContent(
                             .onGloballyPositioned { titleHeight = it.size.height }
                     ) {
                         Spacer(modifier = Modifier.height(Dp16))
-                        Text(
-                            text = stringResource(R.string.settings),
-                            style = typography.h2.copy(fontSize = Sp32),
-                            color = colors.blackWhite,
-                            modifier = Modifier.padding(horizontal = Dp24)
-                        )
+                        AnimatedVisibility(
+                            visible = isExpanded,
+                            enter = expandVertically() + fadeIn(),
+                            exit = shrinkVertically() + fadeOut()
+                        ) {
+                            Text(
+                                text = stringResource(R.string.settings),
+                                style = typography.h2.copy(fontSize = Sp32),
+                                color = colors.blackWhite,
+                                modifier = Modifier.padding(horizontal = Dp24)
+                            )
+                        }
                     }
                 }
                 item {
@@ -415,7 +423,7 @@ private fun AvailableStorageSection(
                     progress = { usedStorage },
                     color = statusColor,
                     strokeWidth = Dp8,
-                    trackColor = colorScheme.onBackground.copy(alpha = 0.1f),
+                    trackColor = colors.lightGrayDarkGray,
                     strokeCap = Round,
                     gapSize = Dp0
                 )
