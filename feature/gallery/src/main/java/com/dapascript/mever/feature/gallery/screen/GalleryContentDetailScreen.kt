@@ -56,7 +56,6 @@ import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryCont
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute
 import com.dapascript.mever.feature.gallery.viewmodel.GalleryContentDetailViewModel
 import kotlinx.coroutines.launch
-import java.io.File
 import kotlin.math.absoluteValue
 
 @SuppressLint("FrequentlyChangingValue")
@@ -200,33 +199,35 @@ internal fun GalleryContentDetailScreen(
                 if (isVideo) MeverVideoPlayer(
                     modifier = itemModifier,
                     fileName = convertFilename(fileName),
-                    videoSource = primaryContent,
+                    videoSource = media,
                     isPreview = isPreview,
                     isPageVisible = pagerState.currentPage == page,
                     isScrolling = pagerState.isScrollInProgress,
                     isAutoplayTarget = args.initialIndex == page || args.contents[page].isPreview,
                     isFullScreen = isFullScreen,
                     isPipEnabled = isPipEnabled,
+                    isDeletable = isDeletable,
                     onFullScreenChange = { isFullScreen = it },
                     onClickDelete = { deleteContent(id) },
                     onClickShare = {
                         shareContent(
                             context = context,
-                            file = File(primaryContent)
+                            contentPath = media
                         )
                     },
                     onClickBack = { navController.popBackStack() }
                 ) else MeverPhotoViewer(
                     modifier = itemModifier,
                     fileName = convertFilename(fileName),
+                    primaryImage = media,
                     isDownloadable = isDownloadable,
                     isPreview = isPreview,
-                    primaryImage = primaryContent,
+                    isDeletable = isDeletable,
                     onClickDelete = { deleteContent(id) },
                     onClickShare = {
                         shareContent(
                             context = context,
-                            file = File(primaryContent)
+                            contentPath = media
                         )
                     },
                     onClickBack = { navController.popBackStack() },

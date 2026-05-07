@@ -194,16 +194,44 @@ fun shareContent(context: Context, files: List<File>) {
     }
 }
 
-fun shareContent(context: Context, file: File) {
+fun shareContent(
+    context: Context,
+    contentPath: String,
+    isCache: Boolean = false
+) {
     try {
-        val uri = getUriForFile(
-            context,
-            "${context.packageName}.fileprovider",
-            file
-        )
+        val isContentUri = contentPath.startsWith("content://")
+        val uri = when {
+            isContentUri -> contentPath.toUri()
+
+            isCache -> {
+                val cacheFile = File(contentPath)
+                val stream = cacheFile.inputStream()
+                val tempFile = File.createTempFile(
+                    "shared_content",
+                    cacheFile.extension,
+                    context.cacheDir
+                ).apply {
+                    outputStream().use { output -> stream.copyTo(output) }
+                }
+                getUriForFile(
+                    context,
+                    "${context.packageName}.fileprovider",
+                    tempFile
+                )
+            }
+
+            else -> getUriForFile(
+                context,
+                "${context.packageName}.fileprovider",
+                File(contentPath)
+            )
+        }
+        val mimeType = if (isContentUri) context.contentResolver.getType(uri) ?: "*/*"
+        else getContentTypeFromFile(File(contentPath))
 
         IntentBuilder(context)
-            .setType(getContentTypeFromFile(file))
+            .setType(mimeType)
             .setSubject("MEVER Shared Content")
             .addStream(uri)
             .setChooserTitle("Share with")

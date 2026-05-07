@@ -16,9 +16,10 @@ sealed interface GalleryScreenRoute {
             val id: Int,
             val isVideo: Boolean,
             val fileName: String,
-            val primaryContent: String,
+            val media: String,
             val isDownloadable: Boolean = false,
-            val isPreview: Boolean = false
+            val isPreview: Boolean = false,
+            val isDeletable: Boolean = true
         )
     }
 }

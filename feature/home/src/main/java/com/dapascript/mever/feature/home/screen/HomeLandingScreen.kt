@@ -627,7 +627,7 @@ private fun HomeDownloaderSection(
                                 id = index,
                                 isPreview = true,
                                 isVideo = isVideo(extension),
-                                primaryContent = content.url,
+                                media = content.url,
                                 fileName = content.fileName
                             )
                         }
@@ -976,7 +976,7 @@ private fun HomeDownloaderSection(
                                                             Content(
                                                                 id = it.id,
                                                                 isVideo = isVideo(it.path),
-                                                                primaryContent = it.path,
+                                                                media = it.path,
                                                                 fileName = it.fileName
                                                             )
                                                         },
@@ -1003,7 +1003,7 @@ private fun HomeDownloaderSection(
                             onClickShare = {
                                 shareContent(
                                     context = context,
-                                    file = File(model.path)
+                                    contentPath = model.path
                                 )
                             },
                             onClickDelete = { showDeleteDialog = model.id })

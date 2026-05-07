@@ -77,9 +77,10 @@ import kotlin.math.roundToInt
 @Composable
 fun MeverPhotoViewer(
     fileName: String,
+    primaryImage: String,
     isDownloadable: Boolean,
     isPreview: Boolean,
-    primaryImage: String,
+    isDeletable: Boolean,
     modifier: Modifier = Modifier,
     onClickBack: () -> Unit,
     onClickDelete: () -> Unit,
@@ -98,6 +99,11 @@ fun MeverPhotoViewer(
     val density = LocalDensity.current
     val dismissDistance = with(density) { Dp120.toPx() }
     val bgAlpha = 1f - (abs(dragY) / (dismissDistance * 1.5f)).coerceIn(0f, 0.8f)
+    val actionMenus = remember(isDeletable) {
+        ContentViewerActionMenu.entries.filter { menu ->
+            if (isDeletable.not()) menu != DELETE else true
+        }
+    }
 
     DisposableEffect(lifecycleOwner) {
         onDispose { hideSystemBar(activity, isSystemBarVisible(activity).not()) }
@@ -195,7 +201,7 @@ fun MeverPhotoViewer(
             modifier = Modifier
                 .padding(PaddingValues(top = Dp64, end = Dp24))
                 .statusBarsPadding(),
-            listDropDown = ContentViewerActionMenu.entries,
+            listDropDown = actionMenus,
             label = { it.getText(context) },
             showDropDownMenu = showDropDownMenu,
             backgroundColor = MeverDark,

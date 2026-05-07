@@ -197,7 +197,7 @@ internal fun ExploreLandingScreen(
                                                         isDownloadable = true,
                                                         isPreview = true,
                                                         isVideo = false,
-                                                        primaryContent = contentEntity.url,
+                                                        media = contentEntity.url,
                                                         fileName = contentEntity.fileName
                                                     )
                                                 },

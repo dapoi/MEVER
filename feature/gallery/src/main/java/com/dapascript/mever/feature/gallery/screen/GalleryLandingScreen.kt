@@ -305,7 +305,7 @@ internal fun GalleryLandingScreen(
                                             Content(
                                                 id = it.id,
                                                 isVideo = isVideo(it.path),
-                                                primaryContent = it.path,
+                                                media = it.path,
                                                 fileName = it.fileName
                                             )
                                         } ?: emptyList(),
@@ -335,7 +335,7 @@ internal fun GalleryLandingScreen(
             onClickShare = {
                 shareContent(
                     context = context,
-                    file = File(it.path)
+                    contentPath = it.path
                 )
             },
             onClickSelectedItem = { toggleSelection(it) },

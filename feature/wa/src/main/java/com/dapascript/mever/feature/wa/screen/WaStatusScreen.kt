@@ -187,6 +187,7 @@ internal fun WaStatusScreen(
         permissionDialogType?.let { type ->
             MeverDialogError(
                 showDialog = true,
+                errorImage = null,
                 errorTitle = stringResource(R.string.permission_request_title),
                 errorDescription = stringResource(R.string.permission_request_wa),
                 primaryButtonText = stringResource(R.string.ok),
@@ -233,8 +234,9 @@ internal fun WaStatusScreen(
                             Content(
                                 id = it.uri.hashCode(),
                                 isVideo = it.isVideo,
+                                isDeletable = false,
                                 fileName = it.name,
-                                primaryContent = it.uri.toString()
+                                media = it.uri.toString()
                             )
                         },
                         initialIndex = waStatuses.indexOf(item)

@@ -3,7 +3,6 @@ package com.dapascript.mever.feature.ai.screen
 import android.content.Context
 import android.graphics.Bitmap.CompressFormat.PNG
 import android.os.Handler
-import android.os.Looper.getMainLooper
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
@@ -264,26 +263,27 @@ internal fun AiImageResultScreen(
                 onClickReport = { navigateToGmail(context) },
                 onClickShare = {
                     scope.launch {
+                        val imageUriOrUrl = imageSelected.orEmpty()
                         val cachePath = File(context.cacheDir, "images")
                         if (!cachePath.exists()) cachePath.mkdirs()
                         val cacheFile = File(cachePath, "shared_image.png")
-                        val stream = FileOutputStream(cacheFile)
-                        val bitmap = fetchPhotoFromUrl(imageSelected.orEmpty())
-                        bitmap?.compress(
-                            /* format = */ PNG,
-                            /* quality = */ 100,
-                            /* stream = */ stream
-                        )
-                        stream.close()
+                        val bitmap = fetchPhotoFromUrl(imageUriOrUrl)
+
                         bitmap?.let {
+                            val stream = FileOutputStream(cacheFile)
+                            it.compress(PNG, 100, stream)
+                            stream.close()
+
                             shareContent(
                                 context = context,
-                                file = cacheFile
+                                contentPath = cacheFile.absolutePath,
+                                isCache = true
                             )
+
+                            Handler(context.mainLooper).postDelayed({
+                                if (cacheFile.exists()) cacheFile.delete()
+                            }, 5000)
                         }
-                        Handler(getMainLooper()).postDelayed({
-                            cacheFile.delete()
-                        }, 5000)
                     }
                 },
                 onClickRegenerate = {

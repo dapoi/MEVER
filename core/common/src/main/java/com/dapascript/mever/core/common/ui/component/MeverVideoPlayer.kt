@@ -148,6 +148,7 @@ fun MeverVideoPlayer(
     isFullScreen: Boolean,
     isScrolling: Boolean,
     isPipEnabled: Boolean,
+    isDeletable: Boolean,
     modifier: Modifier = Modifier,
     onClickDelete: () -> Unit,
     onClickShare: () -> Unit,
@@ -156,6 +157,11 @@ fun MeverVideoPlayer(
 ) {
     val context = LocalContext.current
     val activity = LocalActivity.current
+    val actionMenus = remember(isDeletable) {
+        ContentViewerActionMenu.entries.filter { menu ->
+            if (isDeletable.not()) menu != DELETE else true
+        }
+    }
 
     // Player
     val httpFactory = remember {
@@ -412,7 +418,7 @@ fun MeverVideoPlayer(
             modifier = Modifier
                 .padding(PaddingValues(top = Dp64, end = Dp24))
                 .statusBarsPadding(),
-            listDropDown = ContentViewerActionMenu.entries,
+            listDropDown = actionMenus,
             label = { it.getText(context) },
             showDropDownMenu = showDropDownMenu,
             backgroundColor = MeverDark,
