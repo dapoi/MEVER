@@ -1,10 +1,18 @@
 package com.dapascript.mever.feature.home.screen.attr
 
 import android.content.Context
+import androidx.compose.ui.graphics.Color
 import com.dapascript.mever.feature.home.R
 import com.dapascript.mever.core.common.R as coreUiR
 
 object HomeLandingScreenAttr {
+    data class FeaturesOption(
+        val featureName: String,
+        val icon: Int,
+        val route: Any,
+        val arrowColor: Color? = null
+    )
+
     data class StyleOption(
         val styleName: String,
         val promptKeywords: String,

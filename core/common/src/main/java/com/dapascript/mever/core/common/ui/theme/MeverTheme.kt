@@ -3,8 +3,6 @@ package com.dapascript.mever.core.common.ui.theme
 import androidx.annotation.Keep
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
@@ -13,32 +11,6 @@ import com.dapascript.mever.core.common.ui.theme.MeverColors.Dark
 import com.dapascript.mever.core.common.ui.theme.MeverColors.Light
 import com.dapascript.mever.core.common.util.DeviceType
 import com.dapascript.mever.core.common.util.LocalColors
-
-val LightColorScheme = lightColorScheme(
-    primary = Light.alwaysPurple,
-    onPrimary = Light.alwaysWhite,
-    onPrimaryContainer = Light.alwaysLightGray,
-    secondary = Light.grayLightGray,
-    onSecondary = Light.whiteDarkGray,
-    onSecondaryContainer = Light.lightGrayDarkGray,
-    background = Light.whiteDark,
-    onBackground = Light.blackWhite,
-    surface = Light.darkLightGray,
-    surfaceContainer = Light.lightSoftPurpleBlack,
-)
-
-val DarkColorScheme = darkColorScheme(
-    primary = Dark.alwaysPurple,
-    onPrimary = Dark.alwaysWhite,
-    onPrimaryContainer = Dark.alwaysLightGray,
-    secondary = Dark.grayLightGray,
-    onSecondary = Dark.whiteDarkGray,
-    onSecondaryContainer = Dark.lightGrayDarkGray,
-    background = Dark.whiteDark,
-    onBackground = Dark.blackWhite,
-    surface = Dark.darkLightGray,
-    surfaceContainer = Dark.lightSoftPurpleBlack
-)
 
 @Keep
 enum class ThemeType(val themeResId: Int) {
@@ -66,15 +38,9 @@ fun MeverTheme(
 ) {
     val meverTypography = MeverTypography(deviceType)
     val customColors = if (darkTheme) Dark else Light
-    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
 
     CompositionLocalProvider(
         LocalTypography provides meverTypography,
         LocalColors provides customColors
-    ) {
-        MaterialTheme(
-            colorScheme = colorScheme,
-            content = content
-        )
-    }
+    ) { MaterialTheme(content = content) }
 }

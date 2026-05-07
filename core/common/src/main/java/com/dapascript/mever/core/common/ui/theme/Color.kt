@@ -16,6 +16,7 @@ val MeverLightSoftPurple = Color(0xFFF4F5FF)
 val MeverLightPink = Color(0xFFFAE9E9)
 val MeverPink = Color(0xFFFBD6D6)
 val MeverGreen = Color(0xFFEAFFC9)
+val MeverWaGreen = Color(0xFF25D366)
 val MeverPurple = Color(0xFF667AF9)
 val MeverRed = Color(0xFFFF0000)
 val MeverTransparent = Color(0x00000000)
@@ -29,7 +30,7 @@ val MeverLightViolet = Color(0xFFE0E4FF)
 sealed class MeverColors(
     val alwaysPurple: Color,
     val alwaysWhite: Color,
-    val alwaysLightGray: Color,
+    val purpleYellow: Color,
     val whiteDark: Color,
     val blackWhite: Color,
     val darkLightGray: Color,
@@ -41,7 +42,7 @@ sealed class MeverColors(
     data object Light : MeverColors(
         alwaysPurple = MeverPurple,
         alwaysWhite = MeverWhite,
-        alwaysLightGray = MeverLightGray,
+        purpleYellow = MeverPurple,
         whiteDark = MeverWhite,
         blackWhite = MeverBlack,
         darkLightGray = MeverDark,
@@ -54,7 +55,7 @@ sealed class MeverColors(
     data object Dark : MeverColors(
         alwaysPurple = MeverPurple,
         alwaysWhite = MeverWhite,
-        alwaysLightGray = MeverLightGray,
+        purpleYellow = MeverYellow,
         whiteDark = MeverDark,
         blackWhite = MeverWhite,
         darkLightGray = MeverLightGray,

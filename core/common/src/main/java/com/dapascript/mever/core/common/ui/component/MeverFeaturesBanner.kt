@@ -2,8 +2,10 @@ package com.dapascript.mever.core.common.ui.component
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -12,13 +14,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.ContentScale.Companion.Fit
 import androidx.compose.ui.res.vectorResource
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
@@ -36,7 +39,8 @@ fun MeverFeaturesBanner(
     icon: Int,
     title: String,
     modifier: Modifier = Modifier,
-    showArrow: Boolean = false,
+    isSingleItem: Boolean = false,
+    arrowColor: Color? = null,
     onClick: () -> Unit
 ) {
     Box(
@@ -50,32 +54,65 @@ fun MeverFeaturesBanner(
             .onCustomClick { onClick() }
             .padding(Dp4)
     ) {
-        Row(
+        if (isSingleItem) Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(Dp8),
-            horizontalArrangement = spacedBy(Dp12),
-            verticalAlignment = CenterVertically
+            verticalAlignment = CenterVertically,
+            horizontalArrangement = spacedBy(Dp12)
         ) {
             Image(
                 modifier = Modifier.size(Dp28),
                 imageVector = ImageVector.vectorResource(icon),
-                contentScale = ContentScale.Fit,
+                contentScale = Fit,
                 contentDescription = title
             )
             Text(
                 modifier = Modifier.weight(1f),
                 text = title,
-                style = if (showArrow) typography.bodyBold2 else typography.bodyBold3,
+                style = typography.bodyBold2,
                 color = colors.darkLightGray
             )
-            if (showArrow) Icon(
-                modifier = Modifier
-                    .size(Dp20)
-                    .graphicsLayer { rotationZ = 180f },
-                imageVector = ImageVector.vectorResource(R.drawable.ic_back),
-                tint = colors.darkLightGray,
-                contentDescription = null
+            arrowColor?.let {
+                Icon(
+                    modifier = Modifier.size(Dp20),
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_arrow_started),
+                    tint = it,
+                    contentDescription = null
+                )
+            }
+        } else Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(Dp8),
+            horizontalAlignment = CenterHorizontally,
+            verticalArrangement = spacedBy(Dp12)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = SpaceBetween,
+                verticalAlignment = CenterVertically
+            ) {
+                Image(
+                    modifier = Modifier.size(Dp28),
+                    imageVector = ImageVector.vectorResource(icon),
+                    contentScale = Fit,
+                    contentDescription = title
+                )
+                arrowColor?.let {
+                    Icon(
+                        modifier = Modifier.size(Dp20),
+                        imageVector = ImageVector.vectorResource(R.drawable.ic_arrow_started),
+                        tint = it,
+                        contentDescription = null
+                    )
+                }
+            }
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                text = title,
+                style = typography.bodyBold2,
+                color = colors.darkLightGray
             )
         }
     }

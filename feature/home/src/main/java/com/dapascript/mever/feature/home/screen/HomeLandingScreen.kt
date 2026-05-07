@@ -115,6 +115,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverLightViolet
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
+import com.dapascript.mever.core.common.ui.theme.MeverWaGreen
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp14
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
@@ -161,6 +162,7 @@ import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLand
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingAppreciateRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLandingRoute
 import com.dapascript.mever.core.navigation.route.WaScreenRoute.WaStatusRoute
+import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.FeaturesOption
 import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.getArtStyles
 import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.getInspirePrompt
 import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetDownload
@@ -884,27 +886,18 @@ private fun HomeDownloaderSection(
                         .height(IntrinsicSize.Max),
                     horizontalArrangement = spacedBy(Dp16)
                 ) {
-                    listOfNotNull(
-                        R.drawable.ic_wa to stringResource(R.string.view_wa_status),
-                        if (isGoImgFeatureActive) {
-                            R.drawable.ic_explore_image to stringResource(R.string.find_image)
-                        } else null
-                    ).forEachIndexed { index, data ->
+                    val features = getFeaturesSectionItem(context)
+
+                    features.forEach { data ->
                         MeverFeaturesBanner(
                             modifier = Modifier
                                 .weight(1f)
                                 .fillMaxHeight(),
-                            icon = data.first,
-                            title = data.second,
-                            showArrow = isGoImgFeatureActive.not()
-                        ) {
-                            navController.navigateTo(
-                                route = when (index) {
-                                    0 -> WaStatusRoute
-                                    else -> ExploreLandingRoute
-                                }
-                            )
-                        }
+                            icon = data.icon,
+                            title = data.featureName,
+                            arrowColor = data.arrowColor,
+                            isSingleItem = features.size == 1
+                        ) { navController.navigateTo(data.route) }
                     }
                 }
                 Spacer(modifier = Modifier.size(Dp8))
@@ -1192,6 +1185,22 @@ private fun HomeAiSection(
         }
     }
 }
+
+@Composable
+private fun getFeaturesSectionItem(context: Context) = listOf(
+    FeaturesOption(
+        featureName = context.getString(R.string.view_wa_status),
+        icon = R.drawable.ic_wa,
+        arrowColor = MeverWaGreen,
+        route = WaStatusRoute
+    ),
+    FeaturesOption(
+        featureName = context.getString(R.string.find_image),
+        icon = R.drawable.ic_explore_image,
+        arrowColor = colors.purpleYellow,
+        route = ExploreLandingRoute
+    )
+)
 
 private fun checkStateBeforeDownload(
     urlSocialMediaState: TextFieldValue,
