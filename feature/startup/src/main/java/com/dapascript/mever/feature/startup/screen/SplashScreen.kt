@@ -1,6 +1,7 @@
 package com.dapascript.mever.feature.startup.screen
 
 import android.app.Activity.RESULT_CANCELED
+import android.app.Activity.RESULT_OK
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult
 import androidx.compose.animation.AnimatedVisibility
@@ -93,7 +94,17 @@ internal fun SplashScreen(
         val updateLauncher = rememberLauncherForActivityResult(
             contract = StartIntentSenderForResult()
         ) { result ->
-            if (result.resultCode == RESULT_CANCELED) activity.finish()
+            when {
+                result.resultCode == RESULT_CANCELED -> {
+                    if (forceUpdateInProgress) activity.finish()
+                    else logoVisibleState.targetState = false
+                }
+
+                result.resultCode != RESULT_OK -> {
+                    forceUpdateInProgress = false
+                    logoVisibleState.targetState = false
+                }
+            }
         }
 
         LaunchedEffect(Unit) { getAppConfig() }
@@ -103,24 +114,19 @@ internal fun SplashScreen(
         LaunchedEffect(appConfigState) {
             appConfigState.handleUiState(
                 onSuccess = { response ->
-                    when {
-                        response.maintenanceDay != null && today == response.maintenanceDay -> {
-                            showMaintenanceModal = true
-                        }
+                    if (response.maintenanceDay != null && today == response.maintenanceDay) {
+                        showMaintenanceModal = true
+                    } else {
+                        forceUpdateInProgress = response.isForceUpdateRequired
 
-                        response.isForceUpdateRequired -> {
-                            forceUpdateInProgress = true
-                            inAppUpdateManager.startUpdate(
-                                updateAvailability = UPDATE_AVAILABLE,
-                                launcher = updateLauncher,
-                                onUpdateNotAvailable = {
-                                    forceUpdateInProgress = false
-                                    logoVisibleState.targetState = false
-                                }
-                            )
-                        }
-
-                        else -> logoVisibleState.targetState = false
+                        inAppUpdateManager.startUpdate(
+                            updateAvailability = UPDATE_AVAILABLE,
+                            launcher = updateLauncher,
+                            onUpdateNotAvailable = {
+                                forceUpdateInProgress = false
+                                logoVisibleState.targetState = false
+                            }
+                        )
                     }
                 },
                 onFailed = { message ->
