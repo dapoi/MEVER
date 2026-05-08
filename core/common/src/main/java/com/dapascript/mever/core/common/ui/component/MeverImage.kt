@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,14 +26,18 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
 import com.dapascript.mever.core.common.ui.theme.MeverLightGray
+import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
+import androidx.media3.session.R as media3R
 
 @Composable
 fun MeverImage(
     source: Any?,
     modifier: Modifier = Modifier,
     contentScale: ContentScale = Crop,
-    isImageError: Boolean = false
+    isImageError: Boolean = false,
+    isVideoThumbnail: Boolean = false
 ) = Box(modifier = modifier) {
     val context = LocalContext.current
     var isLoading by remember { mutableStateOf(true) }
@@ -51,24 +56,36 @@ fun MeverImage(
             contentDescription = "Error Image"
         )
     } else {
-        AsyncImage(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(meverShimmer(isLoading || source == null)),
-            model = ImageRequest.Builder(context)
-                .data(source)
-                .crossfade(true)
-                .build(),
-            contentScale = contentScale,
-            contentDescription = "Thumbnail",
-            onState = { state ->
-                isLoading = when (state) {
-                    is Loading -> true
-                    is Success -> false
-                    is Error -> false
-                    else -> true
+                .background(meverShimmer(isLoading || source == null))
+        ) {
+            AsyncImage(
+                modifier = Modifier.fillMaxSize(),
+                model = ImageRequest.Builder(context)
+                    .data(source)
+                    .crossfade(true)
+                    .build(),
+                contentScale = contentScale,
+                contentDescription = "Thumbnail",
+                onState = { state ->
+                    isLoading = when (state) {
+                        is Loading -> true
+                        is Success -> false
+                        is Error -> false
+                        else -> true
+                    }
                 }
-            }
-        )
+            )
+            if (isVideoThumbnail) Icon(
+                modifier = Modifier
+                    .size(Dp48)
+                    .align(Center),
+                imageVector = ImageVector.vectorResource(media3R.drawable.media3_icon_play),
+                tint = colors.alwaysWhite.copy(alpha = 0.8f),
+                contentDescription = "Play Icon"
+            )
+        }
     }
 }

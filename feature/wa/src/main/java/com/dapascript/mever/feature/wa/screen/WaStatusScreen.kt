@@ -363,7 +363,8 @@ private fun WaStatusContent(
                                 .clip(RoundedCornerShape(Dp8))
                                 .aspectRatio(9f / 16f)
                                 .onCustomClick { onClickNavigate(item) },
-                            source = item.uri
+                            source = item.uri,
+                            isVideoThumbnail = item.isVideo
                         )
                     }
                 } else {
