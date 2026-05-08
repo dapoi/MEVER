@@ -684,6 +684,7 @@ private fun HomeDownloaderSection(
 
     MeverDialogError(
         showDialog = errorMessage.isNotEmpty(),
+        errorImage = if (isCustomDnsActive) R.drawable.ic_storage else R.drawable.ic_error,
         errorTitle = stringResource(R.string.error_title),
         errorDescription = errorMessage,
         primaryButtonText = stringResource(
