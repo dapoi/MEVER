@@ -16,12 +16,14 @@ import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement.spacedBy
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells.Adaptive
 import androidx.compose.foundation.lazy.grid.GridCells.Fixed
@@ -43,6 +45,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -58,6 +61,7 @@ import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Filled
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Outlined
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
+import com.dapascript.mever.core.common.ui.component.MeverBannerAd
 import com.dapascript.mever.core.common.ui.component.MeverButton
 import com.dapascript.mever.core.common.ui.component.MeverDialogError
 import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
@@ -272,109 +276,117 @@ private fun WaStatusContent(
 
     CompositionLocalProvider(LocalOverscrollFactory provides null) {
         if (waMediaList.isNotEmpty()) {
-            Column(modifier = modifier) {
-                AnimatedVisibility(
-                    visible = isExpanded,
-                    enter = expandVertically() + fadeIn(),
-                    exit = shrinkVertically() + fadeOut()
-                ) {
-                    Text(
-                        text = "WhatsApp Status",
-                        style = typography.h2.copy(fontSize = Sp32),
-                        color = colors.blackWhite,
+            Box(modifier = modifier) {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    AnimatedVisibility(
+                        visible = isExpanded,
+                        enter = expandVertically() + fadeIn(),
+                        exit = shrinkVertically() + fadeOut()
+                    ) {
+                        Text(
+                            text = "WhatsApp Status",
+                            style = typography.h2.copy(fontSize = Sp32),
+                            color = colors.blackWhite,
+                            modifier = Modifier
+                                .padding(
+                                    top = Dp16,
+                                    start = Dp24,
+                                    end = Dp24,
+                                    bottom = if (isWaRegularInstalled && isWaBusinessInstalled) Dp0 else Dp24
+                                )
+                                .onGloballyPositioned { onSetTitleHeight(it.size.height) }
+                        )
+                    }
+                    if (isWaRegularInstalled && isWaBusinessInstalled) Row(
                         modifier = Modifier
-                            .padding(
-                                top = Dp16,
-                                start = Dp24,
-                                end = Dp24,
-                                bottom = if (isWaRegularInstalled && isWaBusinessInstalled) Dp0 else Dp24
-                            )
-                            .onGloballyPositioned { onSetTitleHeight(it.size.height) }
-                    )
-                }
-                if (isWaRegularInstalled && isWaBusinessInstalled) Row(
-                    modifier = Modifier
-                        .background(colors.whiteDark)
-                        .fillMaxWidth()
-                        .horizontalScroll(headerScroll)
-                        .padding(start = Dp24, top = Dp16, bottom = Dp24),
-                    horizontalArrangement = spacedBy(Dp8),
-                    verticalAlignment = CenterVertically
-                ) {
-                    WaType.entries.forEach { filter ->
-                        MeverButton(
-                            title = filter.label,
-                            shape = RoundedCornerShape(Dp64),
-                            buttonType = if (selectedFilter == filter) Filled(
-                                backgroundColor = colors.alwaysPurple,
-                                contentColor = MeverWhite
-                            ) else Outlined(
-                                borderColor = colors.alwaysPurple,
-                                contentColor = colors.alwaysPurple
-                            )
-                        ) {
-                            selectedFilter = filter
+                            .background(colors.whiteDark)
+                            .fillMaxWidth()
+                            .horizontalScroll(headerScroll)
+                            .padding(start = Dp24, top = Dp16, bottom = Dp24),
+                        horizontalArrangement = spacedBy(Dp8),
+                        verticalAlignment = CenterVertically
+                    ) {
+                        WaType.entries.forEach { filter ->
+                            MeverButton(
+                                title = filter.label,
+                                shape = RoundedCornerShape(Dp64),
+                                buttonType = if (selectedFilter == filter) Filled(
+                                    backgroundColor = colors.alwaysPurple,
+                                    contentColor = MeverWhite
+                                ) else Outlined(
+                                    borderColor = colors.alwaysPurple,
+                                    contentColor = colors.alwaysPurple
+                                )
+                            ) {
+                                selectedFilter = filter
 
-                            if (filter == BUSINESS) {
-                                val hasBizPermission =
-                                    context.contentResolver.persistedUriPermissions.any {
-                                        it.uri.toString().contains("com.whatsapp.w4b")
-                                    }
-                                if (!hasBizPermission) onRequestPermission(BUSINESS)
-                            } else if (filter == REGULAR) {
-                                val hasRegPermission =
-                                    context.contentResolver.persistedUriPermissions.any {
-                                        it.uri.toString().contains("com.whatsapp%2FWhatsApp")
-                                    }
-                                if (!hasRegPermission) onRequestPermission(REGULAR)
+                                if (filter == BUSINESS) {
+                                    val hasBizPermission =
+                                        context.contentResolver.persistedUriPermissions.any {
+                                            it.uri.toString().contains("com.whatsapp.w4b")
+                                        }
+                                    if (!hasBizPermission) onRequestPermission(BUSINESS)
+                                } else if (filter == REGULAR) {
+                                    val hasRegPermission =
+                                        context.contentResolver.persistedUriPermissions.any {
+                                            it.uri.toString().contains("com.whatsapp%2FWhatsApp")
+                                        }
+                                    if (!hasRegPermission) onRequestPermission(REGULAR)
+                                }
                             }
                         }
                     }
-                }
-                if (isExpanded.not()) {
-                    HorizontalDivider(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .shadow(Dp3),
-                        thickness = Dp1,
-                        color = colors.blackWhite.copy(alpha = 0.12f)
-                    )
-                }
-                if (filteredList.isNotEmpty()) LazyVerticalGrid(
-                    modifier = Modifier.weight(1f),
-                    state = listState,
-                    columns = if (deviceType == PHONE) Fixed(2) else Adaptive(Dp150),
-                    contentPadding = PaddingValues(
-                        start = Dp24,
-                        end = Dp24,
-                        bottom = Dp120
-                    ),
-                    horizontalArrangement = spacedBy(Dp16),
-                    verticalArrangement = spacedBy(Dp16)
-                ) {
-                    items(
-                        items = filteredList,
-                        key = { it.uri.toString() },
-                        contentType = { "wa_status_item" }
-                    ) { item ->
-                        MeverImage(
+                    if (isExpanded.not()) {
+                        HorizontalDivider(
                             modifier = Modifier
-                                .animateItem()
-                                .clip(RoundedCornerShape(Dp8))
-                                .aspectRatio(9f / 16f)
-                                .onCustomClick { onClickNavigate(item) },
-                            source = item.uri,
-                            isVideoThumbnail = item.isVideo
+                                .fillMaxWidth()
+                                .shadow(Dp3),
+                            thickness = Dp1,
+                            color = colors.blackWhite.copy(alpha = 0.12f)
                         )
                     }
-                } else {
-                    MeverEmptyItem(
+                    if (filteredList.isNotEmpty()) LazyVerticalGrid(
                         modifier = Modifier.weight(1f),
-                        image = R.drawable.ic_empty_file,
-                        size = Dp150.plus(Dp16),
-                        description = stringResource(R.string.empty_wa_status_desc)
-                    )
+                        state = listState,
+                        columns = if (deviceType == PHONE) Fixed(2) else Adaptive(Dp150),
+                        contentPadding = PaddingValues(
+                            start = Dp24,
+                            end = Dp24,
+                            bottom = Dp120
+                        ),
+                        horizontalArrangement = spacedBy(Dp16),
+                        verticalArrangement = spacedBy(Dp16)
+                    ) {
+                        items(
+                            items = filteredList,
+                            key = { it.uri.toString() },
+                            contentType = { "wa_status_item" }
+                        ) { item ->
+                            MeverImage(
+                                modifier = Modifier
+                                    .animateItem()
+                                    .clip(RoundedCornerShape(Dp8))
+                                    .aspectRatio(9f / 16f)
+                                    .onCustomClick { onClickNavigate(item) },
+                                source = item.uri,
+                                isVideoThumbnail = item.isVideo
+                            )
+                        }
+                    } else {
+                        MeverEmptyItem(
+                            modifier = Modifier.weight(1f),
+                            image = R.drawable.ic_empty_file,
+                            size = Dp150.plus(Dp16),
+                            description = stringResource(R.string.empty_wa_status_desc)
+                        )
+                    }
                 }
+                MeverBannerAd(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(BottomCenter)
+                        .navigationBarsPadding()
+                )
             }
         } else {
             MeverEmptyItem(

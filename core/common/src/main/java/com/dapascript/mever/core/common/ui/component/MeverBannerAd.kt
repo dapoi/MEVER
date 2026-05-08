@@ -1,7 +1,6 @@
 package com.dapascript.mever.core.common.ui.component
 
 import android.annotation.SuppressLint
-import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
@@ -39,7 +38,9 @@ fun MeverBannerAd(
         factory = { ctx ->
             adView.apply {
                 this.adUnitId = adUnitId
-                val adaptiveAdSize = getAdaptiveAdSize(ctx)
+                val adaptiveAdSize = AdSize.getLargeLandscapeAnchoredAdaptiveBannerAdSize(
+                    ctx, AdSize.FULL_WIDTH
+                )
                 setAdSize(adaptiveAdSize)
 
                 adListener = object : AdListener() {
@@ -59,16 +60,4 @@ fun MeverBannerAd(
             }
         }
     )
-}
-
-private fun getAdaptiveAdSize(context: Context): AdSize {
-    val displayMetrics = context.resources.displayMetrics
-    var adWidthPixels = displayMetrics.widthPixels.toFloat()
-
-    if (adWidthPixels == 0f) {
-        adWidthPixels = 320f * displayMetrics.density
-    }
-
-    val adWidth = (adWidthPixels / displayMetrics.density).toInt()
-    return AdSize.getCurrentOrientationInlineAdaptiveBannerAdSize(context, adWidth)
 }
