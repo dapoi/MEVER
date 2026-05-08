@@ -14,4 +14,5 @@ interface MeverRepository {
     ): Flow<ApiState<List<ContentEntity>>>
     fun getImageSearch(query: String): Flow<ApiState<List<ContentEntity>>>
     fun getImageAiGenerator(prompt: String): Flow<ApiState<ImageAiEntity?>>
+    fun postReportAiImage(message: String): Flow<ApiState<Unit>>
 }

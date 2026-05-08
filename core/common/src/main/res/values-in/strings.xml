@@ -126,4 +126,6 @@
     <string name="wa_not_installed">WhatsApp tidak terpasang di perangkat ini.</string>
     <string name="install">Pasang</string>
     <string name="permission_request_wa">Kami butuh akses ke penyimpananmu untuk menampilkan status WhatsApp.</string>
+    <string name="report_desc">Jelaskan masalah yang Anda temukan.</string>
+    <string name="submit">Kirim</string>
 </resources>

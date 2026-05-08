@@ -2,6 +2,7 @@ package com.dapascript.mever.core.data.repository
 
 import androidx.work.WorkManager
 import androidx.work.workDataOf
+import com.dapascript.mever.core.common.util.state.ApiState
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_REQUEST_PROMPT
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_REQUEST_QUERY
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_REQUEST_SELECTED_QUALITY
@@ -20,6 +21,7 @@ import com.dapascript.mever.core.data.worker.AppConfigWorker
 import com.dapascript.mever.core.data.worker.DownloaderWorker
 import com.dapascript.mever.core.data.worker.ImageGeneratorWorker
 import com.dapascript.mever.core.data.worker.ImageSearchWorker
+import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject
 
 class MeverRepositoryImpl @Inject constructor(
@@ -64,4 +66,6 @@ class MeverRepositoryImpl @Inject constructor(
         moshiHelper = moshiHelper,
         requestParam = workDataOf(KEY_REQUEST_PROMPT to prompt)
     )
+
+    override fun postReportAiImage(message: String) = flowOf(ApiState.Success(Unit))
 }

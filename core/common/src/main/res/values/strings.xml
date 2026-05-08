@@ -126,4 +126,6 @@
     <string name="wa_not_installed">WhatsApp is not installed on this device.</string>
     <string name="install">Install</string>
     <string name="permission_request_wa">We need access to your storage to show WhatsApp status media.</string>
+    <string name="report_desc">Report Description</string>
+    <string name="submit">Submit</string>
 </resources>

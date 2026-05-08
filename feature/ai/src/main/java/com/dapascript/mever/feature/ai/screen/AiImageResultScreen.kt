@@ -65,6 +65,7 @@ import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverAutoSizableTextField
 import com.dapascript.mever.core.common.ui.component.MeverBannerAd
+import com.dapascript.mever.core.common.ui.component.MeverBottomSheet
 import com.dapascript.mever.core.common.ui.component.MeverButton
 import com.dapascript.mever.core.common.ui.component.MeverDeclinedPermission
 import com.dapascript.mever.core.common.ui.component.MeverDialog
@@ -82,6 +83,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp20
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp52
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
@@ -99,7 +101,6 @@ import com.dapascript.mever.core.common.util.copyToClipboard
 import com.dapascript.mever.core.common.util.fetchPhotoFromUrl
 import com.dapascript.mever.core.common.util.getStoragePermission
 import com.dapascript.mever.core.common.util.goToSetting
-import com.dapascript.mever.core.common.util.navigateToGmail
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
@@ -130,6 +131,7 @@ internal fun AiImageResultScreen(
     var aiImages by remember { mutableStateOf<List<String>>(emptyList()) }
     var showShimmer by remember { mutableStateOf(false) }
     var showCancelExitConfirmation by remember { mutableStateOf(false) }
+    var showReportDialog by remember { mutableStateOf(false) }
     var isDownloadAllClicked by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
     var imageSelected by remember(aiImages) { mutableStateOf(aiImages.firstOrNull()) }
@@ -229,6 +231,60 @@ internal fun AiImageResultScreen(
             onClickSecondary = { navController.popBackStack() }
         )
 
+        MeverBottomSheet(
+            showBottomSheet = showReportDialog,
+            shouldDismissOnClickOutside = true,
+            onDismissBottomSheet = { showReportDialog = false }
+        ) {
+            var reportMessage by remember { mutableStateOf("") }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = Dp24),
+                verticalArrangement = spacedBy(Dp16)
+            ) {
+                Text(
+                    text = stringResource(R.string.prompt),
+                    style = typography.bodyBold1,
+                    color = colors.blackWhite
+                )
+                MeverAutoSizableTextField(
+                    value = args.prompt,
+                    isReadOnly = true,
+                    fontSize = Sp18,
+                    minFontSize = Sp14
+                ) {}
+                Text(
+                    text = stringResource(R.string.report_desc),
+                    style = typography.bodyBold1,
+                    color = colors.blackWhite
+                )
+                MeverAutoSizableTextField(
+                    heightFreeTextContainer = Dp150,
+                    value = reportMessage,
+                    fontSize = Sp18,
+                    minFontSize = Sp14,
+                    maxLines = 6
+                ) { reportMessage = it }
+                MeverButton(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(Dp52),
+                    title = stringResource(R.string.submit),
+                    isEnabled = reportMessage.isNotBlank(),
+                    buttonType = Filled(
+                        backgroundColor = colors.alwaysPurple,
+                        contentColor = MeverWhite
+                    )
+                ) {
+                    if (reportMessage.isNotBlank()) {
+                        postReportAiImage(reportMessage)
+                        showReportDialog = false
+                    }
+                }
+            }
+        }
+
         AnimatedContent(
             targetState = showShimmer && aiImages.isEmpty(),
             transitionSpec = { (fadeIn() togetherWith fadeOut()).using(SizeTransform(clip = false)) }
@@ -252,6 +308,7 @@ internal fun AiImageResultScreen(
                 scrollState = scrollState,
                 snackbarMessage = snackbarMessage,
                 onChangeImageSelected = { url -> imageSelected = url },
+                onClickReport = { showReportDialog = true },
                 onClickCopy = {
                     copyToClipboard(context, args.prompt)
                     hasCopied = true
@@ -260,7 +317,6 @@ internal fun AiImageResultScreen(
                     isDownloadAllClicked = true
                     setStoragePermission = getStoragePermission()
                 },
-                onClickReport = { navigateToGmail(context) },
                 onClickShare = {
                     scope.launch {
                         val imageUriOrUrl = imageSelected.orEmpty()
@@ -308,9 +364,9 @@ private fun ImageGeneratorResultContent(
     snackbarMessage: MutableState<String>,
     modifier: Modifier = Modifier,
     onChangeImageSelected: (String) -> Unit,
+    onClickReport: () -> Unit,
     onClickCopy: () -> Unit,
     onClickDownloadAll: () -> Unit,
-    onClickReport: () -> Unit,
     onClickShare: () -> Unit,
     onClickRegenerate: () -> Unit,
     onClickDownload: () -> Unit
@@ -370,15 +426,13 @@ private fun ImageGeneratorResultContent(
             color = colors.blackWhite
         )
         MeverAutoSizableTextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(Dp150),
+            heightFreeTextContainer = Dp150,
             value = promptText,
-            readOnly = true,
+            isReadOnly = true,
             fontSize = Sp18,
             minFontSize = Sp14,
             maxLines = 4
-        )
+        ) {}
         getMenuActions(context, hasCopied)
             .filterNot { (_, icon) -> icon == R.drawable.ic_download && aiImages.size <= 1 }
             .forEach { (title, icon) ->
@@ -390,9 +444,9 @@ private fun ImageGeneratorResultContent(
                         .clip(RoundedCornerShape(Dp12))
                         .onCustomClick {
                             when (icon) {
+                                R.drawable.ic_report -> onClickReport()
                                 R.drawable.ic_copy -> onClickCopy()
                                 R.drawable.ic_download -> onClickDownloadAll()
-                                R.drawable.ic_report -> onClickReport()
                                 R.drawable.ic_share -> onClickShare()
                             }
                         }
@@ -485,15 +539,13 @@ private fun ImageGeneratorResultContent(
                 color = colors.blackWhite
             )
             MeverAutoSizableTextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(Dp120),
+                heightFreeTextContainer = Dp120,
                 value = promptText,
-                readOnly = true,
+                isReadOnly = true,
                 fontSize = Sp18,
                 minFontSize = Sp14,
                 maxLines = 4
-            )
+            ) {}
             Spacer(modifier = Modifier.weight(1f))
             getMenuActions(context, hasCopied)
                 .filterNot { (_, icon) -> icon == R.drawable.ic_download && aiImages.size <= 1 }
@@ -628,17 +680,19 @@ private fun ImageGeneratorLoading(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(Dp52)
-                .clip(RoundedCornerShape(Dp12))
-                .background(meverShimmer())
-        )
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
                 .height(Dp120)
                 .clip(RoundedCornerShape(Dp12))
                 .background(meverShimmer())
         )
+        repeat(4) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(Dp48)
+                    .clip(RoundedCornerShape(Dp12))
+                    .background(meverShimmer())
+            )
+        }
     } else Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = spacedBy(Dp16)
@@ -677,17 +731,19 @@ private fun ImageGeneratorLoading(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(Dp52)
-                    .clip(RoundedCornerShape(Dp12))
-                    .background(meverShimmer())
-            )
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
                     .height(Dp150)
                     .clip(RoundedCornerShape(Dp12))
                     .background(meverShimmer())
             )
+            repeat(4) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(Dp48)
+                        .clip(RoundedCornerShape(Dp12))
+                        .background(meverShimmer())
+                )
+            }
         }
     }
 }

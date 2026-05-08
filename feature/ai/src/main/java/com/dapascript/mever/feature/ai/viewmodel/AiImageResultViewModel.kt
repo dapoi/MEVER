@@ -33,6 +33,9 @@ class AiImageResultViewModel @Inject constructor(
     private val _aiResponseState = MutableStateFlow<UiState<ImageAiEntity>>(StateInitial)
     val aiResponseState = _aiResponseState.asStateFlow()
 
+    private val _aiReportState = MutableStateFlow<UiState<Unit>>(StateInitial)
+    val aiReportState = _aiReportState.asStateFlow()
+
     fun getImageAiGenerator() = collectApiAsUiState(
         response = repository.getImageAiGenerator(
             prompt = "${args.prompt}. Style ${args.artStyle.ifEmpty { "Realistic" }}"
@@ -40,6 +43,13 @@ class AiImageResultViewModel @Inject constructor(
         onLoading = { _aiResponseState.value = StateLoading },
         onSuccess = { _aiResponseState.value = StateSuccess(it) },
         onFailed = { _aiResponseState.value = StateFailed(it) }
+    )
+
+    fun postReportAiImage(message: String) = collectApiAsUiState(
+        response = repository.postReportAiImage(message),
+        onLoading = { _aiReportState.value = StateLoading },
+        onSuccess = { _aiReportState.value = StateSuccess(it) },
+        onFailed = { _aiReportState.value = StateFailed(it) }
     )
 
     fun startDownload(url: String) {

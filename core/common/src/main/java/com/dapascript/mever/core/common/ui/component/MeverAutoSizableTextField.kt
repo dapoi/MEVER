@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -34,6 +35,7 @@ import androidx.compose.ui.text.input.ImeAction.Companion.Done
 import androidx.compose.ui.text.input.KeyboardType.Companion.Uri
 import androidx.compose.ui.text.style.TextAlign.Companion.End
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
@@ -53,15 +55,15 @@ import kotlin.math.ceil
 fun MeverAutoSizableTextField(
     value: String,
     minFontSize: TextUnit,
-    modifier: Modifier = Modifier,
-    readOnly: Boolean = false,
+    isReadOnly: Boolean = false,
     fontSize: TextUnit = Sp32,
     maxLines: Int = MAX_VALUE,
     shape: RoundedCornerShape = RoundedCornerShape(Dp12),
     scaleFactor: Float = 0.9f,
-    onClickInspire: () -> Unit = {},
-    onValueChange: (String) -> Unit = {},
-) = BoxWithConstraints(modifier = modifier) {
+    heightFreeTextContainer: Dp? = null,
+    onClickInspire: (() -> Unit)? = null,
+    onValueChange: (String) -> Unit
+) = BoxWithConstraints {
     val interactionSource = remember { MutableInteractionSource() }
     val focusManager = LocalFocusManager.current
     var nFontSize = fontSize
@@ -97,7 +99,7 @@ fun MeverAutoSizableTextField(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(Dp8)
-                .weight(1f)
+                .then(heightFreeTextContainer?.let { Modifier.height(it) } ?: Modifier)
                 .clearFocusOnKeyboardDismiss(focusManager),
             textStyle = typography.body1.copy(
                 fontSize = nFontSize,
@@ -107,7 +109,7 @@ fun MeverAutoSizableTextField(
             keyboardOptions = KeyboardOptions(keyboardType = Uri, imeAction = Done),
             keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
             value = value,
-            readOnly = readOnly,
+            readOnly = isReadOnly,
             maxLines = maxLines,
             onValueChange = onValueChange,
             decorationBox = { innerTextField ->
@@ -118,36 +120,38 @@ fun MeverAutoSizableTextField(
                 innerTextField()
             }
         )
-        if (readOnly.not()) Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(Dp8),
-            horizontalArrangement = spacedBy(Dp8)
-        ) {
-            Icon(
+        onClickInspire?.let {
+            Row(
                 modifier = Modifier
-                    .size(Dp22)
-                    .clip(shape)
-                    .onCustomClick { onClickInspire() },
-                painter = painterResource(R.drawable.ic_inspire),
-                tint = colors.blackWhite,
-                contentDescription = "Inspire"
-            )
-            if (value.isNotEmpty()) Icon(
-                modifier = Modifier
-                    .size(Dp22)
-                    .clip(shape)
-                    .onCustomClick { onValueChange("") },
-                imageVector = ImageVector.vectorResource(R.drawable.ic_clear),
-                tint = colors.blackWhite,
-                contentDescription = "Clear"
-            )
-            Text(
-                modifier = Modifier.weight(1f),
-                text = "${value.length} / 1000",
-                textAlign = End,
-                color = colors.grayLightGray
-            )
+                    .fillMaxWidth()
+                    .padding(Dp8),
+                horizontalArrangement = spacedBy(Dp8)
+            ) {
+                Icon(
+                    modifier = Modifier
+                        .size(Dp22)
+                        .clip(shape)
+                        .onCustomClick { it.invoke() },
+                    painter = painterResource(R.drawable.ic_inspire),
+                    tint = colors.blackWhite,
+                    contentDescription = "Inspire"
+                )
+                if (value.isNotEmpty()) Icon(
+                    modifier = Modifier
+                        .size(Dp22)
+                        .clip(shape)
+                        .onCustomClick { onValueChange("") },
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_clear),
+                    tint = colors.blackWhite,
+                    contentDescription = "Clear"
+                )
+                Text(
+                    modifier = Modifier.weight(1f),
+                    text = "${value.length} / 1000",
+                    textAlign = End,
+                    color = colors.grayLightGray
+                )
+            }
         }
     }
 }

@@ -17,6 +17,7 @@ import com.dapascript.mever.core.data.model.remote.TwitterDownloaderResponse
 import com.dapascript.mever.core.data.model.remote.VideyDownloaderResponse
 import com.dapascript.mever.core.data.model.remote.YouTubeDownloaderResponse
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Query
 
 interface ApiService {
@@ -104,4 +105,7 @@ interface ApiService {
     suspend fun getImageAiGenerator(
         @Query("q") prompt: String
     ): ImageAiResponse
+
+    @POST("report")
+    suspend fun reportAiImage(@Query("message") message: String)
 }

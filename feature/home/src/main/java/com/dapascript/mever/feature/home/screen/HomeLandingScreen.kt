@@ -1077,9 +1077,7 @@ private fun HomeAiSection(
             }
             item {
                 MeverAutoSizableTextField(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(Dp150),
+                    heightFreeTextContainer = Dp150,
                     value = prompt,
                     fontSize = Sp18,
                     minFontSize = Sp14,

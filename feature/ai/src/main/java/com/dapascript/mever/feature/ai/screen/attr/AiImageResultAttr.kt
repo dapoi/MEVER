@@ -14,16 +14,16 @@ object AiImageResultAttr {
         hasCopied: Boolean
     ) = listOf(
         MenuAction(
+            title = context.getString(R.string.report),
+            icon = R.drawable.ic_report
+        ),
+        MenuAction(
             title = context.getString(if (hasCopied) R.string.copied else R.string.copy_prompt),
             icon = R.drawable.ic_copy
         ),
         MenuAction(
             title = context.getString(R.string.download_all),
             icon = R.drawable.ic_download
-        ),
-        MenuAction(
-            title = context.getString(R.string.report),
-            icon = R.drawable.ic_report
         ),
         MenuAction(
             title = context.getString(R.string.share),
