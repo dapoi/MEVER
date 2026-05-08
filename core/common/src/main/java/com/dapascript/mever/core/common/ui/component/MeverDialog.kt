@@ -5,11 +5,11 @@ import androidx.compose.animation.core.Spring.DampingRatioMediumBouncy
 import androidx.compose.animation.core.Spring.StiffnessHigh
 import androidx.compose.animation.core.Spring.StiffnessMediumLow
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
@@ -56,6 +56,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.util.onCustomClick
 
+@Suppress("ASSIGNED_VALUE_IS_NEVER_READ")
 @Composable
 fun MeverDialog(
     showDialog: Boolean,
@@ -92,7 +93,12 @@ fun MeverDialog(
                             stiffness = StiffnessMediumLow
                         )
                     ),
-                    exit = slideOutVertically { it / 8 } + scaleOut(targetScale = .95f) + fadeOut()
+                    exit = scaleOut(
+                        targetScale = 0.8f,
+                        animationSpec = tween(durationMillis = 200)
+                    ) + fadeOut(
+                        animationSpec = tween(durationMillis = 200)
+                    )
                 ) {
                     Box(
                         modifier = Modifier
@@ -108,7 +114,9 @@ fun MeverDialog(
                         )
                     }
 
-                    DisposableEffect(LocalView.current.parent) { onDispose { showAnimatedDialog = false } }
+                    DisposableEffect(LocalView.current.parent) {
+                        onDispose { showAnimatedDialog = false }
+                    }
                 }
             }
         }
