@@ -691,7 +691,8 @@ private fun VideoBottomControlSection(
                     Thumb(
                         modifier = Modifier
                             .size(Dp16)
-                            .background(color = MeverPurple, shape = CircleShape),
+                            .clip(shape = CircleShape),
+                        colors = colors(thumbColor = MeverPurple),
                         interactionSource = interactionSource
                     )
                 }
