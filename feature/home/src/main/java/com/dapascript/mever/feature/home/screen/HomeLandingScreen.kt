@@ -915,7 +915,12 @@ private fun HomeDownloaderSection(
                             title = data.featureName,
                             arrowColor = data.arrowColor,
                             isSingleItem = activeFeatures.size == 1
-                        ) { navController.navigateTo(data.route) }
+                        ) {
+                            if (isCustomDnsActive(context)) {
+                                isCustomDnsActive = true
+                                errorMessage = context.getString(R.string.disable_custom_dns)
+                            } else navController.navigateTo(data.route)
+                        }
                     }
                 }
                 Spacer(modifier = Modifier.size(Dp8))
