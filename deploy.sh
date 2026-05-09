@@ -2,6 +2,9 @@
 
 # Usage: ./deploy.sh <version>
 # Example: ./deploy.sh 2.0.0
+#
+# NOTE: Before running this, make sure to update release notes in:
+# distribution/whatsnew/whatsnew-en-US
 
 VERSION=$1
 
