@@ -24,8 +24,8 @@ android {
 
     defaultConfig {
         applicationId = "com.dapascript.mever"
-        versionCode = 20260202
-        versionName = "1.7.0"
+        versionCode = 20260505
+        versionName = "1.8.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
