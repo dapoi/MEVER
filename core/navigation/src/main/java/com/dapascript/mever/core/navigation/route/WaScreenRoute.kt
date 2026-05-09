@@ -4,5 +4,5 @@ import kotlinx.serialization.Serializable
 
 sealed interface WaScreenRoute {
     @Serializable
-    data object WaStatusRoute : WaScreenRoute
+    data object WaStatusLandingRoute : WaScreenRoute
 }

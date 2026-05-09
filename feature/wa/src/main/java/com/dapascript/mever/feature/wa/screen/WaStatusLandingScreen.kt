@@ -99,7 +99,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 
 @Composable
-internal fun WaStatusScreen(
+internal fun WaStatusLandingScreen(
     navController: NavController,
     viewModel: WaStatusViewModel = hiltViewModel()
 ) = with(viewModel) {
@@ -226,7 +226,7 @@ internal fun WaStatusScreen(
             context = context,
             isWaRegularInstalled = isWaRegularInstalled,
             isWaBusinessInstalled = isWaBusinessInstalled,
-            waMediaList = waStatuses,
+            waStatuses = waStatuses,
             listState = listState,
             isExpanded = isExpanded,
             onSetTitleHeight = { titleHeight = it },
@@ -256,7 +256,7 @@ private fun WaStatusContent(
     context: Context,
     isWaRegularInstalled: Boolean,
     isWaBusinessInstalled: Boolean,
-    waMediaList: List<WaMediaModel>,
+    waStatuses: List<WaMediaModel>,
     listState: LazyGridState,
     isExpanded: Boolean,
     modifier: Modifier = Modifier,
@@ -267,14 +267,14 @@ private fun WaStatusContent(
     var selectedFilter by rememberSaveable { mutableStateOf(ALL) }
     val deviceType = LocalDeviceType.current
     val headerScroll = rememberScrollState()
-    val filteredList = remember(waMediaList, selectedFilter) {
-        waMediaList.filter {
+    val filteredList = remember(waStatuses, selectedFilter) {
+        waStatuses.filter {
             selectedFilter == ALL || it.waType == selectedFilter
         }
     }
 
     CompositionLocalProvider(LocalOverscrollFactory provides null) {
-        if (waMediaList.isNotEmpty()) {
+        if (waStatuses.isNotEmpty()) {
             Box(modifier = modifier) {
                 Column(modifier = Modifier.fillMaxSize()) {
                     AnimatedVisibility(

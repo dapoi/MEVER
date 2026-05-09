@@ -161,7 +161,7 @@ import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryCont
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingAppreciateRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLandingRoute
-import com.dapascript.mever.core.navigation.route.WaScreenRoute.WaStatusRoute
+import com.dapascript.mever.core.navigation.route.WaScreenRoute.WaStatusLandingRoute
 import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.FeaturesOption
 import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.getArtStyles
 import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.getInspirePrompt
@@ -1236,7 +1236,7 @@ private fun getFeaturesSectionItem(
             icon = R.drawable.ic_wa,
             arrowColor = MeverWaGreen,
             isEnabled = isWhatsAppStatusFeatureActive,
-            route = WaStatusRoute
+            route = WaStatusLandingRoute
         ),
         FeaturesOption(
             featureName = context.getString(R.string.find_image),
