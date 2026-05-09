@@ -87,5 +87,5 @@ if [ "$UPLOAD_PLAY_STORE" = "true" ]; then
   echo "🔄 GitHub Actions will build and deploy to Play Store - $TRACK_LABEL track."
 fi
 if [ "$UPLOAD_GITHUB_RELEASE" = "true" ]; then
-  echo "📦 GitHub Release will also be created for $TAG."
+  echo "📦 GitHub Release will also be created for $VERSION."
 fi
