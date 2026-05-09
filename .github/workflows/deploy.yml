@@ -9,6 +9,8 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     if: github.actor == 'dapoi'
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout code
