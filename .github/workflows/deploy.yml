@@ -47,7 +47,16 @@ jobs:
           KEY_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: ./gradlew bundleRelease assembleRelease
+        run: |
+          VERSION_NAME="${{ github.ref_name }}"
+          VERSION_NAME="${VERSION_NAME#v}"
+          VERSION_CODE=$((20260505 + ${{ github.run_number }}))
+          
+          echo "Building version $VERSION_NAME ($VERSION_CODE)"
+
+          ./gradlew bundleRelease assembleRelease \
+            -PversionName="$VERSION_NAME" \
+            -PversionCode="$VERSION_CODE"
 
       - name: Determine Flags
         id: flags
@@ -96,7 +105,8 @@ jobs:
         run: |
           NOTES_FILE="distribution/whatsnew/whatsnew-en-US"
           if [ -f "$NOTES_FILE" ]; then
-            NOTES=$(cat "$NOTES_FILE")
+            # Menghapus format "1:- ", "2:- ", dst agar di GitHub Release lebih bersih
+            NOTES=$(sed -E 's/^[0-9]+:- //g' "$NOTES_FILE")
           else
             NOTES="Release ${{ github.ref_name }}"
           fi
@@ -109,7 +119,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
-          name: "MEVER ${{ github.ref_name }}"
+          name: ${{ github.ref_name }}
           body: ${{ steps.whatsnew.outputs.notes }}
           prerelease: ${{ steps.flags.outputs.prerelease }}
           files: app/build/outputs/apk/release/app-release.apk
