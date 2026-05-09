@@ -88,6 +88,21 @@ jobs:
             echo "upload_github_release=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Prepare What's New
+        id: whatsnew
+        run: |
+          find distribution/whatsnew -type f -exec sed -i -E 's/^[0-9]+:- //g' {} +
+          
+          NOTES_FILE="distribution/whatsnew/whatsnew-en-US"
+          if [ -f "$NOTES_FILE" ]; then
+            NOTES=$(cat "$NOTES_FILE")
+          else
+            NOTES="Release ${{ github.ref_name }}"
+          fi
+          echo "notes<<EOF" >> $GITHUB_OUTPUT
+          echo "$NOTES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
       - name: Upload to Play Store
         if: steps.flags.outputs.upload_play_store == 'true'
         uses: r0adkll/upload-google-play@v1
@@ -98,21 +113,6 @@ jobs:
           track: ${{ steps.flags.outputs.track }}
           status: completed
           whatsNewDirectory: distribution/whatsnew
-
-      - name: Read What's New
-        if: steps.flags.outputs.upload_github_release == 'true'
-        id: whatsnew
-        run: |
-          NOTES_FILE="distribution/whatsnew/whatsnew-en-US"
-          if [ -f "$NOTES_FILE" ]; then
-            # Menghapus format "1:- ", "2:- ", dst agar di GitHub Release lebih bersih
-            NOTES=$(sed -E 's/^[0-9]+:- //g' "$NOTES_FILE")
-          else
-            NOTES="Release ${{ github.ref_name }}"
-          fi
-          echo "notes<<EOF" >> $GITHUB_OUTPUT
-          echo "$NOTES" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release
         if: steps.flags.outputs.upload_github_release == 'true'
