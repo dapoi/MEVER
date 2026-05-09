@@ -7,6 +7,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
 import util.ConstantLibs.MAX_SDK_VERSION
+import util.ConstantLibs.jniLibsDoNotStrip
 import util.ConstantLibs.resourceExcludes
 import util.alias
 import util.libs
@@ -26,7 +27,10 @@ class ApplicationModulePlugin : Plugin<Project> {
                 configAndroid(this)
                 configCompose(this)
                 defaultConfig.targetSdk = MAX_SDK_VERSION
-                packaging.resources.excludes.addAll(resourceExcludes)
+                packaging {
+                    resources.excludes.addAll(resourceExcludes)
+                    jniLibs { jniLibs.keepDebugSymbols.addAll(jniLibsDoNotStrip) }
+                }
             }
         }
     }
