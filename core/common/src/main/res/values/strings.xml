@@ -2,8 +2,8 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:locale="en">
     <string name="downloader_tab">Downloader</string>
     <string name="ai_tab">AI Image</string>
-    <string name="downloader_title">Save Content</string>
-    <string name="downloader_desc">The easiest way to save your favorite content from social media — just paste the link and tap!</string>
+    <string name="downloader_title">Content Downloader</string>
+    <string name="downloader_desc">Save your favorite social media content — paste link, tap, done!</string>
     <string name="see_all_supported_platforms">Tap to see more…</string>
     <string name="platforms_supported">Supported Platforms</string>
     <string name="paste_url">Paste the link here</string>
@@ -57,7 +57,7 @@
     <string name="choose_quality">Choose Quality</string>
     <string name="type_anything">Type something…</string>
     <string name="image_generator">Image Generator</string>
-    <string name="image_generator_desc">Easily create images from text using the latest AI technology — fast and fun!</string>
+    <string name="image_generator_desc">Create images from text with the latest AI technology — fast and super easy!</string>
     <string name="total_images">Total Images</string>
     <string name="art_style">Art Style</string>
     <string name="optional">(Optional)</string>

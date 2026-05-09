@@ -2,8 +2,8 @@
 <resources>
     <string name="downloader_tab">Pengunduh</string>
     <string name="ai_tab">Gambar AI</string>
-    <string name="downloader_title">Simpan Konten</string>
-    <string name="downloader_desc">Unduh konten kesukaanmu dari berbagai media sosial, gampang banget — tinggal tempel link dan tap!</string>
+    <string name="downloader_title">Pengunduh Konten</string>
+    <string name="downloader_desc">Simpan konten favoritmu dari media sosial — tempel link, ketuk, selesai!</string>
     <string name="see_all_supported_platforms">Lihat selengkapnya…</string>
     <string name="platforms_supported">Platform yang Didukung</string>
     <string name="paste_url">Tempel link di sini</string>
