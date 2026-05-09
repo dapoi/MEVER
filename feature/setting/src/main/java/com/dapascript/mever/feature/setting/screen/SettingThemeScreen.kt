@@ -142,6 +142,8 @@ internal fun SettingThemeScreen(
                                 value = stringResource(type.themeResId),
                                 isChoosen = themeType == type
                             ) {
+                                if (themeType == type) return@MeverRadioButton
+
                                 themeType = type
                                 setThemeType(type)
                             }

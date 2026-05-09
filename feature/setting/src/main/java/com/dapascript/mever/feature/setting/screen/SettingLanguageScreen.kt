@@ -145,6 +145,8 @@ internal fun SettingLanguageScreen(
                                 value = language,
                                 isChoosen = languageCode == code,
                                 onValueChoose = {
+                                    if (languageCode == code) return@MeverRadioButton
+
                                     LanguageManager.changeLanguage(
                                         context = context,
                                         languageCode = code
