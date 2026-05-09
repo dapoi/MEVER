@@ -1,6 +1,7 @@
 package com.dapascript.mever.feature.ai.viewmodel
 
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.util.PlatformType.AI
 import com.dapascript.mever.core.common.util.changeToCurrentDate
@@ -14,10 +15,13 @@ import com.dapascript.mever.core.data.model.local.ImageAiEntity
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.navigation.helper.getArgs
 import com.dapascript.mever.core.navigation.route.AiScreenRoute.AiImageResultRoute
+import com.dapascript.mever.feature.ai.BuildConfig.DEBUG
 import com.ketch.Ketch
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import java.lang.System.currentTimeMillis
 import javax.inject.Inject
 
@@ -45,12 +49,20 @@ class AiImageResultViewModel @Inject constructor(
         onFailed = { _aiResponseState.value = StateFailed(it) }
     )
 
-    fun postReportAiImage(message: String) = collectApiAsUiState(
-        response = repository.postReportAiImage(message),
-        onLoading = { _aiReportState.value = StateLoading },
-        onSuccess = { _aiReportState.value = StateSuccess(it) },
-        onFailed = { _aiReportState.value = StateFailed(it) }
-    )
+    fun postReportAiImage(message: String) {
+        if (DEBUG) {
+            _aiReportState.value = StateLoading
+            viewModelScope.launch {
+                delay(1000)
+                _aiReportState.value = StateSuccess(Unit)
+            }
+        } else collectApiAsUiState(
+            response = repository.postReportAiImage(message),
+            onLoading = { _aiReportState.value = StateLoading },
+            onSuccess = { _aiReportState.value = StateSuccess(it) },
+            onFailed = { _aiReportState.value = StateFailed(it) }
+        )
+    }
 
     fun startDownload(url: String) {
         if (url.isBlank()) return

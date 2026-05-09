@@ -127,9 +127,11 @@ internal fun AiImageResultScreen(
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
     val aiResponseState = aiResponseState.collectAsStateValue()
+    val aiReportState = aiReportState.collectAsStateValue()
     var hasCopied by remember { mutableStateOf(false) }
     var aiImages by remember { mutableStateOf<List<String>>(emptyList()) }
     var showShimmer by remember { mutableStateOf(false) }
+    var showLoadingReport by remember { mutableStateOf(false) }
     var showCancelExitConfirmation by remember { mutableStateOf(false) }
     var showReportDialog by remember { mutableStateOf(false) }
     var isDownloadAllClicked by remember { mutableStateOf(false) }
@@ -157,6 +159,22 @@ internal fun AiImageResultScreen(
                 onFailed = { message ->
                     showShimmer = false
                     aiImages = emptyList()
+                    errorMessage = message ?: resources.getString(R.string.error_desc)
+                }
+            )
+        }
+
+        LaunchedEffect(aiReportState) {
+            aiReportState.handleUiState(
+                onLoading = { showLoadingReport = true },
+                onSuccess = {
+                    showLoadingReport = false
+                    showReportDialog = false
+                    navController.popBackStack()
+                },
+                onFailed = { message ->
+                    showLoadingReport = false
+                    showReportDialog = false
                     errorMessage = message ?: resources.getString(R.string.error_desc)
                 }
             )
@@ -240,7 +258,7 @@ internal fun AiImageResultScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = Dp24),
+                    .padding(start = Dp24, end = Dp24, bottom = Dp16),
                 verticalArrangement = spacedBy(Dp16)
             ) {
                 Text(
@@ -272,16 +290,12 @@ internal fun AiImageResultScreen(
                         .height(Dp52),
                     title = stringResource(R.string.submit),
                     isEnabled = reportMessage.isNotBlank(),
+                    isLoading = showLoadingReport,
                     buttonType = Filled(
                         backgroundColor = colors.alwaysPurple,
                         contentColor = MeverWhite
                     )
-                ) {
-                    if (reportMessage.isNotBlank()) {
-                        postReportAiImage(reportMessage)
-                        showReportDialog = false
-                    }
-                }
+                ) { postReportAiImage(reportMessage) }
             }
         }
 
