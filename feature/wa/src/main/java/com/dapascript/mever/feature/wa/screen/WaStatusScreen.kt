@@ -68,7 +68,6 @@ import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
 import com.dapascript.mever.core.common.ui.component.MeverImage
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp0
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp120
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp150
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
@@ -352,7 +351,7 @@ private fun WaStatusContent(
                         contentPadding = PaddingValues(
                             start = Dp24,
                             end = Dp24,
-                            bottom = Dp120
+                            bottom = Dp150
                         ),
                         horizontalArrangement = spacedBy(Dp16),
                         verticalArrangement = spacedBy(Dp16)
