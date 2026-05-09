@@ -191,7 +191,7 @@ internal fun WaStatusScreen(
         permissionDialogType?.let { type ->
             MeverDialogError(
                 showDialog = true,
-                errorImage = null,
+                errorImage = R.drawable.wa_permission,
                 errorTitle = stringResource(R.string.permission_request_title),
                 errorDescription = stringResource(R.string.permission_request_wa),
                 primaryButtonText = stringResource(R.string.ok),
