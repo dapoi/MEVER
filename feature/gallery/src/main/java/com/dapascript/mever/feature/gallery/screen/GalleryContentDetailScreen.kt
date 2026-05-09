@@ -97,7 +97,7 @@ internal fun GalleryContentDetailScreen(
             onDispose {
                 activity.enableEdgeToEdge(
                     statusBarStyle = if (darkTheme) {
-                        dark(scrim = MeverDark.toArgb())
+                        dark(scrim = MeverTransparent.toArgb())
                     } else {
                         light(
                             scrim = MeverTransparent.toArgb(),
@@ -105,7 +105,7 @@ internal fun GalleryContentDetailScreen(
                         )
                     },
                     navigationBarStyle = if (darkTheme) {
-                        dark(scrim = MeverDark.toArgb())
+                        dark(scrim = MeverTransparent.toArgb())
                     } else {
                         light(
                             scrim = MeverTransparent.toArgb(),
