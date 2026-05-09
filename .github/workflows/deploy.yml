@@ -50,6 +50,8 @@ jobs:
       - name: Determine Flags
         id: flags
         run: |
+          git fetch --tags --force
+
           if [[ "${{ github.ref_name }}" == *"-beta" ]]; then
             echo "track=beta" >> $GITHUB_OUTPUT
             echo "prerelease=true" >> $GITHUB_OUTPUT
@@ -58,7 +60,10 @@ jobs:
             echo "prerelease=false" >> $GITHUB_OUTPUT
           fi
 
-          TAG_MESSAGE=$(git tag -l --format='%(contents)' "${{ github.ref_name }}")
+          TAG_MESSAGE=$(git for-each-ref --format='%(contents)' "refs/tags/${{ github.ref_name }}")
+          
+          echo "Debug: Tag name is ${{ github.ref_name }}"
+          echo "Debug: Tag message content: $TAG_MESSAGE"
 
           if [[ "$TAG_MESSAGE" == *"upload_play_store=true"* ]]; then
             echo "upload_play_store=true" >> $GITHUB_OUTPUT
