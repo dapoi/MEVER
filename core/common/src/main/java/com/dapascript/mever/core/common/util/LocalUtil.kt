@@ -4,13 +4,12 @@ import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri.fromParts
-import android.provider.Settings
 import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.core.net.toUri
 import com.dapascript.mever.core.common.ui.theme.MeverColors
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
-import androidx.core.net.toUri
 
 val LocalActivity = staticCompositionLocalOf<ComponentActivity> { noLocalProvided() }
 val LocalColors = staticCompositionLocalOf<MeverColors> { error("No colors provided") }
@@ -25,10 +24,6 @@ fun Activity.goToSetting() {
         ACTION_APPLICATION_DETAILS_SETTINGS,
         fromParts("package", packageName, null)
     ).also(::startActivity)
-}
-
-fun Activity.goToDnsSetting() {
-    Intent(Settings.ACTION_WIRELESS_SETTINGS).also(::startActivity)
 }
 
 fun Activity.goToWaStore(appPackageName: String = "com.whatsapp") {

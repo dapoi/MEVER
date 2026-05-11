@@ -140,10 +140,8 @@ import com.dapascript.mever.core.common.util.changeToCurrentDate
 import com.dapascript.mever.core.common.util.getExtensionFromUrl
 import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.getStoragePermission
-import com.dapascript.mever.core.common.util.goToDnsSetting
 import com.dapascript.mever.core.common.util.goToSetting
 import com.dapascript.mever.core.common.util.handleClickButton
-import com.dapascript.mever.core.common.util.isCustomDnsActive
 import com.dapascript.mever.core.common.util.isMusic
 import com.dapascript.mever.core.common.util.isVideo
 import com.dapascript.mever.core.common.util.navigateToMusic
@@ -481,7 +479,6 @@ private fun HomeDownloaderSection(
     var showUnsupportedYouTubeDialog by remember { mutableStateOf(false) }
     var showPlatformSupportDialog by remember { mutableStateOf(false) }
     var isStorageFull by remember { mutableStateOf(false) }
-    var isCustomDnsActive by remember { mutableStateOf(false) }
     var loadingItemIndex by remember { mutableStateOf<Int?>(null) }
     var isDownloadProcessing by remember { mutableStateOf(false) }
     var isInPreview by remember { mutableStateOf(false) }
@@ -682,31 +679,18 @@ private fun HomeDownloaderSection(
 
     MeverDialogError(
         showDialog = errorMessage.isNotEmpty(),
-        errorImage = if (isCustomDnsActive) R.drawable.ic_storage else R.drawable.ic_error,
+        errorImage = R.drawable.ic_error,
         errorTitle = stringResource(R.string.error_title),
         errorDescription = errorMessage,
         primaryButtonText = stringResource(
-            when {
-                isStorageFull -> R.string.ok
-                isCustomDnsActive -> R.string.go_to_settings
-                else -> R.string.retry
-            }
+            if (isStorageFull) R.string.ok else R.string.retry
         ),
         onClickPrimary = {
-            when {
-                isStorageFull -> isStorageFull = false
-                isCustomDnsActive -> {
-                    activity.goToDnsSetting()
-                    isCustomDnsActive = false
-                }
-
-                else -> getApiDownloader()
-            }
+            if (isStorageFull) isStorageFull = false else getApiDownloader()
             errorMessage = ""
         },
         onClickSecondary = {
             isStorageFull = false
-            isCustomDnsActive = false
             errorMessage = ""
         }
     )
@@ -878,18 +862,7 @@ private fun HomeDownloaderSection(
                             onIncrementClickCount = { incrementClickCount() },
                             onShowAds = { interstitialController.showAd() },
                             onClickAction = {
-                                when {
-                                    isCustomDnsActive(context) -> {
-                                        isCustomDnsActive = true
-                                        errorMessage = context.getString(
-                                            R.string.disable_custom_dns
-                                        )
-                                    }
-
-                                    showLoading.not() -> {
-                                        setStoragePermission = getStoragePermission()
-                                    }
-                                }
+                                if (showLoading.not()) setStoragePermission = getStoragePermission()
                             }
                         )
                     }
@@ -915,12 +888,7 @@ private fun HomeDownloaderSection(
                             title = data.featureName,
                             arrowColor = data.arrowColor,
                             isSingleItem = activeFeatures.size == 1
-                        ) {
-                            if (isCustomDnsActive(context)) {
-                                isCustomDnsActive = true
-                                errorMessage = context.getString(R.string.disable_custom_dns)
-                            } else navController.navigateTo(data.route)
-                        }
+                        ) { navController.navigateTo(data.route) }
                     }
                 }
                 Spacer(modifier = Modifier.size(Dp8))
