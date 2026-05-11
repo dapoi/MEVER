@@ -106,7 +106,6 @@ import com.dapascript.mever.core.navigation.helper.navigateTo
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingAboutAppRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLanguageRoute
-import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLanguageRoute.LanguageData
 import com.dapascript.mever.feature.setting.screen.attr.HandleAppreciateDialogAttr.AppreciateType
 import com.dapascript.mever.feature.setting.screen.attr.HandleAppreciateDialogAttr.AppreciateType.BITCOIN
 import com.dapascript.mever.feature.setting.screen.attr.HandleAppreciateDialogAttr.AppreciateType.PAYPAL
@@ -176,7 +175,7 @@ internal fun SettingLandingScreen(
             }
         }
 
-        LaunchedEffect(context) { getLanguageCode = getLanguageCode(context) }
+        LaunchedEffect(context) { languageCode = getLanguageCode(context) }
 
         if (setRequestPermission.isNotEmpty()) {
             MeverPermissionHandler(
@@ -233,11 +232,11 @@ internal fun SettingLandingScreen(
             listState = listState,
             isExpanded = isExpanded,
             isPipEnabled = isPipEnabled,
-            getLanguageCode = getLanguageCode,
+            getLanguageCode = languageCode,
             themeType = themeType,
             storageInfo = storageInfo,
-            onClickChangeLanguage = {
-                navController.navigateTo(SettingLanguageRoute(LanguageData(it)))
+            onClickChangeLanguage = { languageCode ->
+                navController.navigateTo(SettingLanguageRoute(languageCode))
             },
             onClickNotificationPermission = {
                 val perm = getNotificationPermission().firstOrNull()

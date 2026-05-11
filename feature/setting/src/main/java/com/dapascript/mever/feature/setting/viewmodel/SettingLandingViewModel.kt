@@ -31,7 +31,7 @@ class SettingLandingViewModel @Inject constructor(
     val settingMenus by lazy { getSettingMenus() }
 
     var titleHeight by mutableIntStateOf(0)
-    var getLanguageCode by mutableStateOf("en")
+    var languageCode by mutableStateOf("en")
     var animatedPercent by mutableFloatStateOf(0f)
 
     val themeType = dataStore.getTheme.stateIn(

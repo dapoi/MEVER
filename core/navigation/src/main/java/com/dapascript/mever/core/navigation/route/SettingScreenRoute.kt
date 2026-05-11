@@ -8,10 +8,7 @@ sealed interface SettingScreenRoute {
     data object SettingLandingRoute : SettingScreenRoute
 
     @Serializable
-    data class SettingLanguageRoute(val languageData: LanguageData) : SettingScreenRoute {
-        @Serializable
-        data class LanguageData(val languageCode: String)
-    }
+    data class SettingLanguageRoute(val languageCode: String): SettingScreenRoute
 
     @Serializable
     data class SettingThemeRoute(val themeType: ThemeType) : SettingScreenRoute
