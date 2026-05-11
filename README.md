@@ -65,7 +65,7 @@ Want to contribute? Let’s go!
 1. Fork this repo  
 2. Clone & create an `env.properties` file like this:  
    <img src="https://github.com/user-attachments/assets/b478861f-a72d-4c63-8841-70e2d85f8b26" width="500" />
-3. Add your `API_KEY` (get it from [api neoxr](https://api.neoxr.eu/))  
+3. Add your `API_KEY` (get it from [api neoxr](https://api.neoxr.eu/)) or you can send me a message to ask for the api key 
     ```
       # ADMob Configuration (Optional)
       ADMOB_ID=
@@ -73,7 +73,7 @@ Want to contribute? Let’s go!
       AD_INTERSTITIAL_UNIT_ID=
     
       # Debug Environment
-      API_KEY_DEBUG=YOUR_API_KEY (send me message if you want to have API key)
+      API_KEY_DEBUG=YOUR_API_KEY
       BASE_URL_DEBUG=https://api.neoxr.my.id
     
       # Release Environment
