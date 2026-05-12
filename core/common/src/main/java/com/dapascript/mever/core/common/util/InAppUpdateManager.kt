@@ -5,12 +5,12 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.appupdate.AppUpdateOptions
-import com.google.android.play.core.install.model.AppUpdateType.IMMEDIATE
 
 class InAppUpdateManager(context: Context) {
     private val appUpdateManager = AppUpdateManagerFactory.create(context.applicationContext)
 
     fun startUpdate(
+        updateType: Int,
         updateAvailability: Int,
         launcher: ActivityResultLauncher<IntentSenderRequest>,
         onUpdateNotAvailable: () -> Unit
@@ -18,10 +18,10 @@ class InAppUpdateManager(context: Context) {
         appUpdateManager.appUpdateInfo.addOnSuccessListener { appUpdateInfo ->
             if (
                 appUpdateInfo.updateAvailability() == updateAvailability
-                && appUpdateInfo.isUpdateTypeAllowed(IMMEDIATE)
+                && appUpdateInfo.isUpdateTypeAllowed(updateType)
             ) {
                 try {
-                    val updateOptions = AppUpdateOptions.newBuilder(IMMEDIATE)
+                    val updateOptions = AppUpdateOptions.newBuilder(updateType)
                         .setAllowAssetPackDeletion(true)
                         .build()
 
