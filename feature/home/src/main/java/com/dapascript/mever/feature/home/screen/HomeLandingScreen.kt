@@ -86,8 +86,8 @@ import com.dapascript.mever.core.common.ui.component.MeverAutoSizableTextField
 import com.dapascript.mever.core.common.ui.component.MeverBannerAd
 import com.dapascript.mever.core.common.ui.component.MeverButton
 import com.dapascript.mever.core.common.ui.component.MeverCard
-import com.dapascript.mever.core.common.ui.component.MeverDeclinedPermission
-import com.dapascript.mever.core.common.ui.component.MeverDialogError
+import com.dapascript.mever.core.common.ui.component.MeverDeclinedPermissionDialog
+import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
 import com.dapascript.mever.core.common.ui.component.MeverFeaturesBanner
 import com.dapascript.mever.core.common.ui.component.MeverIcon
@@ -166,8 +166,6 @@ import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.getIn
 import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetDownload
 import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetPlatformSupport
 import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetYouTubeQuality
-import com.dapascript.mever.feature.home.screen.component.HandleDialogUnsupportedYt
-import com.dapascript.mever.feature.home.screen.component.HandleDonationDialogOffer
 import com.dapascript.mever.feature.home.viewmodel.HomeLandingViewModel
 import com.ketch.Status.FAILED
 import com.ketch.Status.PAUSED
@@ -479,6 +477,7 @@ private fun HomeDownloaderSection(
     var showUnsupportedYouTubeDialog by remember { mutableStateOf(false) }
     var showPlatformSupportDialog by remember { mutableStateOf(false) }
     var isStorageFull by remember { mutableStateOf(false) }
+    var isPlaylistNotSupported by remember { mutableStateOf(false) }
     var loadingItemIndex by remember { mutableStateOf<Int?>(null) }
     var isDownloadProcessing by remember { mutableStateOf(false) }
     var isInPreview by remember { mutableStateOf(false) }
@@ -509,6 +508,7 @@ private fun HomeDownloaderSection(
                     errorMessage = context.getString(R.string.storage_full)
                 },
                 onActionIsContentPlaylist = {
+                    isPlaylistNotSupported = true
                     errorMessage = context.getString(R.string.playlist_not_supported)
                 },
                 onActionIsContentYT = {
@@ -558,6 +558,7 @@ private fun HomeDownloaderSection(
                         errorMessage = context.getString(R.string.storage_full)
                     },
                     onActionIsContentPlaylist = {
+                        isPlaylistNotSupported = true
                         errorMessage = context.getString(R.string.playlist_not_supported)
                     },
                     onActionIsContentYT = {
@@ -568,7 +569,7 @@ private fun HomeDownloaderSection(
                 )
             },
             onDenied = { isPermanentlyDeclined, retry ->
-                MeverDeclinedPermission(
+                MeverDeclinedPermissionDialog(
                     isPermissionsDeclined = isPermanentlyDeclined,
                     onGoToSetting = {
                         setStoragePermission = emptyList()
@@ -666,35 +667,6 @@ private fun HomeDownloaderSection(
         }
     )
 
-    HandleDialogUnsupportedYt(showUnsupportedYouTubeDialog) { showUnsupportedYouTubeDialog = false }
-
-    HandleDonationDialogOffer(
-        showDialog = randomDonateDialogOffer == 1,
-        onClickPrimaryButton = {
-            randomDonateDialogOffer = 0
-            navController.navigateTo(SettingAppreciateRoute)
-        },
-        onClickSecondaryButton = { randomDonateDialogOffer = 0 }
-    )
-
-    MeverDialogError(
-        showDialog = errorMessage.isNotEmpty(),
-        errorImage = R.drawable.ic_error,
-        errorTitle = stringResource(R.string.error_title),
-        errorDescription = errorMessage,
-        primaryButtonText = stringResource(
-            if (isStorageFull) R.string.ok else R.string.retry
-        ),
-        onClickPrimary = {
-            if (isStorageFull) isStorageFull = false else getApiDownloader()
-            errorMessage = ""
-        },
-        onClickSecondary = {
-            isStorageFull = false
-            errorMessage = ""
-        }
-    )
-
     HandleBottomSheetYouTubeQuality(
         showBottomSheet = showYoutubeChooseQualityModal,
         qualityList = youtubeResolutions.takeIf {
@@ -715,33 +687,77 @@ private fun HomeDownloaderSection(
         onDismiss = { showPlatformSupportDialog = false }
     )
 
+    MeverDialog(
+        showDialog = showUnsupportedYouTubeDialog,
+        description = stringResource(R.string.unsupported_yt),
+        primaryActionLabel = stringResource(R.string.ok),
+        secondaryActionLabel = null,
+        onClickPrimaryAction = { showUnsupportedYouTubeDialog = false }
+    )
+
+    MeverDialog(
+        showDialog = randomDonateDialogOffer == 1,
+        image = R.drawable.ic_wallet,
+        title = stringResource(R.string.thanks),
+        description = stringResource(R.string.donation_desc),
+        primaryActionLabel = stringResource(R.string.sure),
+        secondaryActionLabel = stringResource(R.string.later),
+        onClickPrimaryAction = {
+            randomDonateDialogOffer = 0
+            navController.navigateTo(SettingAppreciateRoute)
+        },
+        onClickSecondaryAction = { randomDonateDialogOffer = 0 }
+    )
+
+    MeverDialog(
+        showDialog = errorMessage.isNotEmpty(),
+        title = stringResource(R.string.error_title),
+        description = errorMessage,
+        secondaryActionLabel = if (isPlaylistNotSupported) null else stringResource(R.string.cancel),
+        primaryActionLabel = stringResource(
+            if (isStorageFull || isPlaylistNotSupported) R.string.ok else R.string.retry
+        ),
+        onClickPrimaryAction = {
+            when {
+                isStorageFull -> isStorageFull = false
+                isPlaylistNotSupported -> isPlaylistNotSupported = false
+                else -> getApiDownloader()
+            }
+            errorMessage = ""
+        },
+        onClickSecondaryAction = {
+            isStorageFull = false
+            errorMessage = ""
+        }
+    )
+
     showDeleteDialog?.let { id ->
-        MeverDialogError(
+        MeverDialog(
             showDialog = true,
-            errorImage = null,
-            errorTitle = stringResource(R.string.delete_title),
-            errorDescription = stringResource(R.string.delete_desc),
-            primaryButtonText = stringResource(R.string.delete_button),
-            onClickPrimary = {
+            image = null,
+            title = stringResource(R.string.delete_title),
+            description = stringResource(R.string.delete_desc),
+            primaryActionLabel = stringResource(R.string.delete_button),
+            onClickPrimaryAction = {
                 delete(id)
                 showDeleteDialog = null
             },
-            onClickSecondary = { showDeleteDialog = null },
+            onClickSecondaryAction = { showDeleteDialog = null }
         )
     }
 
     showFailedDialog?.let { id ->
-        MeverDialogError(
+        MeverDialog(
             showDialog = true,
-            errorTitle = stringResource(R.string.download_failed_title),
-            errorDescription = stringResource(R.string.download_failed_desc),
-            primaryButtonText = stringResource(R.string.delete_button),
-            secondaryButtonText = stringResource(R.string.retry),
-            onClickPrimary = {
+            title = stringResource(R.string.download_failed_title),
+            description = stringResource(R.string.download_failed_desc),
+            primaryActionLabel = stringResource(R.string.delete_button),
+            secondaryActionLabel = stringResource(R.string.retry),
+            onClickPrimaryAction = {
                 delete(id)
                 showFailedDialog = null
             },
-            onClickSecondary = {
+            onClickSecondaryAction = {
                 retryDownload(id)
                 showFailedDialog = null
             }

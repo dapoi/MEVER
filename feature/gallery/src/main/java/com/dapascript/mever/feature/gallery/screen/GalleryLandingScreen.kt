@@ -56,7 +56,7 @@ import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.ActionMenu
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverButton
 import com.dapascript.mever.core.common.ui.component.MeverCard
-import com.dapascript.mever.core.common.ui.component.MeverDialogError
+import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
 import com.dapascript.mever.core.common.ui.component.MeverPopupDropDownMenu
 import com.dapascript.mever.core.common.ui.component.meverShimmer
@@ -342,49 +342,49 @@ internal fun GalleryLandingScreen(
             onSetTitleHeight = { titleHeight = it }
         )
 
-        MeverDialogError(
+        MeverDialog(
             showDialog = showDeleteAllDialog,
-            errorImage = null,
-            errorTitle = stringResource(R.string.delete_all_title),
-            errorDescription = stringResource(R.string.delete_all_desc),
-            primaryButtonText = stringResource(R.string.delete_button),
-            onClickPrimary = {
+            image = null,
+            title = stringResource(R.string.delete_all_title),
+            description = stringResource(R.string.delete_all_desc),
+            primaryActionLabel = stringResource(R.string.delete_button),
+            onClickPrimaryAction = {
                 scope.launch { listState.scrollToItem(0) }
                 deleteAll()
                 showDeleteAllDialog = false
             },
-            onClickSecondary = { showDeleteAllDialog = false }
+            onClickSecondaryAction = { showDeleteAllDialog = false }
         )
 
         showDeleteDialog?.let { ids ->
-            MeverDialogError(
+            MeverDialog(
                 showDialog = true,
-                errorImage = null,
-                errorTitle = stringResource(R.string.delete_title),
-                errorDescription = stringResource(R.string.delete_desc),
-                primaryButtonText = stringResource(R.string.delete_button),
-                onClickPrimary = {
+                image = null,
+                title = stringResource(R.string.delete_title),
+                description = stringResource(R.string.delete_desc),
+                primaryActionLabel = stringResource(R.string.delete_button),
+                onClickPrimaryAction = {
                     ids.forEach { delete(it) }
                     showDeleteDialog = null
                     showSelector = false
                     clearSelection()
                 },
-                onClickSecondary = { showDeleteDialog = null }
+                onClickSecondaryAction = { showDeleteDialog = null }
             )
         }
 
         showFailedDialog?.let { id ->
-            MeverDialogError(
+            MeverDialog(
                 showDialog = true,
-                errorTitle = stringResource(R.string.download_failed_title),
-                errorDescription = stringResource(R.string.download_failed_desc),
-                primaryButtonText = stringResource(R.string.delete_button),
-                secondaryButtonText = stringResource(R.string.retry),
-                onClickPrimary = {
+                title = stringResource(R.string.download_failed_title),
+                description = stringResource(R.string.download_failed_desc),
+                primaryActionLabel = stringResource(R.string.delete_button),
+                secondaryActionLabel = stringResource(R.string.retry),
+                onClickPrimaryAction = {
                     delete(id)
                     showFailedDialog = null
                 },
-                onClickSecondary = {
+                onClickSecondaryAction = {
                     retryDownload(id)
                     showFailedDialog = null
                 }

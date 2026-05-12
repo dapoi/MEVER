@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,11 +34,9 @@ import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter.Companion.tint
-import androidx.compose.ui.layout.ContentScale.Companion.Crop
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle.Event.ON_RESUME
 import androidx.lifecycle.Lifecycle.Event.ON_STOP
@@ -48,16 +45,12 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
-import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
 import com.dapascript.mever.core.common.ui.component.MeverDialog
-import com.dapascript.mever.core.common.ui.component.MeverDialogError
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp189
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp200
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp72
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
-import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.InAppUpdateManager
@@ -145,39 +138,20 @@ internal fun SplashScreen(
 
         MeverDialog(
             showDialog = showMaintenanceModal,
-            meverDialogArgs = MeverDialogArgs(
-                title = stringResource(R.string.maintenance_title)
-            ),
-            hideInteractionButton = true
-        ) {
-            Image(
-                modifier = Modifier
-                    .size(Dp200)
-                    .align(CenterHorizontally),
-                painter = painterResource(R.drawable.ic_storage),
-                contentScale = Crop,
-                contentDescription = "Maintenance Image"
-            )
-            Text(
-                text = stringResource(R.string.maintenance_message, today),
-                textAlign = TextAlign.Center,
-                style = typography.body1,
-                color = colors.blackWhite
-            )
-        }
+            title = stringResource(R.string.maintenance_title),
+            description = stringResource(R.string.maintenance_message, today),
+            primaryActionLabel = null,
+            secondaryActionLabel = null
+        )
 
-        MeverDialogError(
+        MeverDialog(
             showDialog = errorMessage.isNotEmpty(),
-            errorTitle = stringResource(R.string.error_title),
-            errorDescription = errorMessage,
-            onClickPrimary = {
+            description = errorMessage,
+            onClickPrimaryAction = {
                 errorMessage = ""
                 getAppConfig()
             },
-            onClickSecondary = {
-                errorMessage = ""
-                activity.finish()
-            }
+            onClickSecondaryAction = { activity.finish() }
         )
 
         DisposableEffect(lifecycleOwner) {

@@ -54,22 +54,19 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.style.TextAlign.Companion.Center
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Filled
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Outlined
-import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverAutoSizableTextField
 import com.dapascript.mever.core.common.ui.component.MeverBannerAd
 import com.dapascript.mever.core.common.ui.component.MeverBottomSheet
 import com.dapascript.mever.core.common.ui.component.MeverButton
-import com.dapascript.mever.core.common.ui.component.MeverDeclinedPermission
+import com.dapascript.mever.core.common.ui.component.MeverDeclinedPermissionDialog
 import com.dapascript.mever.core.common.ui.component.MeverDialog
-import com.dapascript.mever.core.common.ui.component.MeverDialogError
 import com.dapascript.mever.core.common.ui.component.MeverImage
 import com.dapascript.mever.core.common.ui.component.MeverPermissionHandler
 import com.dapascript.mever.core.common.ui.component.MeverSnackbar
@@ -224,7 +221,7 @@ internal fun AiImageResultScreen(
                     }
                 },
                 onDenied = { isPermanentlyDeclined, retry ->
-                    MeverDeclinedPermission(
+                    MeverDeclinedPermissionDialog(
                         isPermissionsDeclined = isPermanentlyDeclined,
                         onGoToSetting = {
                             setStoragePermission = emptyList()
@@ -237,16 +234,14 @@ internal fun AiImageResultScreen(
             )
         }
 
-        MeverDialogError(
+        MeverDialog(
             showDialog = errorMessage.isNotEmpty(),
-            errorTitle = stringResource(R.string.error_title),
-            errorDescription = errorMessage,
-            primaryButtonText = stringResource(R.string.retry),
-            onClickPrimary = {
+            description = errorMessage,
+            onClickPrimaryAction = {
                 errorMessage = ""
                 getImageAiGenerator()
             },
-            onClickSecondary = { navController.popBackStack() }
+            onClickSecondaryAction = { navController.popBackStack() }
         )
 
         MeverBottomSheet(
@@ -770,17 +765,10 @@ private fun HandleDialogExitConfirmation(
 ) {
     MeverDialog(
         showDialog = showDialog,
-        meverDialogArgs = MeverDialogArgs(
-            title = stringResource(R.string.cancel_fetch_title),
-            onClickPrimaryButton = onClickPrimary,
-            onClickSecondaryButton = onClickSecondary
-        )
-    ) {
-        Text(
-            text = stringResource(R.string.cancel_fetch_desc),
-            textAlign = Center,
-            style = typography.body1,
-            color = colors.blackWhite
-        )
-    }
+        image = null,
+        title = stringResource(R.string.cancel_fetch_title),
+        description = stringResource(R.string.cancel_fetch_desc),
+        onClickPrimaryAction = onClickPrimary,
+        onClickSecondaryAction = onClickSecondary
+    )
 }

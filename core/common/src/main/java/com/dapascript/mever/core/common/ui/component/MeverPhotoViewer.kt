@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -42,7 +41,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import coil3.compose.AsyncImagePainter.State.Error
@@ -55,7 +53,6 @@ import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.
 import com.dapascript.mever.core.common.ui.attr.MeverContentViewerAttr.ContentViewerActionMenu
 import com.dapascript.mever.core.common.ui.attr.MeverContentViewerAttr.ContentViewerActionMenu.DELETE
 import com.dapascript.mever.core.common.ui.attr.MeverContentViewerAttr.ContentViewerActionMenu.SHARE
-import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.ActionMenu
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp120
@@ -64,7 +61,6 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.MeverBlack
 import com.dapascript.mever.core.common.ui.theme.MeverDark
-import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.LocalActivity
@@ -216,32 +212,26 @@ fun MeverPhotoViewer(
         )
     }
 
+    @Suppress("ASSIGNED_VALUE_IS_NEVER_READ")
     MeverDialog(
-        meverDialogArgs = MeverDialogArgs(
-            title = stringResource(R.string.delete_title),
-            primaryButtonText = stringResource(R.string.delete_button),
-            titleColor = MeverWhite,
-            backgroundColor = MeverDark,
-            secondaryButtonColor = MeverWhite,
-            onClickPrimaryButton = {
-                onClickDelete()
-                onClickBack()
-                showDeleteDialog = false
-            },
-            onClickSecondaryButton = {
-                hideSystemBar(activity, true)
-                showDeleteDialog = false
-            }
-        ),
-        showDialog = showDeleteDialog
-    ) {
-        Text(
-            text = stringResource(R.string.delete_desc),
-            textAlign = TextAlign.Center,
-            style = typography.body1,
-            color = MeverWhite
-        )
-    }
+        showDialog = showDeleteDialog,
+        image = null,
+        title = stringResource(R.string.delete_title),
+        description = stringResource(R.string.delete_desc),
+        primaryActionLabel = stringResource(R.string.delete_button),
+        titleColor = MeverWhite,
+        backgroundColor = MeverDark,
+        secondaryActionColor = MeverWhite,
+        onClickPrimaryAction = {
+            onClickDelete()
+            onClickBack()
+            showDeleteDialog = false
+        },
+        onClickSecondaryAction = {
+            hideSystemBar(activity, true)
+            showDeleteDialog = false
+        }
+    )
 }
 
 @Composable

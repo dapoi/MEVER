@@ -39,7 +39,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.component.MeverBottomSheet
-import com.dapascript.mever.core.common.ui.component.MeverDeclinedPermission
+import com.dapascript.mever.core.common.ui.component.MeverDeclinedPermissionDialog
 import com.dapascript.mever.core.common.ui.component.MeverPermissionHandler
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp14
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
@@ -97,7 +97,7 @@ internal fun HandleBottomSheetQris(
                 }
             },
             onDenied = { isPermanentlyDeclined, onRetry ->
-                MeverDeclinedPermission(
+                MeverDeclinedPermissionDialog(
                     isPermissionsDeclined = isPermanentlyDeclined,
                     onGoToSetting = {
                         setStoragePermission = emptyList()
@@ -113,6 +113,7 @@ internal fun HandleBottomSheetQris(
     MeverBottomSheet(
         modifier = Modifier.wrapContentSize(),
         showBottomSheet = showQrisDialog,
+        shouldDismissOnClickOutside = true,
         onDismissBottomSheet = { onDismiss(false) }
     ) {
         Column(

@@ -16,12 +16,12 @@ import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.IntrinsicSize.Min
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -31,6 +31,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
@@ -38,19 +39,20 @@ import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.layout.ContentScale.Companion.FillBounds
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.dapascript.mever.core.common.R
-import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp14
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp20
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp200
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
@@ -60,24 +62,43 @@ import com.dapascript.mever.core.common.util.onCustomClick
 @Composable
 fun MeverDialog(
     showDialog: Boolean,
-    meverDialogArgs: MeverDialogArgs,
-    modifier: Modifier = Modifier,
-    hideInteractionButton: Boolean = false,
-    contentBody: @Composable ColumnScope.() -> Unit
-) = with(meverDialogArgs) {
+    image: Int? = R.drawable.ic_error,
+    title: String? = stringResource(R.string.error_title),
+    description: String? = stringResource(R.string.error_desc),
+    primaryActionLabel: String? = stringResource(R.string.retry),
+    secondaryActionLabel: String? = stringResource(R.string.cancel),
+    titleColor: Color? = null,
+    backgroundColor: Color? = null,
+    primaryActionColor: Color? = null,
+    secondaryActionColor: Color? = null,
+    onClickPrimaryAction: (() -> Unit)? = null,
+    onClickSecondaryAction: (() -> Unit)? = null
+) {
+    val currentPrimary = rememberUpdatedState(onClickPrimaryAction)
+    val currentSecondary = rememberUpdatedState(onClickSecondaryAction)
     var showAnimatedDialog by remember { mutableStateOf(false) }
+    val onDismiss = {
+        if (currentSecondary.value != null) {
+            currentSecondary.value?.invoke()
+        } else {
+            currentPrimary.value?.invoke()
+        }
+        showAnimatedDialog = false
+    }
 
     LaunchedEffect(showDialog) { if (showDialog) showAnimatedDialog = true }
 
     if (showAnimatedDialog) {
         Dialog(
             properties = DialogProperties(),
-            onDismissRequest = onClickSecondaryButton
+            onDismissRequest = { onDismiss() }
         ) {
             Box(
-                modifier = modifier
+                modifier = Modifier
                     .fillMaxSize()
-                    .pointerInput(Unit) { detectTapGestures { if (hideInteractionButton) onClickSecondaryButton() } },
+                    .pointerInput(Unit) {
+                        detectTapGestures { onDismiss() }
+                    },
                 contentAlignment = Center
             ) {
                 var animateIn by remember { mutableStateOf(false) }
@@ -108,13 +129,27 @@ fun MeverDialog(
                         contentAlignment = Center
                     ) {
                         DialogContent(
-                            meverDialogArgs = this@with,
-                            hideInteractionButton = hideInteractionButton,
-                            contentBody = contentBody
+                            title = title,
+                            image = image,
+                            description = description,
+                            primaryActionLabel = primaryActionLabel,
+                            secondaryActionLabel = secondaryActionLabel,
+                            titleColor = titleColor,
+                            backgroundColor = backgroundColor,
+                            primaryActionColor = primaryActionColor,
+                            secondaryActionColor = secondaryActionColor,
+                            onClickPrimaryAction = {
+                                currentPrimary.value?.invoke()
+                                showAnimatedDialog = false
+                            },
+                            onClickSecondaryAction = {
+                                currentSecondary.value?.invoke()
+                                showAnimatedDialog = false
+                            }
                         )
                     }
 
-                    DisposableEffect(LocalView.current.parent) {
+                    DisposableEffect(Unit) {
                         onDispose { showAnimatedDialog = false }
                     }
                 }
@@ -125,44 +160,71 @@ fun MeverDialog(
 
 @Composable
 private fun DialogContent(
-    meverDialogArgs: MeverDialogArgs,
-    hideInteractionButton: Boolean,
-    modifier: Modifier = Modifier,
-    contentBody: @Composable ColumnScope.() -> Unit
-) = with(meverDialogArgs) {
-    Column(
-        modifier = modifier
-            .background(backgroundColor ?: colors.whiteDark)
-            .padding(top = Dp12, start = Dp16, end = Dp16, bottom = Dp8),
-        verticalArrangement = spacedBy(Dp12),
-        horizontalAlignment = CenterHorizontally
-    ) {
+    title: String?,
+    image: Int?,
+    description: String?,
+    primaryActionLabel: String?,
+    secondaryActionLabel: String?,
+    titleColor: Color?,
+    backgroundColor: Color?,
+    primaryActionColor: Color?,
+    secondaryActionColor: Color?,
+    onClickPrimaryAction: (() -> Unit)?,
+    onClickSecondaryAction: (() -> Unit)?
+) = Column(
+    modifier = Modifier
+        .background(backgroundColor ?: colors.whiteDark)
+        .padding(top = Dp12, start = Dp16, end = Dp16, bottom = Dp8),
+    verticalArrangement = spacedBy(Dp12),
+    horizontalAlignment = CenterHorizontally
+) {
+    title?.let {
         Text(
             text = title,
             textAlign = TextAlign.Center,
             style = typography.bodyBold1,
             color = titleColor ?: colors.blackWhite
         )
-        contentBody()
-        if (hideInteractionButton.not()) Row(
-            modifier = Modifier.height(Min),
-            verticalAlignment = CenterVertically,
-            horizontalArrangement = SpaceBetween
-        ) {
+    }
+    image?.let {
+        MeverImage(
+            modifier = Modifier
+                .size(Dp200)
+                .align(CenterHorizontally),
+            source = image,
+            contentScale = FillBounds
+        )
+    }
+    description?.let {
+        Text(
+            text = description,
+            textAlign = TextAlign.Center,
+            style = typography.body1,
+            color = colors.blackWhite
+        )
+    }
+    Row(
+        modifier = Modifier.height(Min),
+        verticalAlignment = CenterVertically,
+        horizontalArrangement = SpaceBetween
+    ) {
+        secondaryActionLabel?.let {
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(Dp14))
-                    .onCustomClick { onClickSecondaryButton() }
+                    .onCustomClick { onClickSecondaryAction?.invoke() }
                     .weight(1f)
                     .padding(vertical = Dp8),
                 contentAlignment = Center
             ) {
                 Text(
-                    text = secondaryButtonText ?: stringResource(R.string.cancel),
+                    text = secondaryActionLabel,
                     style = typography.bodyBold2,
-                    color = secondaryButtonColor ?: colors.blackWhite
+                    color = secondaryActionColor ?: colors.blackWhite
                 )
             }
+        }
+        if (primaryActionLabel != null && secondaryActionLabel != null) {
             Box(
                 modifier = Modifier
                     .width(Dp2)
@@ -172,18 +234,20 @@ private fun DialogContent(
                         shape = RoundedCornerShape(Dp8)
                     )
             )
+        }
+        primaryActionLabel?.let {
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(Dp14))
-                    .onCustomClick { onClickPrimaryButton() }
+                    .onCustomClick { onClickPrimaryAction?.invoke() }
                     .weight(1f)
                     .padding(vertical = Dp8),
                 contentAlignment = Center
             ) {
                 Text(
-                    text = primaryButtonText ?: stringResource(R.string.yes),
+                    text = primaryActionLabel,
                     style = typography.bodyBold2,
-                    color = primaryButtonColor ?: colors.alwaysPurple
+                    color = primaryActionColor ?: colors.alwaysPurple
                 )
             }
         }

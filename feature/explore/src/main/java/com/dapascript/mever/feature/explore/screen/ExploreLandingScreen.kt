@@ -47,7 +47,7 @@ import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverBannerAd
-import com.dapascript.mever.core.common.ui.component.MeverDialogError
+import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverImage
 import com.dapascript.mever.core.common.ui.component.MeverTextField
 import com.dapascript.mever.core.common.ui.component.meverShimmer
@@ -123,19 +123,14 @@ internal fun ExploreLandingScreen(
             )
         }
 
-        MeverDialogError(
+        MeverDialog(
             showDialog = errorMessage.isNotEmpty(),
-            errorTitle = stringResource(R.string.error_title),
-            errorDescription = errorMessage,
-            onClickPrimary = {
+            description = errorMessage,
+            onClickPrimaryAction = {
                 errorMessage = ""
                 getExploreContents(query.ifEmpty { randomQuery() })
             },
-            onClickSecondary = {
-                contents = emptyList()
-                errorMessage = ""
-                navController.popBackStack()
-            }
+            onClickSecondaryAction = { navController.popBackStack() }
         )
 
         Box {

@@ -1,18 +1,10 @@
 package com.dapascript.mever.feature.setting.screen.component
 
 import android.content.Context
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign.Companion.Center
 import com.dapascript.mever.core.common.R
-import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
 import com.dapascript.mever.core.common.ui.component.MeverDialog
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
-import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
-import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.util.copyToClipboard
 import com.dapascript.mever.feature.setting.screen.attr.HandleAppreciateDialogAttr.AppreciateType
 import com.dapascript.mever.feature.setting.screen.attr.HandleAppreciateDialogAttr.AppreciateType.BITCOIN
@@ -28,24 +20,16 @@ internal fun HandleAppreciateDialog(
 ) = getContentDonateTypeDialog(context, appreciateType).let { (title, address) ->
     MeverDialog(
         showDialog = true,
-        meverDialogArgs = MeverDialogArgs(
-            title = title,
-            primaryButtonText = stringResource(R.string.copy),
-            onClickPrimaryButton = {
-                copyToClipboard(context, address)
-                onDismissDialog(null)
-            },
-            onClickSecondaryButton = { onDismissDialog(null) }
-        )
-    ) {
-        Text(
-            text = address,
-            textAlign = Center,
-            style = typography.body1,
-            color = colors.blackWhite,
-            modifier = Modifier.padding(vertical = Dp8)
-        )
-    }
+        image = null,
+        title = title,
+        description = address,
+        primaryActionLabel = stringResource(R.string.copy),
+        onClickPrimaryAction = {
+            copyToClipboard(context, address)
+            onDismissDialog(null)
+        },
+        onClickSecondaryAction = { onDismissDialog(null) }
+    )
 }
 
 private fun getContentDonateTypeDialog(

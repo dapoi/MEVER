@@ -39,7 +39,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
@@ -75,7 +74,6 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.graphics.toRect
 import androidx.core.net.toUri
@@ -105,24 +103,20 @@ import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.attr.MeverContentViewerAttr.ContentViewerActionMenu
 import com.dapascript.mever.core.common.ui.attr.MeverContentViewerAttr.ContentViewerActionMenu.DELETE
 import com.dapascript.mever.core.common.ui.attr.MeverContentViewerAttr.ContentViewerActionMenu.SHARE
-import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.ActionMenu
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp0
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp10
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp14
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp6
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverBlack
 import com.dapascript.mever.core.common.ui.theme.MeverDark
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
-import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
@@ -339,31 +333,13 @@ fun MeverVideoPlayer(
 
     MeverDialog(
         showDialog = showErrorPlayingDialog,
-        meverDialogArgs = MeverDialogArgs(title = stringResource(R.string.error_title)),
-        hideInteractionButton = true
-    ) {
-        Text(
-            modifier = Modifier.fillMaxWidth(),
-            text = stringResource(R.string.failed_playback),
-            textAlign = TextAlign.Center,
-            style = typography.body1,
-            color = colors.blackWhite
-        )
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(Dp14))
-                .onCustomClick { onClickBack() }
-                .padding(vertical = Dp8),
-            contentAlignment = Center
-        ) {
-            Text(
-                text = stringResource(R.string.close),
-                style = typography.bodyBold2,
-                color = colors.alwaysPurple
-            )
-        }
-    }
+        description = stringResource(R.string.failed_playback),
+        primaryActionLabel = stringResource(R.string.close),
+        secondaryActionLabel = null,
+        titleColor = MeverWhite,
+        backgroundColor = MeverDark,
+        onClickPrimaryAction = { onClickBack() }
+    )
 
     Box(modifier = modifier.keepScreenOn()) {
         VideoPlayer(
@@ -433,32 +409,26 @@ fun MeverVideoPlayer(
         )
     }
 
+    @Suppress("ASSIGNED_VALUE_IS_NEVER_READ")
     MeverDialog(
-        meverDialogArgs = MeverDialogArgs(
-            title = stringResource(R.string.delete_title),
-            primaryButtonText = stringResource(R.string.delete_button),
-            titleColor = MeverWhite,
-            backgroundColor = MeverDark,
-            secondaryButtonColor = MeverWhite,
-            onClickPrimaryButton = {
-                onClickDelete()
-                onClickBack()
-                showDeleteDialog = false
-            },
-            onClickSecondaryButton = {
-                hideSystemBar(activity, true)
-                showDeleteDialog = false
-            }
-        ),
-        showDialog = showDeleteDialog
-    ) {
-        Text(
-            text = stringResource(R.string.delete_desc),
-            textAlign = TextAlign.Center,
-            style = typography.body1,
-            color = MeverWhite
-        )
-    }
+        showDialog = showDeleteDialog,
+        image = null,
+        title = stringResource(R.string.delete_title),
+        description = stringResource(R.string.delete_desc),
+        titleColor = MeverWhite,
+        backgroundColor = MeverDark,
+        secondaryActionColor = MeverWhite,
+        primaryActionLabel = stringResource(R.string.delete_button),
+        onClickPrimaryAction = {
+            onClickDelete()
+            onClickBack()
+            showDeleteDialog = false
+        },
+        onClickSecondaryAction = {
+            hideSystemBar(activity, true)
+            showDeleteDialog = false
+        }
+    )
 }
 
 @Composable

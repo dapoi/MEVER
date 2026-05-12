@@ -53,13 +53,11 @@ import androidx.compose.ui.graphics.StrokeCap.Companion.Round
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign.Companion.Center
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
-import com.dapascript.mever.core.common.ui.attr.MeverDialogAttr.MeverDialogArgs
 import com.dapascript.mever.core.common.ui.attr.MeverMenuItemAttr.MenuItemArgs
 import com.dapascript.mever.core.common.ui.attr.MeverMenuItemAttr.MenuItemArgs.TrailingType.Default
 import com.dapascript.mever.core.common.ui.attr.MeverMenuItemAttr.MenuItemArgs.TrailingType.Switch
@@ -184,29 +182,20 @@ internal fun SettingLandingScreen(
                 onDenied = { isPermanentlyDeclined, onRetry ->
                     MeverDialog(
                         showDialog = true,
-                        meverDialogArgs = MeverDialogArgs(
-                            title = stringResource(R.string.permission_request_title),
-                            primaryButtonText = stringResource(
-                                if (isPermanentlyDeclined) R.string.go_to_settings
-                                else R.string.allow
-                            ),
-                            onClickPrimaryButton = {
-                                if (isPermanentlyDeclined) {
-                                    setRequestPermission = emptyList()
-                                    navigateToNotificationSettings(context)
-                                } else onRetry()
-                            },
-                            onClickSecondaryButton = { setRequestPermission = emptyList() }
-                        )
-                    ) {
-                        Text(
-                            text = stringResource(R.string.permission_request_notification),
-                            textAlign = Center,
-                            style = typography.body1,
-                            color = colors.blackWhite,
-                            modifier = Modifier.padding(vertical = Dp8)
-                        )
-                    }
+                        title = stringResource(R.string.permission_request_title),
+                        description = stringResource(R.string.permission_request_notification),
+                        primaryActionLabel = stringResource(
+                            if (isPermanentlyDeclined) R.string.go_to_settings
+                            else R.string.allow
+                        ),
+                        onClickPrimaryAction = {
+                            if (isPermanentlyDeclined) {
+                                setRequestPermission = emptyList()
+                                navigateToNotificationSettings(context)
+                            } else onRetry()
+                        },
+                        onClickSecondaryAction = { setRequestPermission = emptyList() }
+                    )
                 }
             )
         }

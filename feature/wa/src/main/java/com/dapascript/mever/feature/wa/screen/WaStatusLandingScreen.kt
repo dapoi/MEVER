@@ -63,7 +63,7 @@ import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverBannerAd
 import com.dapascript.mever.core.common.ui.component.MeverButton
-import com.dapascript.mever.core.common.ui.component.MeverDialogError
+import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
 import com.dapascript.mever.core.common.ui.component.MeverImage
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp0
@@ -188,35 +188,28 @@ internal fun WaStatusLandingScreen(
         }
 
         permissionDialogType?.let { type ->
-            MeverDialogError(
+            MeverDialog(
                 showDialog = true,
-                errorImage = R.drawable.wa_permission,
-                errorTitle = stringResource(R.string.permission_request_title),
-                errorDescription = stringResource(R.string.permission_request_wa),
-                primaryButtonText = stringResource(R.string.ok),
-                onClickPrimary = { launchWaPath(waLauncher, type) },
-                onClickSecondary = {
-                    permissionDialogType = null
-                    navController.popBackStack()
-                }
+                image = R.drawable.wa_permission,
+                title = stringResource(R.string.permission_request_title),
+                description = stringResource(R.string.permission_request_wa),
+                primaryActionLabel = stringResource(R.string.ok),
+                onClickPrimaryAction = { launchWaPath(waLauncher, type) },
+                onClickSecondaryAction = { navController.popBackStack() }
             )
         }
 
-        MeverDialogError(
+        MeverDialog(
             showDialog = showWaNotInstalledDialog,
-            errorImage = R.drawable.ic_storage,
-            errorTitle = stringResource(R.string.error_title),
-            errorDescription = stringResource(R.string.wa_not_installed),
-            primaryButtonText = stringResource(R.string.install),
-            onClickPrimary = {
+            title = stringResource(R.string.error_title),
+            description = stringResource(R.string.wa_not_installed),
+            primaryActionLabel = stringResource(R.string.install),
+            onClickPrimaryAction = {
                 showWaNotInstalledDialog = false
                 activity.goToWaStore()
                 navController.popBackStack()
             },
-            onClickSecondary = {
-                showWaNotInstalledDialog = false
-                navController.popBackStack()
-            }
+            onClickSecondaryAction = { navController.popBackStack() }
         )
 
         WaStatusContent(

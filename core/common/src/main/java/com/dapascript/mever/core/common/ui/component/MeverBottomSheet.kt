@@ -105,9 +105,10 @@ fun MeverBottomSheet(
             val window = (view.parent as? DialogWindowProvider)?.window
             if (window != null) {
                 WindowCompat.setDecorFitsSystemWindows(window, false)
-                WindowCompat.getInsetsController(
-                    window, view
-                ).isAppearanceLightNavigationBars = isAppInDarkMode.not()
+                WindowCompat.getInsetsController(window, view).apply {
+                    isAppearanceLightStatusBars = isAppInDarkMode.not()
+                    isAppearanceLightNavigationBars = isAppInDarkMode.not()
+                }
             }
         }
         content()

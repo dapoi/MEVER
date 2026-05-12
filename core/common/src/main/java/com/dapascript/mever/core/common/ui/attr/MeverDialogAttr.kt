@@ -14,4 +14,10 @@ object MeverDialogAttr {
         val onClickPrimaryButton: () -> Unit = {},
         val onClickSecondaryButton: () -> Unit = {}
     )
+
+    data class MeverDialogProperties(
+        val dismissOnBackPress: Boolean = true,
+        val dismissOnClickOutside: Boolean = true,
+        val usePlatformDefaultWidth: Boolean = true
+    )
 }

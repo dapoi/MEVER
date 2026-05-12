@@ -30,8 +30,8 @@ import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
-import com.dapascript.mever.core.common.ui.component.MeverDeclinedPermission
-import com.dapascript.mever.core.common.ui.component.MeverDialogError
+import com.dapascript.mever.core.common.ui.component.MeverDeclinedPermissionDialog
+import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverPermissionHandler
 import com.dapascript.mever.core.common.ui.component.MeverPhotoViewer
 import com.dapascript.mever.core.common.ui.component.MeverVideoPlayer
@@ -116,12 +116,11 @@ internal fun GalleryContentDetailScreen(
             }
         }
 
-        MeverDialogError(
+        MeverDialog(
             showDialog = errorMessage.isNotEmpty(),
-            errorTitle = stringResource(R.string.error_title),
-            errorDescription = errorMessage,
-            primaryButtonText = stringResource(R.string.ok),
-            onClickPrimary = {
+            description = errorMessage,
+            primaryActionLabel = stringResource(R.string.ok),
+            onClickPrimaryAction = {
                 errorMessage = ""
                 scope.launch {
                     startDownload(imageExploreData.first, imageExploreData.second)
@@ -131,7 +130,7 @@ internal fun GalleryContentDetailScreen(
                     }
                 }
             },
-            onClickSecondary = { errorMessage = "" }
+            onClickSecondaryAction = { errorMessage = "" }
         )
 
         if (setStoragePermission.isNotEmpty()) {
@@ -153,7 +152,7 @@ internal fun GalleryContentDetailScreen(
                     }
                 },
                 onDenied = { isPermanentlyDeclined, retry ->
-                    MeverDeclinedPermission(
+                    MeverDeclinedPermissionDialog(
                         isPermissionsDeclined = isPermanentlyDeclined,
                         onGoToSetting = {
                             setStoragePermission = emptyList()
