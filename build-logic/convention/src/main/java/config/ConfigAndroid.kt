@@ -32,12 +32,20 @@ private fun ApplicationExtension.configure(project: Project) = apply {
         buildConfigField(
             "String",
             "AD_BANNER_UNIT_ID",
-            "\"${project.getEnvVariable("AD_BANNER_UNIT_ID")}\""
+            "\"${
+                project.getEnvVariable("AD_BANNER_UNIT_ID").ifEmpty {
+                    "ca-app-pub-3940256099942544/6300978111"
+                }
+            }\""
         )
         buildConfigField(
             "String",
             "AD_INTERSTITIAL_UNIT_ID",
-            "\"${project.getEnvVariable("AD_INTERSTITIAL_UNIT_ID")}\""
+            "\"${
+                project.getEnvVariable("AD_INTERSTITIAL_UNIT_ID").ifEmpty {
+                    "ca-app-pub-3940256099942544/1033173712"
+                }
+            }\""
         )
     }
 
@@ -77,12 +85,20 @@ private fun LibraryExtension.configure(project: Project) = apply {
         buildConfigField(
             "String",
             "AD_BANNER_UNIT_ID",
-            "\"${project.getEnvVariable("AD_BANNER_UNIT_ID")}\""
+            "\"${
+                project.getEnvVariable("AD_BANNER_UNIT_ID").ifEmpty {
+                    "ca-app-pub-3940256099942544/6300978111"
+                }
+            }\""
         )
         buildConfigField(
             "String",
             "AD_INTERSTITIAL_UNIT_ID",
-            "\"${project.getEnvVariable("AD_INTERSTITIAL_UNIT_ID")}\""
+            "\"${
+                project.getEnvVariable("AD_INTERSTITIAL_UNIT_ID").ifEmpty {
+                    "ca-app-pub-3940256099942544/1033173712"
+                }
+            }\""
         )
     }
 
