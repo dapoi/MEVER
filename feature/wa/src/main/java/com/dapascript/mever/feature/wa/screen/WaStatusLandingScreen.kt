@@ -1,6 +1,5 @@
 package com.dapascript.mever.feature.wa.screen
 
-import android.content.Context
 import android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
 import android.content.UriPermission
 import android.net.Uri
@@ -82,11 +81,6 @@ import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.LocalDeviceType
-import com.dapascript.mever.core.common.util.WaManager.WaMediaModel
-import com.dapascript.mever.core.common.util.WaManager.WaType
-import com.dapascript.mever.core.common.util.WaManager.WaType.ALL
-import com.dapascript.mever.core.common.util.WaManager.WaType.BUSINESS
-import com.dapascript.mever.core.common.util.WaManager.WaType.REGULAR
 import com.dapascript.mever.core.common.util.goToWaStore
 import com.dapascript.mever.core.common.util.isAppInstalled
 import com.dapascript.mever.core.common.util.onCustomClick
@@ -94,6 +88,11 @@ import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.navigation.helper.navigateTo
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute.Content
+import com.dapascript.mever.feature.wa.screen.WaStatusLandingAttr.WaMediaModel
+import com.dapascript.mever.feature.wa.screen.WaStatusLandingAttr.WaMediaModel.WaType
+import com.dapascript.mever.feature.wa.screen.WaStatusLandingAttr.WaMediaModel.WaType.ALL
+import com.dapascript.mever.feature.wa.screen.WaStatusLandingAttr.WaMediaModel.WaType.BUSINESS
+import com.dapascript.mever.feature.wa.screen.WaStatusLandingAttr.WaMediaModel.WaType.REGULAR
 import com.dapascript.mever.feature.wa.viewmodel.WaStatusViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -118,29 +117,45 @@ internal fun WaStatusLandingScreen(
         }
     }
     var showWaNotInstalledDialog by remember { mutableStateOf(false) }
-    var permissionDialogType by remember { mutableStateOf<WaType?>(null) }
+    var permissionDialogType by rememberSaveable { mutableStateOf<WaType?>(null) }
+    var regularPermissionGranted by rememberSaveable { mutableStateOf(false) }
+    var businessPermissionGranted by rememberSaveable { mutableStateOf(false) }
     val waLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocumentTree()
     ) { uri ->
-        uri?.let {
-            context.contentResolver.takePersistableUriPermission(
-                it,
-                FLAG_GRANT_READ_URI_PERMISSION
-            )
+        uri?.let { selectedUri ->
+            val isGranted = (permissionDialogType == REGULAR || permissionDialogType == BUSINESS) &&
+                    selectedUri.toString().contains(".Statuses")
+
+            if (isGranted) {
+                context.contentResolver.takePersistableUriPermission(
+                    selectedUri,
+                    FLAG_GRANT_READ_URI_PERMISSION
+                )
+
+                viewModel.fetchStatuses(
+                    folderUri = selectedUri,
+                    type = if (permissionDialogType == REGULAR) REGULAR else BUSINESS
+                )
+
+                when (permissionDialogType) {
+                    REGULAR -> regularPermissionGranted = true
+                    BUSINESS -> businessPermissionGranted = true
+                    else -> Unit
+                }
+
+                permissionDialogType = null
+            } else {
+                permissionDialogType = null
+            }
+        } ?: run {
             permissionDialogType = null
-
-            val type = if (
-                it.toString().contains("com.whatsapp.w4b")
-                || it.toString().contains("Business")
-            ) BUSINESS else REGULAR
-
-            viewModel.fetchStatuses(it, type)
         }
     }
 
     BaseScreen(
         topBarArgs = TopBarArgs(
-            title = if (isExpanded) "" else "WhatsApp Status",
+            title = if (isExpanded) "" else stringResource(R.string.wa_status),
             onClickBack = { navController.popBackStack() }
         )
     ) {
@@ -155,19 +170,21 @@ internal fun WaStatusLandingScreen(
             val regularUri = getWaUriPermission(persistedUris, "com.whatsapp%2FWhatsApp")
             val businessUri = getWaUriPermission(persistedUris, "com.whatsapp.w4b")
 
-            if (isWaRegularInstalled && regularUri != null) viewModel.fetchStatuses(
-                regularUri,
-                REGULAR
-            )
-            if (isWaBusinessInstalled && businessUri != null) viewModel.fetchStatuses(
-                businessUri,
-                BUSINESS
-            )
+            regularPermissionGranted = regularUri != null
+            businessPermissionGranted = businessUri != null
 
-            if (isWaRegularInstalled && regularUri == null) {
-                permissionDialogType = REGULAR
-            } else if (isWaRegularInstalled.not() && isWaBusinessInstalled && businessUri == null) {
-                permissionDialogType = BUSINESS
+            if (isWaRegularInstalled && regularUri != null) {
+                viewModel.fetchStatuses(
+                    folderUri = regularUri,
+                    type = REGULAR
+                )
+            }
+
+            if (isWaBusinessInstalled && businessUri != null) {
+                viewModel.fetchStatuses(
+                    folderUri = businessUri,
+                    type = BUSINESS
+                )
             }
         }
 
@@ -197,7 +214,7 @@ internal fun WaStatusLandingScreen(
                 description = stringResource(R.string.permission_request_wa),
                 primaryActionLabel = stringResource(R.string.ok),
                 onClickPrimaryAction = { launchWaPath(waLauncher, type) },
-                onClickSecondaryAction = { navController.popBackStack() }
+                onClickSecondaryAction = { permissionDialogType = null }
             )
         }
 
@@ -218,12 +235,13 @@ internal fun WaStatusLandingScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = Dp64),
-            context = context,
             isWaRegularInstalled = isWaRegularInstalled,
             isWaBusinessInstalled = isWaBusinessInstalled,
             waStatuses = waStatuses,
             listState = listState,
             isExpanded = isExpanded,
+            regularPermissionGranted = regularPermissionGranted,
+            businessPermissionGranted = businessPermissionGranted,
             onSetTitleHeight = { titleHeight = it },
             onRequestPermission = { permissionDialogType = it },
             onClickNavigate = { item ->
@@ -248,146 +266,146 @@ internal fun WaStatusLandingScreen(
 
 @Composable
 private fun WaStatusContent(
-    context: Context,
     isWaRegularInstalled: Boolean,
     isWaBusinessInstalled: Boolean,
     waStatuses: List<WaMediaModel>,
     listState: LazyGridState,
     isExpanded: Boolean,
+    regularPermissionGranted: Boolean,
+    businessPermissionGranted: Boolean,
     modifier: Modifier = Modifier,
     onSetTitleHeight: (Int) -> Unit,
     onRequestPermission: (WaType) -> Unit,
     onClickNavigate: (WaMediaModel) -> Unit
 ) {
-    var selectedFilter by rememberSaveable { mutableStateOf(ALL) }
+    var selectedFilter by rememberSaveable { mutableStateOf(REGULAR) }
     val deviceType = LocalDeviceType.current
     val headerScroll = rememberScrollState()
-    val filteredList = remember(waStatuses, selectedFilter) {
-        waStatuses.filter {
-            selectedFilter == ALL || it.waType == selectedFilter
+    val filteredList = when (selectedFilter) {
+        ALL -> waStatuses
+        REGULAR -> waStatuses.filter { it.waType == REGULAR }
+        BUSINESS -> waStatuses.filter { it.waType == BUSINESS }
+    }
+    val isPermissionGranted = when (selectedFilter) {
+        ALL -> regularPermissionGranted && businessPermissionGranted
+        REGULAR -> regularPermissionGranted
+        BUSINESS -> businessPermissionGranted
+    }
+    val filters = availableFilters(
+        isWaRegularInstalled = isWaRegularInstalled,
+        isWaBusinessInstalled = isWaBusinessInstalled,
+        regularPermissionGranted = regularPermissionGranted,
+        businessPermissionGranted = businessPermissionGranted
+    )
+
+    LaunchedEffect(filters) {
+        if (selectedFilter !in filters && filters.isNotEmpty()) {
+            selectedFilter = filters.first()
         }
     }
 
     CompositionLocalProvider(LocalOverscrollFactory provides null) {
-        if (waStatuses.isNotEmpty()) {
-            Box(modifier = modifier) {
-                Column(modifier = Modifier.fillMaxSize()) {
-                    AnimatedVisibility(
-                        visible = isExpanded,
-                        enter = expandVertically() + fadeIn(),
-                        exit = shrinkVertically() + fadeOut()
-                    ) {
-                        Text(
-                            text = "WhatsApp Status",
-                            style = typography.h2.copy(fontSize = Sp32),
-                            color = colors.blackWhite,
-                            modifier = Modifier
-                                .padding(
-                                    top = Dp16,
-                                    start = Dp24,
-                                    end = Dp24,
-                                    bottom = if (isWaRegularInstalled && isWaBusinessInstalled) Dp0 else Dp24
-                                )
-                                .onGloballyPositioned { onSetTitleHeight(it.size.height) }
-                        )
-                    }
-                    if (isWaRegularInstalled && isWaBusinessInstalled) Row(
+        Box(modifier = modifier) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                AnimatedVisibility(
+                    visible = isExpanded,
+                    enter = expandVertically() + fadeIn(),
+                    exit = shrinkVertically() + fadeOut()
+                ) {
+                    Text(
+                        text = stringResource(R.string.wa_status),
+                        style = typography.h2.copy(fontSize = Sp32),
+                        color = colors.blackWhite,
                         modifier = Modifier
-                            .background(colors.whiteDark)
-                            .fillMaxWidth()
-                            .horizontalScroll(headerScroll)
-                            .padding(start = Dp24, top = Dp16, bottom = Dp24),
-                        horizontalArrangement = spacedBy(Dp8),
-                        verticalAlignment = CenterVertically
-                    ) {
-                        WaType.entries.forEach { filter ->
-                            MeverButton(
-                                title = filter.label,
-                                shape = RoundedCornerShape(Dp64),
-                                buttonType = if (selectedFilter == filter) Filled(
-                                    backgroundColor = colors.alwaysPurple,
-                                    contentColor = MeverWhite
-                                ) else Outlined(
-                                    borderColor = colors.alwaysPurple,
-                                    contentColor = colors.alwaysPurple
-                                )
-                            ) {
-                                selectedFilter = filter
-
-                                if (filter == BUSINESS) {
-                                    val hasBizPermission =
-                                        context.contentResolver.persistedUriPermissions.any {
-                                            it.uri.toString().contains("com.whatsapp.w4b")
-                                        }
-                                    if (!hasBizPermission) onRequestPermission(BUSINESS)
-                                } else if (filter == REGULAR) {
-                                    val hasRegPermission =
-                                        context.contentResolver.persistedUriPermissions.any {
-                                            it.uri.toString().contains("com.whatsapp%2FWhatsApp")
-                                        }
-                                    if (!hasRegPermission) onRequestPermission(REGULAR)
-                                }
-                            }
-                        }
-                    }
-                    if (isExpanded.not()) {
-                        HorizontalDivider(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .shadow(Dp3),
-                            thickness = Dp1,
-                            color = colors.blackWhite.copy(alpha = 0.12f)
-                        )
-                    }
-                    if (filteredList.isNotEmpty()) LazyVerticalGrid(
-                        modifier = Modifier.weight(1f),
-                        state = listState,
-                        columns = if (deviceType == PHONE) Fixed(2) else Adaptive(Dp150),
-                        contentPadding = PaddingValues(
-                            start = Dp24,
-                            end = Dp24,
-                            bottom = Dp150
-                        ),
-                        horizontalArrangement = spacedBy(Dp16),
-                        verticalArrangement = spacedBy(Dp16)
-                    ) {
-                        items(
-                            items = filteredList,
-                            key = { it.uri.toString() },
-                            contentType = { "wa_status_item" }
-                        ) { item ->
-                            MeverImage(
-                                modifier = Modifier
-                                    .animateItem()
-                                    .clip(RoundedCornerShape(Dp8))
-                                    .aspectRatio(9f / 16f)
-                                    .onCustomClick { onClickNavigate(item) },
-                                source = item.uri,
-                                isVideoThumbnail = item.isVideo
+                            .padding(
+                                top = Dp16,
+                                start = Dp24,
+                                end = Dp24,
+                                bottom = if (isWaRegularInstalled && isWaBusinessInstalled) Dp0 else Dp24
                             )
-                        }
-                    } else {
-                        MeverEmptyItem(
-                            modifier = Modifier.weight(1f),
-                            image = R.drawable.ic_empty_file,
-                            size = Dp150.plus(Dp16),
-                            description = stringResource(R.string.empty_wa_status_desc)
-                        )
+                            .onGloballyPositioned { onSetTitleHeight(it.size.height) }
+                    )
+                }
+                if (isWaRegularInstalled && isWaBusinessInstalled) Row(
+                    modifier = Modifier
+                        .background(colors.whiteDark)
+                        .fillMaxWidth()
+                        .horizontalScroll(headerScroll)
+                        .padding(start = Dp24, top = Dp16, bottom = Dp24),
+                    horizontalArrangement = spacedBy(Dp8),
+                    verticalAlignment = CenterVertically
+                ) {
+                    filters.forEach { filter ->
+                        MeverButton(
+                            title = stringResource(filter.label),
+                            shape = RoundedCornerShape(Dp64),
+                            buttonType = if (selectedFilter == filter) Filled(
+                                backgroundColor = colors.alwaysPurple,
+                                contentColor = MeverWhite
+                            ) else Outlined(
+                                borderColor = colors.alwaysPurple,
+                                contentColor = colors.alwaysPurple
+                            )
+                        ) { selectedFilter = filter }
                     }
                 }
-                MeverBannerAd(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .align(BottomCenter)
-                        .navigationBarsPadding()
-                )
+                if (isExpanded.not()) {
+                    HorizontalDivider(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .shadow(Dp3),
+                        thickness = Dp1,
+                        color = colors.blackWhite.copy(alpha = 0.12f)
+                    )
+                }
+                if (filteredList.isNotEmpty()) LazyVerticalGrid(
+                    modifier = Modifier.weight(1f),
+                    state = listState,
+                    columns = if (deviceType == PHONE) Fixed(2) else Adaptive(Dp150),
+                    contentPadding = PaddingValues(
+                        start = Dp24,
+                        end = Dp24,
+                        bottom = Dp150
+                    ),
+                    horizontalArrangement = spacedBy(Dp16),
+                    verticalArrangement = spacedBy(Dp16)
+                ) {
+                    items(
+                        items = filteredList,
+                        key = { it.uri.toString() },
+                        contentType = { "wa_status_item" }
+                    ) { item ->
+                        MeverImage(
+                            modifier = Modifier
+                                .animateItem()
+                                .clip(RoundedCornerShape(Dp8))
+                                .aspectRatio(9f / 16f)
+                                .onCustomClick { onClickNavigate(item) },
+                            source = item.uri,
+                            isVideoThumbnail = item.isVideo
+                        )
+                    }
+                } else {
+                    MeverEmptyItem(
+                        modifier = Modifier.weight(1f),
+                        image = R.drawable.ic_empty_file,
+                        size = Dp150.plus(Dp16),
+                        description = stringResource(
+                            if (isPermissionGranted) R.string.empty_wa_status_desc
+                            else R.string.permission_request_wa
+                        ),
+                        actionButtonLabel = if (isPermissionGranted) null else stringResource(R.string.permission_request_title),
+                        onClickAction = if (isPermissionGranted) null else {
+                            { onRequestPermission(selectedFilter) }
+                        }
+                    )
+                }
             }
-        } else {
-            MeverEmptyItem(
-                modifier = Modifier.fillMaxSize(),
-                image = R.drawable.ic_empty_file,
-                size = Dp150.plus(Dp16),
-                description = stringResource(R.string.empty_wa_status_desc)
+            MeverBannerAd(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(BottomCenter)
+                    .navigationBarsPadding()
             )
         }
     }
@@ -412,4 +430,19 @@ private fun launchWaPath(
     } catch (_: Exception) {
         waLauncher.launch(null)
     }
+}
+
+private fun availableFilters(
+    isWaRegularInstalled: Boolean,
+    isWaBusinessInstalled: Boolean,
+    regularPermissionGranted: Boolean,
+    businessPermissionGranted: Boolean
+): List<WaType> = buildList {
+    if (isWaRegularInstalled && isWaBusinessInstalled &&
+        regularPermissionGranted && businessPermissionGranted
+    ) {
+        add(ALL)
+    }
+    if (isWaRegularInstalled) add(REGULAR)
+    if (isWaBusinessInstalled) add(BUSINESS)
 }

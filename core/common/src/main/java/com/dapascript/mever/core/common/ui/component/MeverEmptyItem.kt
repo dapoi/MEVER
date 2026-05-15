@@ -12,7 +12,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
+import com.dapascript.mever.core.common.R
+import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp250
@@ -25,7 +28,9 @@ fun MeverEmptyItem(
     image: Int,
     description: String,
     modifier: Modifier = Modifier,
-    size: Dp = Dp250
+    size: Dp = Dp250,
+    actionButtonLabel: String? = null,
+    onClickAction: (() -> Unit)? = null
 ) = Column(
     modifier = modifier
         .fillMaxSize()
@@ -45,4 +50,14 @@ fun MeverEmptyItem(
         style = typography.body1,
         color = colors.blackWhite
     )
+    onClickAction?.let {
+        Spacer(modifier = Modifier.size(Dp16))
+        MeverButton(
+            title = actionButtonLabel ?: stringResource(R.string.ok),
+            buttonType = MeverButtonAttr.MeverButtonType.Filled(
+                backgroundColor = colors.alwaysPurple,
+                contentColor = colors.alwaysWhite
+            )
+        ) { onClickAction() }
+    }
 }

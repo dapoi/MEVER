@@ -10,9 +10,9 @@ import android.provider.DocumentsContract.buildChildDocumentsUriUsingTree
 import android.provider.DocumentsContract.getTreeDocumentId
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
-import com.dapascript.mever.core.common.util.WaManager.WaMediaModel
-import com.dapascript.mever.core.common.util.WaManager.WaType
 import com.dapascript.mever.core.common.util.isVideo
+import com.dapascript.mever.feature.wa.screen.WaStatusLandingAttr.WaMediaModel
+import com.dapascript.mever.feature.wa.screen.WaStatusLandingAttr.WaMediaModel.WaType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers.IO

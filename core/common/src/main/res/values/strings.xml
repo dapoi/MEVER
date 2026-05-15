@@ -127,4 +127,8 @@
     <string name="permission_request_wa">We need access to your storage to show WhatsApp status media.</string>
     <string name="report_desc">Report Description</string>
     <string name="submit">Submit</string>
+    <string name="wa_regular">WA Regular</string>
+    <string name="wa_business">WA Business</string>
+    <string name="All">All</string>
+    <string name="wa_status">WhatsApp Status</string>
 </resources>
