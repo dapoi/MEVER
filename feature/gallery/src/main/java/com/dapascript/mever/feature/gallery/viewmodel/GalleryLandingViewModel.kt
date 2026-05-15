@@ -3,7 +3,6 @@ package com.dapascript.mever.feature.gallery.viewmodel
 import android.content.Context
 import android.media.MediaScannerConnection
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
@@ -39,7 +38,6 @@ class GalleryLandingViewModel @Inject constructor(
     private val meverFolder by lazy { getMeverFolder() }
 
     var selectedFilter by mutableStateOf(ALL)
-    var titleHeight by mutableIntStateOf(0)
 
     @OptIn(FlowPreview::class)
     val downloadList = ketch.observeDownloads()

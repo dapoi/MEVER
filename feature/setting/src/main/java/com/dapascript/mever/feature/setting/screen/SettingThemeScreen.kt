@@ -17,9 +17,11 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
@@ -58,8 +60,9 @@ internal fun SettingThemeScreen(
 ) = with(viewModel) {
     val scrollState = rememberScrollState()
     val scope = rememberCoroutineScope()
-    val isExpanded by remember { derivedStateOf { scrollState.value < titleHeight / 2 } }
     var themeType by remember { mutableStateOf(args.themeType) }
+    var titleHeight by rememberSaveable { mutableIntStateOf(0) }
+    val isExpanded by remember { derivedStateOf { scrollState.value < titleHeight / 2 } }
 
     BaseScreen(
         topBarArgs = TopBarArgs(

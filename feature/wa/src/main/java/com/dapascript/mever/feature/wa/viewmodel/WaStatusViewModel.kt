@@ -8,9 +8,6 @@ import android.provider.DocumentsContract.Document.COLUMN_DOCUMENT_ID
 import android.provider.DocumentsContract.Document.COLUMN_LAST_MODIFIED
 import android.provider.DocumentsContract.buildChildDocumentsUriUsingTree
 import android.provider.DocumentsContract.getTreeDocumentId
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.util.WaManager.WaMediaModel
@@ -28,8 +25,6 @@ import javax.inject.Inject
 class WaStatusViewModel @Inject constructor(
     @param:ApplicationContext private val context: Context
 ) : BaseViewModel() {
-    var titleHeight by mutableIntStateOf(0)
-
     private val _waStatuses = MutableStateFlow<List<WaMediaModel>>(emptyList())
     val waStatuses = _waStatuses.asStateFlow()
 

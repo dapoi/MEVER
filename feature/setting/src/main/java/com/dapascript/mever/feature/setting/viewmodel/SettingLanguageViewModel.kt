@@ -1,7 +1,6 @@
 package com.dapascript.mever.feature.setting.viewmodel
 
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
@@ -24,7 +23,6 @@ class SettingLanguageViewModel @Inject constructor(
 ) : BaseViewModel() {
     private val args by lazy { savedStateHandle.getArgs<SettingLanguageRoute>() }
     val languages by lazy { appLanguages() }
-    var titleHeight by mutableIntStateOf(0)
     var languageCode by mutableStateOf(args.languageCode)
 
     val isFirstTimeChangeLanguage = dataStore.isFirstTimeChangeLanguage.stateIn(

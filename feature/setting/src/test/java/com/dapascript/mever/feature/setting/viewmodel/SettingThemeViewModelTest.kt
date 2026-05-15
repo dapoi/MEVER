@@ -14,7 +14,6 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
-import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -74,10 +73,5 @@ class SettingThemeViewModelTest {
         viewModel.setThemeType(ThemeType.System)
         advanceUntilIdle()
         verify(dataStore).saveTheme(ThemeType.System)
-    }
-
-    @Test
-    fun `titleHeight default is 0`() {
-        assertEquals(0, viewModel.titleHeight)
     }
 }

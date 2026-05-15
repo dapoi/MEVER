@@ -39,8 +39,10 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -129,6 +131,7 @@ internal fun SettingLandingScreen(
     val statusColor = remember(storageInfo?.usedPercent) {
         getStatusStorageColor(storageInfo?.usedPercent ?: 0)
     }
+    var titleHeight by rememberSaveable { mutableIntStateOf(0) }
     val isExpanded by remember {
         derivedStateOf {
             listState.firstVisibleItemIndex == 0 &&
@@ -214,6 +217,7 @@ internal fun SettingLandingScreen(
                 .fillMaxSize()
                 .padding(top = Dp64),
             context = context,
+            titleHeight = titleHeight,
             usedStorage = usedStorage,
             statusColor = statusColor,
             deviceType = deviceType,
@@ -238,7 +242,8 @@ internal fun SettingLandingScreen(
             onClickDonate = { showAppreciateDialog.value = it },
             onClickQris = { showBottomSheetQris = true },
             onClickContact = { navigateToGmail(context) },
-            onClickAbout = { navController.navigateTo(SettingAboutAppRoute) }
+            onClickAbout = { navController.navigateTo(SettingAboutAppRoute) },
+            onSetTitleHeight = { titleHeight = it }
         )
     }
 }
@@ -246,6 +251,7 @@ internal fun SettingLandingScreen(
 @Composable
 private fun SettingLandingContent(
     context: Context,
+    titleHeight: Int,
     usedStorage: Float,
     statusColor: Color,
     deviceType: DeviceType,
@@ -264,7 +270,8 @@ private fun SettingLandingContent(
     onClickDonate: (AppreciateType) -> Unit,
     onClickQris: () -> Unit,
     onClickContact: () -> Unit,
-    onClickAbout: () -> Unit
+    onClickAbout: () -> Unit,
+    onSetTitleHeight: (Int) -> Unit
 ) = with(viewModel) {
     CompositionLocalProvider(LocalOverscrollFactory provides null) {
         Column(modifier = modifier) {
@@ -285,7 +292,7 @@ private fun SettingLandingContent(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .onGloballyPositioned { titleHeight = it.size.height }
+                            .onGloballyPositioned { onSetTitleHeight(it.size.height) }
                     ) {
                         Spacer(modifier = Modifier.height(Dp16))
                         AnimatedVisibility(

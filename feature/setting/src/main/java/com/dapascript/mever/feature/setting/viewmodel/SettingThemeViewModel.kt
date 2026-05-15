@@ -1,8 +1,5 @@
 package com.dapascript.mever.feature.setting.viewmodel
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
@@ -20,7 +17,6 @@ class SettingThemeViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : BaseViewModel() {
     val args by lazy { savedStateHandle.getArgs<SettingThemeRoute>() }
-    var titleHeight by mutableIntStateOf(0)
 
     fun setThemeType(mode: ThemeType) = viewModelScope.launch {
         dataStore.saveTheme(mode)

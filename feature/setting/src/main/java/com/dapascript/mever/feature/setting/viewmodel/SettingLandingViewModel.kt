@@ -3,7 +3,6 @@ package com.dapascript.mever.feature.setting.viewmodel
 import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
@@ -30,7 +29,6 @@ class SettingLandingViewModel @Inject constructor(
 ) : BaseViewModel() {
     val settingMenus by lazy { getSettingMenus() }
 
-    var titleHeight by mutableIntStateOf(0)
     var languageCode by mutableStateOf("en")
     var animatedPercent by mutableFloatStateOf(0f)
 
