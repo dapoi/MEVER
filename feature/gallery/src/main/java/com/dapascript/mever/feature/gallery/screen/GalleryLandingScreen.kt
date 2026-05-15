@@ -77,7 +77,6 @@ import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.util.PlatformType
 import com.dapascript.mever.core.common.util.PlatformType.ALL
-import com.dapascript.mever.core.common.util.PlatformType.EXPLORE
 import com.dapascript.mever.core.common.util.isMusic
 import com.dapascript.mever.core.common.util.isVideo
 import com.dapascript.mever.core.common.util.navigateToMusic
@@ -564,8 +563,7 @@ private fun FilterContent(
                 .filterNot { it == ALL }
                 .forEach { type ->
                     MeverButton(
-                        title = if (type == EXPLORE) stringResource(R.string.explore)
-                        else type.platformName,
+                        title = type.platformName,
                         shape = RoundedCornerShape(Dp64),
                         buttonType = getButtonType(selectedFilter == type)
                     ) { onClickFilter(type) }

@@ -5,7 +5,7 @@ enum class PlatformType(val platformName: String) {
     ALL("All"),
     APPLE_MUSIC("Apple Music"),
     DOUYIN("Douyin"),
-    EXPLORE("Explore"),
+    EXPLORE("Internet"),
     FACEBOOK("Facebook"),
     INSTAGRAM("Instagram"),
     PINTEREST("Pinterest"),

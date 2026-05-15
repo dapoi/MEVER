@@ -128,7 +128,6 @@ import com.dapascript.mever.core.common.util.DeviceType.TABLET
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.LocalDeviceType
 import com.dapascript.mever.core.common.util.PlatformType
-import com.dapascript.mever.core.common.util.PlatformType.AI
 import com.dapascript.mever.core.common.util.PlatformType.ALL
 import com.dapascript.mever.core.common.util.PlatformType.FACEBOOK
 import com.dapascript.mever.core.common.util.PlatformType.INSTAGRAM
@@ -460,9 +459,7 @@ private fun HomeDownloaderSection(
     modifier: Modifier = Modifier,
     isPhoneDevice: Boolean = true
 ) = with(viewModel) {
-    val downloadList = downloadList.collectAsStateValue()?.reversed()?.filterNot {
-        it.tag == AI.platformName
-    }
+    val downloadList = downloadList.collectAsStateValue()?.reversed()
     val downloaderResponseState = downloaderResponseState.collectAsStateValue()
     val youtubeResolutions = youtubeResolutions.collectAsStateValue()
     val urlIntent = getUrlIntent.collectAsStateValue()
