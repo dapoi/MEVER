@@ -129,6 +129,5 @@
     <string name="submit">Kirim</string>
     <string name="wa_regular">WA Reguler</string>
     <string name="wa_business">WA Bisnis</string>
-    <string name="All">Semua</string>
     <string name="wa_status">Status WhatsApp</string>
 </resources>
