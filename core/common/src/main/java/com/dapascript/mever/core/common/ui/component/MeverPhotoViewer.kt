@@ -14,6 +14,8 @@ import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -49,18 +51,19 @@ import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
 import coil3.compose.SubcomposeAsyncImageScope
 import com.dapascript.mever.core.common.R
-import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Outlined
+import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Filled
 import com.dapascript.mever.core.common.ui.attr.MeverContentViewerAttr.ContentViewerActionMenu
 import com.dapascript.mever.core.common.ui.attr.MeverContentViewerAttr.ContentViewerActionMenu.DELETE
 import com.dapascript.mever.core.common.ui.attr.MeverContentViewerAttr.ContentViewerActionMenu.SHARE
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.ActionMenu
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp120
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp150
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.MeverBlack
 import com.dapascript.mever.core.common.ui.theme.MeverDark
+import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.LocalActivity
@@ -89,7 +92,6 @@ fun MeverPhotoViewer(
     var isPhotoTouched by remember { mutableStateOf(true) }
     var showDropDownMenu by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
-    var showButton by remember { mutableStateOf(false) }
     var isZoomed by remember { mutableStateOf(false) }
     var dragY by remember { mutableFloatStateOf(0f) }
     val density = LocalDensity.current
@@ -149,21 +151,20 @@ fun MeverPhotoViewer(
                         contentDescription = "Error Image"
                     )
 
-                    else -> {
-                        showButton = isDownloadable
-                        SubcomposeAsyncImageContent(modifier = Modifier.fillMaxSize())
-                    }
+                    else -> SubcomposeAsyncImageContent(modifier = Modifier.fillMaxSize())
                 }
             }
         )
-        if (showButton) MeverButton(
+        if (isDownloadable) MeverButton(
             modifier = Modifier
-                .align(BottomCenter)
-                .padding(bottom = Dp150),
+                .padding(Dp24)
+                .fillMaxWidth()
+                .height(Dp48)
+                .align(BottomCenter),
             title = stringResource(R.string.download),
-            buttonType = Outlined(
-                contentColor = MeverWhite,
-                borderColor = MeverWhite
+            buttonType = Filled(
+                backgroundColor = colors.alwaysPurple,
+                contentColor = colors.alwaysWhite
             )
         ) { onClickDownload(image, fileName) }
         AnimatedVisibility(
