@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -19,12 +20,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter.Companion.tint
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle.Companion.Italic
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.attr.MeverMenuItemAttr.MenuItemArgs
 import com.dapascript.mever.core.common.ui.attr.MeverMenuItemAttr.MenuItemArgs.TrailingType.Default
 import com.dapascript.mever.core.common.ui.attr.MeverMenuItemAttr.MenuItemArgs.TrailingType.Switch
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp50
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
@@ -56,6 +59,7 @@ fun MeverMenuItem(
         verticalAlignment = CenterVertically
     ) {
         Row(
+            modifier = Modifier.weight(1f),
             horizontalArrangement = spacedBy(Dp16),
             verticalAlignment = CenterVertically
         ) {
@@ -65,11 +69,22 @@ fun MeverMenuItem(
                 iconSize = leadingIconSize,
                 iconPadding = leadingIconPadding
             )
-            Text(
-                text = leadingTitle,
-                style = typography.bodyBold1,
-                color = colors.blackWhite
-            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = leadingTitle,
+                    style = typography.bodyBold1,
+                    color = colors.blackWhite
+                )
+                leadingDesc?.let {
+                    Text(
+                        modifier = Modifier.padding(top = Dp4),
+                        text = leadingDesc,
+                        style = typography.body3,
+                        fontStyle = Italic,
+                        color = colors.blackWhite.copy(0.5f)
+                    )
+                }
+            }
         }
         when (trailingType) {
             is Default -> Row(

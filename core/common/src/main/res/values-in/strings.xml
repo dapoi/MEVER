@@ -130,4 +130,5 @@
     <string name="wa_regular">WA Reguler</string>
     <string name="wa_business">WA Bisnis</string>
     <string name="wa_status">Status WhatsApp</string>
+    <string name="when_video_is_playing">Saat video diputar</string>
 </resources>

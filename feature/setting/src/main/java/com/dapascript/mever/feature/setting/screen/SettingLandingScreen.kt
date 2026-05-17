@@ -352,6 +352,7 @@ private fun SettingLandingContent(
                                 leadingIcon = menu.icon,
                                 leadingIconBackground = menu.iconBackgroundColor,
                                 leadingTitle = stringResource(menu.leadingTitle),
+                                leadingDesc = menu.leadingDesc?.let { stringResource(it) },
                                 leadingIconSize = Dp40,
                                 leadingIconPadding = Dp8,
                                 trailingType = if (menu.leadingTitle != R.string.pip) {

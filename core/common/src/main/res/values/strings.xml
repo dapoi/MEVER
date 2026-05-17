@@ -130,4 +130,5 @@
     <string name="wa_regular">WA Regular</string>
     <string name="wa_business">WA Business</string>
     <string name="wa_status">WhatsApp Status</string>
+    <string name="when_video_is_playing">When video is playing</string>
 </resources>

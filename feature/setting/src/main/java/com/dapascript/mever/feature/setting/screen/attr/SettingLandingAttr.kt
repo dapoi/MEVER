@@ -19,7 +19,8 @@ object SettingLandingAttr {
             val leadingTitle: Int,
             val icon: Int,
             val iconBackgroundColor: Color,
-            val trailingTitle: String? = null
+            val trailingTitle: String? = null,
+            val leadingDesc: Int? = null
         )
     }
 
@@ -46,6 +47,7 @@ object SettingLandingAttr {
                 ),
                 SubMenu(
                     leadingTitle = R.string.pip,
+                    leadingDesc = R.string.when_video_is_playing,
                     icon = R.drawable.ic_pip,
                     iconBackgroundColor = MeverLightPurple,
                 )
