@@ -278,7 +278,13 @@ private fun WaStatusContent(
     onRequestPermission: (WaType) -> Unit,
     onClickNavigate: (WaMediaModel) -> Unit
 ) {
-    var selectedFilter by rememberSaveable { mutableStateOf(REGULAR) }
+    var selectedFilter by rememberSaveable {
+        mutableStateOf(
+            if (isWaRegularInstalled && isWaBusinessInstalled &&
+                regularPermissionGranted && businessPermissionGranted
+            ) ALL else if (isWaRegularInstalled) REGULAR else BUSINESS
+        )
+    }
     val deviceType = LocalDeviceType.current
     val headerScroll = rememberScrollState()
     val filteredList = when (selectedFilter) {
