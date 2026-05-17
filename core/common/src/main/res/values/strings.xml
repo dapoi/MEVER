@@ -43,7 +43,6 @@
     <string name="theme">Theme</string>
     <string name="pip">Picture-in-Picture</string>
     <string name="appreciate">Appreciate</string>
-    <string name="bitcoin">Bitcoin</string>
     <string name="paypal">PayPal</string>
     <string name="qris">QRIS</string>
     <string name="support">Support</string>
@@ -75,7 +74,6 @@
     <string name="copy_prompt">Copy Prompt</string>
     <string name="copied">Prompt Copied ✅</string>
     <string name="image_has_been_downloaded">Image saved successfully 🎉</string>
-    <string name="bitcoin_address">Bitcoin Address</string>
     <string name="paypal_email">PayPal Email</string>
     <string name="copy">Copy</string>
     <string name="apply">Apply</string>
@@ -131,4 +129,6 @@
     <string name="wa_business">WA Business</string>
     <string name="wa_status">WhatsApp Status</string>
     <string name="when_video_is_playing">When video is playing</string>
+    <string name="clean_cache">Clean Cache</string>
+    <string name="email">daffaprabowo5@gmail.com</string>
 </resources>

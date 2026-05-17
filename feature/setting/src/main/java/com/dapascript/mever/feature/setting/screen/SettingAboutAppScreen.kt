@@ -182,7 +182,7 @@ private fun SettingAboutAppContent(
             modifier = Modifier
                 .align(BottomCenter)
                 .padding(bottom = Dp16),
-            text = "v${getAppVersion(context)}",
+            text = getAppVersion(context),
             style = typography.body1,
             color = MeverWhite
         )

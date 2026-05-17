@@ -12,6 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
@@ -19,6 +20,7 @@ import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverMenuItemAttr.MenuItemArgs
 import com.dapascript.mever.core.common.ui.attr.MeverMenuItemAttr.MenuItemArgs.TrailingType.Default
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
+import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverMenuItem
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
@@ -28,17 +30,15 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
-import com.dapascript.mever.feature.setting.screen.attr.HandleAppreciateDialogAttr.AppreciateType
-import com.dapascript.mever.feature.setting.screen.attr.HandleAppreciateDialogAttr.AppreciateType.BITCOIN
-import com.dapascript.mever.feature.setting.screen.attr.HandleAppreciateDialogAttr.AppreciateType.PAYPAL
+import com.dapascript.mever.core.common.util.copyToClipboard
 import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.getSettingMenus
-import com.dapascript.mever.feature.setting.screen.component.HandleAppreciateDialog
 import com.dapascript.mever.feature.setting.screen.component.HandleBottomSheetQris
 
 @Composable
 internal fun SettingAppreciateScreen(navController: NavController) {
     val context = LocalContext.current
-    var showAppreciateDialog by remember { mutableStateOf<AppreciateType?>(null) }
+    val resources = LocalResources.current
+    var showPaypalDialog by remember { mutableStateOf(false) }
     var showBottomSheetQris by remember { mutableStateOf(false) }
 
     BaseScreen(
@@ -47,12 +47,18 @@ internal fun SettingAppreciateScreen(navController: NavController) {
             onClickBack = { navController.popBackStack() }
         )
     ) {
-        showAppreciateDialog?.let { type ->
-            HandleAppreciateDialog(
-                context = context,
-                appreciateType = type
-            ) { showAppreciateDialog = it }
-        }
+        MeverDialog(
+            showDialog = showPaypalDialog,
+            image = null,
+            title = stringResource(R.string.paypal_email),
+            description = stringResource(R.string.email),
+            primaryActionLabel = stringResource(R.string.copy),
+            onClickPrimaryAction = {
+                copyToClipboard(context, resources.getString(R.string.email))
+                showPaypalDialog = false
+            },
+            onClickSecondaryAction = { showPaypalDialog = false }
+        )
 
         HandleBottomSheetQris(showBottomSheetQris) { showBottomSheetQris = it }
 
@@ -68,10 +74,10 @@ internal fun SettingAppreciateScreen(navController: NavController) {
                 style = typography.h2.copy(fontSize = Sp32),
                 color = colors.blackWhite
             )
-            getSettingMenus()[1].menus.forEach {
+            getSettingMenus(context)[1].menus.forEach {
                 MeverMenuItem(
                     menuArgs = MenuItemArgs(
-                        leadingTitle = stringResource(it.leadingTitle),
+                        leadingTitle = it.leadingTitle,
                         leadingIcon = it.icon,
                         leadingIconBackground = it.iconBackgroundColor,
                         leadingIconSize = Dp40,
@@ -80,11 +86,8 @@ internal fun SettingAppreciateScreen(navController: NavController) {
                     )
                 ) {
                     when (it.leadingTitle) {
-                        R.string.bitcoin -> showAppreciateDialog = BITCOIN
-                        R.string.paypal -> showAppreciateDialog = PAYPAL
-                        R.string.qris -> {
-                            showBottomSheetQris = true
-                        }
+                        resources.getString(R.string.paypal) -> showPaypalDialog = true
+                        resources.getString(R.string.qris) -> showBottomSheetQris = true
                     }
                 }
             }

@@ -43,7 +43,6 @@
     <string name="theme">Tema</string>
     <string name="pip">Layar Mengambang</string>
     <string name="appreciate">Apresiasi</string>
-    <string name="bitcoin">Bitcoin</string>
     <string name="paypal">PayPal</string>
     <string name="qris">QRIS</string>
     <string name="support">Bantuan</string>
@@ -75,7 +74,6 @@
     <string name="copy_prompt">Salin Prompt</string>
     <string name="copied">Prompt disalin ✅</string>
     <string name="image_has_been_downloaded">Gambar berhasil diunduh 🎉</string>
-    <string name="bitcoin_address">Alamat Bitcoin</string>
     <string name="paypal_email">Email PayPal</string>
     <string name="copy">Salin</string>
     <string name="apply">Terapkan</string>
@@ -131,4 +129,5 @@
     <string name="wa_business">WA Bisnis</string>
     <string name="wa_status">Status WhatsApp</string>
     <string name="when_video_is_playing">Saat video diputar</string>
+    <string name="clean_cache">Bersihkan Cache</string>
 </resources>

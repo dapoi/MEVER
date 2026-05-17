@@ -54,6 +54,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap.Companion.Round
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -97,19 +98,20 @@ import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.DeviceType.TABLET
 import com.dapascript.mever.core.common.util.LanguageManager.getLanguageCode
 import com.dapascript.mever.core.common.util.LocalDeviceType
+import com.dapascript.mever.core.common.util.cleanCache
+import com.dapascript.mever.core.common.util.copyToClipboard
 import com.dapascript.mever.core.common.util.getNotificationPermission
 import com.dapascript.mever.core.common.util.navigateToGmail
 import com.dapascript.mever.core.common.util.navigateToNotificationSettings
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.common.util.storage.StorageUtil.StorageInfo
+import com.dapascript.mever.core.navigation.helper.navigateClearBackStack
 import com.dapascript.mever.core.navigation.helper.navigateTo
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingAboutAppRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLanguageRoute
-import com.dapascript.mever.feature.setting.screen.attr.HandleAppreciateDialogAttr.AppreciateType
-import com.dapascript.mever.feature.setting.screen.attr.HandleAppreciateDialogAttr.AppreciateType.BITCOIN
-import com.dapascript.mever.feature.setting.screen.attr.HandleAppreciateDialogAttr.AppreciateType.PAYPAL
-import com.dapascript.mever.feature.setting.screen.component.HandleAppreciateDialog
+import com.dapascript.mever.core.navigation.route.StartupScreenRoute.SplashRoute
+import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.getSettingMenus
 import com.dapascript.mever.feature.setting.screen.component.HandleBottomSheetQris
 import com.dapascript.mever.feature.setting.viewmodel.SettingLandingViewModel
 import kotlinx.coroutines.delay
@@ -125,13 +127,14 @@ internal fun SettingLandingScreen(
     val isPipEnabled = isPipEnabled.collectAsStateValue()
     val storageInfo = storageInfo.collectAsStateValue()
     val context = LocalContext.current
+    val resources = LocalResources.current
     val deviceType = LocalDeviceType.current
     val listState = rememberLazyListState()
-    val showAppreciateDialog = remember { mutableStateOf<AppreciateType?>(null) }
     val statusColor = remember(storageInfo?.usedPercent) {
         getStatusStorageColor(storageInfo?.usedPercent ?: 0)
     }
     var titleHeight by rememberSaveable { mutableIntStateOf(0) }
+    var showPaypalDialog by remember { mutableStateOf(false) }
     val isExpanded by remember {
         derivedStateOf {
             listState.firstVisibleItemIndex == 0 &&
@@ -203,12 +206,18 @@ internal fun SettingLandingScreen(
             )
         }
 
-        showAppreciateDialog.value?.let { type ->
-            HandleAppreciateDialog(
-                context = context,
-                appreciateType = type
-            ) { showAppreciateDialog.value = it }
-        }
+        MeverDialog(
+            showDialog = showPaypalDialog,
+            image = null,
+            title = stringResource(R.string.paypal_email),
+            description = stringResource(R.string.email),
+            primaryActionLabel = stringResource(R.string.copy),
+            onClickPrimaryAction = {
+                copyToClipboard(context, resources.getString(R.string.email))
+                showPaypalDialog = false
+            },
+            onClickSecondaryAction = { showPaypalDialog = false }
+        )
 
         HandleBottomSheetQris(showBottomSheetQris) { showBottomSheetQris = it }
 
@@ -221,7 +230,6 @@ internal fun SettingLandingScreen(
             usedStorage = usedStorage,
             statusColor = statusColor,
             deviceType = deviceType,
-            viewModel = this,
             listState = listState,
             isExpanded = isExpanded,
             isPipEnabled = isPipEnabled,
@@ -239,7 +247,11 @@ internal fun SettingLandingScreen(
             },
             onClickChangeTheme = { navController.navigate(SettingScreenRoute.SettingThemeRoute(it)) },
             onClickPip = { savePipState(isPipEnabled.not()) },
-            onClickDonate = { showAppreciateDialog.value = it },
+            onClickCleanCache = {
+                cleanCache(context)
+                navController.navigateClearBackStack(SplashRoute)
+            },
+            onClickPaypal = { showPaypalDialog = true },
             onClickQris = { showBottomSheetQris = true },
             onClickContact = { navigateToGmail(context) },
             onClickAbout = { navController.navigateTo(SettingAboutAppRoute) },
@@ -255,7 +267,6 @@ private fun SettingLandingContent(
     usedStorage: Float,
     statusColor: Color,
     deviceType: DeviceType,
-    viewModel: SettingLandingViewModel,
     listState: LazyListState,
     isExpanded: Boolean,
     isPipEnabled: Boolean,
@@ -267,132 +278,132 @@ private fun SettingLandingContent(
     onClickNotificationPermission: () -> Unit,
     onClickChangeTheme: (ThemeType) -> Unit,
     onClickPip: () -> Unit,
-    onClickDonate: (AppreciateType) -> Unit,
+    onClickCleanCache: () -> Unit,
+    onClickPaypal: () -> Unit,
     onClickQris: () -> Unit,
     onClickContact: () -> Unit,
     onClickAbout: () -> Unit,
     onSetTitleHeight: (Int) -> Unit
-) = with(viewModel) {
-    CompositionLocalProvider(LocalOverscrollFactory provides null) {
-        Column(modifier = modifier) {
-            if (isExpanded.not() && titleHeight > 0) {
-                HorizontalDivider(
+) = CompositionLocalProvider(LocalOverscrollFactory provides null) {
+    Column(modifier = modifier) {
+        if (isExpanded.not() && titleHeight > 0) {
+            HorizontalDivider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .shadow(Dp3),
+                thickness = Dp1,
+                color = colors.blackWhite.copy(alpha = 0.12f)
+            )
+        }
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth(),
+            state = listState
+        ) {
+            item {
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .shadow(Dp3),
-                    thickness = Dp1,
-                    color = colors.blackWhite.copy(alpha = 0.12f)
-                )
+                        .onGloballyPositioned { onSetTitleHeight(it.size.height) }
+                ) {
+                    Spacer(modifier = Modifier.height(Dp16))
+                    AnimatedVisibility(
+                        visible = isExpanded,
+                        enter = expandVertically() + fadeIn(),
+                        exit = shrinkVertically() + fadeOut()
+                    ) {
+                        Text(
+                            text = stringResource(R.string.settings),
+                            style = typography.h2.copy(fontSize = Sp32),
+                            color = colors.blackWhite,
+                            modifier = Modifier.padding(horizontal = Dp24)
+                        )
+                    }
+                }
             }
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth(),
-                state = listState
-            ) {
-                item {
-                    Column(
+            item {
+                AnimatedContent(
+                    targetState = storageInfo != null,
+                    transitionSpec = {
+                        (fadeIn() togetherWith fadeOut()).using(SizeTransform(clip = false))
+                    }
+                ) { completedFetching ->
+                    if (completedFetching) AvailableStorageSection(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .onGloballyPositioned { onSetTitleHeight(it.size.height) }
-                    ) {
-                        Spacer(modifier = Modifier.height(Dp16))
-                        AnimatedVisibility(
-                            visible = isExpanded,
-                            enter = expandVertically() + fadeIn(),
-                            exit = shrinkVertically() + fadeOut()
-                        ) {
-                            Text(
-                                text = stringResource(R.string.settings),
-                                style = typography.h2.copy(fontSize = Sp32),
-                                color = colors.blackWhite,
-                                modifier = Modifier.padding(horizontal = Dp24)
-                            )
-                        }
-                    }
+                            .padding(horizontal = Dp24, vertical = Dp32),
+                        context = context,
+                        storageInfo = storageInfo!!,
+                        usedStorage = usedStorage,
+                        statusColor = statusColor,
+                        deviceType = deviceType
+                    ) else StorageSectionLoading(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = Dp24, vertical = Dp32),
+                        deviceType = deviceType
+                    )
                 }
+            }
+            getSettingMenus(context).forEach { (title, menus) ->
                 item {
-                    AnimatedContent(
-                        targetState = storageInfo != null,
-                        transitionSpec = {
-                            (fadeIn() togetherWith fadeOut()).using(SizeTransform(clip = false))
-                        }
-                    ) { completedFetching ->
-                        if (completedFetching) AvailableStorageSection(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = Dp24, vertical = Dp32),
-                            context = context,
-                            storageInfo = storageInfo!!,
-                            usedStorage = usedStorage,
-                            statusColor = statusColor,
-                            deviceType = deviceType
-                        ) else StorageSectionLoading(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = Dp24, vertical = Dp32),
-                            deviceType = deviceType
-                        )
-                    }
+                    Text(
+                        text = stringResource(title),
+                        style = typography.h3,
+                        color = colors.blackWhite,
+                        modifier = Modifier.padding(start = Dp24, end = Dp24, bottom = Dp12)
+                    )
                 }
-                settingMenus.forEach { (title, menus) ->
-                    item {
-                        Text(
-                            text = stringResource(title),
-                            style = typography.h3,
-                            color = colors.blackWhite,
-                            modifier = Modifier.padding(start = Dp24, end = Dp24, bottom = Dp12)
-                        )
-                    }
-                    items(
-                        items = menus,
-                        key = { menu -> menu.leadingTitle }
-                    ) { menu ->
-                        MeverMenuItem(
-                            modifier = Modifier.padding(horizontal = Dp24),
-                            menuArgs = MenuItemArgs(
-                                leadingIcon = menu.icon,
-                                leadingIconBackground = menu.iconBackgroundColor,
-                                leadingTitle = stringResource(menu.leadingTitle),
-                                leadingDesc = menu.leadingDesc?.let { stringResource(it) },
-                                leadingIconSize = Dp40,
-                                leadingIconPadding = Dp8,
-                                trailingType = if (menu.leadingTitle != R.string.pip) {
-                                    Default(
-                                        trailingTitle = menu.trailingTitle?.let {
-                                            when (stringResource(menu.leadingTitle)) {
-                                                stringResource(R.string.language) -> {
-                                                    if (getLanguageCode == "en") "English"
-                                                    else "Bahasa Indonesia"
-                                                }
-
-                                                stringResource(R.string.theme) -> stringResource(
-                                                    themeType.themeResId
-                                                )
-
-                                                else -> it
+                items(
+                    items = menus,
+                    key = { menu -> menu.leadingTitle }
+                ) { menu ->
+                    MeverMenuItem(
+                        modifier = Modifier.padding(horizontal = Dp24),
+                        menuArgs = MenuItemArgs(
+                            leadingIcon = menu.icon,
+                            leadingIconBackground = menu.iconBackgroundColor,
+                            leadingTitle = menu.leadingTitle,
+                            leadingDesc = menu.leadingDesc,
+                            leadingIconSize = Dp40,
+                            leadingIconPadding = Dp8,
+                            trailingType = if (menu.leadingTitle != stringResource(R.string.pip)) {
+                                Default(
+                                    trailingTitle = menu.trailingTitle?.let {
+                                        when (menu.leadingTitle) {
+                                            stringResource(R.string.language) -> {
+                                                if (getLanguageCode == "en") "English"
+                                                else "Bahasa Indonesia"
                                             }
+
+                                            stringResource(R.string.theme) -> stringResource(
+                                                themeType.themeResId
+                                            )
+
+                                            else -> it
                                         }
-                                    )
-                                } else Switch(isPipEnabled)
-                            )
-                        ) {
-                            handleClickMenu(
-                                context = context,
-                                title = context.getString(menu.leadingTitle),
-                                languageCode = getLanguageCode,
-                                themeType = themeType,
-                                onClickChangeLanguage = { onClickChangeLanguage(it) },
-                                onClickNotificationPermission = { onClickNotificationPermission() },
-                                onClickChangeTheme = { onClickChangeTheme(it) },
-                                onClickPip = { onClickPip() },
-                                onClickDonate = { onClickDonate(it) },
-                                onClickQris = { onClickQris() },
-                                onClickContact = { onClickContact() },
-                                onClickAbout = { onClickAbout() }
-                            )
-                        }
+                                    }
+                                )
+                            } else Switch(isPipEnabled)
+                        )
+                    ) {
+                        handleClickMenu(
+                            context = context,
+                            title = menu.leadingTitle,
+                            languageCode = getLanguageCode,
+                            themeType = themeType,
+                            onClickChangeLanguage = { onClickChangeLanguage(it) },
+                            onClickNotificationPermission = { onClickNotificationPermission() },
+                            onClickChangeTheme = { onClickChangeTheme(it) },
+                            onClickPip = { onClickPip() },
+                            onClickCleanCache = { onClickCleanCache() },
+                            onClickPaypal = { onClickPaypal() },
+                            onClickQris = { onClickQris() },
+                            onClickContact = { onClickContact() },
+                            onClickAbout = { onClickAbout() }
+                        )
                     }
-                    item { Spacer(modifier = Modifier.height(Dp28)) }
                 }
+                item { Spacer(modifier = Modifier.height(Dp28)) }
             }
         }
     }
@@ -515,7 +526,8 @@ private fun handleClickMenu(
     onClickNotificationPermission: () -> Unit,
     onClickChangeTheme: (ThemeType) -> Unit,
     onClickPip: () -> Unit,
-    onClickDonate: (AppreciateType) -> Unit,
+    onClickCleanCache: () -> Unit,
+    onClickPaypal: () -> Unit,
     onClickQris: () -> Unit,
     onClickContact: () -> Unit,
     onClickAbout: () -> Unit
@@ -525,8 +537,8 @@ private fun handleClickMenu(
         getString(R.string.notification) -> onClickNotificationPermission()
         getString(R.string.theme) -> onClickChangeTheme(themeType)
         getString(R.string.pip) -> onClickPip()
-        getString(R.string.bitcoin) -> onClickDonate(BITCOIN)
-        getString(R.string.paypal) -> onClickDonate(PAYPAL)
+        getString(R.string.clean_cache) -> onClickCleanCache()
+        getString(R.string.paypal) -> onClickPaypal()
         getString(R.string.qris) -> onClickQris()
         getString(R.string.contact) -> onClickContact()
         getString(R.string.about) -> onClickAbout()

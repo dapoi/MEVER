@@ -79,7 +79,7 @@ fun MeverMenuItem(
                     Text(
                         modifier = Modifier.padding(top = Dp4),
                         text = leadingDesc,
-                        style = typography.body3,
+                        style = typography.bodyBold3,
                         fontStyle = Italic,
                         color = colors.blackWhite.copy(0.5f)
                     )

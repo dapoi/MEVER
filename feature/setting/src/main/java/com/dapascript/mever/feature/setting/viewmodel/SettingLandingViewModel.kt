@@ -11,7 +11,6 @@ import com.dapascript.mever.core.common.ui.theme.ThemeType.System
 import com.dapascript.mever.core.common.util.storage.StorageUtil.StorageInfo
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getStorageInfo
 import com.dapascript.mever.core.data.source.local.MeverDataStore
-import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.getSettingMenus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers.IO
@@ -27,8 +26,6 @@ class SettingLandingViewModel @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val dataStore: MeverDataStore
 ) : BaseViewModel() {
-    val settingMenus by lazy { getSettingMenus() }
-
     var languageCode by mutableStateOf("en")
     var animatedPercent by mutableFloatStateOf(0f)
 

@@ -388,10 +388,10 @@ fun sanitizeFilename(filename: String): String {
 fun getAppVersion(context: Context): String {
     return try {
         val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
-        packageInfo.versionName ?: "1.0"
+        "v${packageInfo.versionName}"
     } catch (e: Exception) {
         e.printStackTrace()
-        "1.0"
+        "v1.0.0"
     }
 }
 
@@ -400,4 +400,15 @@ fun isAppInstalled(context: Context, packageName: String) = try {
     true
 } catch (_: NameNotFoundException) {
     false
+}
+
+fun cleanCache(context: Context) {
+    try {
+        val cacheDir = context.cacheDir
+        if (cacheDir.isDirectory) {
+            cacheDir.listFiles()?.forEach { it.deleteRecursively() }
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
 }
