@@ -130,4 +130,6 @@
     <string name="wa_status">Status WhatsApp</string>
     <string name="when_video_is_playing">Saat video diputar</string>
     <string name="clean_cache">Bersihkan Cache</string>
+    <string name="update_available">Pembaruan Tersedia</string>
+    <string name="update_has_completed">Pembaruan telah selesai. Silakan mulai ulang aplikasi untuk menikmati fitur dan peningkatan baru!</string>
 </resources>

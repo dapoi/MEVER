@@ -130,5 +130,7 @@
     <string name="wa_status">WhatsApp Status</string>
     <string name="when_video_is_playing">When video is playing</string>
     <string name="clean_cache">Clean Cache</string>
-    <string name="email">daffaprabowo5@gmail.com</string>
+    <string name="email" translatable="false">daffaprabowo5@gmail.com</string>
+    <string name="update_available">Update Available</string>
+    <string name="update_has_completed">The update has been completed. Please restart the app to enjoy the new features and improvements!</string>
 </resources>

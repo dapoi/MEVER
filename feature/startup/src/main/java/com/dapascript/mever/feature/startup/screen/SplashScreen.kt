@@ -61,7 +61,6 @@ import com.dapascript.mever.core.navigation.helper.navigateClearBackStack
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeLandingRoute
 import com.dapascript.mever.core.navigation.route.StartupScreenRoute.OnboardRoute
 import com.dapascript.mever.feature.startup.viewmodel.SplashScreenViewModel
-import com.google.android.play.core.install.model.AppUpdateType.FLEXIBLE
 import com.google.android.play.core.install.model.AppUpdateType.IMMEDIATE
 import com.google.android.play.core.install.model.UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS
 import com.google.android.play.core.install.model.UpdateAvailability.UPDATE_AVAILABLE
@@ -90,17 +89,9 @@ internal fun SplashScreen(
             contract = StartIntentSenderForResult()
         ) { result ->
             when {
-                result.resultCode == RESULT_CANCELED -> {
-                    if (forceUpdateInProgress) activity.finish()
-                    else logoVisibleState.targetState = false
-                }
-
+                result.resultCode == RESULT_CANCELED -> activity.finish()
                 result.resultCode != RESULT_OK -> {
                     forceUpdateInProgress = false
-                    logoVisibleState.targetState = false
-                }
-
-                result.resultCode == RESULT_OK && !forceUpdateInProgress -> {
                     logoVisibleState.targetState = false
                 }
             }
@@ -117,15 +108,19 @@ internal fun SplashScreen(
                     } else {
                         forceUpdateInProgress = response.isForceUpdateRequired
 
-                        inAppUpdateManager.startUpdate(
-                            updateType = if (forceUpdateInProgress) IMMEDIATE else FLEXIBLE,
-                            updateAvailability = UPDATE_AVAILABLE,
-                            launcher = updateLauncher,
-                            onUpdateNotAvailable = {
-                                forceUpdateInProgress = false
-                                logoVisibleState.targetState = false
-                            }
-                        )
+                        if (forceUpdateInProgress) {
+                            inAppUpdateManager.startUpdate(
+                                updateType = IMMEDIATE,
+                                updateAvailability = UPDATE_AVAILABLE,
+                                launcher = updateLauncher,
+                                onUpdateNotAvailable = {
+                                    forceUpdateInProgress = false
+                                    logoVisibleState.targetState = false
+                                }
+                            )
+                        } else {
+                            logoVisibleState.targetState = false
+                        }
                     }
                 },
                 onFailed = { message ->

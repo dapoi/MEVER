@@ -1,6 +1,9 @@
 package com.dapascript.mever.feature.home.screen
 
 import android.content.Context
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.fadeIn
@@ -39,7 +42,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -69,7 +74,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow.Companion.Ellipsis
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle.Event.ON_RESUME
 import androidx.lifecycle.Lifecycle.State.RESUMED
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
@@ -125,6 +133,7 @@ import com.dapascript.mever.core.common.util.DeviceType
 import com.dapascript.mever.core.common.util.DeviceType.DESKTOP
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.DeviceType.TABLET
+import com.dapascript.mever.core.common.util.InAppUpdateManager
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.LocalDeviceType
 import com.dapascript.mever.core.common.util.PlatformType
@@ -166,6 +175,8 @@ import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetDownl
 import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetPlatformSupport
 import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetYouTubeQuality
 import com.dapascript.mever.feature.home.viewmodel.HomeLandingViewModel
+import com.google.android.play.core.install.model.AppUpdateType.FLEXIBLE
+import com.google.android.play.core.install.model.UpdateAvailability.UPDATE_AVAILABLE
 import com.ketch.Status.FAILED
 import com.ketch.Status.PAUSED
 import com.ketch.Status.SUCCESS
@@ -210,6 +221,9 @@ private fun HomeScreenContent(
 ) = with(viewModel) {
     BoxWithConstraints(modifier = modifier) {
         var generateButtonHeight by remember { mutableIntStateOf(0) }
+        var updateDownloaded by remember { mutableStateOf(false) }
+        var isUpdateRefused by remember { mutableStateOf(false) }
+        val activity = LocalActivity.current
         val context = LocalContext.current
         val deviceType = LocalDeviceType.current
         val showBadge = showBadge.collectAsStateValue()
@@ -219,6 +233,9 @@ private fun HomeScreenContent(
         val pagerState = rememberPagerState(pageCount = { tabItems.size })
         val scrollState = rememberScrollState()
         val scope = rememberCoroutineScope()
+        val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
+        val inAppUpdateManager = remember { InAppUpdateManager(activity) }
+        val updateLauncher = rememberLauncherForActivityResult(StartIntentSenderForResult()) { }
         val interstitialController = rememberInterstitialAd {
             navController.navigateToImageGenerator(
                 prompt = promptState.text,
@@ -226,6 +243,47 @@ private fun HomeScreenContent(
                 totalImages = selectedImageCount
             )
         }
+
+        LaunchedEffect(Unit) {
+            inAppUpdateManager.registerListener { updateDownloaded = true }
+            inAppUpdateManager.startUpdate(
+                updateType = FLEXIBLE,
+                updateAvailability = UPDATE_AVAILABLE,
+                launcher = updateLauncher,
+                onUpdateNotAvailable = {}
+            )
+        }
+
+        DisposableEffect(lifecycleOwner) {
+            val observer = LifecycleEventObserver { _, event ->
+                if (event == ON_RESUME && isUpdateRefused.not()) {
+                    inAppUpdateManager.checkForDownloadedUpdate { updateDownloaded = true }
+                }
+            }
+            lifecycleOwner.value.lifecycle.addObserver(observer)
+
+            onDispose {
+                lifecycleOwner.value.lifecycle.removeObserver(observer)
+                inAppUpdateManager.unregisterListener()
+            }
+        }
+
+        MeverDialog(
+            showDialog = updateDownloaded,
+            image = null,
+            title = stringResource(R.string.update_available),
+            description = stringResource(R.string.update_has_completed),
+            primaryActionLabel = stringResource(R.string.ok),
+            secondaryActionLabel = stringResource(R.string.later),
+            onClickPrimaryAction = {
+                inAppUpdateManager.completeUpdate()
+                updateDownloaded = false
+            },
+            onClickSecondaryAction = {
+                updateDownloaded = false
+                isUpdateRefused = true
+            }
+        )
 
         Column(
             modifier = Modifier
@@ -296,10 +354,12 @@ private fun HomeScreenContent(
                                             .navigationBarsPadding(),
                                         viewModel = this@with,
                                         context = context,
+                                        activity = activity,
                                         navController = navController,
                                         scope = scope,
                                         getButtonClickCount = getButtonClickCount,
-                                        isImageGeneratorFeatureActive = isImageGeneratorFeatureActive
+                                        isImageGeneratorFeatureActive = isImageGeneratorFeatureActive,
+                                        lifecycleOwner = lifecycleOwner
                                     )
                                 }
 
@@ -347,11 +407,13 @@ private fun HomeScreenContent(
                                 .padding(horizontal = Dp24),
                             viewModel = this@with,
                             context = context,
+                            activity = activity,
                             navController = navController,
                             scope = scope,
                             getButtonClickCount = getButtonClickCount,
                             isImageGeneratorFeatureActive = isImageGeneratorFeatureActive,
-                            isPhoneDevice = false
+                            isPhoneDevice = false,
+                            lifecycleOwner = lifecycleOwner
                         )
                         HomeAiSection(
                             modifier = Modifier
@@ -452,10 +514,12 @@ private fun HomeScreenContent(
 private fun HomeDownloaderSection(
     viewModel: HomeLandingViewModel,
     context: Context,
+    activity: ComponentActivity,
     navController: NavController,
     scope: CoroutineScope,
     getButtonClickCount: Int,
     isImageGeneratorFeatureActive: Boolean,
+    lifecycleOwner: State<LifecycleOwner>,
     modifier: Modifier = Modifier,
     isPhoneDevice: Boolean = true
 ) = with(viewModel) {
@@ -463,8 +527,6 @@ private fun HomeDownloaderSection(
     val downloaderResponseState = downloaderResponseState.collectAsStateValue()
     val youtubeResolutions = youtubeResolutions.collectAsStateValue()
     val urlIntent = getUrlIntent.collectAsStateValue()
-    val activity = LocalActivity.current
-    val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
     var showLoading by remember { mutableStateOf(false) }
     var showYoutubeChooseQualityModal by remember { mutableStateOf(false) }
     var randomDonateDialogOffer by remember { mutableIntStateOf(0) }
