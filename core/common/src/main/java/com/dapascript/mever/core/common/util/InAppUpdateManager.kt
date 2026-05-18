@@ -35,7 +35,6 @@ class InAppUpdateManager(context: Context) {
         launcher: ActivityResultLauncher<IntentSenderRequest>,
         onUpdateNotAvailable: () -> Unit
     ) {
-
         appUpdateManager.appUpdateInfo.addOnSuccessListener { appUpdateInfo ->
             if (
                 appUpdateInfo.updateAvailability() == updateAvailability
