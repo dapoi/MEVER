@@ -108,10 +108,9 @@ internal fun SplashScreen(
 
         LaunchedEffect(Unit) { getAppConfig() }
 
-        LaunchedEffect(Unit) { logoVisibleState.targetState = true }
-
         LaunchedEffect(appConfigState) {
             appConfigState.handleUiState(
+                onLoading = { logoVisibleState.targetState = true },
                 onSuccess = { response ->
                     if (response.maintenanceDay != null && today == response.maintenanceDay) {
                         showMaintenanceModal = true
@@ -233,7 +232,7 @@ internal fun SplashScreen(
                     )
                 ) {
                     Text(
-                        text = "Social Media Saver",
+                        text = "Media Saver",
                         style = typography.bodyBold1,
                         color = MeverWhite
                     )
