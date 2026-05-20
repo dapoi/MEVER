@@ -3,8 +3,6 @@ package com.dapascript.mever.core.common.ui.theme
 import androidx.annotation.Keep
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
@@ -40,15 +38,9 @@ fun MeverTheme(
 ) {
     val meverTypography = MeverTypography(deviceType)
     val customColors = if (darkTheme) Dark else Light
-    val colorScheme = if (darkTheme) darkColorScheme() else lightColorScheme()
 
     CompositionLocalProvider(
         LocalTypography provides meverTypography,
         LocalColors provides customColors
-    ) {
-        MaterialTheme(
-            colorScheme = colorScheme,
-            content = content
-        )
-    }
+    ) { MaterialTheme(content = content) }
 }
