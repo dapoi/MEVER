@@ -3,7 +3,7 @@ ads = "25.2.0"
 androidGradlePlugin = "9.2.1"
 androidTools = "32.2.1"
 androidxActivity = "1.13.0"
-androidxComposeBom = "2026.05.00"
+androidxComposeBom = "2026.05.01"
 androidxNavigation = "2.9.8"
 appCompat = "1.7.1"
 appUpdate = "2.1.0"
@@ -11,9 +11,10 @@ archCoreTesting = "2.2.0"
 chucker = "4.3.1"
 coil = "3.4.0"
 coreKtxVersion = "1.18.0"
-coroutinesTest = "1.10.2"
+coroutinesTest = "1.11.0"
 dataStorePreferences = "1.2.1"
 documentFile = "1.1.0"
+firebaseAnalytics = "23.2.0"
 firebaseCrashlytics = "20.0.6"
 googleGmsGoogleServices = "4.4.4"
 googleFirebaseCrashlytics = "3.0.7"
@@ -24,7 +25,7 @@ ketch = "2.0.6"
 kotlin = "2.3.21"
 kotlinxSerializationJson = "1.11.0"
 ksp = "2.3.7"
-media3 = "1.10.0"
+media3 = "1.10.1"
 mockitoCore = "5.23.0"
 mockitoInline = "5.2.0"
 mockitoKotlin = "6.3.0"
@@ -53,6 +54,7 @@ coil-video = { group = "io.coil-kt.coil3", name = "coil-video", version.ref = "c
 coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutinesTest" }
 dataStorePreferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "dataStorePreferences" }
 documentFile = { group = "androidx.documentfile", name = "documentfile", version.ref = "documentFile" }
+firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics", version.ref = "firebaseAnalytics" }
 firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics", version.ref = "firebaseCrashlytics" }
 google-play-update-core = { group = "com.google.android.play", name = "app-update", version.ref = "appUpdate" }
 google-play-update-ktx = { group = "com.google.android.play", name = "app-update-ktx", version.ref = "appUpdate" }

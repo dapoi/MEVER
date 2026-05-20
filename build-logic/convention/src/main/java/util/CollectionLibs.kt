@@ -23,6 +23,7 @@ object CollectionLibs {
             implementation(libs.coil.network.get())
             implementation(libs.coil.video.get())
             implementation(libs.documentFile.get())
+            implementation(libs.firebase.analytics.get())
             implementation(libs.firebase.crashlytics.get())
             implementation(libs.google.play.update.core.get())
             implementation(libs.google.play.update.ktx.get())
