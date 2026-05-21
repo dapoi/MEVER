@@ -5,7 +5,21 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
-import com.dapascript.mever.core.common.util.PlatformType.*
+import com.dapascript.mever.core.common.util.PlatformType.APPLE_MUSIC
+import com.dapascript.mever.core.common.util.PlatformType.DOUYIN
+import com.dapascript.mever.core.common.util.PlatformType.FACEBOOK
+import com.dapascript.mever.core.common.util.PlatformType.INSTAGRAM
+import com.dapascript.mever.core.common.util.PlatformType.PINTEREST
+import com.dapascript.mever.core.common.util.PlatformType.PIXIV
+import com.dapascript.mever.core.common.util.PlatformType.SOUNDCLOUD
+import com.dapascript.mever.core.common.util.PlatformType.SPOTIFY
+import com.dapascript.mever.core.common.util.PlatformType.TERABOX
+import com.dapascript.mever.core.common.util.PlatformType.THREADS
+import com.dapascript.mever.core.common.util.PlatformType.TIKTOK
+import com.dapascript.mever.core.common.util.PlatformType.TWITTER
+import com.dapascript.mever.core.common.util.PlatformType.VIDEY
+import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
+import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE_MUSIC
 import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.ACTION_DOWNLOAD
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.ACTION_GENERATE_AI
@@ -48,15 +62,20 @@ class MeverWorker @AssistedInject constructor(
                 val url = inputData.getString(KEY_URL).orEmpty()
                 val quality = inputData.getString(KEY_QUALITY).orEmpty()
                 val type = inputData.getString(KEY_TYPE) ?: "video"
-                val res = getApiDownloader(url, quality, type).let { list ->
+                val res = getApiDownloader(
+                    url = url,
+                    quality = quality,
+                    type = type
+                ).let { list ->
                     if (list.firstOrNull()?.status == true) list else emptyList()
                 }
                 res to Types.newParameterizedType(List::class.java, ContentEntity::class.java)
             }
 
             ACTION_GENERATE_AI -> {
-                apiService.getImageAiGenerator(inputData.getString(KEY_PROMPT).orEmpty())
-                    .mapToEntity() to ImageAiEntity::class.java
+                apiService.getImageAiGenerator(
+                    prompt = inputData.getString(KEY_PROMPT).orEmpty()
+                ).mapToEntity() to ImageAiEntity::class.java
             }
 
             else -> throw IllegalArgumentException("Unknown action: $action")
@@ -88,24 +107,21 @@ class MeverWorker @AssistedInject constructor(
         url: String,
         quality: String,
         type: String
-    ): List<ContentEntity> =
-        when (getPlatformType(url, type)) {
-            APPLE_MUSIC -> apiService.getAppleMusicDownloader(url).mapToEntity()
-            DOUYIN -> apiService.getDouyinDownloader(url).mapToEntity()
-            FACEBOOK -> apiService.getFacebookDownloader(url).mapToEntity() ?: emptyList()
-            INSTAGRAM -> apiService.getInstagramDownloader(url).mapToEntity() ?: emptyList()
-            PINTEREST -> apiService.getPinterestDownloader(url).mapToEntity() ?: emptyList()
-            PIXIV -> apiService.getPixivDownloader(url).mapToEntity() ?: emptyList()
-            SOUNDCLOUD -> apiService.getSoundCloudDownloader(url).mapToEntity()
-            SPOTIFY -> apiService.getSpotifyDownloader(url).mapToEntity() ?: emptyList()
-            TERABOX -> apiService.getTeraBoxDownloader(url).mapToEntity() ?: emptyList()
-            THREADS -> apiService.getThreadsDownloader(url).mapToEntity() ?: emptyList()
-            TIKTOK -> apiService.getTiktokDownloader(url).mapToEntity()
-            TWITTER -> apiService.getTwitterDownloader(url).mapToEntity() ?: emptyList()
-            VIDEY -> apiService.getVideyDownloader(url).mapToEntity()
-            YOUTUBE, YOUTUBE_MUSIC -> apiService.getYoutubeDownloader(url, quality, type)
-                .mapToEntity()
-
-            else -> emptyList()
-        }
+    ) = when (getPlatformType(url, type)) {
+        APPLE_MUSIC -> apiService.getAppleMusicDownloader(url).mapToEntity()
+        DOUYIN -> apiService.getDouyinDownloader(url).mapToEntity()
+        FACEBOOK -> apiService.getFacebookDownloader(url).mapToEntity().orEmpty()
+        INSTAGRAM -> apiService.getInstagramDownloader(url).mapToEntity().orEmpty()
+        PINTEREST -> apiService.getPinterestDownloader(url).mapToEntity().orEmpty()
+        PIXIV -> apiService.getPixivDownloader(url).mapToEntity().orEmpty()
+        SOUNDCLOUD -> apiService.getSoundCloudDownloader(url).mapToEntity()
+        SPOTIFY -> apiService.getSpotifyDownloader(url).mapToEntity()
+        TERABOX -> apiService.getTeraBoxDownloader(url).mapToEntity().orEmpty()
+        THREADS -> apiService.getThreadsDownloader(url).mapToEntity().orEmpty()
+        TIKTOK -> apiService.getTiktokDownloader(url).mapToEntity()
+        TWITTER -> apiService.getTwitterDownloader(url).mapToEntity().orEmpty()
+        VIDEY -> apiService.getVideyDownloader(url).mapToEntity()
+        YOUTUBE, YOUTUBE_MUSIC -> apiService.getYoutubeDownloader(url, quality, type).mapToEntity()
+        else -> emptyList()
+    }
 }
