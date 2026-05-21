@@ -8,6 +8,7 @@ import com.dapascript.mever.core.data.BuildConfig.BASE_URL
 import com.dapascript.mever.core.data.BuildConfig.DEBUG
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.repository.MeverRepositoryImpl
+import com.dapascript.mever.core.data.repository.base.BaseRepositoryArgs
 import com.dapascript.mever.core.data.source.remote.ApiService
 import com.dapascript.mever.core.data.util.ApiKeyInterceptor
 import com.dapascript.mever.core.data.util.MoshiHelper
@@ -24,7 +25,7 @@ import okhttp3.logging.HttpLoggingInterceptor.Level.BODY
 import okhttp3.logging.HttpLoggingInterceptor.Level.NONE
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import java.util.concurrent.TimeUnit.SECONDS
+import java.util.concurrent.TimeUnit.MINUTES
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -58,9 +59,9 @@ class DataModule {
         })
         .addInterceptor(apiKeyInterceptor)
         .addInterceptor(chuckerInterceptor)
-        .connectTimeout(45, SECONDS)
-        .readTimeout(45, SECONDS)
-        .writeTimeout(45, SECONDS)
+        .connectTimeout(1, MINUTES)
+        .readTimeout(1, MINUTES)
+        .writeTimeout(1, MINUTES)
         .retryOnConnectionFailure(true)
         .build()
 
@@ -80,11 +81,11 @@ class DataModule {
 
     @Provides
     fun provideMeverRepository(
-        workManager: WorkManager,
-        moshiHelper: MoshiHelper
+        apiService: ApiService,
+        args: BaseRepositoryArgs
     ): MeverRepository = MeverRepositoryImpl(
-        workManager = workManager,
-        moshiHelper = moshiHelper
+        apiService = apiService,
+        args = args
     )
 
     @Provides
