@@ -43,7 +43,7 @@ import javax.inject.Inject
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @AndroidEntryPoint
-class MeverActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity() {
 
     @Inject
     lateinit var navGraphs: Set<@JvmSuppressWildcards BaseNavGraph>

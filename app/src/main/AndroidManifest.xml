@@ -33,7 +33,7 @@
     </queries>
 
     <application
-        android:name=".MeverApp"
+        android:name=".MainApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:enableOnBackInvokedCallback="false"
@@ -46,7 +46,7 @@
         android:theme="@style/Theme.MEVER"
         tools:targetApi="36">
         <activity
-            android:name=".screen.MeverActivity"
+            android:name=".screen.MainActivity"
             android:configChanges="locale|orientation|screenSize|smallestScreenSize|screenLayout|keyboardHidden|layoutDirection|uiMode|density|colorMode"
             android:exported="true"
             android:launchMode="singleTask"
