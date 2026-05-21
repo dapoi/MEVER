@@ -768,6 +768,7 @@ private fun HandleDialogExitConfirmation(
         image = null,
         title = stringResource(R.string.cancel_fetch_title),
         description = stringResource(R.string.cancel_fetch_desc),
+        primaryActionLabel = stringResource(R.string.yes),
         onClickPrimaryAction = onClickPrimary,
         onClickSecondaryAction = onClickSecondary
     )
