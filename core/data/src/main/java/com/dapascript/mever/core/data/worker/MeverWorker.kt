@@ -66,9 +66,12 @@ class MeverWorker @AssistedInject constructor(
                     url = url,
                     quality = quality,
                     type = type
-                ).let { list ->
-                    if (list.firstOrNull()?.status == true) list else emptyList()
+                )
+
+                if (res.firstOrNull()?.status != true) {
+                    throw Exception(context.getString(R.string.url_error))
                 }
+
                 res to Types.newParameterizedType(List::class.java, ContentEntity::class.java)
             }
 
