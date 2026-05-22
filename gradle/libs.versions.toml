@@ -1,5 +1,5 @@
 [versions]
-ads = "25.2.0"
+ads = "1.1.0"
 androidGradlePlugin = "9.2.1"
 androidTools = "32.2.1"
 androidxActivity = "1.13.0"
@@ -35,7 +35,7 @@ timber = "5.0.1"
 workRuntime = "2.11.2"
 
 [libraries]
-ads = { group = "com.google.android.gms", name = "play-services-ads", version.ref = "ads" }
+ads = { group = "com.google.android.libraries.ads.mobile.sdk", name = "ads-mobile-sdk", version.ref = "ads" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidxActivity" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appCompat" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "androidxComposeBom" }

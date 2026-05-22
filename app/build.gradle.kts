@@ -31,9 +31,12 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
-        manifestPlaceholders["admobId"] = getEnvVariable("ADMOB_ID").ifEmpty {
+
+        val admobIdValue = getEnvVariable("ADMOB_ID").ifEmpty {
             "ca-app-pub-3940256099942544~3347511713"
         }
+        manifestPlaceholders["admobId"] = admobIdValue
+        buildConfigField("String", "ADMOB_ID", "\"$admobIdValue\"")
     }
 
     buildTypes {
@@ -57,6 +60,11 @@ android {
             isDebuggable = true
             applicationIdSuffix = ".debug"
         }
+    }
+
+    configurations.configureEach {
+        exclude(group = "com.google.android.gms", module = "play-services-ads")
+        exclude(group = "com.google.android.gms", module = "play-services-ads-lite")
     }
 }
 

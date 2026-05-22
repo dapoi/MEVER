@@ -2,19 +2,18 @@ package com.dapascript.mever.core.common.ui.component
 
 import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.dapascript.mever.core.common.BuildConfig.AD_BANNER_UNIT_ID
-import com.google.android.gms.ads.AdListener
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdSize
-import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.LoadAdError
+import com.google.android.libraries.ads.mobile.sdk.banner.AdSize
+import com.google.android.libraries.ads.mobile.sdk.banner.AdView
+import com.google.android.libraries.ads.mobile.sdk.banner.BannerAd
+import com.google.android.libraries.ads.mobile.sdk.banner.BannerAdEventCallback
+import com.google.android.libraries.ads.mobile.sdk.banner.BannerAdRequest
+import com.google.android.libraries.ads.mobile.sdk.common.AdEventCallback
+import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback
+import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError
 import timber.log.Timber
 
 @SuppressLint("MissingPermission")
@@ -25,39 +24,41 @@ fun MeverBannerAd(
 ) {
     if (LocalInspectionMode.current) return
 
-    val context = LocalContext.current
-    val adView = remember { AdView(context) }
-    LifecycleResumeEffect(adView) {
-        adView.resume()
-        onPauseOrDispose { adView.pause() }
-    }
-    DisposableEffect(adView) { onDispose { adView.destroy() } }
-
     AndroidView(
         modifier = modifier,
         factory = { ctx ->
-            adView.apply {
-                this.adUnitId = adUnitId
-                val adaptiveAdSize = AdSize.getLargeLandscapeAnchoredAdaptiveBannerAdSize(
-                    ctx, AdSize.FULL_WIDTH
+            AdView(ctx).apply {
+                val displayMetrics = ctx.resources.displayMetrics
+                val screenWidthDp = (displayMetrics.widthPixels / displayMetrics.density).toInt()
+                val adSize = AdSize.getLargeLandscapeAnchoredAdaptiveBannerAdSize(
+                    context = ctx,
+                    width = screenWidthDp
                 )
-                setAdSize(adaptiveAdSize)
+                val adRequest = BannerAdRequest.Builder(adUnitId, adSize).build()
 
-                adListener = object : AdListener() {
-                    override fun onAdLoaded() {
-                        super.onAdLoaded()
+                loadAd(adRequest, object : AdLoadCallback<BannerAd> {
+                    override fun onAdLoaded(ad: BannerAd) {
                         Timber.d("Ad loaded successfully")
+                        ad.adEventCallback = object : AdEventCallback, BannerAdEventCallback {
+                            override fun onAdImpression() {
+                                Timber.d("Ad impression recorded")
+                            }
+
+                            override fun onAdClicked() {
+                                Timber.d("Ad clicked")
+                            }
+                        }
                     }
 
-                    override fun onAdFailedToLoad(error: LoadAdError) {
-                        super.onAdFailedToLoad(error)
-                        Timber.e("Ad failed to load: ${error.message}")
+                    override fun onAdFailedToLoad(adError: LoadAdError) {
+                        Timber.e("Ad failed to load: ${adError.message}")
                     }
-                }
-
-                val adRequest = AdRequest.Builder().build()
-                loadAd(adRequest)
+                })
             }
+        },
+        onRelease = { adView ->
+            adView.destroy()
+            Timber.d("AdView destroyed")
         }
     )
 }
