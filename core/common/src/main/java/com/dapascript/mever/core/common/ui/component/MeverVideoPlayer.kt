@@ -419,6 +419,7 @@ fun MeverVideoPlayer(
         title = stringResource(R.string.delete_title),
         description = stringResource(R.string.delete_desc),
         titleColor = MeverWhite,
+        descriptionColor = MeverWhite,
         backgroundColor = MeverDark,
         secondaryActionColor = MeverWhite,
         primaryActionLabel = stringResource(R.string.delete_button),

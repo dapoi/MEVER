@@ -222,6 +222,7 @@ fun MeverPhotoViewer(
         description = stringResource(R.string.delete_desc),
         primaryActionLabel = stringResource(R.string.delete_button),
         titleColor = MeverWhite,
+        descriptionColor = MeverWhite,
         backgroundColor = MeverDark,
         secondaryActionColor = MeverWhite,
         onClickPrimaryAction = {

@@ -68,6 +68,7 @@ fun MeverDialog(
     primaryActionLabel: String? = stringResource(R.string.retry),
     secondaryActionLabel: String? = stringResource(R.string.cancel),
     titleColor: Color? = null,
+    descriptionColor: Color? = null,
     backgroundColor: Color? = null,
     primaryActionColor: Color? = null,
     secondaryActionColor: Color? = null,
@@ -135,6 +136,7 @@ fun MeverDialog(
                             primaryActionLabel = primaryActionLabel,
                             secondaryActionLabel = secondaryActionLabel,
                             titleColor = titleColor,
+                            descriptionColor = descriptionColor,
                             backgroundColor = backgroundColor,
                             primaryActionColor = primaryActionColor,
                             secondaryActionColor = secondaryActionColor,
@@ -166,6 +168,7 @@ private fun DialogContent(
     primaryActionLabel: String?,
     secondaryActionLabel: String?,
     titleColor: Color?,
+    descriptionColor: Color?,
     backgroundColor: Color?,
     primaryActionColor: Color?,
     secondaryActionColor: Color?,
@@ -200,7 +203,7 @@ private fun DialogContent(
             text = description,
             textAlign = TextAlign.Center,
             style = typography.body1,
-            color = colors.blackWhite
+            color = descriptionColor ?: colors.blackWhite
         )
     }
     Row(
