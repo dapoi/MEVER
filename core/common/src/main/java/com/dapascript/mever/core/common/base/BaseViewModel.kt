@@ -16,6 +16,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 open class BaseViewModel @Inject constructor() : ViewModel() {
@@ -34,7 +35,7 @@ open class BaseViewModel @Inject constructor() : ViewModel() {
                 is Error -> onFailed(apiState.throwable.message.orEmpty())
             }
             if (apiState is Success || apiState is Error) {
-                delay(300)
+                delay(300.milliseconds)
                 onReset?.invoke()
             }
         }

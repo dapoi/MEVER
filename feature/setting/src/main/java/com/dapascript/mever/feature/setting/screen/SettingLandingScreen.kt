@@ -117,6 +117,8 @@ import com.dapascript.mever.feature.setting.viewmodel.SettingLandingViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 @Composable
 internal fun SettingLandingScreen(
@@ -155,7 +157,7 @@ internal fun SettingLandingScreen(
         )
     ) {
         LaunchedEffect(listState, titleHeight) {
-            delay(1000L)
+            delay(1.seconds)
             snapshotFlow { listState.isScrollInProgress }
                 .distinctUntilChanged()
                 .filter { it.not() }
@@ -173,7 +175,7 @@ internal fun SettingLandingScreen(
         }
 
         LaunchedEffect(storageInfo?.usedPercent) {
-            delay(350)
+            delay(350.milliseconds)
             storageInfo?.usedPercent?.let {
                 animatedPercent = storageInfo.usedPercent / 100f
             }

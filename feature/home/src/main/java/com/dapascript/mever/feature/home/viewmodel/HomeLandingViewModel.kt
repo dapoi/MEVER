@@ -36,13 +36,13 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 class HomeLandingViewModel @Inject constructor(
@@ -81,7 +81,6 @@ class HomeLandingViewModel @Inject constructor(
             }
         }
         .distinctUntilChanged()
-        .conflate()
         .flowOn(Default)
         .stateIn(viewModelScope, WhileSubscribed(5000), null)
 
@@ -159,16 +158,24 @@ class HomeLandingViewModel @Inject constructor(
         url: String,
         fileName: String,
         thumbnail: String
-    ) = ketch.download(
-        url = url,
-        path = meverFolder.path,
-        fileName = sanitizeFilename(fileName),
-        tag = if (selectedQuality.contains("kbps")) {
-            selectedQuality = ""
+    ) {
+        val currentQuality = selectedQuality
+        val platformTag = if (currentQuality.contains("kbps")) {
             YOUTUBE_MUSIC.platformName
-        } else getPlatformType(urlSocialMediaState.text).platformName,
-        metaData = thumbnail
-    )
+        } else {
+            getPlatformType(urlSocialMediaState.text).platformName
+        }
+
+        ketch.download(
+            url = url,
+            path = meverFolder.path,
+            fileName = sanitizeFilename(fileName),
+            tag = platformTag,
+            metaData = thumbnail
+        )
+
+        if (currentQuality.contains("kbps")) selectedQuality = ""
+    }
 
     fun resumeDownload(id: Int) = ketch.resume(id)
 
@@ -211,7 +218,7 @@ class HomeLandingViewModel @Inject constructor(
     }
 
     fun resetUrlIntent() = viewModelScope.launch {
-        delay(1000)
+        delay(1.seconds)
         dataStore.saveUrlIntent("")
     }
 }

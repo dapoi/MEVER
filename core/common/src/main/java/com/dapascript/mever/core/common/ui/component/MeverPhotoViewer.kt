@@ -67,6 +67,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.LocalActivity
+import com.dapascript.mever.core.common.util.displayFileName
 import com.dapascript.mever.core.common.util.hideSystemBar
 import com.dapascript.mever.core.common.util.isSystemBarVisible
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
@@ -184,7 +185,7 @@ fun MeverPhotoViewer(
                             onClickActionMenu = { showDropDownMenu = showDropDownMenu.not() }
                         )
                     ) else emptyList(),
-                    title = fileName,
+                    title = displayFileName(fileName),
                     isCenterTitle = false,
                     topBarColor = MeverTransparent,
                     titleColor = MeverWhite,

@@ -69,6 +69,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.calculateDownloadPercentage
 import com.dapascript.mever.core.common.util.calculateDownloadedMegabytes
 import com.dapascript.mever.core.common.util.convertFilename
+import com.dapascript.mever.core.common.util.displayFileName
 import com.dapascript.mever.core.common.util.fetchPhotoFromUrl
 import com.dapascript.mever.core.common.util.fetchVideoThumbnail
 import com.dapascript.mever.core.common.util.getContentType
@@ -81,6 +82,7 @@ import com.ketch.Status.FAILED
 import com.ketch.Status.PAUSED
 import com.ketch.Status.SUCCESS
 import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun MeverCard(
@@ -183,8 +185,8 @@ fun MeverCard(
                             )
                         }
                         Text(
-                            text = convertFilename(
-                                path.substringAfterLast("/").ifEmpty { fileName }
+                            text = displayFileName(
+                                convertFilename(path.substringAfterLast("/").ifEmpty { fileName })
                             ),
                             style = typography.bodyBold2,
                             color = colors.blackWhite,
@@ -307,6 +309,7 @@ private fun getImageSource(
             extensionFromResponse = fileName.substringAfterLast(".")
         )
     }
+
     else -> path
 }
 
@@ -328,7 +331,7 @@ private fun getBitmapFromUrl(url: String, extensionFromResponse: String): Bitmap
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-            if (resultExtracted == null) delay(2000)
+            if (resultExtracted == null) delay(2.seconds)
         }
     }
     return resultExtracted

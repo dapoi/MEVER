@@ -107,6 +107,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import java.io.File
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 internal fun GalleryLandingScreen(
@@ -175,7 +176,7 @@ internal fun GalleryLandingScreen(
         )
     ) {
         LaunchedEffect(listState, titleHeight) {
-            delay(500L)
+            delay(500.milliseconds)
             snapshotFlow { listState.isScrollInProgress }
                 .distinctUntilChanged()
                 .filter { it.not() }

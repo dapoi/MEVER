@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.lang.System.currentTimeMillis
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 class AiImageResultViewModel @Inject constructor(
@@ -53,7 +54,7 @@ class AiImageResultViewModel @Inject constructor(
         if (DEBUG) {
             _aiReportState.value = StateLoading
             viewModelScope.launch {
-                delay(1000)
+                delay(1.seconds)
                 _aiReportState.value = StateSuccess(Unit)
             }
         } else collectApiAsUiState(

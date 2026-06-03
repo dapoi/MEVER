@@ -122,6 +122,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.convertToTimeFormat
+import com.dapascript.mever.core.common.util.displayFileName
 import com.dapascript.mever.core.common.util.hideSystemBar
 import com.dapascript.mever.core.common.util.isSystemBarVisible
 import com.dapascript.mever.core.common.util.onCustomClick
@@ -129,6 +130,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlin.math.max
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 @UnstableApi
 @SuppressLint("SourceLockedOrientationActivity", "ImplicitSamInstance")
@@ -225,7 +228,7 @@ fun MeverVideoPlayer(
     LaunchedEffect(showController, showDropDownMenu, isVideoBuffering, isFullScreen) {
         hideSystemBar(activity, showController.not() && isFullScreen)
         if (showController && showDropDownMenu.not() && isVideoBuffering.not()) {
-            delay(2000L)
+            delay(2.seconds)
             showController = false
         }
     }
@@ -233,14 +236,14 @@ fun MeverVideoPlayer(
     LaunchedEffect(player) {
         while (isActive) {
             videoTimer = player.currentPosition
-            delay(300L)
+            delay(300.milliseconds)
         }
     }
 
     LaunchedEffect(isVideoBuffering) {
         if (isVideoBuffering && isPreview.not() && didRecoverOnce.not()) {
             didRecoverOnce = true
-            delay(1500)
+            delay(1500.milliseconds)
             player.seekTo(max(0L, player.currentPosition - 5_000))
             player.playWhenReady = true
         }
@@ -260,7 +263,7 @@ fun MeverVideoPlayer(
 
     LaunchedEffect(pendingRect, isPipEnabledState, isVideoPlaying) {
         if (isPipEnabledState && isVideoPlaying && pendingRect != null && pendingRect != lastRect) {
-            delay(60)
+            delay(60.milliseconds)
             activity.updatePipParams(autoEnter = true, sourceRect = pendingRect)
             lastRect = pendingRect
         }
@@ -352,7 +355,7 @@ fun MeverVideoPlayer(
                 },
             context = context,
             player = player,
-            title = fileName,
+            title = displayFileName(fileName),
             isStreaming = isPreview,
             isVideoBuffering = isVideoBuffering,
             iconPlayOrPause = if (isVideoPlaying) R.drawable.ic_pause else R.drawable.ic_play,

@@ -412,3 +412,54 @@ fun cleanCache(context: Context) {
         e.printStackTrace()
     }
 }
+
+fun displayFileName(fileName: String) = try {
+    val nameWithoutExt = fileName.substringBeforeLast(".")
+    val cleanName = nameWithoutExt.replace("null", "", ignoreCase = true)
+        .replace(Regex("\\s\\(\\d+\\)"), "")
+        .trim()
+    val dateRegex = Regex("(\\d{4})\\.(\\d{2})\\.(\\d{2})")
+    val dateMatch = dateRegex.find(cleanName)
+
+    if (dateMatch != null) {
+        val (year, month, day) = dateMatch.destructured
+        val monthNames = listOf(
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec"
+        )
+        val monthName = monthNames.getOrNull(month.toInt() - 1) ?: month
+        val timeRegex = Regex("(\\d{2})[_\\s](\\d{2})[_\\s](\\d{2})")
+        val timeMatch = timeRegex.find(cleanName, dateMatch.range.last)
+
+        val timeString = if (timeMatch != null) {
+            val (hour, minute, second) = timeMatch.destructured
+            "$hour:$minute:$second"
+        } else ""
+        val prefix = cleanName.substringBefore(dateMatch.value)
+            .replace("_", " ")
+            .trim()
+        val finalPrefix = if (prefix.isEmpty()) "MEVER" else prefix.uppercase()
+
+        "$finalPrefix - ${day.toInt()} $monthName $year - $timeString"
+    } else {
+        cleanName.replace("_", " ")
+            .split(" ")
+            .filter { it.isNotBlank() }
+            .take(5)
+            .joinToString(" ") { word ->
+                word.lowercase().replaceFirstChar { it.uppercase() }
+            }
+    }
+} catch (_: Exception) {
+    fileName
+}

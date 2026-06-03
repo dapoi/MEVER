@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class SplashScreenViewModel @Inject constructor(
@@ -54,7 +55,7 @@ class SplashScreenViewModel @Inject constructor(
         if (DEBUG) {
             _appConfigState.value = StateLoading
             viewModelScope.launch {
-                delay(500)
+                delay(500.milliseconds)
                 val mockAppConfig = AppConfigEntity(
                     version = "1.0.0",
                     isImageGeneratorFeatureActive = true,

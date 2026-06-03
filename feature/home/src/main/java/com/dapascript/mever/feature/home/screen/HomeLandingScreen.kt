@@ -194,6 +194,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.lang.System.currentTimeMillis
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.milliseconds
 import com.dapascript.mever.feature.home.R as FeatureHomeR
 
 @Composable
@@ -655,17 +656,31 @@ private fun HomeDownloaderSection(
 
                 try {
                     supervisorScope {
-                        urls.map { url ->
+                        urls.mapIndexed { index, url ->
                             async(IO) {
                                 semaphore.withPermit {
                                     runCatching {
                                         val content = byUrl[url] ?: return@runCatching
-                                        val fileName = content.fileName.ifEmpty {
-                                            changeToCurrentDate(currentTimeMillis()) + getExtensionFromUrl(
-                                                url = url,
-                                                extensionFromResponse = content.type
-                                            )
+                                        val extension = getExtensionFromUrl(
+                                            url = url,
+                                            extensionFromResponse = content.type
+                                        ) ?: run {
+                                            val type = content.type.lowercase()
+                                            when {
+                                                type.contains("video") || url.contains(".mp4") -> ".mp4"
+                                                type.contains("image") || url.contains(".jpg") || url.contains(
+                                                    ".jpeg"
+                                                ) -> ".jpg"
+
+                                                type.contains("audio") || url.contains(".mp3") -> ".mp3"
+                                                else -> ".jpg"
+                                            }
                                         }
+                                        val timeStamp = changeToCurrentDate(currentTimeMillis())
+                                        val fileName = content.fileName.ifEmpty {
+                                            "MEVER_${timeStamp}_${index}${extension}"
+                                        }
+
                                         startDownload(
                                             url = url,
                                             fileName = fileName,
@@ -705,7 +720,7 @@ private fun HomeDownloaderSection(
 
                     if (loadingItemIndex == index) {
                         isInPreview = true
-                        delay(150)
+                        delay(150.milliseconds)
                         navController.navigateTo(
                             GalleryContentDetailRoute(
                                 contents = listOf(processedContents),
@@ -1003,7 +1018,8 @@ private fun HomeDownloaderSection(
                             )
                         },
                         key = { it.id },
-                        contentType = { it.status.name }) { model ->
+                        contentType = { it.status.name }
+                    ) { model ->
                         MeverCard(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(Dp12))
@@ -1027,13 +1043,11 @@ private fun HomeDownloaderSection(
                                 with(model) {
                                     when (status) {
                                         SUCCESS -> {
-                                            if (isMusic(model.fileName).not()) {
+                                            if (isMusic(fileName).not()) {
                                                 navController.navigateTo(
                                                     GalleryContentDetailRoute(
                                                         contents = downloadList.filterNot {
-                                                            isMusic(
-                                                                it.fileName
-                                                            )
+                                                            isMusic(it.fileName)
                                                         }.map {
                                                             Content(
                                                                 id = it.id,

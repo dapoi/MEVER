@@ -97,6 +97,7 @@ import com.dapascript.mever.feature.wa.viewmodel.WaStatusViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 internal fun WaStatusLandingScreen(
@@ -189,7 +190,7 @@ internal fun WaStatusLandingScreen(
         }
 
         LaunchedEffect(listState, titleHeight) {
-            delay(500L)
+            delay(500.milliseconds)
             snapshotFlow { listState.isScrollInProgress }
                 .distinctUntilChanged()
                 .filter { it.not() }

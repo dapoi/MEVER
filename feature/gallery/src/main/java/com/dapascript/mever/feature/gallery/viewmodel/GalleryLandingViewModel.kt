@@ -17,11 +17,9 @@ import com.ketch.Ketch
 import com.ketch.Status.SUCCESS
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers.Default
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -39,7 +37,6 @@ class GalleryLandingViewModel @Inject constructor(
 
     var selectedFilter by mutableStateOf(ALL)
 
-    @OptIn(FlowPreview::class)
     val downloadList = ketch.observeDownloads()
         .map { downloads ->
             downloads.map {
@@ -52,7 +49,6 @@ class GalleryLandingViewModel @Inject constructor(
             }
         }
         .distinctUntilChanged()
-        .conflate()
         .flowOn(Default)
         .stateIn(viewModelScope, WhileSubscribed(5000), null)
 
