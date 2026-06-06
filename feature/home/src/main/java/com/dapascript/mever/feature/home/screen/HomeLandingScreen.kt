@@ -694,6 +694,7 @@ private fun HomeDownloaderSection(
                 } finally {
                     isDownloadProcessing = false
                     contents = emptyList()
+                    navController.navigateToGalleryScreen()
                 }
             }
         },
