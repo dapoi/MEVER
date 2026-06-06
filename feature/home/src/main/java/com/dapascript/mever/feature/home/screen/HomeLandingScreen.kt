@@ -667,12 +667,12 @@ private fun HomeDownloaderSection(
                                         ) ?: run {
                                             val type = content.type.lowercase()
                                             when {
-                                                type.contains("video") || url.contains(".mp4") -> ".mp4"
-                                                type.contains("image") || url.contains(".jpg") || url.contains(
-                                                    ".jpeg"
+                                                type.contains("video") || url.contains("mp4") -> ".mp4"
+                                                type.contains("image") || url.contains("jpg") || url.contains(
+                                                    "jpeg"
                                                 ) -> ".jpg"
 
-                                                type.contains("audio") || url.contains(".mp3") -> ".mp3"
+                                                type.contains("audio") || url.contains("mp3") -> ".mp3"
                                                 else -> ".jpg"
                                             }
                                         }
