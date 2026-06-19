@@ -1,8 +1,9 @@
 package com.dapascript.mever.core.navigation.route
 
+import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 
-sealed interface GalleryScreenRoute {
+sealed interface GalleryScreenRoute : NavKey {
     @Serializable
     data object GalleryLandingRoute : GalleryScreenRoute
 

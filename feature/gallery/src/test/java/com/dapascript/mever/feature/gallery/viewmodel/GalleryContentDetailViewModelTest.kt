@@ -1,7 +1,6 @@
 package com.dapascript.mever.feature.gallery.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.lifecycle.SavedStateHandle
 import com.dapascript.mever.core.common.ui.theme.ThemeType
 import com.dapascript.mever.core.data.source.local.MeverDataStore
 import com.ketch.Ketch
@@ -38,15 +37,6 @@ class GalleryContentDetailViewModelTest {
     @Mock
     lateinit var dataStore: MeverDataStore
 
-    private val savedStateHandle = SavedStateHandle(
-        mapOf(
-            "url" to "https://video.mp4",
-            "fileName" to "video",
-            "tag" to "EXPLORE",
-            "isVideo" to true
-        )
-    )
-
     private lateinit var viewModel: GalleryContentDetailViewModel
 
     @Before
@@ -58,7 +48,7 @@ class GalleryContentDetailViewModelTest {
         whenever(dataStore.isPipEnabled).thenReturn(flowOf(true))
         whenever(dataStore.clickCount).thenReturn(flowOf(1))
 
-        viewModel = GalleryContentDetailViewModel(ketch, dataStore, savedStateHandle)
+        viewModel = GalleryContentDetailViewModel(ketch, dataStore)
     }
 
     @After

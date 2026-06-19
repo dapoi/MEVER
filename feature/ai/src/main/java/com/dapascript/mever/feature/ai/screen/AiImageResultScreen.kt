@@ -55,7 +55,6 @@ import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Filled
@@ -103,7 +102,7 @@ import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getStorageInfo
 import com.dapascript.mever.core.common.util.storage.StorageUtil.isStorageFull
-import com.dapascript.mever.core.navigation.helper.navigateTo
+import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.AiScreenRoute.AiImageResultRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute
 import com.dapascript.mever.feature.ai.screen.attr.AiImageResultAttr.getMenuActions
@@ -114,7 +113,8 @@ import java.io.FileOutputStream
 
 @Composable
 internal fun AiImageResultScreen(
-    navController: NavController,
+    navigator: Navigator,
+    args: AiImageResultRoute,
     viewModel: AiImageResultViewModel = hiltViewModel()
 ) = with(viewModel) {
     val activity = LocalActivity.current
@@ -144,7 +144,7 @@ internal fun AiImageResultScreen(
         ),
         useNavigationBarsPadding = true
     ) {
-        LaunchedEffect(Unit) { getImageAiGenerator() }
+        LaunchedEffect(Unit) { getImageAiGenerator(args.prompt, args.artStyle) }
 
         LaunchedEffect(aiResponseState) {
             aiResponseState.handleUiState(
@@ -167,7 +167,7 @@ internal fun AiImageResultScreen(
                 onSuccess = {
                     showLoadingReport = false
                     showReportDialog = false
-                    navController.popBackStack()
+                    navigator.goBack()
                 },
                 onFailed = { message ->
                     showLoadingReport = false
@@ -181,7 +181,7 @@ internal fun AiImageResultScreen(
 
         HandleDialogExitConfirmation(
             showDialog = showCancelExitConfirmation,
-            onClickPrimary = { navController.popBackStack() },
+            onClickPrimary = { navigator.goBack() },
             onClickSecondary = { showCancelExitConfirmation = false }
         )
 
@@ -198,11 +198,7 @@ internal fun AiImageResultScreen(
 
                         isDownloadAllClicked -> {
                             aiImages.forEach { url -> scope.launch { startDownload(url = url) } }
-                            navController.navigateTo(
-                                route = GalleryLandingRoute,
-                                popUpTo = AiImageResultRoute::class,
-                                inclusive = true
-                            )
+                            navigator.navigateToGallery()
                         }
 
                         else -> {
@@ -210,11 +206,8 @@ internal fun AiImageResultScreen(
                                 R.string.image_has_been_downloaded
                             )
                             scope.launch { startDownload(url = imageSelected.orEmpty()) }
-                            if (aiImages.size <= 1) navController.navigateTo(
-                                route = GalleryLandingRoute,
-                                popUpTo = AiImageResultRoute::class,
-                                inclusive = true
-                            ) else aiImages = aiImages.toMutableStateList().apply {
+                            if (aiImages.size <= 1) navigator.navigateToGallery()
+                            else aiImages = aiImages.toMutableStateList().apply {
                                 removeAt(aiImages.indexOf(imageSelected))
                             }
                         }
@@ -239,9 +232,9 @@ internal fun AiImageResultScreen(
             description = errorMessage,
             onClickPrimaryAction = {
                 errorMessage = ""
-                getImageAiGenerator()
+                getImageAiGenerator(args.prompt, args.artStyle)
             },
-            onClickSecondaryAction = { navController.popBackStack() }
+            onClickSecondaryAction = { navigator.goBack() }
         )
 
         MeverBottomSheet(
@@ -353,7 +346,7 @@ internal fun AiImageResultScreen(
                 },
                 onClickRegenerate = {
                     aiImages = emptyList()
-                    getImageAiGenerator()
+                    getImageAiGenerator(args.prompt, args.artStyle)
                 },
                 onClickDownload = { setStoragePermission = getStoragePermission() }
             )
@@ -771,5 +764,13 @@ private fun HandleDialogExitConfirmation(
         primaryActionLabel = stringResource(R.string.yes),
         onClickPrimaryAction = onClickPrimary,
         onClickSecondaryAction = onClickSecondary
+    )
+}
+
+private fun Navigator.navigateToGallery() {
+    navigate(
+        route = GalleryLandingRoute,
+        popUpTo = AiImageResultRoute::class,
+        isInclusive = true
     )
 }

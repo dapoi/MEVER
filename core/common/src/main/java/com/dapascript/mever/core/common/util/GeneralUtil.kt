@@ -9,6 +9,8 @@ import android.content.Intent.ACTION_VIEW
 import android.content.Intent.EXTRA_EMAIL
 import android.content.Intent.EXTRA_SUBJECT
 import android.content.Intent.EXTRA_TEXT
+import android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.pm.PackageManager.NameNotFoundException
 import android.graphics.Bitmap
 import android.graphics.Bitmap.CompressFormat.JPEG
@@ -32,6 +34,8 @@ import androidx.core.content.FileProvider.getUriForFile
 import androidx.core.net.toUri
 import androidx.core.view.WindowCompat.getInsetsController
 import androidx.core.view.WindowInsetsCompat.Type.systemBars
+import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
+import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.util.PlatformType.ALL
 import com.dapascript.mever.core.common.util.PlatformType.APPLE_MUSIC
@@ -358,12 +362,13 @@ fun changeToCurrentDate(date: Long): String {
 
 fun hideSystemBar(activity: Activity, value: Boolean) = with(activity) {
     val insetsController = getInsetsController(window, window.decorView)
-    if (value) insetsController.hide(systemBars()) else insetsController.show(systemBars())
-}
-
-fun isSystemBarVisible(activity: Activity): Boolean {
-    val insetsController = getInsetsController(activity.window, activity.window.decorView)
-    return insetsController.systemBarsBehavior and systemBars() != 0
+    if (value) {
+        insetsController.hide(systemBars())
+        insetsController.systemBarsBehavior = BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+    } else {
+        insetsController.show(systemBars())
+        insetsController.systemBarsBehavior = BEHAVIOR_DEFAULT
+    }
 }
 
 fun convertFilename(filename: String): String {
@@ -462,4 +467,14 @@ fun displayFileName(fileName: String) = try {
     }
 } catch (_: Exception) {
     fileName
+}
+
+fun recreateActivity(context: Context, activity: Activity) {
+    val intent = context.packageManager.getLaunchIntentForPackage(
+        context.packageName
+    )?.apply {
+        addFlags(FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TASK)
+    }
+    context.startActivity(intent)
+    activity.finish()
 }

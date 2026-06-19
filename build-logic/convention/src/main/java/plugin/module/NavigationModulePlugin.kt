@@ -19,7 +19,9 @@ class NavigationModulePlugin : Plugin<Project> {
 
             dependencies {
                 implementation(project(coreModules[1]))
-                implementation(libs.androidx.navigation.compose.get())
+                implementation(libs.androidx.navigation3.ui.get())
+                implementation(libs.androidx.navigation3.runtime.get())
+                implementation(libs.androidx.lifecycle.viewmodel.navigation3.get())
                 implementation(libs.kotlinx.serialization.json.get())
             }
         }

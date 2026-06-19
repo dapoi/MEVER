@@ -31,7 +31,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration.Companion.Underline
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.navigation.NavController
+import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Outlined
@@ -59,7 +59,7 @@ import java.time.LocalDate
 
 @Composable
 internal fun SettingAboutAppScreen(
-    navController: NavController,
+    navigator: Navigator,
     viewModel: SettingAboutAppViewModel = hiltViewModel()
 ) = with(viewModel) {
     val context = LocalContext.current
@@ -75,7 +75,7 @@ internal fun SettingAboutAppScreen(
         topBarArgs = TopBarArgs(
             title = "",
             iconBackColor = MeverWhite,
-            onClickBack = { navController.popBackStack() }
+            onClickBack = { navigator.goBack() }
         ),
         useStatusBarsPadding = false
     ) {

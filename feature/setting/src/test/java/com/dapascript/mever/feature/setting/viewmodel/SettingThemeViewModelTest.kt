@@ -46,7 +46,7 @@ class SettingThemeViewModelTest {
         MockitoAnnotations.openMocks(this)
         Dispatchers.setMain(testDispatcher)
         whenever(dataStore.getTheme).thenReturn(flowOf(ThemeType.System))
-        viewModel = SettingThemeViewModel(dataStore, savedStateHandle)
+        viewModel = SettingThemeViewModel(dataStore)
     }
 
     @After

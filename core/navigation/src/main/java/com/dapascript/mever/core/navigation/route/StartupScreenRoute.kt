@@ -1,8 +1,9 @@
 package com.dapascript.mever.core.navigation.route
 
+import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 
-sealed interface StartupScreenRoute {
+sealed interface StartupScreenRoute : NavKey {
     @Serializable
     data object SplashRoute : StartupScreenRoute
 

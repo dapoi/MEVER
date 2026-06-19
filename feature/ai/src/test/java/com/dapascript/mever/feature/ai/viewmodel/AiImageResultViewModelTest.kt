@@ -1,7 +1,6 @@
 package com.dapascript.mever.feature.ai.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.lifecycle.SavedStateHandle
 import com.dapascript.mever.core.common.util.state.UiState
 import com.dapascript.mever.core.data.model.local.ImageAiEntity
 import com.dapascript.mever.core.data.repository.MeverRepository
@@ -63,7 +62,6 @@ class AiImageResultViewModelTest {
         // Empty SavedStateHandle - args is lazy and only accessed when getImageAiGenerator() is called.
         // We test state directly via the backing flow, avoiding the toRoute() navigation internals.
         viewModel = AiImageResultViewModel(
-            SavedStateHandle(),
             ketch,
             repository
         )

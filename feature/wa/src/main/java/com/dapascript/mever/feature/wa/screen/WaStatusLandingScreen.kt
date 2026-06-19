@@ -55,7 +55,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.navigation.NavController
+import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Filled
@@ -85,7 +85,6 @@ import com.dapascript.mever.core.common.util.goToWaStore
 import com.dapascript.mever.core.common.util.isAppInstalled
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
-import com.dapascript.mever.core.navigation.helper.navigateTo
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute.Content
 import com.dapascript.mever.feature.wa.screen.WaStatusLandingAttr.WaMediaModel
@@ -101,7 +100,7 @@ import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 internal fun WaStatusLandingScreen(
-    navController: NavController,
+    navigator: Navigator,
     viewModel: WaStatusViewModel = hiltViewModel()
 ) = with(viewModel) {
     val activity = LocalActivity.current
@@ -157,7 +156,7 @@ internal fun WaStatusLandingScreen(
     BaseScreen(
         topBarArgs = TopBarArgs(
             title = if (isExpanded) "" else stringResource(R.string.wa_status),
-            onClickBack = { navController.popBackStack() }
+            onClickBack = { navigator.goBack() }
         )
     ) {
         LaunchedEffect(Unit) {
@@ -227,9 +226,9 @@ internal fun WaStatusLandingScreen(
             onClickPrimaryAction = {
                 showWaNotInstalledDialog = false
                 activity.goToWaStore()
-                navController.popBackStack()
+                navigator.goBack()
             },
-            onClickSecondaryAction = { navController.popBackStack() }
+            onClickSecondaryAction = { navigator.goBack() }
         )
 
         WaStatusContent(
@@ -246,7 +245,7 @@ internal fun WaStatusLandingScreen(
             onSetTitleHeight = { titleHeight = it },
             onRequestPermission = { permissionDialogType = it },
             onClickNavigate = { item ->
-                navController.navigateTo(
+                navigator.navigate(
                     route = GalleryContentDetailRoute(
                         contents = waStatuses.map {
                             Content(

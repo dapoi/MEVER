@@ -45,7 +45,6 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.component.MeverPermissionHandler
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp0
@@ -68,15 +67,16 @@ import com.dapascript.mever.core.common.util.DeviceType.DESKTOP
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.LocalDeviceType
 import com.dapascript.mever.core.common.util.getNotificationPermission
-import com.dapascript.mever.core.navigation.helper.navigateClearBackStack
+import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeLandingRoute
+import com.dapascript.mever.core.navigation.route.StartupScreenRoute.OnboardRoute
 import com.dapascript.mever.feature.startup.R
 import com.dapascript.mever.feature.startup.viewmodel.OnboardViewModel
 import com.dapascript.mever.core.common.R as coreUiR
 
 @Composable
 internal fun OnboardScreen(
-    navController: NavController,
+    navigator: Navigator,
     viewModel: OnboardViewModel = hiltViewModel()
 ) = with(viewModel) {
     BaseScreen(
@@ -94,11 +94,11 @@ internal fun OnboardScreen(
                 permissions = setRequestPermission,
                 onGranted = {
                     setRequestPermission = emptyList()
-                    navController.navigateClearBackStack(HomeLandingRoute)
+                    navigator.navigateToHome()
                 },
                 onDenied = { _, _ ->
                     setRequestPermission = emptyList()
-                    navController.navigateClearBackStack(HomeLandingRoute)
+                    navigator.navigateToHome()
                 }
             )
         }
@@ -135,11 +135,11 @@ internal fun OnboardScreen(
                     .align(BottomCenter)
                     .onGloballyPositioned { buttonSize = it.size.height.dp }
             ) {
+                setIsOnboarded(true)
                 val perm = getNotificationPermission().firstOrNull()
                 if (perm != null && context.checkSelfPermission(perm) != PERMISSION_GRANTED) {
                     setRequestPermission = listOf(perm)
-                } else navController.navigateClearBackStack(HomeLandingRoute)
-                setIsOnboarded(true)
+                } else navigator.navigateToHome()
             }
         } else Row(
             modifier = Modifier.fillMaxWidth(),
@@ -183,11 +183,11 @@ internal fun OnboardScreen(
                 DescriptionOnboardSection(modifier = Modifier.fillMaxWidth())
                 Spacer(modifier = Modifier.size(Dp40))
                 ButtonOnboardSection(modifier = Modifier.fillMaxWidth()) {
+                    setIsOnboarded(true)
                     val perm = getNotificationPermission().firstOrNull()
                     if (perm != null && context.checkSelfPermission(perm) != PERMISSION_GRANTED) {
                         setRequestPermission = listOf(perm)
-                    } else navController.navigateClearBackStack(HomeLandingRoute)
-                    setIsOnboarded(true)
+                    } else navigator.navigateToHome()
                 }
             }
         }
@@ -254,5 +254,13 @@ private fun DescriptionOnboardSection(modifier: Modifier = Modifier) = Column(mo
         text = stringResource(coreUiR.string.download_easily),
         style = typography.body2,
         color = colors.grayLightGray
+    )
+}
+
+private fun Navigator.navigateToHome() {
+    navigate(
+        route = HomeLandingRoute,
+        popUpTo = OnboardRoute,
+        isInclusive = true
     )
 }

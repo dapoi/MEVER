@@ -1,15 +1,10 @@
 package com.dapascript.mever.feature.setting.viewmodel
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
+import com.dapascript.mever.core.common.ui.theme.ThemeType.System
 import com.dapascript.mever.core.common.util.LanguageManager.appLanguages
 import com.dapascript.mever.core.data.source.local.MeverDataStore
-import com.dapascript.mever.core.navigation.helper.getArgs
-import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLanguageRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.stateIn
@@ -18,17 +13,19 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingLanguageViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
     private val dataStore: MeverDataStore
 ) : BaseViewModel() {
-    private val args by lazy { savedStateHandle.getArgs<SettingLanguageRoute>() }
     val languages by lazy { appLanguages() }
-    var languageCode by mutableStateOf(args.languageCode)
 
     val isFirstTimeChangeLanguage = dataStore.isFirstTimeChangeLanguage.stateIn(
         scope = viewModelScope,
         started = WhileSubscribed(),
         initialValue = true
+    )
+    val themeType =dataStore.getTheme.stateIn(
+        scope = viewModelScope,
+        started = WhileSubscribed(),
+        initialValue = System
     )
 
     fun setIsFirstTimeChangeLanguage(isFirst: Boolean) {

@@ -1,9 +1,10 @@
 package com.dapascript.mever.core.navigation.route
 
+import androidx.navigation3.runtime.NavKey
 import com.dapascript.mever.core.common.ui.theme.ThemeType
 import kotlinx.serialization.Serializable
 
-sealed interface SettingScreenRoute {
+sealed interface SettingScreenRoute : NavKey {
     @Serializable
     data object SettingLandingRoute : SettingScreenRoute
 

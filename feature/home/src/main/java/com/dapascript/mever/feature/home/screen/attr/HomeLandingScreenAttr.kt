@@ -2,6 +2,7 @@ package com.dapascript.mever.feature.home.screen.attr
 
 import android.content.Context
 import androidx.compose.ui.graphics.Color
+import androidx.navigation3.runtime.NavKey
 import com.dapascript.mever.feature.home.R
 import com.dapascript.mever.core.common.R as coreUiR
 
@@ -9,7 +10,7 @@ object HomeLandingScreenAttr {
     data class FeaturesOption(
         val featureName: String,
         val icon: Int,
-        val route: Any,
+        val route: NavKey,
         val isEnabled: Boolean? = null,
         val arrowColor: Color? = null
     )

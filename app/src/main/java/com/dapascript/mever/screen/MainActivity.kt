@@ -35,8 +35,8 @@ import com.dapascript.mever.core.common.util.DeviceType.TABLET
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.LocalDeviceType
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
+import com.dapascript.mever.core.navigation.MainNavigation
 import com.dapascript.mever.core.navigation.base.BaseNavGraph
-import com.dapascript.mever.navigation.MainNavigation
 import com.dapascript.mever.viewmodel.MainViewModel
 import com.google.android.libraries.ads.mobile.sdk.MobileAds
 import com.google.android.libraries.ads.mobile.sdk.initialization.InitializationConfig
@@ -85,7 +85,7 @@ class MainActivity : AppCompatActivity() {
                     ) {
                         MainNavigation(
                             navGraphs = navGraphs,
-                            viewModel = viewModel
+                            navigationToHomeEvent = viewModel.navigationToHomeEvent
                         )
                     }
                 }

@@ -124,7 +124,6 @@ import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.convertToTimeFormat
 import com.dapascript.mever.core.common.util.displayFileName
 import com.dapascript.mever.core.common.util.hideSystemBar
-import com.dapascript.mever.core.common.util.isSystemBarVisible
 import com.dapascript.mever.core.common.util.onCustomClick
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -328,7 +327,7 @@ fun MeverVideoPlayer(
             if (SDK_INT >= S) activity.updatePipParams(autoEnter = false)
             player.stop()
             player.clearMediaItems()
-            hideSystemBar(activity, isSystemBarVisible(activity).not())
+            hideSystemBar(activity, false)
         }
     }
 

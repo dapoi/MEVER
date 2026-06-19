@@ -27,7 +27,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.util.lerp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.media3.common.util.UnstableApi
-import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.component.MeverDeclinedPermissionDialog
@@ -51,7 +50,7 @@ import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getStorageInfo
 import com.dapascript.mever.core.common.util.storage.StorageUtil.isStorageFull
-import com.dapascript.mever.core.navigation.helper.navigateTo
+import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute
 import com.dapascript.mever.feature.gallery.viewmodel.GalleryContentDetailViewModel
@@ -62,7 +61,8 @@ import kotlin.math.absoluteValue
 @OptIn(UnstableApi::class)
 @Composable
 internal fun GalleryContentDetailScreen(
-    navController: NavController,
+    navigator: Navigator,
+    args: GalleryContentDetailRoute,
     viewModel: GalleryContentDetailViewModel = hiltViewModel()
 ) = with(viewModel) {
     var isFullScreen by rememberSaveable { mutableStateOf(false) }
@@ -143,10 +143,10 @@ internal fun GalleryContentDetailScreen(
                         errorMessage = resources.getString(R.string.storage_full)
                     } else {
                         startDownload(imageExploreData.first, imageExploreData.second)
-                        navController.navigateTo(
+                        navigator.navigate(
                             route = GalleryLandingRoute,
                             popUpTo = GalleryContentDetailRoute::class,
-                            inclusive = true
+                            isInclusive = true
                         )
                         imageExploreData = Pair("", "")
                     }
@@ -214,7 +214,7 @@ internal fun GalleryContentDetailScreen(
                             contentPath = media
                         )
                     },
-                    onClickBack = { navController.popBackStack() }
+                    onClickBack = { navigator.goBack() }
                 ) else MeverPhotoViewer(
                     modifier = itemModifier,
                     fileName = convertFilename(fileName),
@@ -229,7 +229,7 @@ internal fun GalleryContentDetailScreen(
                             contentPath = media
                         )
                     },
-                    onClickBack = { navController.popBackStack() },
+                    onClickBack = { navigator.goBack() },
                     onClickDownload = { url, filename ->
                         handleClickButton(
                             buttonClickCount = getButtonClickCount,

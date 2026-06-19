@@ -1,16 +1,11 @@
 package com.dapascript.mever.feature.gallery.viewmodel
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.ui.theme.ThemeType.System
 import com.dapascript.mever.core.common.util.PlatformType.EXPLORE
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFolder
 import com.dapascript.mever.core.data.source.local.MeverDataStore
-import com.dapascript.mever.core.navigation.helper.createCustomArgs
-import com.dapascript.mever.core.navigation.helper.getArgs
-import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
-import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute.Content
 import com.ketch.Ketch
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
@@ -21,14 +16,10 @@ import javax.inject.Inject
 @HiltViewModel
 class GalleryContentDetailViewModel @Inject constructor(
     private val ketch: Ketch,
-    private val dataStore: MeverDataStore,
-    savedStateHandle: SavedStateHandle
+    private val dataStore: MeverDataStore
 ) : BaseViewModel() {
 
     private val meverFolder by lazy { getMeverFolder() }
-    val args by lazy {
-        savedStateHandle.getArgs<GalleryContentDetailRoute>(createCustomArgs<List<Content>>())
-    }
 
     val themeType = dataStore.getTheme.stateIn(
         scope = viewModelScope,

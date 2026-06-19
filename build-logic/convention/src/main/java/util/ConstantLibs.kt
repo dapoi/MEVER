@@ -19,6 +19,6 @@ object ConstantLibs {
     )
     const val BASE_NAME = "com.dapascript.mever"
     const val MIN_SDK_VERSION = 26
-    const val MAX_SDK_VERSION = 36
+    const val MAX_SDK_VERSION = 37
     const val KSP = "ksp"
 }

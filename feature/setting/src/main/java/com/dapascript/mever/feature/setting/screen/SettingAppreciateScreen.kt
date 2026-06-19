@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
-import androidx.navigation.NavController
+import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverMenuItemAttr.MenuItemArgs
@@ -35,7 +35,7 @@ import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.getSe
 import com.dapascript.mever.feature.setting.screen.component.HandleBottomSheetQris
 
 @Composable
-internal fun SettingAppreciateScreen(navController: NavController) {
+internal fun SettingAppreciateScreen(navigator: Navigator) {
     val context = LocalContext.current
     val resources = LocalResources.current
     var showPaypalDialog by remember { mutableStateOf(false) }
@@ -44,7 +44,7 @@ internal fun SettingAppreciateScreen(navController: NavController) {
     BaseScreen(
         topBarArgs = TopBarArgs(
             title = "",
-            onClickBack = { navController.popBackStack() }
+            onClickBack = { navigator.goBack() }
         )
     ) {
         MeverDialog(

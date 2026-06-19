@@ -80,7 +80,6 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Filled
@@ -159,7 +158,7 @@ import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.common.util.storage.StorageUtil.StorageInfo
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getStorageInfo
 import com.dapascript.mever.core.common.util.storage.StorageUtil.isStorageFull
-import com.dapascript.mever.core.navigation.helper.navigateTo
+import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.AiScreenRoute.AiImageResultRoute
 import com.dapascript.mever.core.navigation.route.ExploreScreenRoute.ExploreLandingRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
@@ -195,11 +194,12 @@ import java.io.File
 import java.lang.System.currentTimeMillis
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import com.dapascript.mever.feature.home.R as FeatureHomeR
 
 @Composable
 internal fun HomeLandingScreen(
-    navController: NavController,
+    navigator: Navigator,
     viewModel: HomeLandingViewModel = hiltViewModel()
 ) = with(viewModel) {
     BaseScreen(
@@ -209,7 +209,7 @@ internal fun HomeLandingScreen(
         HomeScreenContent(
             modifier = Modifier.fillMaxSize(),
             viewModel = this,
-            navController = navController
+            navigator = navigator
         )
     }
 }
@@ -217,7 +217,7 @@ internal fun HomeLandingScreen(
 @Composable
 private fun HomeScreenContent(
     viewModel: HomeLandingViewModel,
-    navController: NavController,
+    navigator: Navigator,
     modifier: Modifier = Modifier
 ) = with(viewModel) {
     BoxWithConstraints(modifier = modifier) {
@@ -238,7 +238,7 @@ private fun HomeScreenContent(
         val inAppUpdateManager = remember { InAppUpdateManager(activity) }
         val updateLauncher = rememberLauncherForActivityResult(StartIntentSenderForResult()) { }
         val interstitialController = rememberInterstitialAd {
-            navController.navigateToImageGenerator(
+            navigator.navigateToImageGenerator(
                 prompt = promptState.text,
                 artStyle = selectedArtStyle.second,
                 totalImages = selectedImageCount
@@ -253,6 +253,7 @@ private fun HomeScreenContent(
                 launcher = updateLauncher,
                 onUpdateNotAvailable = {}
             )
+            scope.launch(IO) { storageInfo = getStorageInfo(context) }
         }
 
         DisposableEffect(lifecycleOwner) {
@@ -307,10 +308,10 @@ private fun HomeScreenContent(
                             nameIcon = name,
                             showBadge = showBadge && name == stringResource(R.string.gallery),
                         ) {
-                            navController.handleClickActionMenu(
-                                context,
-                                name
-                            )
+                            navigator.handleClickActionMenu(
+                            context,
+                            name
+                        )
                         }
                     }
                 )
@@ -356,7 +357,7 @@ private fun HomeScreenContent(
                                         viewModel = this@with,
                                         context = context,
                                         activity = activity,
-                                        navController = navController,
+                                        navigator = navigator,
                                         scope = scope,
                                         getButtonClickCount = getButtonClickCount,
                                         isImageGeneratorFeatureActive = isImageGeneratorFeatureActive,
@@ -409,8 +410,8 @@ private fun HomeScreenContent(
                             viewModel = this@with,
                             context = context,
                             activity = activity,
-                            navController = navController,
-                            scope = scope,
+                            navigator = navigator,
+                    scope = scope,
                             getButtonClickCount = getButtonClickCount,
                             isImageGeneratorFeatureActive = isImageGeneratorFeatureActive,
                             isPhoneDevice = false,
@@ -443,7 +444,7 @@ private fun HomeScreenContent(
                                     onIncrementClickCount = { incrementClickCount() },
                                     onShowAds = { interstitialController.showAd() },
                                     onClickAction = {
-                                        navController.navigateToImageGenerator(
+                                        navigator.navigateToImageGenerator(
                                             prompt = promptState.text,
                                             artStyle = selectedArtStyle.second,
                                             totalImages = selectedImageCount
@@ -497,7 +498,7 @@ private fun HomeScreenContent(
                         onIncrementClickCount = { incrementClickCount() },
                         onShowAds = { interstitialController.showAd() },
                         onClickAction = {
-                            navController.navigateToImageGenerator(
+                            navigator.navigateToImageGenerator(
                                 prompt = promptState.text,
                                 artStyle = selectedArtStyle.second,
                                 totalImages = selectedImageCount
@@ -516,7 +517,7 @@ private fun HomeDownloaderSection(
     viewModel: HomeLandingViewModel,
     context: Context,
     activity: ComponentActivity,
-    navController: NavController,
+    navigator: Navigator,
     scope: CoroutineScope,
     getButtonClickCount: Int,
     isImageGeneratorFeatureActive: Boolean,
@@ -593,16 +594,13 @@ private fun HomeDownloaderSection(
     }
 
     LaunchedEffect(randomDonateDialogOffer, shouldShowDonationOfferDialog) {
+        delay(1.seconds)
         if (shouldShowDonationOfferDialog) {
             (0..3).random(Random).also { randomValue ->
                 randomDonateDialogOffer = randomValue
                 shouldShowDonationOfferDialog = false
             }
         }
-    }
-
-    LaunchedEffect(Unit) {
-        scope.launch(IO) { storageInfo = getStorageInfo(context) }
     }
 
     if (setStoragePermission.isNotEmpty()) {
@@ -694,7 +692,7 @@ private fun HomeDownloaderSection(
                 } finally {
                     isDownloadProcessing = false
                     contents = emptyList()
-                    navController.navigateToGalleryScreen()
+                    navigator.navigateToGalleryScreen()
                 }
             }
         },
@@ -722,7 +720,7 @@ private fun HomeDownloaderSection(
                     if (loadingItemIndex == index) {
                         isInPreview = true
                         delay(150.milliseconds)
-                        navController.navigateTo(
+                        navigator.navigate(
                             GalleryContentDetailRoute(
                                 contents = listOf(processedContents),
                                 initialIndex = index
@@ -779,7 +777,7 @@ private fun HomeDownloaderSection(
         secondaryActionLabel = stringResource(R.string.later),
         onClickPrimaryAction = {
             randomDonateDialogOffer = 0
-            navController.navigateTo(SettingAppreciateRoute)
+            navigator.navigate(SettingAppreciateRoute)
         },
         onClickSecondaryAction = { randomDonateDialogOffer = 0 }
     )
@@ -979,7 +977,7 @@ private fun HomeDownloaderSection(
                             title = data.featureName,
                             arrowColor = data.arrowColor,
                             isSingleItem = activeFeatures.size == 1
-                        ) { navController.navigateTo(data.route) }
+                        ) { navigator.navigate(data.route) }
                     }
                 }
                 Spacer(modifier = Modifier.size(Dp8))
@@ -1005,7 +1003,7 @@ private fun HomeDownloaderSection(
                         modifier = Modifier
                             .animateItem()
                             .clip(RoundedCornerShape(Dp8))
-                            .onCustomClick { navController.navigateToGalleryScreen() }
+                            .onCustomClick { navigator.navigateToGalleryScreen() }
                     )
                 }
             }
@@ -1045,7 +1043,7 @@ private fun HomeDownloaderSection(
                                     when (status) {
                                         SUCCESS -> {
                                             if (isMusic(fileName).not()) {
-                                                navController.navigateTo(
+                                                navigator.navigate(
                                                     GalleryContentDetailRoute(
                                                         contents = downloadList.filterNot {
                                                             isMusic(it.fileName)
@@ -1331,21 +1329,21 @@ private fun tabItems(context: Context) = listOf(
     context.getString(R.string.ai_tab)
 )
 
-private fun NavController.handleClickActionMenu(context: Context, name: String) = when (name) {
+private fun Navigator.handleClickActionMenu(context: Context, name: String) = when (name) {
     context.getString(R.string.gallery) -> navigateToGalleryScreen()
     context.getString(R.string.settings) -> navigateToSettingScreen()
     else -> Unit
 }
 
-private fun NavController.navigateToGalleryScreen() = navigateTo(GalleryLandingRoute)
+private fun Navigator.navigateToGalleryScreen() = navigate(GalleryLandingRoute)
 
-private fun NavController.navigateToSettingScreen() = navigateTo(SettingLandingRoute)
+private fun Navigator.navigateToSettingScreen() = navigate(SettingLandingRoute)
 
-private fun NavController.navigateToImageGenerator(
+private fun Navigator.navigateToImageGenerator(
     prompt: String,
     artStyle: String,
     totalImages: Int
-) = navigateTo(
+) = navigate(
     route = AiImageResultRoute(
         prompt = prompt,
         artStyle = artStyle,

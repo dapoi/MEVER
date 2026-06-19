@@ -1,6 +1,10 @@
 package com.dapascript.mever.feature.setting.screen
 
+import androidx.activity.SystemBarStyle.Companion.dark
+import androidx.activity.SystemBarStyle.Companion.light
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.LocalOverscrollFactory
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -18,6 +22,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -26,6 +31,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -33,7 +39,6 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
@@ -45,33 +50,48 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp3
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
+import com.dapascript.mever.core.common.ui.theme.MeverDark
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
+import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
+import com.dapascript.mever.core.common.ui.theme.ThemeType.Dark
+import com.dapascript.mever.core.common.ui.theme.ThemeType.Light
 import com.dapascript.mever.core.common.util.LanguageManager
+import com.dapascript.mever.core.common.util.LocalActivity
+import com.dapascript.mever.core.common.util.recreateActivity
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
-import com.dapascript.mever.core.navigation.helper.navigateClearBackStack
-import com.dapascript.mever.core.navigation.route.StartupScreenRoute.SplashRoute
+import com.dapascript.mever.core.navigation.helper.Navigator
+import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLanguageRoute
 import com.dapascript.mever.feature.setting.viewmodel.SettingLanguageViewModel
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 
 @Composable
 internal fun SettingLanguageScreen(
-    navController: NavController,
+    navigator: Navigator,
+    args: SettingLanguageRoute,
     viewModel: SettingLanguageViewModel = hiltViewModel()
 ) = with(viewModel) {
     val context = LocalContext.current
+    val activity = LocalActivity.current
     val scrollState = rememberScrollState()
     val scope = rememberCoroutineScope()
     val isFirstTimeChangeLanguage = isFirstTimeChangeLanguage.collectAsStateValue()
+    val themeType = themeType.collectAsStateValue()
+    val darkTheme = when (themeType) {
+        Light -> false
+        Dark -> true
+        else -> isSystemInDarkTheme()
+    }
     var titleHeight by rememberSaveable { mutableIntStateOf(0) }
     val isExpanded by remember { derivedStateOf { scrollState.value < titleHeight / 2 } }
+    var languageCode by rememberSaveable { mutableStateOf(args.languageCode) }
 
     BaseScreen(
         topBarArgs = TopBarArgs(
             title = if (isExpanded.not()) stringResource(R.string.language) else "",
-            onClickBack = { navController.popBackStack() }
+            onClickBack = { navigator.goBack() }
         )
     ) {
         LaunchedEffect(scrollState, titleHeight) {
@@ -86,6 +106,27 @@ internal fun SettingLanguageScreen(
                         scope.launch { scrollState.animateScrollTo(0) }
                     }
                 }
+        }
+
+        LaunchedEffect(languageCode, darkTheme) {
+            if (languages.any { it.second == languageCode }) activity.enableEdgeToEdge(
+                statusBarStyle = if (darkTheme) {
+                    dark(scrim = MeverTransparent.toArgb())
+                } else {
+                    light(
+                        scrim = MeverTransparent.toArgb(),
+                        darkScrim = MeverDark.toArgb()
+                    )
+                },
+                navigationBarStyle = if (darkTheme) {
+                    dark(scrim = MeverTransparent.toArgb())
+                } else {
+                    light(
+                        scrim = MeverTransparent.toArgb(),
+                        darkScrim = MeverDark.toArgb()
+                    )
+                }
+            )
         }
 
         BoxWithConstraints(
@@ -158,7 +199,7 @@ internal fun SettingLanguageScreen(
                                     languageCode = code
                                     if (isFirstTimeChangeLanguage) {
                                         setIsFirstTimeChangeLanguage(false)
-                                        navController.navigateClearBackStack(SplashRoute)
+                                        recreateActivity(context, activity)
                                     }
                                 }
                             )

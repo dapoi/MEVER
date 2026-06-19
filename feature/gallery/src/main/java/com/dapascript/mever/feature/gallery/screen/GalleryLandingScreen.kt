@@ -45,7 +45,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle.State.RESUMED
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.NavController
+import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Filled
@@ -82,7 +82,6 @@ import com.dapascript.mever.core.common.util.isVideo
 import com.dapascript.mever.core.common.util.navigateToMusic
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
-import com.dapascript.mever.core.navigation.helper.navigateTo
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute.Content
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.GalleryActionMenu
@@ -111,7 +110,7 @@ import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 internal fun GalleryLandingScreen(
-    navController: NavController,
+    navigator: Navigator,
     viewModel: GalleryLandingViewModel = hiltViewModel()
 ) = with(viewModel) {
     val context = LocalContext.current
@@ -171,7 +170,7 @@ internal fun GalleryLandingScreen(
                     showSelector = false
                     showDropDownMenu = false
                     clearSelection()
-                } else navController.popBackStack()
+                } else navigator.goBack()
             }
         )
     ) {
@@ -299,7 +298,7 @@ internal fun GalleryLandingScreen(
                 with(model) {
                     when (status) {
                         SUCCESS -> {
-                            if (isMusic(model.fileName).not()) navController.navigateTo(
+                            if (isMusic(model.fileName).not()) navigator.navigate(
                                 GalleryContentDetailRoute(
                                     contents = downloadFilter
                                         ?.filterNot { isMusic(it.fileName) }

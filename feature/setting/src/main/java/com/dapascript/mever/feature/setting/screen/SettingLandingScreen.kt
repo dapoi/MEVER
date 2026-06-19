@@ -58,7 +58,6 @@ import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverMenuItemAttr.MenuItemArgs
@@ -97,20 +96,20 @@ import com.dapascript.mever.core.common.util.DeviceType
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.DeviceType.TABLET
 import com.dapascript.mever.core.common.util.LanguageManager.getLanguageCode
+import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.LocalDeviceType
 import com.dapascript.mever.core.common.util.cleanCache
 import com.dapascript.mever.core.common.util.copyToClipboard
 import com.dapascript.mever.core.common.util.getNotificationPermission
 import com.dapascript.mever.core.common.util.navigateToGmail
 import com.dapascript.mever.core.common.util.navigateToNotificationSettings
+import com.dapascript.mever.core.common.util.recreateActivity
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.common.util.storage.StorageUtil.StorageInfo
-import com.dapascript.mever.core.navigation.helper.navigateClearBackStack
-import com.dapascript.mever.core.navigation.helper.navigateTo
+import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingAboutAppRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLanguageRoute
-import com.dapascript.mever.core.navigation.route.StartupScreenRoute.SplashRoute
 import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.getSettingMenus
 import com.dapascript.mever.feature.setting.screen.component.HandleBottomSheetQris
 import com.dapascript.mever.feature.setting.viewmodel.SettingLandingViewModel
@@ -122,13 +121,14 @@ import kotlin.time.Duration.Companion.seconds
 
 @Composable
 internal fun SettingLandingScreen(
-    navController: NavController,
+    navigator: Navigator,
     viewModel: SettingLandingViewModel = hiltViewModel()
 ) = with(viewModel) {
     val themeType = themeType.collectAsStateValue()
     val isPipEnabled = isPipEnabled.collectAsStateValue()
     val storageInfo = storageInfo.collectAsStateValue()
     val context = LocalContext.current
+    val activity = LocalActivity.current
     val resources = LocalResources.current
     val deviceType = LocalDeviceType.current
     val listState = rememberLazyListState()
@@ -153,7 +153,7 @@ internal fun SettingLandingScreen(
     BaseScreen(
         topBarArgs = TopBarArgs(
             title = if (isExpanded.not()) stringResource(R.string.settings) else "",
-            onClickBack = { navController.popBackStack() }
+            onClickBack = { navigator.goBack() }
         )
     ) {
         LaunchedEffect(listState, titleHeight) {
@@ -239,7 +239,7 @@ internal fun SettingLandingScreen(
             themeType = themeType,
             storageInfo = storageInfo,
             onClickChangeLanguage = { languageCode ->
-                navController.navigateTo(SettingLanguageRoute(languageCode))
+                navigator.navigate(SettingLanguageRoute(languageCode))
             },
             onClickNotificationPermission = {
                 val perm = getNotificationPermission().firstOrNull()
@@ -247,16 +247,16 @@ internal fun SettingLandingScreen(
                     setRequestPermission = listOf(perm)
                 } else navigateToNotificationSettings(context)
             },
-            onClickChangeTheme = { navController.navigate(SettingScreenRoute.SettingThemeRoute(it)) },
+            onClickChangeTheme = { navigator.navigate(SettingScreenRoute.SettingThemeRoute(it)) },
             onClickPip = { savePipState(isPipEnabled.not()) },
             onClickCleanCache = {
                 cleanCache(context)
-                navController.navigateClearBackStack(SplashRoute)
+                recreateActivity(context, activity)
             },
             onClickPaypal = { showPaypalDialog = true },
             onClickQris = { showBottomSheetQris = true },
             onClickContact = { navigateToGmail(context) },
-            onClickAbout = { navController.navigateTo(SettingAboutAppRoute) },
+            onClickAbout = { navigator.navigate(SettingAboutAppRoute) },
             onSetTitleHeight = { titleHeight = it }
         )
     }

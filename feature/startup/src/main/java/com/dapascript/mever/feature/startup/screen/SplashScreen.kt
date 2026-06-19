@@ -39,10 +39,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle.Event.ON_RESUME
-import androidx.lifecycle.Lifecycle.Event.ON_STOP
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.component.MeverDialog
@@ -57,9 +55,10 @@ import com.dapascript.mever.core.common.util.InAppUpdateManager
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.hideSystemBar
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
-import com.dapascript.mever.core.navigation.helper.navigateClearBackStack
+import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeLandingRoute
 import com.dapascript.mever.core.navigation.route.StartupScreenRoute.OnboardRoute
+import com.dapascript.mever.core.navigation.route.StartupScreenRoute.SplashRoute
 import com.dapascript.mever.feature.startup.viewmodel.SplashScreenViewModel
 import com.google.android.play.core.install.model.AppUpdateType.IMMEDIATE
 import com.google.android.play.core.install.model.UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS
@@ -67,7 +66,7 @@ import com.google.android.play.core.install.model.UpdateAvailability.UPDATE_AVAI
 
 @Composable
 internal fun SplashScreen(
-    navController: NavController,
+    navigator: Navigator,
     viewModel: SplashScreenViewModel = hiltViewModel()
 ) = with(viewModel) {
     BaseScreen(
@@ -129,10 +128,12 @@ internal fun SplashScreen(
             )
         }
 
-        LaunchedEffect(logoVisibleState.isIdle, logoVisibleState.currentState) {
-            if (logoVisibleState.isIdle && logoVisibleState.currentState.not()) {
-                navController.navigateClearBackStack(
-                    if (isOnboarded) HomeLandingRoute else OnboardRoute
+        LaunchedEffect(logoVisibleState.isIdle, logoVisibleState.currentState, isOnboarded) {
+            if (logoVisibleState.isIdle && logoVisibleState.currentState.not() && isOnboarded != null) {
+                navigator.navigate(
+                    route = if (isOnboarded) HomeLandingRoute else OnboardRoute,
+                    popUpTo = SplashRoute,
+                    isInclusive = true
                 )
             }
         }
@@ -157,7 +158,7 @@ internal fun SplashScreen(
 
         DisposableEffect(lifecycleOwner) {
             val observer = LifecycleEventObserver { _, event ->
-                hideSystemBar(activity = activity, value = event != ON_STOP)
+                hideSystemBar(activity, true)
 
                 if (event == ON_RESUME && forceUpdateInProgress) {
                     inAppUpdateManager.startUpdate(
@@ -172,7 +173,10 @@ internal fun SplashScreen(
                 }
             }
             lifecycleOwner.lifecycle.addObserver(observer)
-            onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+            onDispose {
+                hideSystemBar(activity, false)
+                lifecycleOwner.lifecycle.removeObserver(observer)
+            }
         }
 
         Box(

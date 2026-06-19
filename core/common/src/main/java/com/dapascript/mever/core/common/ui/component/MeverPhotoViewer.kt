@@ -69,7 +69,6 @@ import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.displayFileName
 import com.dapascript.mever.core.common.util.hideSystemBar
-import com.dapascript.mever.core.common.util.isSystemBarVisible
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -105,7 +104,7 @@ fun MeverPhotoViewer(
     }
 
     DisposableEffect(lifecycleOwner) {
-        onDispose { hideSystemBar(activity, isSystemBarVisible(activity).not()) }
+        onDispose { hideSystemBar(activity, false) }
     }
 
     LaunchedEffect(isPhotoTouched.not()) { hideSystemBar(activity, isPhotoTouched) }

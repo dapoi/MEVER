@@ -42,7 +42,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
@@ -67,7 +66,7 @@ import com.dapascript.mever.core.common.util.LocalDeviceType
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.data.model.local.ContentEntity
-import com.dapascript.mever.core.navigation.helper.navigateTo
+import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute.Content
 import com.dapascript.mever.feature.explore.viewmodel.ExploreLandingViewModel
@@ -76,11 +75,12 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import kotlin.time.Duration.Companion.seconds
 
 @OptIn(FlowPreview::class)
 @Composable
 internal fun ExploreLandingScreen(
-    navController: NavController,
+    navigator: Navigator,
     viewModel: ExploreLandingViewModel = hiltViewModel()
 ) = with(viewModel) {
     val context = LocalContext.current
@@ -93,12 +93,12 @@ internal fun ExploreLandingScreen(
     BaseScreen(
         topBarArgs = TopBarArgs(
             title = stringResource(R.string.explore),
-            onClickBack = { navController.popBackStack() }
+            onClickBack = { navigator.goBack() }
         )
     ) {
         LaunchedEffect(query) {
             snapshotFlow { query }
-                .debounce(1500)
+                .debounce(2.seconds)
                 .map { it.trim() }
                 .distinctUntilChanged()
                 .collectLatest {
@@ -130,7 +130,7 @@ internal fun ExploreLandingScreen(
                 errorMessage = ""
                 getExploreContents(query.ifEmpty { randomQuery() })
             },
-            onClickSecondaryAction = { navController.popBackStack() }
+            onClickSecondaryAction = { navigator.goBack() }
         )
 
         Box {
@@ -183,7 +183,7 @@ internal fun ExploreLandingScreen(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(Dp8))
                                     .onCustomClick {
-                                        navController.navigateTo(
+                                        navigator.navigate(
                                             route = GalleryContentDetailRoute(
                                                 contents = result.mapIndexed { contentIndex, contentEntity ->
                                                     Content(
