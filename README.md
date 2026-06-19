@@ -17,6 +17,7 @@ Built with modern Android tech:
 
 - **UI:** [Jetpack Compose](https://developer.android.com/jetpack/compose)
 - **DI:** [Hilt](https://developer.android.com/training/dependency-injection/hilt-android)
+- **Navigation:** [Nav3](https://developer.android.com/guide/navigation/navigation-3)
 - **Networking:** [Retrofit](https://square.github.io/retrofit/)
 - **Reactive:** [Kotlin Flow](https://kotlinlang.org/docs/flow.html)
 - **Downloader:** [Ketch](https://github.com/khushpanchal/Ketch)
