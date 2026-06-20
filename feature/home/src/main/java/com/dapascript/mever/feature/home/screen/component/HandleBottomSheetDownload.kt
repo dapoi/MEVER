@@ -86,6 +86,7 @@ internal fun HandleBottomSheetDownload(
     MeverBottomSheet(
         modifier = modifier,
         isAlwaysRectangular = scrollState.canScrollForward || scrollState.canScrollBackward,
+        isDisableContentDrag = scrollState.canScrollForward || scrollState.canScrollBackward,
         showBottomSheet = showBottomSheet,
         shouldDismissOnBackPress = false,
         onDismissBottomSheet = onClickDismiss

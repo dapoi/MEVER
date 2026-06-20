@@ -4,6 +4,8 @@ import androidx.compose.animation.core.Spring.DampingRatioNoBouncy
 import androidx.compose.animation.core.Spring.StiffnessMediumLow
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,7 +26,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.window.DialogWindowProvider
 import androidx.core.view.WindowCompat
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp0
@@ -40,6 +47,7 @@ fun MeverBottomSheet(
     showBottomSheet: Boolean,
     modifier: Modifier = Modifier,
     isAlwaysRectangular: Boolean = false,
+    isDisableContentDrag: Boolean = false,
     skipPartiallyExpanded: Boolean = true,
     shouldDismissOnBackPress: Boolean = true,
     shouldDismissOnClickOutside: Boolean = false,
@@ -60,6 +68,20 @@ fun MeverBottomSheet(
         ),
         label = "sheetCorner"
     )
+    val nestedScrollConnection = remember(isDisableContentDrag) {
+        object : NestedScrollConnection {
+            override fun onPostScroll(
+                consumed: Offset,
+                available: Offset,
+                source: NestedScrollSource
+            ): Offset = if (isDisableContentDrag) available else Offset.Zero
+
+            override suspend fun onPostFling(
+                consumed: Velocity,
+                available: Velocity
+            ): Velocity = if (isDisableContentDrag) available else Velocity.Zero
+        }
+    }
 
     LaunchedEffect(showBottomSheet) {
         if (showBottomSheet) {
@@ -111,6 +133,11 @@ fun MeverBottomSheet(
                 }
             }
         }
-        content()
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .nestedScroll(nestedScrollConnection)
+        ) { content() }
     }
 }

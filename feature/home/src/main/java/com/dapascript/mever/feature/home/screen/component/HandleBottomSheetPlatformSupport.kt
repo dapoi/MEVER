@@ -45,6 +45,7 @@ internal fun HandleBottomSheetPlatformSupport(
     onDismiss: () -> Unit
 ) = MeverBottomSheet(
     modifier = modifier,
+    isDisableContentDrag = true,
     skipPartiallyExpanded = false,
     shouldDismissOnClickOutside = true,
     showBottomSheet = showPlatformSupportDialog,
