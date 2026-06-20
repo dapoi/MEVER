@@ -75,7 +75,7 @@ fun MainNavigation(
 }
 
 @Composable
-fun rememberNavigationState(
+private fun rememberNavigationState(
     startRoute: NavKey,
     topLevelRoutes: Set<NavKey>
 ): NavigationState {
@@ -96,7 +96,7 @@ fun rememberNavigationState(
 }
 
 @Composable
-fun NavigationState.toEntries(
+private fun NavigationState.toEntries(
     entryProvider: (NavKey) -> NavEntry<NavKey>
 ): SnapshotStateList<NavEntry<NavKey>> {
     val decoratedEntries = backStacks.mapValues { (_, stack) ->

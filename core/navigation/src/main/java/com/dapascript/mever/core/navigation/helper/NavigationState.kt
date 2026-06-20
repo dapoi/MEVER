@@ -8,8 +8,8 @@ import androidx.navigation3.runtime.NavKey
 
 class NavigationState(
     val startRoute: NavKey,
-    topLevelRoute: MutableState<NavKey>,
-    val backStacks: Map<NavKey, NavBackStack<NavKey>>
+    val backStacks: Map<NavKey, NavBackStack<NavKey>>,
+    topLevelRoute: MutableState<NavKey>
 ) {
     var topLevelRoute: NavKey by topLevelRoute
     val stacksInUse: List<NavKey>
