@@ -25,7 +25,7 @@ import okhttp3.logging.HttpLoggingInterceptor.Level.BODY
 import okhttp3.logging.HttpLoggingInterceptor.Level.NONE
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import java.util.concurrent.TimeUnit.MINUTES
+import java.util.concurrent.TimeUnit.SECONDS
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -59,9 +59,9 @@ class DataModule {
         })
         .addInterceptor(apiKeyInterceptor)
         .addInterceptor(chuckerInterceptor)
-        .connectTimeout(1, MINUTES)
-        .readTimeout(1, MINUTES)
-        .writeTimeout(1, MINUTES)
+        .connectTimeout(80, SECONDS)
+        .readTimeout(80, SECONDS)
+        .writeTimeout(80, SECONDS)
         .retryOnConnectionFailure(true)
         .build()
 
