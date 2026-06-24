@@ -133,4 +133,24 @@
     <string name="email" translatable="false">daffaprabowo5@gmail.com</string>
     <string name="update_available">Update Available</string>
     <string name="update_has_completed">The update has been completed. Please restart the app to enjoy the new features and improvements!</string>
+    <string name="faq">FAQ</string>
+
+    <string name="faq_q1">So, what\'s MEVER all about?</string>
+    <string name="faq_a1">MEVER is your go-to tool for grabbing media from social platforms. It\'s fast, simple, and gets the job done!</string>
+    <string name="faq_q2">Is this gonna cost me anything?</string>
+    <string name="faq_a2">Nope! MEVER is totally free. No hidden fees, just pure downloading goodness for everyone.</string>
+    <string name="faq_q3">Is it safe to use?</string>
+    <string name="faq_a3">For sure! We\'re fully open source on github.com/dapoi/MEVER. You can peek at our code or even join the fun and help us build it!</string>
+    <string name="faq_q4">Help! My download is stuck.</string>
+    <string name="faq_a4">If things aren\'t moving, try checking your Wi-Fi or turning off your DNS. That usually fixes the hiccups!</string>
+    <string name="faq_q5">Found a bug or got a problem?</string>
+    <string name="faq_a5">Oops! If something\'s broken, just use the \'Contact Us\' feature in the app or head over to our GitHub page. We\'ll get it fixed!</string>
+    <string name="faq_q6">What can I actually download?</string>
+    <string name="faq_a6">You can snag videos and photos from pretty much all the big social platforms. Give it a whirl!</string>
+    <string name="faq_q7">Can you add support for more sites?</string>
+    <string name="faq_a7">Always! If we\'re missing your favorite platform, let us know on GitHub and we\'ll see what we can do.</string>
+    <string name="faq_q8">Who owns the stuff I download?</string>
+    <string name="faq_a8">The original creators do! We\'re just the middleman here. Make sure to respect their work and play nice with copyrights.</string>
+    <string name="faq_q9">Are you guys watching my data?</string>
+    <string name="faq_a9">No way. Everything stays right on your phone. We don\'t collect or store a single thing you download. Your privacy is key!</string>
 </resources>

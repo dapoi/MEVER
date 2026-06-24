@@ -18,5 +18,8 @@ sealed interface SettingScreenRoute : NavKey {
     data object SettingAppreciateRoute : SettingScreenRoute
 
     @Serializable
+    data object SettingFaqRoute : SettingScreenRoute
+
+    @Serializable
     data object SettingAboutAppRoute : SettingScreenRoute
 }

@@ -6,11 +6,13 @@ import com.dapascript.mever.core.navigation.base.BaseNavGraph
 import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingAboutAppRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingAppreciateRoute
+import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingFaqRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLandingRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLanguageRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingThemeRoute
 import com.dapascript.mever.feature.setting.screen.SettingAboutAppScreen
 import com.dapascript.mever.feature.setting.screen.SettingAppreciateScreen
+import com.dapascript.mever.feature.setting.screen.SettingFaqScreen
 import com.dapascript.mever.feature.setting.screen.SettingLandingScreen
 import com.dapascript.mever.feature.setting.screen.SettingLanguageScreen
 import com.dapascript.mever.feature.setting.screen.SettingThemeScreen
@@ -22,6 +24,7 @@ class SettingNavGraphImpl @Inject constructor() : BaseNavGraph {
         entry<SettingLanguageRoute> { args -> SettingLanguageScreen(navigator, args) }
         entry<SettingThemeRoute> { args -> SettingThemeScreen(navigator, args) }
         entry<SettingAppreciateRoute> { SettingAppreciateScreen(navigator) }
+        entry<SettingFaqRoute> { SettingFaqScreen(navigator) }
         entry<SettingAboutAppRoute> { SettingAboutAppScreen(navigator) }
     }
 }

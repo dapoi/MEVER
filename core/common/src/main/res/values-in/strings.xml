@@ -132,4 +132,24 @@
     <string name="clean_cache">Bersihkan Cache</string>
     <string name="update_available">Pembaruan Tersedia</string>
     <string name="update_has_completed">Pembaruan telah selesai. Silakan mulai ulang aplikasi untuk menikmati fitur dan peningkatan baru!</string>
+    <string name="faq">Pertanyaan Umum</string>
+
+    <string name="faq_q1">Jadi, MEVER itu apa?</string>
+    <string name="faq_a1">MEVER adalah alat andalanmu untuk mengambil media dari platform sosial. Cepat, sederhana, dan sangat membantu!</string>
+    <string name="faq_q2">Apakah ini berbayar?</string>
+    <string name="faq_a2">Nggak kok! MEVER sepenuhnya gratis. Tanpa biaya tersembunyi, murni untuk kenyamanan mengunduh bagi semua orang.</string>
+    <string name="faq_q3">Apakah aman digunakan?</string>
+    <string name="faq_a3">Pasti! Kami sepenuhnya open source di github.com/dapoi/MEVER. Kamu bisa intip kodenya atau bahkan ikut berkontribusi membangunnya!</string>
+    <string name="faq_q4">Tolong! Unduhan saya macet.</string>
+    <string name="faq_a4">Kalau unduhan nggak jalan, coba cek koneksi Wi-Fi atau matikan DNS pribadi.</string>
+    <string name="faq_q5">Ketemu bug atau ada masalah?</string>
+    <string name="faq_a5">Ups! Kalau ada yang rusak, gunakan saja fitur \'Hubungi Kami\' di aplikasi atau buka halaman GitHub kami. Kami akan segera memperbaikinya!</string>
+    <string name="faq_q6">Apa saja yang bisa saya unduh?</string>
+    <string name="faq_a6">Kamu bisa mengunduh video dan foto dari hampir semua platform sosial besar. Silakan dicoba!</string>
+    <string name="faq_q7">Bisakah menambah dukungan untuk situs lain?</string>
+    <string name="faq_a7">Tentu saja! Kalau ada platform favoritmu yang belum didukung, hubungi kami!</string>
+    <string name="faq_q8">Siapa pemilik konten yang saya unduh?</string>
+    <string name="faq_a8">Pemilik aslinya! Kami hanyalah perantara. Pastikan untuk menghormati karya mereka dan patuhi hak cipta.</string>
+    <string name="faq_q9">Apakah kalian memantau data saya?</string>
+    <string name="faq_a9">Sama sekali tidak. Semua data tetap ada di ponselmu. Kami tidak mengumpulkan atau menyimpan apa pun yang kamu unduh. Privasimu adalah kunci!</string>
 </resources>

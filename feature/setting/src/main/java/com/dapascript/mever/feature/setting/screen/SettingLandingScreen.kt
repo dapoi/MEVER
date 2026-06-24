@@ -109,6 +109,7 @@ import com.dapascript.mever.core.common.util.storage.StorageUtil.StorageInfo
 import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingAboutAppRoute
+import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingFaqRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLanguageRoute
 import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.getSettingMenus
 import com.dapascript.mever.feature.setting.screen.component.HandleBottomSheetQris
@@ -248,13 +249,14 @@ internal fun SettingLandingScreen(
                 } else navigateToNotificationSettings(context)
             },
             onClickChangeTheme = { navigator.navigate(SettingScreenRoute.SettingThemeRoute(it)) },
-            onClickPip = { savePipState(isPipEnabled.not()) },
             onClickCleanCache = {
                 cleanCache(context)
                 recreateActivity(context, activity)
             },
+            onClickPip = { savePipState(isPipEnabled.not()) },
             onClickPaypal = { showPaypalDialog = true },
             onClickQris = { showBottomSheetQris = true },
+            onClickFaq = { navigator.navigate(SettingFaqRoute) },
             onClickContact = { navigateToGmail(context) },
             onClickAbout = { navigator.navigate(SettingAboutAppRoute) },
             onSetTitleHeight = { titleHeight = it }
@@ -279,10 +281,11 @@ private fun SettingLandingContent(
     onClickChangeLanguage: (String) -> Unit,
     onClickNotificationPermission: () -> Unit,
     onClickChangeTheme: (ThemeType) -> Unit,
-    onClickPip: () -> Unit,
     onClickCleanCache: () -> Unit,
+    onClickPip: () -> Unit,
     onClickPaypal: () -> Unit,
     onClickQris: () -> Unit,
+    onClickFaq: () -> Unit,
     onClickContact: () -> Unit,
     onClickAbout: () -> Unit,
     onSetTitleHeight: (Int) -> Unit
@@ -400,6 +403,7 @@ private fun SettingLandingContent(
                             onClickCleanCache = { onClickCleanCache() },
                             onClickPaypal = { onClickPaypal() },
                             onClickQris = { onClickQris() },
+                            onClickFaq = { onClickFaq() },
                             onClickContact = { onClickContact() },
                             onClickAbout = { onClickAbout() }
                         )
@@ -531,6 +535,7 @@ private fun handleClickMenu(
     onClickCleanCache: () -> Unit,
     onClickPaypal: () -> Unit,
     onClickQris: () -> Unit,
+    onClickFaq: () -> Unit,
     onClickContact: () -> Unit,
     onClickAbout: () -> Unit
 ) = with(context) {
@@ -542,6 +547,7 @@ private fun handleClickMenu(
         getString(R.string.clean_cache) -> onClickCleanCache()
         getString(R.string.paypal) -> onClickPaypal()
         getString(R.string.qris) -> onClickQris()
+        getString(R.string.faq) -> onClickFaq()
         getString(R.string.contact) -> onClickContact()
         getString(R.string.about) -> onClickAbout()
     }

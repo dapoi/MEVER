@@ -5,7 +5,6 @@ import androidx.compose.ui.graphics.Color
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.theme.MeverCreamPink
 import com.dapascript.mever.core.common.ui.theme.MeverLightBlue
-import com.dapascript.mever.core.common.ui.theme.MeverLightGray
 import com.dapascript.mever.core.common.ui.theme.MeverLightPurple
 import com.dapascript.mever.core.common.ui.theme.MeverPink
 import com.dapascript.mever.core.common.ui.theme.MeverViolet
@@ -49,15 +48,15 @@ object SettingLandingAttr {
                         trailingTitle = ""
                     ),
                     SubMenu(
+                        leadingTitle = getString(R.string.clean_cache),
+                        icon = R.drawable.ic_cache,
+                        iconBackgroundColor = MeverLightBlue
+                    ),
+                    SubMenu(
                         leadingTitle = getString(R.string.pip),
                         leadingDesc = getString(R.string.when_video_is_playing),
                         icon = R.drawable.ic_pip,
-                        iconBackgroundColor = MeverLightPurple,
-                    ),
-                    SubMenu(
-                        leadingTitle = getString(R.string.clean_cache),
-                        icon = R.drawable.ic_cache,
-                        iconBackgroundColor = MeverLightGray
+                        iconBackgroundColor = MeverLightPurple
                     )
                 )
             ),
@@ -80,9 +79,14 @@ object SettingLandingAttr {
                 header = R.string.support,
                 menus = listOf(
                     SubMenu(
+                        leadingTitle =getString(R.string.faq),
+                        icon = R.drawable.ic_faq,
+                        iconBackgroundColor = MeverCreamPink
+                    ),
+                    SubMenu(
                         leadingTitle = getString(R.string.contact),
                         icon = R.drawable.ic_cs,
-                        iconBackgroundColor = MeverLightGray
+                        iconBackgroundColor = MeverLightBlue
                     ),
                     SubMenu(
                         leadingTitle = getString(R.string.about),
