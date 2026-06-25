@@ -164,7 +164,6 @@ import com.dapascript.mever.core.navigation.route.ExploreScreenRoute.ExploreLand
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute.Content
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute
-import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingAppreciateRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLandingRoute
 import com.dapascript.mever.core.navigation.route.WaScreenRoute.WaStatusLandingRoute
 import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.FeaturesOption
@@ -309,9 +308,9 @@ private fun HomeScreenContent(
                             showBadge = showBadge && name == stringResource(R.string.gallery),
                         ) {
                             navigator.handleClickActionMenu(
-                            context,
-                            name
-                        )
+                                context,
+                                name
+                            )
                         }
                     }
                 )
@@ -411,7 +410,7 @@ private fun HomeScreenContent(
                             context = context,
                             activity = activity,
                             navigator = navigator,
-                    scope = scope,
+                            scope = scope,
                             getButtonClickCount = getButtonClickCount,
                             isImageGeneratorFeatureActive = isImageGeneratorFeatureActive,
                             isPhoneDevice = false,
@@ -777,7 +776,7 @@ private fun HomeDownloaderSection(
         secondaryActionLabel = stringResource(R.string.later),
         onClickPrimaryAction = {
             randomDonateDialogOffer = 0
-            navigator.navigate(SettingAppreciateRoute)
+            navigator.navigate(SettingLandingRoute(showQrisDialog = true))
         },
         onClickSecondaryAction = { randomDonateDialogOffer = 0 }
     )
@@ -1331,13 +1330,15 @@ private fun tabItems(context: Context) = listOf(
 
 private fun Navigator.handleClickActionMenu(context: Context, name: String) = when (name) {
     context.getString(R.string.gallery) -> navigateToGalleryScreen()
-    context.getString(R.string.settings) -> navigateToSettingScreen()
+    context.getString(R.string.settings) -> navigateToSettingScreen(showQrisDialog = false)
     else -> Unit
 }
 
 private fun Navigator.navigateToGalleryScreen() = navigate(GalleryLandingRoute)
 
-private fun Navigator.navigateToSettingScreen() = navigate(SettingLandingRoute)
+private fun Navigator.navigateToSettingScreen(
+    showQrisDialog: Boolean
+) = navigate(SettingLandingRoute(showQrisDialog))
 
 private fun Navigator.navigateToImageGenerator(
     prompt: String,

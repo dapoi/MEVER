@@ -110,6 +110,7 @@ import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingAboutAppRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingFaqRoute
+import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLandingRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLanguageRoute
 import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.getSettingMenus
 import com.dapascript.mever.feature.setting.screen.component.HandleBottomSheetQris
@@ -123,6 +124,7 @@ import kotlin.time.Duration.Companion.seconds
 @Composable
 internal fun SettingLandingScreen(
     navigator: Navigator,
+    args: SettingLandingRoute,
     viewModel: SettingLandingViewModel = hiltViewModel()
 ) = with(viewModel) {
     val themeType = themeType.collectAsStateValue()
@@ -144,7 +146,7 @@ internal fun SettingLandingScreen(
                     listState.firstVisibleItemScrollOffset < titleHeight / 2
         }
     }
-    var showBottomSheetQris by remember { mutableStateOf(false) }
+    var showBottomSheetQris by remember { mutableStateOf(args.showQrisDialog) }
     var setRequestPermission by remember { mutableStateOf<List<String>>(emptyList()) }
     val usedStorage by animateFloatAsState(
         targetValue = animatedPercent,
