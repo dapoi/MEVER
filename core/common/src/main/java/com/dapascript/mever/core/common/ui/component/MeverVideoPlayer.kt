@@ -209,7 +209,7 @@ fun MeverVideoPlayer(
         activity.requestedOrientation = SCREEN_ORIENTATION_USER_PORTRAIT
     }
 
-    BackHandler(isFullScreen) { exitFullScreen() }
+    BackHandler { if (isFullScreen) exitFullScreen() else onClickBack() }
 
     LaunchedEffect(isPageVisible, isAutoplayTarget, isScrolling) {
         if (isPageVisible) {

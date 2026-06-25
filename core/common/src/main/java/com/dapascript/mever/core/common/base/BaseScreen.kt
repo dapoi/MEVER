@@ -2,6 +2,7 @@ package com.dapascript.mever.core.common.base
 
 import android.annotation.SuppressLint
 import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -39,6 +40,8 @@ fun BaseScreen(
             }
         }
     }
+
+    BackHandler { onClickBack?.invoke() }
 
     BaseScreenContent(
         topBarArgs = this@with,
