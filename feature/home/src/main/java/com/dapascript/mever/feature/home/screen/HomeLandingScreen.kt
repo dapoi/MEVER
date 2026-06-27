@@ -595,7 +595,7 @@ private fun HomeDownloaderSection(
     LaunchedEffect(randomDonateDialogOffer, shouldShowDonationOfferDialog) {
         delay(1.seconds)
         if (shouldShowDonationOfferDialog) {
-            (0..3).random(Random).also { randomValue ->
+            (0..2).random(Random).also { randomValue ->
                 randomDonateDialogOffer = randomValue
                 shouldShowDonationOfferDialog = false
             }
@@ -691,7 +691,6 @@ private fun HomeDownloaderSection(
                 } finally {
                     isDownloadProcessing = false
                     contents = emptyList()
-                    navigator.navigateToGalleryScreen()
                 }
             }
         },
