@@ -1,13 +1,13 @@
 package plugin
 
 import com.android.build.api.dsl.LibraryExtension
-import util.ConstantLibs.MAX_SDK_VERSION
-import util.alias
 import config.configAndroid
-import util.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
+import util.ConstantLibs.MAX_SDK_VERSION
+import util.alias
+import util.libs
 
 class AndroidLibPlugin : Plugin<Project> {
     override fun apply(target: Project) {

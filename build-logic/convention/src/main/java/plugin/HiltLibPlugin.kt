@@ -22,7 +22,6 @@ class HiltLibPlugin : Plugin<Project> {
                 implementation(libs.hilt.work.get())
                 add(KSP, libs.hilt.compiler.google.get())
                 add(KSP, libs.hilt.compiler.ext.get())
-                add(KSP, libs.kotlin.metadataJvm.get())
             }
         }
     }

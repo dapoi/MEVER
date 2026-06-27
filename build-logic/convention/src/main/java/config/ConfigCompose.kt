@@ -2,8 +2,8 @@ package config
 
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.dsl.LibraryExtension
-import util.CollectionLibs.commonDependencies
 import org.gradle.api.Project
+import util.CollectionLibs.commonDependencies
 
 internal fun Project.configCompose(
     extension: Any
