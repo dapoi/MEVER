@@ -1,4 +1,5 @@
 import config.getEnvVariable
+import util.implementation
 
 plugins {
     alias(libs.plugins.convention.application)
@@ -56,7 +57,6 @@ android {
 
         debug {
             isMinifyEnabled = false
-            isShrinkResources = false
             isDebuggable = true
             applicationIdSuffix = ".debug"
         }
