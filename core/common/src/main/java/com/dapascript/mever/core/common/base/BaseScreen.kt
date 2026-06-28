@@ -41,7 +41,7 @@ fun BaseScreen(
         }
     }
 
-    BackHandler { onClickBack?.invoke() }
+    BackHandler(enabled = onClickBack != null) { onClickBack?.invoke() }
 
     BaseScreenContent(
         topBarArgs = this@with,

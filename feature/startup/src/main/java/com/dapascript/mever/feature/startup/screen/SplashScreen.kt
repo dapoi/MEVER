@@ -191,8 +191,8 @@ internal fun SplashScreen(
             ) {
                 AnimatedVisibility(
                     visibleState = logoVisibleState,
-                    enter = fadeIn(animationSpec = tween(durationMillis = 300)) +
-                            slideInVertically(animationSpec = tween(300)) { -it },
+                    enter = fadeIn(animationSpec = tween(durationMillis = 200)) +
+                            slideInVertically(animationSpec = tween(200)) { -it },
                     exit = slideOutVertically(
                         animationSpec = tween(
                             durationMillis = 250,
@@ -216,8 +216,8 @@ internal fun SplashScreen(
                 }
                 AnimatedVisibility(
                     visibleState = logoVisibleState,
-                    enter = fadeIn(animationSpec = tween(300)) +
-                            slideInVertically(animationSpec = tween(300)) { it },
+                    enter = fadeIn(animationSpec = tween(200)) +
+                            slideInVertically(animationSpec = tween(200)) { it },
                     exit = slideOutVertically(
                         animationSpec = tween(
                             durationMillis = 250,
@@ -242,8 +242,8 @@ internal fun SplashScreen(
                     .align(BottomCenter)
                     .padding(bottom = Dp48),
                 visibleState = logoVisibleState,
-                enter = fadeIn(animationSpec = tween(300)) +
-                        slideInVertically(animationSpec = tween(300)) { it },
+                enter = fadeIn(animationSpec = tween(200)) +
+                        slideInVertically(animationSpec = tween(200)) { it },
                 exit = slideOutVertically(
                     animationSpec = tween(
                         durationMillis = 250,

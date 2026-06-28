@@ -51,6 +51,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment.Companion.BottomCenter
@@ -221,8 +222,8 @@ private fun HomeScreenContent(
 ) = with(viewModel) {
     BoxWithConstraints(modifier = modifier) {
         var generateButtonHeight by remember { mutableIntStateOf(0) }
-        var updateDownloaded by remember { mutableStateOf(false) }
-        var isUpdateRefused by remember { mutableStateOf(false) }
+        var isUpdateReady by remember { mutableStateOf(false) }
+        var isUpdateRefused by rememberSaveable { mutableStateOf(false) }
         val activity = LocalActivity.current
         val context = LocalContext.current
         val deviceType = LocalDeviceType.current
@@ -245,20 +246,20 @@ private fun HomeScreenContent(
         }
 
         LaunchedEffect(Unit) {
-            inAppUpdateManager.registerListener { updateDownloaded = true }
+            inAppUpdateManager.registerListener { isUpdateReady = true }
             inAppUpdateManager.startUpdate(
                 updateType = FLEXIBLE,
                 updateAvailability = UPDATE_AVAILABLE,
                 launcher = updateLauncher,
                 onUpdateNotAvailable = {}
             )
-            scope.launch(IO) { storageInfo = getStorageInfo(context) }
+            withContext(IO) { storageInfo = getStorageInfo(context) }
         }
 
         DisposableEffect(lifecycleOwner) {
             val observer = LifecycleEventObserver { _, event ->
                 if (event == ON_RESUME && isUpdateRefused.not()) {
-                    inAppUpdateManager.checkForDownloadedUpdate { updateDownloaded = true }
+                    inAppUpdateManager.checkForDownloadedUpdate { isUpdateReady = true }
                 }
             }
             lifecycleOwner.value.lifecycle.addObserver(observer)
@@ -270,7 +271,7 @@ private fun HomeScreenContent(
         }
 
         MeverDialog(
-            showDialog = updateDownloaded,
+            showDialog = isUpdateReady && isUpdateRefused.not(),
             image = null,
             title = stringResource(R.string.update_available),
             description = stringResource(R.string.update_has_completed),
@@ -278,10 +279,10 @@ private fun HomeScreenContent(
             secondaryActionLabel = stringResource(R.string.later),
             onClickPrimaryAction = {
                 inAppUpdateManager.completeUpdate()
-                updateDownloaded = false
+                isUpdateReady = false
             },
             onClickSecondaryAction = {
-                updateDownloaded = false
+                isUpdateReady = false
                 isUpdateRefused = true
             }
         )
@@ -560,23 +561,7 @@ private fun HomeDownloaderSection(
         if (urlIntent.isNotEmpty()) {
             urlSocialMediaState = TextFieldValue(urlIntent)
             resetUrlIntent()
-            checkStateBeforeDownload(
-                urlSocialMediaState = urlSocialMediaState,
-                storageInfo = storageInfo,
-                onActionStorageFull = {
-                    isStorageFull = true
-                    errorMessage = context.getString(R.string.storage_full)
-                },
-                onActionIsContentPlaylist = {
-                    isPlaylistNotSupported = true
-                    errorMessage = context.getString(R.string.playlist_not_supported)
-                },
-                onActionIsContentYT = {
-                    if (youtubeResolutions.isNotEmpty()) showYoutubeChooseQualityModal = true
-                    else showUnsupportedYouTubeDialog = true
-                },
-                onActionDownload = { getApiDownloader() }
-            )
+            setStoragePermission = getStoragePermission()
         }
     }
 

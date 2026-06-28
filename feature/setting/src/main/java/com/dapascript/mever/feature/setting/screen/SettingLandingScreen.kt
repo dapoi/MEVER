@@ -146,7 +146,7 @@ internal fun SettingLandingScreen(
                     listState.firstVisibleItemScrollOffset < titleHeight / 2
         }
     }
-    var showBottomSheetQris by remember { mutableStateOf(args.showQrisDialog) }
+    var showBottomSheetQris by rememberSaveable { mutableStateOf(args.showQrisDialog) }
     var setRequestPermission by remember { mutableStateOf<List<String>>(emptyList()) }
     val usedStorage by animateFloatAsState(
         targetValue = animatedPercent,
