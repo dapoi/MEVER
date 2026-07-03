@@ -146,7 +146,7 @@ internal fun GalleryLandingScreen(
 
     BaseScreen(
         topBarArgs = TopBarArgs(
-            actionMenus = if (isExpanded.not() && downloadFilter.isNullOrEmpty().not()) {
+            actionMenus = if (downloadFilter.orEmpty().size > 1) {
                 listOf(
                     ActionMenu(
                         icon = R.drawable.ic_more,
@@ -241,9 +241,8 @@ internal fun GalleryLandingScreen(
             showDropDownMenu = showDropDownMenu,
             backgroundColor = colors.whiteDarkGray,
             onDismissDropDownMenu = {
-                if (isSelectedAll.not()) {
-                    showDropDownMenu = it
-                }
+                if (isSelectedAll) isSelectedAll = false
+                else showDropDownMenu = it
             },
             onClick = { menu ->
                 when (menu) {
@@ -252,7 +251,11 @@ internal fun GalleryLandingScreen(
                         isSelectedAll = true
                     }
 
-                    SELECT_FILES -> showSelector = true
+                    SELECT_FILES -> {
+                        showSelector = true
+                        showDropDownMenu = false
+                    }
+
                     DELETE_ALL -> showDeleteAllDialog = true
                     DELETE_SELECTED -> {
                         showDeleteDialog = selectedItems.map { it.id }
