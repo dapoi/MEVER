@@ -44,8 +44,7 @@ object MeverTopBarAttr {
         val topBarColor: Color? = null,
         val titleColor: Color? = null,
         val iconBackColor: Color? = null,
-        val actionMenusColor: Color? = null,
-        val onClickBack: (() -> Unit)? = null
+        val actionMenusColor: Color? = null
     )
 
     @Composable

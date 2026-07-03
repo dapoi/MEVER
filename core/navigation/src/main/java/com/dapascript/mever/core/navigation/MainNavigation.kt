@@ -8,8 +8,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSerializable
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
@@ -45,14 +43,18 @@ fun MainNavigation(
         topLevelRoutes = setOf(SplashRoute, HomeLandingRoute)
     )
     val navigator = remember(activity) { Navigator(navigationState, activity) }
-    val entryProvider = entryProvider {
-        navGraphs.forEach { navGraph ->
-            with(navGraph) { createGraph(navigator) }
+    val entryProvider = remember(navGraphs, navigator) {
+        entryProvider {
+            navGraphs.forEach { navGraph ->
+                with(navGraph) { createGraph(navigator) }
+            }
         }
     }
 
     LaunchedEffect(navigationToHomeEvent) {
-        navigationToHomeEvent?.collect { recreateActivity(context, activity) }
+        navigationToHomeEvent?.collect {
+            if (navigationState.currentRoute != SplashRoute) recreateActivity(context, activity)
+        }
     }
 
     NavDisplay(
@@ -95,23 +97,27 @@ private fun rememberNavigationState(
     }
 }
 
+private val NavigationState.currentRoute: NavKey?
+    get() = backStacks[topLevelRoute]?.lastOrNull()
+
 @Composable
 private fun NavigationState.toEntries(
     entryProvider: (NavKey) -> NavEntry<NavKey>
-): SnapshotStateList<NavEntry<NavKey>> {
+): List<NavEntry<NavKey>> {
+    val decorators = listOf<NavEntryDecorator<NavKey>>(
+        rememberSaveableStateHolderNavEntryDecorator(),
+        rememberViewModelStoreNavEntryDecorator()
+    )
+
     val decoratedEntries = backStacks.mapValues { (_, stack) ->
-        val decorators = listOf<NavEntryDecorator<NavKey>>(
-            rememberSaveableStateHolderNavEntryDecorator(),
-            rememberViewModelStoreNavEntryDecorator()
-        )
         rememberDecoratedNavEntries(
             backStack = stack,
-            entryDecorators = decorators,
-            entryProvider = entryProvider
+            entryProvider = entryProvider,
+            entryDecorators = decorators
         )
     }
 
-    return stacksInUse
-        .flatMap { decoratedEntries[it] ?: emptyList() }
-        .toMutableStateList()
+    return remember(decoratedEntries, stacksInUse) {
+        stacksInUse.flatMap { decoratedEntries[it] ?: emptyList() }
+    }
 }

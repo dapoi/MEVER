@@ -189,9 +189,9 @@ fun MeverPhotoViewer(
                     topBarColor = MeverTransparent,
                     titleColor = MeverWhite,
                     iconBackColor = MeverWhite,
-                    actionMenusColor = MeverWhite,
-                    onClickBack = onClickBack
-                )
+                    actionMenusColor = MeverWhite
+                ),
+                onClickBack = onClickBack
             )
         }
         MeverPopupDropDownMenu(

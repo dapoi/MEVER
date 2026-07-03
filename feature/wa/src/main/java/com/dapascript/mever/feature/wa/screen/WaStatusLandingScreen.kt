@@ -154,10 +154,8 @@ internal fun WaStatusLandingScreen(
     }
 
     BaseScreen(
-        topBarArgs = TopBarArgs(
-            title = if (isExpanded) "" else stringResource(R.string.wa_status),
-            onClickBack = { navigator.goBack() }
-        )
+        topBarArgs = TopBarArgs(title = if (isExpanded) "" else stringResource(R.string.wa_status)),
+        onBackHandler = { navigator.goBack() }
     ) {
         LaunchedEffect(Unit) {
             if (isWaRegularInstalled.not() && isWaBusinessInstalled.not()) {

@@ -89,10 +89,8 @@ internal fun SettingLanguageScreen(
     var languageCode by rememberSaveable { mutableStateOf(args.languageCode) }
 
     BaseScreen(
-        topBarArgs = TopBarArgs(
-            title = if (isExpanded.not()) stringResource(R.string.language) else "",
-            onClickBack = { navigator.goBack() }
-        )
+        topBarArgs = TopBarArgs(title = if (isExpanded.not()) stringResource(R.string.language) else ""),
+        onBackHandler = { navigator.goBack() }
     ) {
         LaunchedEffect(scrollState, titleHeight) {
             snapshotFlow { scrollState.isScrollInProgress }

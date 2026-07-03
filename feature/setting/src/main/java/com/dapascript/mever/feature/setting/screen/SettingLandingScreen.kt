@@ -155,9 +155,9 @@ internal fun SettingLandingScreen(
 
     BaseScreen(
         topBarArgs = TopBarArgs(
-            title = if (isExpanded.not()) stringResource(R.string.settings) else "",
-            onClickBack = { navigator.goBack() }
-        )
+            title = if (isExpanded.not()) stringResource(R.string.settings) else ""
+        ),
+        onBackHandler = { navigator.goBack() }
     ) {
         LaunchedEffect(listState, titleHeight) {
             delay(1.seconds)

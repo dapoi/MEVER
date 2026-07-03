@@ -87,7 +87,8 @@ internal fun GalleryContentDetailScreen(
     BaseScreen(
         hideDefaultTopBar = true,
         useStatusBarsPadding = false,
-        lockOrientation = false
+        lockOrientation = false,
+        onBackHandler = { navigator.goBack() }
     ) {
         DisposableEffect(darkTheme) {
             activity.enableEdgeToEdge(

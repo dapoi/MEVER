@@ -71,7 +71,8 @@ internal fun SplashScreen(
 ) = with(viewModel) {
     BaseScreen(
         hideDefaultTopBar = true,
-        useStatusBarsPadding = false
+        useStatusBarsPadding = false,
+        onBackHandler = { navigator.goBack() }
     ) {
         val isOnboarded = isOnboarded.collectAsStateValue()
         val appConfigState = appConfigState.collectAsStateValue()

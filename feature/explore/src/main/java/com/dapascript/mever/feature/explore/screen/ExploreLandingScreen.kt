@@ -91,10 +91,8 @@ internal fun ExploreLandingScreen(
     var lastQuery by rememberSaveable { mutableStateOf("") }
 
     BaseScreen(
-        topBarArgs = TopBarArgs(
-            title = stringResource(R.string.explore),
-            onClickBack = { navigator.goBack() }
-        )
+        topBarArgs = TopBarArgs(title = stringResource(R.string.explore)),
+        onBackHandler = { navigator.goBack() }
     ) {
         LaunchedEffect(query) {
             snapshotFlow { query }

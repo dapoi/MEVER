@@ -45,7 +45,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle.State.RESUMED
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
-import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Filled
@@ -82,6 +81,7 @@ import com.dapascript.mever.core.common.util.isVideo
 import com.dapascript.mever.core.common.util.navigateToMusic
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
+import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute.Content
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.GalleryActionMenu
@@ -164,15 +164,15 @@ internal fun GalleryLandingScreen(
                 else -> ""
             },
             isCenterTitle = showSelector.not(),
-            iconBack = if (showSelector) R.drawable.ic_clear else null,
-            onClickBack = {
-                if (showSelector) {
-                    showSelector = false
-                    showDropDownMenu = false
-                    clearSelection()
-                } else navigator.goBack()
-            }
-        )
+            iconBack = if (showSelector) R.drawable.ic_clear else null
+        ),
+        onBackHandler = {
+            if (showSelector) {
+                showSelector = false
+                showDropDownMenu = false
+                clearSelection()
+            } else navigator.goBack()
+        }
     ) {
         LaunchedEffect(listState, titleHeight) {
             delay(500.milliseconds)

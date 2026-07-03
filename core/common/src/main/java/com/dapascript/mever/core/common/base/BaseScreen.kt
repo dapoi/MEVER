@@ -27,6 +27,7 @@ fun BaseScreen(
     useStatusBarsPadding: Boolean = true,
     useNavigationBarsPadding: Boolean = false,
     lockOrientation: Boolean = true,
+    onBackHandler: () -> Unit,
     content: @Composable () -> Unit
 ) = with(topBarArgs) {
     val activity = LocalActivity.current
@@ -41,13 +42,14 @@ fun BaseScreen(
         }
     }
 
-    BackHandler(enabled = onClickBack != null) { onClickBack?.invoke() }
+    BackHandler { onBackHandler() }
 
     BaseScreenContent(
         topBarArgs = this@with,
         hideDefaultTopBar = hideDefaultTopBar,
         useStatusBarsPadding = useStatusBarsPadding,
         useNavigationBarsPadding = useNavigationBarsPadding,
+        onBackHandler = onBackHandler,
         content = content
     )
 }
@@ -58,6 +60,7 @@ private fun BaseScreenContent(
     hideDefaultTopBar: Boolean,
     useStatusBarsPadding: Boolean,
     useNavigationBarsPadding: Boolean,
+    onBackHandler: () -> Unit,
     content: @Composable () -> Unit
 ) {
     Box(
@@ -68,7 +71,8 @@ private fun BaseScreenContent(
         content()
         if (hideDefaultTopBar.not()) MeverTopBar(
             topBarArgs = topBarArgs,
-            modifier = Modifier.padding(PaddingValues(horizontal = Dp24))
+            modifier = Modifier.padding(PaddingValues(horizontal = Dp24)),
+            onClickBack = onBackHandler
         )
     }
 }

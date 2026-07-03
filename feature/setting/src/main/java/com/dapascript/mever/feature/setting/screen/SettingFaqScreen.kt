@@ -82,10 +82,8 @@ internal fun SettingFaqScreen(
     val faqList = faqList.collectAsStateValue()
 
     BaseScreen(
-        topBarArgs = TopBarArgs(
-            title = if (isExpanded.not()) stringResource(R.string.faq) else "",
-            onClickBack = { navigator.goBack() }
-        )
+        topBarArgs = TopBarArgs(title = if (isExpanded.not()) stringResource(R.string.faq) else ""),
+        onBackHandler = { navigator.goBack() }
     ) {
         SettingFaqContent(
             modifier = Modifier

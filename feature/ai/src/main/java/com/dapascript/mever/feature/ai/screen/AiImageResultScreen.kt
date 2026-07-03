@@ -138,11 +138,9 @@ internal fun AiImageResultScreen(
     var setStoragePermission by remember { mutableStateOf<List<String>>(emptyList()) }
 
     BaseScreen(
-        topBarArgs = TopBarArgs(
-            title = stringResource(R.string.image_generator),
-            onClickBack = { showCancelExitConfirmation = true }
-        ),
-        useNavigationBarsPadding = true
+        topBarArgs = TopBarArgs(title = stringResource(R.string.image_generator)),
+        useNavigationBarsPadding = true,
+        onBackHandler = { showCancelExitConfirmation = true }
     ) {
         LaunchedEffect(Unit) { getImageAiGenerator(args.prompt, args.artStyle) }
 

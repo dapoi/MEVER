@@ -17,7 +17,8 @@ import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 @Composable
 fun MeverTopBar(
     topBarArgs: TopBarArgs,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClickBack: (() -> Unit)? = null
 ) = with(topBarArgs) {
     if (isCenterTitle) {
         CenterAlignedTopAppBar(

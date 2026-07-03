@@ -33,7 +33,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
@@ -49,9 +48,10 @@ import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.ui.theme.ThemeType
+import com.dapascript.mever.core.navigation.helper.Navigator
+import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingThemeRoute
 import com.dapascript.mever.feature.setting.viewmodel.SettingThemeViewModel
 import kotlinx.coroutines.flow.filter
-import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingThemeRoute
 import kotlinx.coroutines.launch
 
 @Composable
@@ -67,10 +67,8 @@ internal fun SettingThemeScreen(
     val isExpanded by remember { derivedStateOf { scrollState.value < titleHeight / 2 } }
 
     BaseScreen(
-        topBarArgs = TopBarArgs(
-            title = if (isExpanded.not()) stringResource(R.string.theme) else "",
-            onClickBack = { navigator.goBack() }
-        )
+        topBarArgs = TopBarArgs(title = if (isExpanded.not()) stringResource(R.string.theme) else ""),
+        onBackHandler = { navigator.goBack() }
     ) {
         LaunchedEffect(scrollState, titleHeight) {
             snapshotFlow { scrollState.isScrollInProgress }

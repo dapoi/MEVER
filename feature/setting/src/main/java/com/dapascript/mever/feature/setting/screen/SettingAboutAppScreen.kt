@@ -74,10 +74,10 @@ internal fun SettingAboutAppScreen(
     BaseScreen(
         topBarArgs = TopBarArgs(
             title = "",
-            iconBackColor = MeverWhite,
-            onClickBack = { navigator.goBack() }
+            iconBackColor = MeverWhite
         ),
-        useStatusBarsPadding = false
+        useStatusBarsPadding = false,
+        onBackHandler = { navigator.goBack() }
     ) {
         DisposableEffect(darkTheme) {
             activity.enableEdgeToEdge(

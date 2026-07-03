@@ -81,7 +81,8 @@ internal fun OnboardScreen(
 ) = with(viewModel) {
     BaseScreen(
         hideDefaultTopBar = true,
-        useStatusBarsPadding = false
+        useStatusBarsPadding = false,
+        onBackHandler = { navigator.goBack() }
     ) {
         var buttonSize by remember { mutableStateOf(Dp0) }
         var setRequestPermission by remember { mutableStateOf<List<String>>(emptyList()) }

@@ -204,7 +204,8 @@ internal fun HomeLandingScreen(
 ) = with(viewModel) {
     BaseScreen(
         hideDefaultTopBar = true,
-        useStatusBarsPadding = true
+        useStatusBarsPadding = true,
+        onBackHandler = { navigator.goBack() }
     ) {
         HomeScreenContent(
             modifier = Modifier.fillMaxSize(),

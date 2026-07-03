@@ -502,9 +502,9 @@ private fun VideoPlayer(
                     topBarColor = MeverTransparent,
                     titleColor = MeverWhite,
                     iconBackColor = MeverWhite,
-                    actionMenusColor = MeverWhite,
-                    onClickBack = onClickBack
-                )
+                    actionMenusColor = MeverWhite
+                ),
+                onClickBack = onClickBack
             )
             VideoCenterControlSection(
                 modifier = Modifier.align(Center),
