@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
 
@@ -27,11 +26,6 @@ class SplashScreenViewModel @Inject constructor(
     private val dataStore: MeverDataStore,
     private val meverRepository: MeverRepository
 ) : BaseViewModel() {
-
-    val today by lazy {
-        LocalDate.now().dayOfWeek.name.lowercase().replaceFirstChar { it.uppercase() }
-    }
-
     val isOnboarded = dataStore.isOnboarded.stateIn(
         scope = viewModelScope,
         started = WhileSubscribed(),

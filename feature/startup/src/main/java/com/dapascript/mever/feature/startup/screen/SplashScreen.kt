@@ -83,7 +83,9 @@ internal fun SplashScreen(
         var showMaintenanceModal by remember { mutableStateOf(false) }
         var forceUpdateInProgress by remember { mutableStateOf(false) }
         var errorMessage by remember { mutableStateOf("") }
-        val logoVisibleState = remember { MutableTransitionState(false) }
+        val logoVisibleState = remember {
+            MutableTransitionState(false).apply { targetState = true }
+        }
         val inAppUpdateManager = remember { InAppUpdateManager(activity) }
         val updateLauncher = rememberLauncherForActivityResult(
             contract = StartIntentSenderForResult()
@@ -97,13 +99,15 @@ internal fun SplashScreen(
             }
         }
 
-        LaunchedEffect(Unit) { getAppConfig() }
+        LaunchedEffect(Unit) {
+            hideSystemBar(activity, true)
+            getAppConfig()
+        }
 
         LaunchedEffect(appConfigState) {
             appConfigState.handleUiState(
-                onLoading = { logoVisibleState.targetState = true },
                 onSuccess = { response ->
-                    if (response.maintenanceDay != null && today == response.maintenanceDay) {
+                    if (response.maintenanceDay != null) {
                         showMaintenanceModal = true
                     } else {
                         forceUpdateInProgress = response.isForceUpdateRequired
@@ -142,7 +146,7 @@ internal fun SplashScreen(
         MeverDialog(
             showDialog = showMaintenanceModal,
             title = stringResource(R.string.maintenance_title),
-            description = stringResource(R.string.maintenance_message, today),
+            description = stringResource(R.string.maintenance_message),
             primaryActionLabel = null,
             secondaryActionLabel = null
         )
@@ -159,8 +163,6 @@ internal fun SplashScreen(
 
         DisposableEffect(lifecycleOwner) {
             val observer = LifecycleEventObserver { _, event ->
-                hideSystemBar(activity, true)
-
                 if (event == ON_RESUME && forceUpdateInProgress) {
                     inAppUpdateManager.startUpdate(
                         updateType = IMMEDIATE,
@@ -192,19 +194,10 @@ internal fun SplashScreen(
             ) {
                 AnimatedVisibility(
                     visibleState = logoVisibleState,
-                    enter = fadeIn(animationSpec = tween(durationMillis = 200)) +
-                            slideInVertically(animationSpec = tween(200)) { -it },
-                    exit = slideOutVertically(
-                        animationSpec = tween(
-                            durationMillis = 250,
-                            delayMillis = 1000
-                        )
-                    ) { -it } + fadeOut(
-                        animationSpec = tween(
-                            durationMillis = 250,
-                            delayMillis = 1000
-                        )
-                    )
+                    enter = fadeIn(animationSpec = tween(durationMillis = 400)) +
+                            slideInVertically(animationSpec = tween(400)) { -it / 2 },
+                    exit = slideOutVertically(animationSpec = tween(durationMillis = 400)) { -it / 2 } +
+                            fadeOut(animationSpec = tween(durationMillis = 400))
                 ) {
                     Image(
                         modifier = Modifier
@@ -217,19 +210,10 @@ internal fun SplashScreen(
                 }
                 AnimatedVisibility(
                     visibleState = logoVisibleState,
-                    enter = fadeIn(animationSpec = tween(200)) +
-                            slideInVertically(animationSpec = tween(200)) { it },
-                    exit = slideOutVertically(
-                        animationSpec = tween(
-                            durationMillis = 250,
-                            delayMillis = 1000
-                        )
-                    ) { it } + fadeOut(
-                        animationSpec = tween(
-                            durationMillis = 250,
-                            delayMillis = 1000
-                        )
-                    )
+                    enter = fadeIn(animationSpec = tween(400)) +
+                            slideInVertically(animationSpec = tween(400)) { it / 2 },
+                    exit = slideOutVertically(animationSpec = tween(durationMillis = 400)) { it / 2 } +
+                            fadeOut(animationSpec = tween(durationMillis = 400))
                 ) {
                     Text(
                         text = "Media Saver",
@@ -243,19 +227,8 @@ internal fun SplashScreen(
                     .align(BottomCenter)
                     .padding(bottom = Dp48),
                 visibleState = logoVisibleState,
-                enter = fadeIn(animationSpec = tween(200)) +
-                        slideInVertically(animationSpec = tween(200)) { it },
-                exit = slideOutVertically(
-                    animationSpec = tween(
-                        durationMillis = 250,
-                        delayMillis = 1000
-                    )
-                ) { it } + fadeOut(
-                    animationSpec = tween(
-                        durationMillis = 250,
-                        delayMillis = 1000
-                    )
-                )
+                enter = fadeIn(animationSpec = tween(400)),
+                exit = fadeOut(animationSpec = tween(400))
             ) {
                 Text(
                     text = "v${appVersion}",

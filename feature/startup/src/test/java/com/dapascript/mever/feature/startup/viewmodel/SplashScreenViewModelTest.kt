@@ -79,7 +79,7 @@ class SplashScreenViewModelTest {
     @Test
     fun `isOnboarded collects false from dataStore`() = testScope.runTest {
         val values = mutableListOf<Boolean>()
-        val job = launch { viewModel.isOnboarded.collect { values.add(it) } }
+        val job = launch { viewModel.isOnboarded.collect { values.add(it == true) } }
         advanceUntilIdle()
         assertTrue(values.contains(false))
         job.cancel()
@@ -90,7 +90,7 @@ class SplashScreenViewModelTest {
         whenever(dataStore.isOnboarded).thenReturn(flowOf(true))
         val vm = SplashScreenViewModel(dataStore, repository)
         val values = mutableListOf<Boolean>()
-        val job = launch { vm.isOnboarded.collect { values.add(it) } }
+        val job = launch { vm.isOnboarded.collect { values.add(it == true) } }
         advanceUntilIdle()
         assertTrue(values.contains(true))
         job.cancel()
@@ -110,14 +110,5 @@ class SplashScreenViewModelTest {
     @Test
     fun `appConfigState is StateInitial before coroutines resolve`() {
         assertTrue(viewModel.appConfigState.value is UiState.StateInitial)
-    }
-
-    @Test
-    fun `today is a valid weekday name`() {
-        val validDays = listOf(
-            "Monday", "Tuesday", "Wednesday", "Thursday",
-            "Friday", "Saturday", "Sunday"
-        )
-        assertTrue(viewModel.today in validDays)
     }
 }
