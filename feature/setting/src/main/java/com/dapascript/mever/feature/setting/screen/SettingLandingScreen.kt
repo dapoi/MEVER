@@ -146,7 +146,7 @@ internal fun SettingLandingScreen(
                     listState.firstVisibleItemScrollOffset < titleHeight / 2
         }
     }
-    var showBottomSheetQris by rememberSaveable { mutableStateOf(args.showQrisDialog) }
+    var showBottomSheetQris by rememberSaveable { mutableStateOf<Boolean?>(null) }
     var setRequestPermission by remember { mutableStateOf<List<String>>(emptyList()) }
     val usedStorage by animateFloatAsState(
         targetValue = animatedPercent,
@@ -186,6 +186,13 @@ internal fun SettingLandingScreen(
 
         LaunchedEffect(context) { languageCode = getLanguageCode(context) }
 
+        LaunchedEffect(args.showQrisDialog) {
+            if (showBottomSheetQris == null && args.showQrisDialog) {
+                delay(350.milliseconds)
+                showBottomSheetQris = true
+            }
+        }
+
         if (setRequestPermission.isNotEmpty()) {
             MeverPermissionHandler(
                 permissions = setRequestPermission,
@@ -224,7 +231,7 @@ internal fun SettingLandingScreen(
             onClickSecondaryAction = { showPaypalDialog = false }
         )
 
-        HandleBottomSheetQris(showBottomSheetQris) { showBottomSheetQris = it }
+        HandleBottomSheetQris(showBottomSheetQris == true) { showBottomSheetQris = it }
 
         SettingLandingContent(
             modifier = Modifier
