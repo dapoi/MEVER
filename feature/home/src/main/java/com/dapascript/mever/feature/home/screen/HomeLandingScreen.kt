@@ -857,16 +857,25 @@ private fun HomeDownloaderSection(
                     horizontalArrangement = spacedBy(Dp16)
                 ) {
                     Row(horizontalArrangement = spacedBy((-Dp20))) {
-                        val platforms = PlatformType.entries.filter {
-                            it in listOf(
-                                FACEBOOK,
-                                INSTAGRAM,
-                                TIKTOK,
-                                TWITTER,
-                                PINTEREST
+                        val displayedPlatforms = listOf(
+                            FACEBOOK,
+                            INSTAGRAM,
+                            TIKTOK,
+                            TWITTER,
+                            PINTEREST
+                        )
+                        val otherCount = PlatformType.entries.count {
+                            it !in displayedPlatforms && it !in listOf(
+                                PlatformType.AI,
+                                ALL,
+                                PlatformType.EXPLORE,
+                                YOUTUBE,
+                                PlatformType.YOUTUBE_MUSIC,
+                                PlatformType.DOUYIN
                             )
-                        }
-                        platforms.forEach { type ->
+                        } + if (youtubeResolutions.isNotEmpty()) 1 else 0
+
+                        displayedPlatforms.forEach { type ->
                             MeverIcon(
                                 icon = getPlatformIcon(type.platformName),
                                 iconBackgroundColor = getPlatformIconBackgroundColor(type.platformName),
@@ -884,7 +893,7 @@ private fun HomeDownloaderSection(
                             contentAlignment = Center
                         ) {
                             Text(
-                                text = if (youtubeResolutions.isNotEmpty()) "+8" else "+7",
+                                text = "+$otherCount",
                                 textAlign = TextAlign.Center,
                                 style = typography.bodyBold1,
                                 color = MeverPurple
