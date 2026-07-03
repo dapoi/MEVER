@@ -1,6 +1,7 @@
 package com.dapascript.mever.feature.home.screen.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
@@ -92,15 +93,35 @@ internal fun HandleBottomSheetDownload(
         onDismissBottomSheet = onClickDismiss
     ) {
         Column(modifier = Modifier.wrapContentSize()) {
-            Text(
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = Dp24),
-                text = stringResource(R.string.choose_file),
-                textAlign = if (isMusic) Start else TextAlignCenter,
-                style = typography.bodyBold1.copy(fontSize = Sp20),
-                color = colors.blackWhite
-            )
+                    .padding(vertical = Dp16, horizontal = Dp24),
+                verticalAlignment = CenterVertically,
+                horizontalArrangement = SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(R.string.choose_file),
+                    textAlign = if (isMusic) Start else TextAlignCenter,
+                    style = typography.bodyBold1.copy(fontSize = Sp20),
+                    color = colors.blackWhite
+                )
+                if (listContent.size > 1) Text(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(Dp8))
+                        .clickable {
+                            selectMultipleItems =
+                                if (selectMultipleItems.size == listContent.size) emptySet()
+                                else listContent.indices.toSet()
+                        },
+                    text = stringResource(
+                        if (selectMultipleItems.size == listContent.size) R.string.deselect_all
+                        else R.string.select_all
+                    ),
+                    style = typography.bodyBold2,
+                    color = colors.alwaysPurple
+                )
+            }
             HorizontalDivider(
                 modifier = Modifier
                     .fillMaxWidth()
