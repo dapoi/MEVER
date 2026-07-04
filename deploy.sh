@@ -26,8 +26,23 @@ read TRACK_CHOICE
 
 if [ "$TRACK_CHOICE" = "1" ]; then
   TRACK="beta"
-  TAG="v$VERSION-beta"
-  TRACK_LABEL="Open Testing (Beta)"
+
+  # Find the latest beta tag for this version (e.g., v2.0.0-beta01)
+  LATEST_BETA=$(git tag -l "v$VERSION-beta*" | sort -V | tail -n 1)
+
+  if [ -z "$LATEST_BETA" ]; then
+    # If no tag exists, start from 01
+    BETA_NUMBER="01"
+  else
+    # If tag exists, extract the number after 'beta' and increment it
+    # Use 10# to force the number to be treated as decimal (not octal)
+    LAST_NUM=$(echo $LATEST_BETA | sed 's/.*beta//')
+    NEXT_NUM=$((10#$LAST_NUM + 1))
+    BETA_NUMBER=$(printf "%02d" $NEXT_NUM)
+  fi
+
+  TAG="v$VERSION-beta$BETA_NUMBER"
+  TRACK_LABEL="Open Testing (Beta $BETA_NUMBER)"
   UPLOAD_PLAY_STORE="true"
   UPLOAD_GITHUB_RELEASE="false"
 elif [ "$TRACK_CHOICE" = "2" ]; then
