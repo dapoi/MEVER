@@ -11,6 +11,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverColors.Dark
 import com.dapascript.mever.core.common.ui.theme.MeverColors.Light
 import com.dapascript.mever.core.common.util.DeviceType
 import com.dapascript.mever.core.common.util.LocalColors
+import com.dapascript.mever.core.common.util.LocalTypography
 
 @Keep
 enum class ThemeType(val themeResId: Int) {

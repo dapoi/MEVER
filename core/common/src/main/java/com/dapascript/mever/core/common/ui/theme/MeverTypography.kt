@@ -269,8 +269,6 @@ data class MeverTypography(
     )
 )
 
-internal val LocalTypography = staticCompositionLocalOf { MeverTypography() }
-
 private fun adjustFontSize(
     deviceType: DeviceType,
     size: TextUnit

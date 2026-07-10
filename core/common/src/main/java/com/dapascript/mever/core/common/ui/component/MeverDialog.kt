@@ -62,7 +62,7 @@ import com.dapascript.mever.core.common.util.onCustomClick
 @Composable
 fun MeverDialog(
     showDialog: Boolean,
-    image: Int? = R.drawable.ic_error,
+    image: Int? = R.drawable.ic_error_state,
     title: String? = stringResource(R.string.error_title),
     description: String? = stringResource(R.string.error_desc),
     primaryActionLabel: String? = stringResource(R.string.retry),

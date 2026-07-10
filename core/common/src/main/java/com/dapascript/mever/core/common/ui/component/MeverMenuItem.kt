@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
@@ -42,18 +43,23 @@ fun MeverMenuItem(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) = with(menuArgs) {
+    val themeColors = colors
+    val themeTypography = typography
+    val shape = remember {
+        RoundedCornerShape(
+            topStart = Dp50,
+            bottomStart = Dp50,
+            topEnd = Dp8,
+            bottomEnd = Dp8
+        )
+    }
+    val descriptionColor = remember(themeColors.blackWhite) { themeColors.blackWhite.copy(alpha = 0.5f) }
+
     Row(
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = Dp12)
-            .clip(
-                RoundedCornerShape(
-                    topStart = Dp50,
-                    bottomStart = Dp50,
-                    topEnd = Dp8,
-                    bottomEnd = Dp8
-                )
-            )
+            .clip(shape)
             .onCustomClick { onClick() },
         horizontalArrangement = SpaceBetween,
         verticalAlignment = CenterVertically
@@ -72,49 +78,53 @@ fun MeverMenuItem(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = leadingTitle,
-                    style = typography.bodyBold1,
-                    color = colors.blackWhite
+                    style = themeTypography.bodyBold1,
+                    color = themeColors.blackWhite
                 )
                 leadingDesc?.let {
                     Text(
                         modifier = Modifier.padding(top = Dp4),
                         text = leadingDesc,
-                        style = typography.bodyBold3,
+                        style = themeTypography.bodyBold3,
                         fontStyle = Italic,
-                        color = colors.blackWhite.copy(0.5f)
+                        color = descriptionColor
                     )
                 }
             }
         }
         when (trailingType) {
-            is Default -> Row(
-                horizontalArrangement = spacedBy(Dp16),
-                verticalAlignment = CenterVertically
-            ) {
-                trailingType.trailingTitle?.let { title ->
-                    Text(
-                        text = title,
-                        style = typography.body2,
-                        color = trailingType.trailingTitleColor ?: colors.blackWhite
-                    )
-                }
-                Box(
-                    modifier = Modifier
-                        .background(
-                            color = MeverLightGray.copy(0.1f),
-                            shape = RoundedCornerShape(Dp8)
-                        )
-                        .size(Dp40),
-                    contentAlignment = Center
+            is Default -> {
+                val trailingTitleColor = trailingType.trailingTitleColor ?: themeColors.blackWhite
+                val boxBackground = remember(MeverLightGray) { MeverLightGray.copy(alpha = 0.1f) }
+                Row(
+                    horizontalArrangement = spacedBy(Dp16),
+                    verticalAlignment = CenterVertically
                 ) {
-                    Image(
-                        painter = painterResource(R.drawable.ic_back),
-                        colorFilter = tint(color = colors.blackWhite),
-                        contentDescription = "Arrow Right",
+                    trailingType.trailingTitle?.let { title ->
+                        Text(
+                            text = title,
+                            style = themeTypography.body2,
+                            color = trailingTitleColor
+                        )
+                    }
+                    Box(
                         modifier = Modifier
-                            .size(Dp16)
-                            .graphicsLayer { rotationZ = 180f }
-                    )
+                            .background(
+                                color = boxBackground,
+                                shape = RoundedCornerShape(Dp8)
+                            )
+                            .size(Dp40),
+                        contentAlignment = Center
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.ic_back),
+                            colorFilter = tint(color = themeColors.blackWhite),
+                            contentDescription = "Arrow Right",
+                            modifier = Modifier
+                                .size(Dp16)
+                                .graphicsLayer { rotationZ = 180f }
+                        )
+                    }
                 }
             }
 

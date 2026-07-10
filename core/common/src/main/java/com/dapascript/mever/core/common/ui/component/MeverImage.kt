@@ -59,14 +59,16 @@ fun MeverImage(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(meverShimmer(isLoading || source == null))
+                .meverShimmer(isLoading || source == null)
         ) {
             AsyncImage(
                 modifier = Modifier.fillMaxSize(),
-                model = ImageRequest.Builder(context)
-                    .data(source)
-                    .crossfade(true)
-                    .build(),
+                model = remember(source) {
+                    ImageRequest.Builder(context)
+                        .data(source)
+                        .crossfade(true)
+                        .build()
+                },
                 contentScale = contentScale,
                 contentDescription = "Thumbnail",
                 onState = { state ->

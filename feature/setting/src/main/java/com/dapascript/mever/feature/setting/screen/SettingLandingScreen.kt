@@ -14,7 +14,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.LocalOverscrollFactory
-import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -140,7 +140,7 @@ internal fun SettingLandingScreen(
     }
     var titleHeight by rememberSaveable { mutableIntStateOf(0) }
     var showPaypalDialog by remember { mutableStateOf(false) }
-    val isExpanded by remember {
+    val isExpanded = remember(listState, titleHeight) {
         derivedStateOf {
             listState.firstVisibleItemIndex == 0 &&
                     listState.firstVisibleItemScrollOffset < titleHeight / 2
@@ -148,14 +148,10 @@ internal fun SettingLandingScreen(
     }
     var showBottomSheetQris by rememberSaveable { mutableStateOf<Boolean?>(null) }
     var setRequestPermission by remember { mutableStateOf<List<String>>(emptyList()) }
-    val usedStorage by animateFloatAsState(
-        targetValue = animatedPercent,
-        animationSpec = tween(durationMillis = 1000)
-    )
 
     BaseScreen(
         topBarArgs = TopBarArgs(
-            title = if (isExpanded.not()) stringResource(R.string.settings) else ""
+            title = if (isExpanded.value.not()) stringResource(R.string.settings) else ""
         ),
         onBackHandler = { navigator.goBack() }
     ) {
@@ -178,7 +174,7 @@ internal fun SettingLandingScreen(
         }
 
         LaunchedEffect(storageInfo?.usedPercent) {
-            delay(350.milliseconds)
+            delay(300.milliseconds)
             storageInfo?.usedPercent?.let {
                 animatedPercent = storageInfo.usedPercent / 100f
             }
@@ -188,7 +184,8 @@ internal fun SettingLandingScreen(
 
         LaunchedEffect(args.showQrisDialog) {
             if (showBottomSheetQris == null && args.showQrisDialog) {
-                delay(350.milliseconds)
+                delay(300.milliseconds)
+                listState.animateScrollBy(listState.layoutInfo.totalItemsCount * 100f)
                 showBottomSheetQris = true
             }
         }
@@ -239,15 +236,15 @@ internal fun SettingLandingScreen(
                 .padding(top = Dp64),
             context = context,
             titleHeight = titleHeight,
-            usedStorage = usedStorage,
+            animatedPercent = animatedPercent,
             statusColor = statusColor,
             deviceType = deviceType,
             listState = listState,
-            isExpanded = isExpanded,
             isPipEnabled = isPipEnabled,
             getLanguageCode = languageCode,
             themeType = themeType,
             storageInfo = storageInfo,
+            isExpanded = { isExpanded.value },
             onClickChangeLanguage = { languageCode ->
                 navigator.navigate(SettingLanguageRoute(languageCode))
             },
@@ -277,16 +274,16 @@ internal fun SettingLandingScreen(
 private fun SettingLandingContent(
     context: Context,
     titleHeight: Int,
-    usedStorage: Float,
+    animatedPercent: Float,
     statusColor: Color,
     deviceType: DeviceType,
     listState: LazyListState,
-    isExpanded: Boolean,
     isPipEnabled: Boolean,
     getLanguageCode: String,
     themeType: ThemeType,
     storageInfo: StorageInfo?,
     modifier: Modifier = Modifier,
+    isExpanded: () -> Boolean,
     onClickChangeLanguage: (String) -> Unit,
     onClickNotificationPermission: () -> Unit,
     onClickChangeTheme: (ThemeType) -> Unit,
@@ -299,8 +296,9 @@ private fun SettingLandingContent(
     onClickAbout: () -> Unit,
     onSetTitleHeight: (Int) -> Unit
 ) = CompositionLocalProvider(LocalOverscrollFactory provides null) {
+    val menus = remember(context) { getSettingMenus(context) }
     Column(modifier = modifier) {
-        if (isExpanded.not() && titleHeight > 0) {
+        if (isExpanded().not() && titleHeight > 0) {
             HorizontalDivider(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -321,7 +319,7 @@ private fun SettingLandingContent(
                 ) {
                     Spacer(modifier = Modifier.height(Dp16))
                     AnimatedVisibility(
-                        visible = isExpanded,
+                        visible = isExpanded(),
                         enter = expandVertically() + fadeIn(),
                         exit = shrinkVertically() + fadeOut()
                     ) {
@@ -339,7 +337,8 @@ private fun SettingLandingContent(
                     targetState = storageInfo != null,
                     transitionSpec = {
                         (fadeIn() togetherWith fadeOut()).using(SizeTransform(clip = false))
-                    }
+                    },
+                    label = "StorageSectionAnimation"
                 ) { completedFetching ->
                     if (completedFetching) AvailableStorageSection(
                         modifier = Modifier
@@ -347,7 +346,7 @@ private fun SettingLandingContent(
                             .padding(horizontal = Dp24, vertical = Dp32),
                         context = context,
                         storageInfo = storageInfo!!,
-                        usedStorage = usedStorage,
+                        animatedPercent = animatedPercent,
                         statusColor = statusColor,
                         deviceType = deviceType
                     ) else StorageSectionLoading(
@@ -358,7 +357,7 @@ private fun SettingLandingContent(
                     )
                 }
             }
-            getSettingMenus(context).forEach { (title, menus) ->
+            menus.forEach { (title, menus) ->
                 item {
                     Text(
                         text = stringResource(title),
@@ -371,34 +370,42 @@ private fun SettingLandingContent(
                     items = menus,
                     key = { menu -> menu.leadingTitle }
                 ) { menu ->
-                    MeverMenuItem(
-                        modifier = Modifier.padding(horizontal = Dp24),
-                        menuArgs = MenuItemArgs(
+                    val trailingTitle = remember(menu, getLanguageCode, themeType) {
+                        menu.trailingTitle?.let {
+                            when (menu.leadingTitle) {
+                                context.getString(R.string.language) -> {
+                                    if (getLanguageCode == "en") "English"
+                                    else "Bahasa Indonesia"
+                                }
+
+                                context.getString(R.string.theme) -> context.getString(
+                                    themeType.themeResId
+                                )
+
+                                else -> it
+                            }
+                        }
+                    }
+
+                    val menuArgs = remember(menu, trailingTitle, isPipEnabled) {
+                        MenuItemArgs(
                             leadingIcon = menu.icon,
                             leadingIconBackground = menu.iconBackgroundColor,
                             leadingTitle = menu.leadingTitle,
                             leadingDesc = menu.leadingDesc,
                             leadingIconSize = Dp40,
                             leadingIconPadding = Dp8,
-                            trailingType = if (menu.leadingTitle != stringResource(R.string.pip)) {
+                            trailingType = if (menu.leadingTitle != context.getString(R.string.pip)) {
                                 Default(
-                                    trailingTitle = menu.trailingTitle?.let {
-                                        when (menu.leadingTitle) {
-                                            stringResource(R.string.language) -> {
-                                                if (getLanguageCode == "en") "English"
-                                                else "Bahasa Indonesia"
-                                            }
-
-                                            stringResource(R.string.theme) -> stringResource(
-                                                themeType.themeResId
-                                            )
-
-                                            else -> it
-                                        }
-                                    }
+                                    trailingTitle = trailingTitle
                                 )
                             } else Switch(isPipEnabled)
                         )
+                    }
+
+                    MeverMenuItem(
+                        modifier = Modifier.padding(horizontal = Dp24),
+                        menuArgs = menuArgs
                     ) {
                         handleClickMenu(
                             context = context,
@@ -428,11 +435,16 @@ private fun SettingLandingContent(
 private fun AvailableStorageSection(
     context: Context,
     storageInfo: StorageInfo,
-    usedStorage: Float,
+    animatedPercent: Float,
     statusColor: Color,
     deviceType: DeviceType,
     modifier: Modifier = Modifier
 ) = with(storageInfo) {
+    val progressState = animateFloatAsState(
+        targetValue = animatedPercent,
+        animationSpec = tween(durationMillis = 1000),
+        label = "StorageProgressAnimation"
+    )
     Box(modifier = modifier) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -442,7 +454,7 @@ private fun AvailableStorageSection(
             Box(contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(if (deviceType == PHONE) Dp120 else Dp150),
-                    progress = { usedStorage },
+                    progress = { progressState.value },
                     color = statusColor,
                     strokeWidth = Dp8,
                     trackColor = colors.lightGrayDarkGray,
@@ -488,7 +500,7 @@ private fun StorageSectionLoading(
             modifier = Modifier
                 .size(if (deviceType == PHONE) Dp120 else Dp150)
                 .clip(CircleShape)
-                .background(meverShimmer())
+                .meverShimmer()
         )
         Column(verticalArrangement = spacedBy(Dp4)) {
             Box(
@@ -501,7 +513,7 @@ private fun StorageSectionLoading(
                         }
                     })
                     .width(Dp90)
-                    .background(meverShimmer())
+                    .meverShimmer()
             )
             Box(
                 modifier = Modifier
@@ -513,7 +525,7 @@ private fun StorageSectionLoading(
                         }
                     })
                     .width(Dp150)
-                    .background(meverShimmer())
+                    .meverShimmer()
             )
         }
     }

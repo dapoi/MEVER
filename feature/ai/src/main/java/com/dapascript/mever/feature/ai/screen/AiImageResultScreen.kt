@@ -661,7 +661,7 @@ private fun ImageGeneratorLoading(
                 .fillMaxWidth()
                 .aspectRatio(1f)
                 .clip(RoundedCornerShape(Dp12))
-                .background(meverShimmer())
+                .meverShimmer()
         )
         if (totalImages > 1) Row(
             modifier = Modifier.fillMaxWidth(),
@@ -673,7 +673,7 @@ private fun ImageGeneratorLoading(
                         .weight(1f)
                         .height(Dp80)
                         .clip(RoundedCornerShape(Dp12))
-                        .background(meverShimmer())
+                        .meverShimmer()
                 )
             }
         }
@@ -682,7 +682,7 @@ private fun ImageGeneratorLoading(
                 .fillMaxWidth()
                 .height(Dp120)
                 .clip(RoundedCornerShape(Dp12))
-                .background(meverShimmer())
+                .meverShimmer()
         )
         repeat(4) {
             Box(
@@ -690,7 +690,7 @@ private fun ImageGeneratorLoading(
                     .fillMaxWidth()
                     .height(Dp48)
                     .clip(RoundedCornerShape(Dp12))
-                    .background(meverShimmer())
+                    .meverShimmer()
             )
         }
     } else Row(
@@ -705,7 +705,7 @@ private fun ImageGeneratorLoading(
                 modifier = Modifier
                     .aspectRatio(1f)
                     .clip(RoundedCornerShape(Dp12))
-                    .background(meverShimmer())
+                    .meverShimmer()
             )
             if (totalImages > 1) Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -717,7 +717,7 @@ private fun ImageGeneratorLoading(
                             .weight(1f)
                             .height(Dp64)
                             .clip(RoundedCornerShape(Dp12))
-                            .background(meverShimmer())
+                            .meverShimmer()
                     )
                 }
             }
@@ -733,7 +733,7 @@ private fun ImageGeneratorLoading(
                     .fillMaxWidth()
                     .height(Dp150)
                     .clip(RoundedCornerShape(Dp12))
-                    .background(meverShimmer())
+                    .meverShimmer()
             )
             repeat(4) {
                 Box(
@@ -741,7 +741,7 @@ private fun ImageGeneratorLoading(
                         .fillMaxWidth()
                         .height(Dp48)
                         .clip(RoundedCornerShape(Dp12))
-                        .background(meverShimmer())
+                        .meverShimmer()
                 )
             }
         }

@@ -37,7 +37,7 @@ fun MeverActionButton(
     showBadge: Boolean = false,
     onClick: () -> Unit
 ) {
-    val animateIconVibrate by rememberInfiniteTransition(label = "Infinite Transition").animateFloat(
+    val animateIconVibrate = rememberInfiniteTransition(label = "Infinite Transition").animateFloat(
         initialValue = 25f,
         targetValue = -25f,
         animationSpec = infiniteRepeatable(
@@ -59,7 +59,7 @@ fun MeverActionButton(
         Icon(
             modifier = Modifier
                 .size(Dp24)
-                .showGraphicLayer(state = showBadge, value = animateIconVibrate)
+                .showGraphicLayer(state = showBadge, value = { animateIconVibrate.value })
                 .align(Center),
             painter = painterResource(id = resource),
             contentDescription = "Action Button"
@@ -75,12 +75,12 @@ fun MeverActionButton(
     }
 }
 
-private fun Modifier.showGraphicLayer(state: Boolean, value: Float) = if (state) {
-    graphicsLayer(
+private fun Modifier.showGraphicLayer(state: Boolean, value: () -> Float) = graphicsLayer {
+    if (state) {
         transformOrigin = TransformOrigin(
             pivotFractionX = 0.5f,
             pivotFractionY = 0.0f
-        ),
-        rotationZ = value
-    )
-} else this
+        )
+        rotationZ = value()
+    }
+}

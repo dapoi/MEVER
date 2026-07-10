@@ -12,6 +12,9 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverTopBar
@@ -29,8 +32,9 @@ fun BaseScreen(
     lockOrientation: Boolean = true,
     onBackHandler: () -> Unit,
     content: @Composable () -> Unit
-) = with(topBarArgs) {
+) {
     val activity = LocalActivity.current
+    val currentOnBack by rememberUpdatedState(onBackHandler)
 
     LaunchedEffect(lockOrientation) {
         if (lockOrientation) {
@@ -42,16 +46,15 @@ fun BaseScreen(
         }
     }
 
-    BackHandler { onBackHandler() }
+    BackHandler { currentOnBack() }
 
     BaseScreenContent(
-        topBarArgs = this@with,
+        topBarArgs = topBarArgs,
         hideDefaultTopBar = hideDefaultTopBar,
         useStatusBarsPadding = useStatusBarsPadding,
         useNavigationBarsPadding = useNavigationBarsPadding,
-        onBackHandler = onBackHandler,
-        content = content
-    )
+        onBackHandler = { currentOnBack() }
+    ) { content() }
 }
 
 @Composable
@@ -63,10 +66,14 @@ private fun BaseScreenContent(
     onBackHandler: () -> Unit,
     content: @Composable () -> Unit
 ) {
+    val systemBarsPadding = remember(useStatusBarsPadding, useNavigationBarsPadding) {
+        Modifier.getSystemBarsPadding(useStatusBarsPadding, useNavigationBarsPadding)
+    }
+
     Box(
         modifier = Modifier
             .background(color = colors.whiteDark)
-            .getSystemBarsPadding(useStatusBarsPadding, useNavigationBarsPadding)
+            .then(systemBarsPadding)
     ) {
         content()
         if (hideDefaultTopBar.not()) MeverTopBar(

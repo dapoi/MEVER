@@ -129,7 +129,7 @@ internal fun GalleryLandingScreen(
     var isSelectedAll by remember { mutableStateOf(false) }
     var showFilter by rememberSaveable { mutableStateOf(true) }
     var titleHeight by rememberSaveable { mutableIntStateOf(0) }
-    val isExpanded by remember {
+    val isExpanded = remember(listState, titleHeight, showSelector) {
         derivedStateOf {
             listState.firstVisibleItemIndex < 1 &&
                     listState.firstVisibleItemScrollOffset < titleHeight / 2 &&
@@ -156,7 +156,7 @@ internal fun GalleryLandingScreen(
                 )
             } else emptyList(),
             title = when {
-                isExpanded.not() && downloadFilter.isNullOrEmpty().not() -> stringResource(
+                isExpanded.value.not() && downloadFilter.isNullOrEmpty().not() -> stringResource(
                     if (showSelector.not()) R.string.gallery
                     else R.string.total_item_selected, selectedItems.size
                 )
@@ -283,7 +283,6 @@ internal fun GalleryLandingScreen(
         GalleryContentSection(
             selectedFilter = selectedFilter,
             listState = listState,
-            isExpanded = isExpanded,
             showSelector = showSelector,
             selectedItems = selectedItems,
             platformTypes = if (showFilter) platformTypes else emptyList(),
@@ -291,6 +290,7 @@ internal fun GalleryLandingScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = Dp64),
+            isExpanded = { isExpanded.value },
             onClickFilter = {
                 scope.launch {
                     listState.scrollToItem(0)
@@ -401,12 +401,12 @@ internal fun GalleryLandingScreen(
 private fun GalleryContentSection(
     selectedFilter: PlatformType,
     listState: LazyListState,
-    isExpanded: Boolean,
     showSelector: Boolean,
     selectedItems: Set<DownloadModel>,
     platformTypes: List<PlatformType>,
     downloadList: List<DownloadModel>?,
     modifier: Modifier = Modifier,
+    isExpanded: () -> Boolean,
     onClickFilter: (PlatformType) -> Unit,
     onClickCard: (DownloadModel) -> Unit,
     onClickDelete: (DownloadModel) -> Unit,
@@ -454,7 +454,7 @@ private fun GalleryContentSection(
                                 selectedFilter = selectedFilter
                             ) { filter -> onClickFilter(filter) }
                         }
-                        if (isExpanded.not()) {
+                        if (isExpanded().not()) {
                             HorizontalDivider(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -537,7 +537,7 @@ private fun GalleryContentSection(
                         .height(Dp150)
                         .padding(Dp24)
                         .clip(RoundedCornerShape(Dp8))
-                        .background(meverShimmer(true))
+                        .meverShimmer(true)
                 )
             }
         }

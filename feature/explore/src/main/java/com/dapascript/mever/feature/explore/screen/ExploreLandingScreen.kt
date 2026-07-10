@@ -216,7 +216,7 @@ internal fun ExploreLandingScreen(
                             modifier = Modifier
                                 .size(Dp150)
                                 .clip(RoundedCornerShape(Dp8))
-                                .background(meverShimmer())
+                                .meverShimmer()
                         )
                     }
                 }
