@@ -11,7 +11,9 @@ import androidx.navigation3.ui.NavDisplay
 import com.dapascript.mever.core.navigation.base.BaseNavGraph
 import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeLandingRoute
+import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeQuickToolsRoute
 import com.dapascript.mever.feature.home.screen.HomeLandingScreen
+import com.dapascript.mever.feature.home.screen.HomeQuickToolsScreen
 import javax.inject.Inject
 
 class HomeNavGraphImpl @Inject constructor() : BaseNavGraph {
@@ -26,5 +28,6 @@ class HomeNavGraphImpl @Inject constructor() : BaseNavGraph {
                 }
             }
         ) { HomeLandingScreen(navigator) }
+        entry<HomeQuickToolsRoute> { args -> HomeQuickToolsScreen(navigator, args) }
     }
 }

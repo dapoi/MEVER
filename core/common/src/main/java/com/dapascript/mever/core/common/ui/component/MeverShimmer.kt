@@ -8,10 +8,11 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
-import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
+import com.dapascript.mever.core.common.ui.theme.MeverTheme.isDarkMode
 
 fun Modifier.meverShimmer(
     showShimmer: Boolean = true,
@@ -19,7 +20,7 @@ fun Modifier.meverShimmer(
 ): Modifier = composed {
     if (!showShimmer) return@composed this
 
-    val color = colors.lightGrayDarkGray
+    val color = if (isDarkMode) colors.whiteDarkGray else colors.lightGrayDarkGray
     val shimmerColors = listOf(
         color.copy(alpha = 0.6f),
         color.copy(alpha = 0.2f),
@@ -34,16 +35,20 @@ fun Modifier.meverShimmer(
             animation = tween(900, easing = LinearEasing),
             repeatMode = Restart
         ),
-        label = "Shimmer Animation"
+        label = "ShimmerAnimation"
     )
 
-    this.drawBehind {
-        drawRect(
-            brush = Brush.linearGradient(
-                colors = shimmerColors,
-                start = Offset.Zero,
-                end = Offset(x = translateAnimation.value, y = translateAnimation.value)
+    drawWithCache {
+        onDrawBehind {
+            val animationValue = translateAnimation.value
+
+            drawRect(
+                brush = Brush.linearGradient(
+                    colors = shimmerColors,
+                    start = Offset.Zero,
+                    end = Offset(x = animationValue, y = animationValue)
+                )
             )
-        )
+        }
     }
 }

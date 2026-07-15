@@ -10,15 +10,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -88,7 +85,6 @@ internal fun OnboardScreen(
         var setRequestPermission by remember { mutableStateOf<List<String>>(emptyList()) }
         val context = LocalContext.current
         val deviceType = LocalDeviceType.current
-        val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
 
         if (setRequestPermission.isNotEmpty()) {
             MeverPermissionHandler(
@@ -105,9 +101,7 @@ internal fun OnboardScreen(
         }
 
         if (deviceType == PHONE) Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = statusBarHeight)
+            modifier = Modifier.fillMaxSize()
         ) {
             Column(
                 modifier = Modifier

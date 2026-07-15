@@ -6,7 +6,6 @@ import androidx.activity.SystemBarStyle.Companion.light
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement.Center
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,8 +29,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration.Companion.Underline
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Outlined
@@ -44,32 +41,22 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp52
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp90
 import com.dapascript.mever.core.common.ui.theme.MeverDark
+import com.dapascript.mever.core.common.ui.theme.MeverTheme
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
-import com.dapascript.mever.core.common.ui.theme.ThemeType.Dark
-import com.dapascript.mever.core.common.ui.theme.ThemeType.Light
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.getAppVersion
 import com.dapascript.mever.core.common.util.navigateToBrowser
-import com.dapascript.mever.core.common.util.state.collectAsStateValue
-import com.dapascript.mever.feature.setting.viewmodel.SettingAboutAppViewModel
+import com.dapascript.mever.core.navigation.helper.Navigator
 import java.time.LocalDate
 
 @Composable
-internal fun SettingAboutAppScreen(
-    navigator: Navigator,
-    viewModel: SettingAboutAppViewModel = hiltViewModel()
-) = with(viewModel) {
+internal fun SettingAboutAppScreen(navigator: Navigator) {
     val context = LocalContext.current
     val activity = LocalActivity.current
-    val themeType = themeType.collectAsStateValue()
-    val darkTheme = when (themeType) {
-        Light -> false
-        Dark -> true
-        else -> isSystemInDarkTheme()
-    }
+    val darkTheme = MeverTheme.isDarkMode
 
     BaseScreen(
         topBarArgs = TopBarArgs(

@@ -55,7 +55,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Filled
@@ -85,6 +84,7 @@ import com.dapascript.mever.core.common.util.goToWaStore
 import com.dapascript.mever.core.common.util.isAppInstalled
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
+import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute.Content
 import com.dapascript.mever.feature.wa.screen.WaStatusLandingAttr.WaMediaModel
@@ -391,9 +391,12 @@ private fun WaStatusContent(
                     }
                 } else {
                     MeverEmptyItem(
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(horizontal = Dp24),
                         image = R.drawable.ic_empty_file,
-                        size = Dp150.plus(Dp16),
+                        imageSize = Dp150.plus(Dp16),
+                        title = stringResource(R.string.wa_empty_title),
                         description = stringResource(
                             if (isPermissionGranted) R.string.empty_wa_status_desc
                             else R.string.permission_request_wa

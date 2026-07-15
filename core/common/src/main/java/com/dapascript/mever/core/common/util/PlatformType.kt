@@ -15,8 +15,8 @@ enum class PlatformType(val platformName: String) {
     TERABOX("Terabox"),
     THREADS("Threads"),
     TIKTOK("TikTok"),
-    TWITTER("Twitter"),
     VIDEY("Videy"),
+    X("X"),
     YOUTUBE("YouTube"),
     YOUTUBE_MUSIC("YT Music")
 }

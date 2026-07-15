@@ -10,9 +10,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 
 @Composable
 fun MeverIcon(
@@ -20,12 +22,13 @@ fun MeverIcon(
     iconBackgroundColor: Color,
     iconSize: Dp,
     iconPadding: Dp,
-    modifier: Modifier = Modifier
+    iconShadowColor: Color? = null
 ) {
     Box(
-        modifier = modifier
-            .background(color = iconBackgroundColor, shape = CircleShape)
-            .size(iconSize),
+        modifier = Modifier
+            .size(iconSize)
+            .showShadow(shadowColor = iconShadowColor)
+            .background(color = iconBackgroundColor, shape = CircleShape),
         contentAlignment = Center
     ) {
         Image(
@@ -37,3 +40,8 @@ fun MeverIcon(
         )
     }
 }
+
+@Composable
+fun Modifier.showShadow(shadowColor: Color? = null) = shadowColor?.let {
+    this.shadow(elevation = Dp4, shape = CircleShape, ambientColor = it, spotColor = it)
+} ?: this

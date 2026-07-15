@@ -1,7 +1,6 @@
 package com.dapascript.mever.feature.gallery.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.dapascript.mever.core.common.ui.theme.ThemeType
 import com.dapascript.mever.core.data.source.local.MeverDataStore
 import com.ketch.Ketch
 import kotlinx.coroutines.Dispatchers
@@ -44,7 +43,6 @@ class GalleryContentDetailViewModelTest {
         MockitoAnnotations.openMocks(this)
         Dispatchers.setMain(testDispatcher)
 
-        whenever(dataStore.getTheme).thenReturn(flowOf(ThemeType.System))
         whenever(dataStore.isPipEnabled).thenReturn(flowOf(true))
         whenever(dataStore.clickCount).thenReturn(flowOf(1))
 
@@ -54,12 +52,6 @@ class GalleryContentDetailViewModelTest {
     @After
     fun tearDown() {
         Dispatchers.resetMain()
-    }
-
-    @Test
-    fun `themeType initial value is System`() = runTest {
-        advanceUntilIdle()
-        assertEquals(ThemeType.System, viewModel.themeType.value)
     }
 
     @Test

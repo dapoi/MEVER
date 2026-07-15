@@ -8,7 +8,6 @@ import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import com.dapascript.mever.core.common.ui.attr.MeverIconAttr.getPlatformIcon
-import com.dapascript.mever.core.common.ui.attr.MeverIconAttr.getPlatformIconBackgroundColor
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
@@ -27,7 +26,8 @@ fun MeverPlatformSupportedItem(
     ) {
         MeverIcon(
             icon = getPlatformIcon(platformName),
-            iconBackgroundColor = getPlatformIconBackgroundColor(platformName),
+            iconShadowColor = colors.purpleTransparent,
+            iconBackgroundColor = colors.whiteDark,
             iconSize = iconSize,
             iconPadding = iconPadding
         )

@@ -29,6 +29,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.ThemeType.Dark
 import com.dapascript.mever.core.common.ui.theme.ThemeType.Light
+import com.dapascript.mever.core.common.util.DeviceType
 import com.dapascript.mever.core.common.util.DeviceType.DESKTOP
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.DeviceType.TABLET
@@ -77,7 +78,7 @@ class MainActivity : AppCompatActivity() {
                 deviceType = deviceType,
                 darkTheme = darkTheme
             ) {
-                ApplyEdgeToEdgeSystemBars(darkTheme)
+                ApplyEdgeToEdgeSystemBars(darkTheme, deviceType)
                 Surface(modifier = Modifier.fillMaxSize(), color = colors.whiteDark) {
                     CompositionLocalProvider(
                         LocalActivity provides this,
@@ -110,8 +111,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     @Composable
-    private fun ApplyEdgeToEdgeSystemBars(darkTheme: Boolean) {
-        LaunchedEffect(darkTheme) {
+    private fun ApplyEdgeToEdgeSystemBars(darkTheme: Boolean, deviceType: DeviceType) {
+        LaunchedEffect(darkTheme, deviceType) {
             enableEdgeToEdge(
                 statusBarStyle = if (darkTheme) {
                     dark(scrim = MeverTransparent.toArgb())

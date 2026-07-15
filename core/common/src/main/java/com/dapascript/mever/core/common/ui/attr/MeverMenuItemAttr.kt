@@ -14,10 +14,7 @@ object MeverMenuItemAttr {
         val leadingDesc: String? = null
     ) {
         sealed class TrailingType {
-            data class Default(
-                val trailingTitle: String? = null,
-                val trailingTitleColor: Color? = null
-            ) : TrailingType()
+            data class Default(val trailingTitle: String? = null) : TrailingType()
 
             data class Switch(
                 val switchState: Boolean = false

@@ -2,7 +2,6 @@ package com.dapascript.mever.feature.setting.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
-import com.dapascript.mever.core.common.ui.theme.ThemeType.System
 import com.dapascript.mever.core.common.util.LanguageManager.appLanguages
 import com.dapascript.mever.core.data.source.local.MeverDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,11 +20,6 @@ class SettingLanguageViewModel @Inject constructor(
         scope = viewModelScope,
         started = WhileSubscribed(),
         initialValue = true
-    )
-    val themeType =dataStore.getTheme.stateIn(
-        scope = viewModelScope,
-        started = WhileSubscribed(),
-        initialValue = System
     )
 
     fun setIsFirstTimeChangeLanguage(isFirst: Boolean) {

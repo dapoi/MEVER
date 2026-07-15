@@ -14,6 +14,7 @@ object MeverCardAttr {
         val total: Long,
         val path: String,
         val icon: Int? = null,
+        val iconShadowColor: Color? = null,
         val iconBackgroundColor: Color? = null,
         val iconSize: Dp? = null,
         val iconPadding: Dp? = null,

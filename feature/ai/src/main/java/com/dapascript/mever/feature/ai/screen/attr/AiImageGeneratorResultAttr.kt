@@ -3,7 +3,7 @@ package com.dapascript.mever.feature.ai.screen.attr
 import android.content.Context
 import com.dapascript.mever.core.common.R
 
-object AiImageResultAttr {
+object AiImageGeneratorResultAttr {
     data class MenuAction(
         val title: String,
         val icon: Int
@@ -20,10 +20,6 @@ object AiImageResultAttr {
         MenuAction(
             title = context.getString(if (hasCopied) R.string.copied else R.string.copy_prompt),
             icon = R.drawable.ic_copy
-        ),
-        MenuAction(
-            title = context.getString(R.string.download_all),
-            icon = R.drawable.ic_download
         ),
         MenuAction(
             title = context.getString(R.string.share),

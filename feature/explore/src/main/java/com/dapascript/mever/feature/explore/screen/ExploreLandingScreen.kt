@@ -51,9 +51,9 @@ import com.dapascript.mever.core.common.ui.component.MeverImage
 import com.dapascript.mever.core.common.ui.component.MeverTextField
 import com.dapascript.mever.core.common.ui.component.meverShimmer
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp120
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp150
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp160
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp3
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
@@ -167,7 +167,7 @@ internal fun ExploreLandingScreen(
                             start = Dp24,
                             end = Dp24,
                             top = Dp24,
-                            bottom = Dp120
+                            bottom = Dp160
                         ),
                         verticalItemSpacing = Dp16,
                         horizontalArrangement = spacedBy(Dp16)

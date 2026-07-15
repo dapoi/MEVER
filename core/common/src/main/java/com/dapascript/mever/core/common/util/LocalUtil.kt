@@ -16,6 +16,7 @@ val LocalActivity = staticCompositionLocalOf<ComponentActivity> { noLocalProvide
 val LocalColors = staticCompositionLocalOf<MeverColors> { error("No colors provided") }
 val LocalDeviceType = staticCompositionLocalOf { PHONE }
 val LocalTypography = staticCompositionLocalOf { MeverTypography() }
+val LocalIsDarkMode = staticCompositionLocalOf { false }
 
 private fun noLocalProvided(): Nothing {
     error("CompositionLocal LocalActivity not present")

@@ -1,16 +1,6 @@
 package com.dapascript.mever.core.common.ui.attr
 
 import com.dapascript.mever.core.common.R
-import com.dapascript.mever.core.common.ui.theme.MeverCreamPink
-import com.dapascript.mever.core.common.ui.theme.MeverGreen
-import com.dapascript.mever.core.common.ui.theme.MeverLightBlue
-import com.dapascript.mever.core.common.ui.theme.MeverLightGray
-import com.dapascript.mever.core.common.ui.theme.MeverLightGreen
-import com.dapascript.mever.core.common.ui.theme.MeverLightPink
-import com.dapascript.mever.core.common.ui.theme.MeverLightPurple
-import com.dapascript.mever.core.common.ui.theme.MeverPink
-import com.dapascript.mever.core.common.ui.theme.MeverSoftGray
-import com.dapascript.mever.core.common.ui.theme.MeverSoftWhite
 import com.dapascript.mever.core.common.util.PlatformType.AI
 import com.dapascript.mever.core.common.util.PlatformType.APPLE_MUSIC
 import com.dapascript.mever.core.common.util.PlatformType.DOUYIN
@@ -24,14 +14,14 @@ import com.dapascript.mever.core.common.util.PlatformType.SPOTIFY
 import com.dapascript.mever.core.common.util.PlatformType.TERABOX
 import com.dapascript.mever.core.common.util.PlatformType.THREADS
 import com.dapascript.mever.core.common.util.PlatformType.TIKTOK
-import com.dapascript.mever.core.common.util.PlatformType.TWITTER
+import com.dapascript.mever.core.common.util.PlatformType.X
 import com.dapascript.mever.core.common.util.PlatformType.VIDEY
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE_MUSIC
 
 object MeverIconAttr {
     fun getPlatformIcon(platform: String) = when {
-        platform.contains(AI.platformName) -> R.drawable.ic_ai
+        platform.contains(AI.platformName) -> R.drawable.ic_awesome
         platform.contains(APPLE_MUSIC.platformName) -> R.drawable.ic_apple
         platform.contains(DOUYIN.platformName) -> R.drawable.ic_tiktok
         platform.contains(EXPLORE.platformName) -> R.drawable.ic_language
@@ -44,31 +34,10 @@ object MeverIconAttr {
         platform.contains(TERABOX.platformName) -> R.drawable.ic_terabox
         platform.contains(THREADS.platformName) -> R.drawable.ic_threads
         platform.contains(TIKTOK.platformName) -> R.drawable.ic_tiktok
-        platform.contains(TWITTER.platformName) -> R.drawable.ic_twitter
         platform.contains(VIDEY.platformName) -> R.drawable.ic_videy
+        platform.contains(X.platformName) -> R.drawable.ic_x
         platform.contains(YOUTUBE.platformName) -> R.drawable.ic_youtube
         platform.contains(YOUTUBE_MUSIC.platformName) -> R.drawable.ic_yt_music
         else -> R.drawable.ic_broken_image
-    }
-
-    fun getPlatformIconBackgroundColor(platform: String) = when {
-        platform.contains(AI.platformName) -> MeverCreamPink
-        platform.contains(APPLE_MUSIC.platformName) -> MeverPink
-        platform.contains(DOUYIN.platformName) -> MeverLightPurple
-        platform.contains(EXPLORE.platformName) -> MeverLightBlue
-        platform.contains(FACEBOOK.platformName) -> MeverLightBlue
-        platform.contains(INSTAGRAM.platformName) -> MeverCreamPink
-        platform.contains(PINTEREST.platformName) -> MeverLightPink
-        platform.contains(PIXIV.platformName) -> MeverLightBlue
-        platform.contains(SOUNDCLOUD.platformName) -> MeverCreamPink
-        platform.contains(SPOTIFY.platformName) -> MeverGreen
-        platform.contains(TERABOX.platformName) -> MeverSoftWhite
-        platform.contains(THREADS.platformName) -> MeverGreen
-        platform.contains(TIKTOK.platformName) -> MeverLightGreen
-        platform.contains(TWITTER.platformName) -> MeverLightPurple
-        platform.contains(VIDEY.platformName) -> MeverSoftGray
-        platform.contains(YOUTUBE.platformName) -> MeverPink
-        platform.contains(YOUTUBE_MUSIC.platformName) -> MeverPink
-        else -> MeverLightGray
     }
 }

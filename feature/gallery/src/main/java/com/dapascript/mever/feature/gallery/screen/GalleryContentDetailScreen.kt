@@ -6,7 +6,6 @@ import androidx.activity.SystemBarStyle.Companion.light
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.OptIn
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -37,9 +36,8 @@ import com.dapascript.mever.core.common.ui.component.MeverVideoPlayer
 import com.dapascript.mever.core.common.ui.component.rememberInterstitialAd
 import com.dapascript.mever.core.common.ui.theme.MeverBlack
 import com.dapascript.mever.core.common.ui.theme.MeverDark
+import com.dapascript.mever.core.common.ui.theme.MeverTheme
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
-import com.dapascript.mever.core.common.ui.theme.ThemeType.Dark
-import com.dapascript.mever.core.common.ui.theme.ThemeType.Light
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.convertFilename
 import com.dapascript.mever.core.common.util.getStoragePermission
@@ -73,16 +71,11 @@ internal fun GalleryContentDetailScreen(
     val context = LocalContext.current
     val activity = LocalActivity.current
     val resources = LocalResources.current
-    val themeType = themeType.collectAsStateValue()
     val isPipEnabled = isPipEnabled.collectAsStateValue()
     val getButtonClickCount = getButtonClickCount.collectAsStateValue()
     val scope = rememberCoroutineScope()
     val interstitialAd = rememberInterstitialAd { setStoragePermission = getStoragePermission() }
-    val darkTheme = when (themeType) {
-        Light -> false
-        Dark -> true
-        else -> isSystemInDarkTheme()
-    }
+    val darkTheme = MeverTheme.isDarkMode
 
     BaseScreen(
         hideDefaultTopBar = true,

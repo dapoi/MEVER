@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -51,7 +52,6 @@ import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Outlined
 import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardArgs
 import com.dapascript.mever.core.common.ui.attr.MeverIconAttr.getPlatformIcon
-import com.dapascript.mever.core.common.ui.attr.MeverIconAttr.getPlatformIconBackgroundColor
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.ActionMenu
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverButton
@@ -61,9 +61,9 @@ import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
 import com.dapascript.mever.core.common.ui.component.MeverPopupDropDownMenu
 import com.dapascript.mever.core.common.ui.component.meverShimmer
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp150
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp200
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp3
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp5
@@ -74,6 +74,8 @@ import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
+import com.dapascript.mever.core.common.util.DeviceType.PHONE
+import com.dapascript.mever.core.common.util.LocalDeviceType
 import com.dapascript.mever.core.common.util.PlatformType
 import com.dapascript.mever.core.common.util.PlatformType.ALL
 import com.dapascript.mever.core.common.util.isMusic
@@ -114,7 +116,7 @@ internal fun GalleryLandingScreen(
     viewModel: GalleryLandingViewModel = hiltViewModel()
 ) = with(viewModel) {
     val context = LocalContext.current
-    val downloadList = downloadList.collectAsStateValue()?.reversed()
+    val downloadList = downloadList.collectAsStateValue()
     val platformTypes = platformTypes.collectAsStateValue()
     val selectedItems = selectedItems.collectAsStateValue()
     val listState = rememberLazyListState()
@@ -156,11 +158,8 @@ internal fun GalleryLandingScreen(
                 )
             } else emptyList(),
             title = when {
-                isExpanded.value.not() && downloadFilter.isNullOrEmpty().not() -> stringResource(
-                    if (showSelector.not()) R.string.gallery
-                    else R.string.total_item_selected, selectedItems.size
-                )
-
+                showSelector -> stringResource(R.string.total_item_selected, selectedItems.size)
+                isExpanded.value.not() && downloadFilter.isNullOrEmpty().not() -> stringResource(R.string.gallery)
                 else -> ""
             },
             isCenterTitle = showSelector.not(),
@@ -415,86 +414,212 @@ private fun GalleryContentSection(
     onClickSelectedItem: (DownloadModel) -> Unit,
     onSetTitleHeight: (Int) -> Unit
 ) {
+    val deviceType = LocalDeviceType.current
     CompositionLocalProvider(LocalOverscrollFactory provides null) {
         val headerScroll = rememberScrollState()
 
         downloadList?.let {
             if (downloadList.isNotEmpty()) {
-                LazyColumn(
-                    modifier = modifier,
-                    state = listState,
-                    contentPadding = PaddingValues(bottom = Dp80)
-                ) {
-                    if (showSelector.not()) {
-                        item {
-                            Text(
-                                text = stringResource(R.string.gallery),
-                                style = typography.h2.copy(fontSize = Sp32),
-                                color = colors.blackWhite,
-                                modifier = Modifier
-                                    .padding(top = Dp16, start = Dp24, end = Dp24)
-                                    .onGloballyPositioned { onSetTitleHeight(it.size.height) }
-                            )
-                        }
-                    }
-                    stickyHeader {
-                        if (platformTypes.size > 1 && showSelector.not()) {
-                            FilterContent(
-                                modifier = Modifier
-                                    .background(colors.whiteDark)
-                                    .fillMaxWidth()
-                                    .horizontalScroll(headerScroll)
-                                    .padding(
-                                        start = Dp24,
-                                        end = Dp24,
-                                        top = Dp16,
-                                        bottom = Dp24
-                                    ),
-                                platformTypes = platformTypes,
-                                selectedFilter = selectedFilter
-                            ) { filter -> onClickFilter(filter) }
-                        }
-                        if (isExpanded().not()) {
-                            HorizontalDivider(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .shadow(Dp3),
-                                thickness = Dp1,
-                                color = colors.blackWhite.copy(alpha = 0.12f)
-                            )
-                        }
-                    }
-                    items(
-                        items = downloadList,
-                        key = { it.id },
-                        contentType = { it.status.name }
+                if (deviceType == PHONE) {
+                    LazyColumn(
+                        modifier = modifier,
+                        state = listState,
+                        contentPadding = PaddingValues(bottom = Dp80)
                     ) {
-                        MeverCard(
-                            modifier = Modifier.animateItem(),
-                            showSelector = showSelector,
-                            isSelected = it in selectedItems,
-                            cardArgs = MeverCardArgs(
-                                source = it.url,
-                                tag = it.tag,
-                                fileName = it.fileName,
-                                status = it.status,
-                                progress = it.progress,
-                                total = it.total,
-                                path = it.path,
-                                urlThumbnail = it.metaData,
-                                icon = getPlatformIcon(it.tag),
-                                iconBackgroundColor = getPlatformIconBackgroundColor(
-                                    it.tag
+                        if (showSelector.not()) {
+                            item {
+                                Text(
+                                    text = stringResource(R.string.gallery),
+                                    style = typography.h2.copy(fontSize = Sp32),
+                                    color = colors.blackWhite,
+                                    modifier = Modifier
+                                        .padding(top = Dp16, start = Dp24, end = Dp24)
+                                        .onGloballyPositioned { onSetTitleHeight(it.size.height) }
+                                )
+                            }
+                        }
+                        stickyHeader {
+                            if (platformTypes.size > 1 && showSelector.not()) {
+                                FilterContent(
+                                    modifier = Modifier
+                                        .background(colors.whiteDark)
+                                        .fillMaxWidth()
+                                        .horizontalScroll(headerScroll)
+                                        .padding(
+                                            start = Dp24,
+                                            end = Dp24,
+                                            top = Dp16,
+                                            bottom = Dp24
+                                        ),
+                                    platformTypes = platformTypes,
+                                    selectedFilter = selectedFilter
+                                ) { filter -> onClickFilter(filter) }
+                            }
+                            if (isExpanded().not()) {
+                                HorizontalDivider(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .shadow(Dp3),
+                                    thickness = Dp1,
+                                    color = colors.blackWhite.copy(alpha = 0.12f)
+                                )
+                            }
+                        }
+                        items(
+                            items = downloadList,
+                            key = { it.id },
+                            contentType = { it.status.name }
+                        ) {
+                            MeverCard(
+                                modifier = Modifier.animateItem(),
+                                showSelector = showSelector,
+                                isSelected = it in selectedItems,
+                                cardArgs = MeverCardArgs(
+                                    source = it.url,
+                                    tag = it.tag,
+                                    fileName = it.fileName,
+                                    status = it.status,
+                                    progress = it.progress,
+                                    total = it.total,
+                                    path = it.path,
+                                    urlThumbnail = it.metaData,
+                                    icon = getPlatformIcon(it.tag),
+                                    iconShadowColor = colors.purpleTransparent,
+                                    iconBackgroundColor = colors.whiteDark,
+                                    iconSize = Dp24,
+                                    iconPadding = Dp5
                                 ),
-                                iconSize = Dp24,
-                                iconPadding = Dp5
-                            ),
-                            onClickCard = { onClickCard(it) },
-                            onClickDelete = { onClickDelete(it) },
-                            onClickLong = { onClickLong(it) },
-                            onClickShare = { onClickShare(it) },
-                            onClickSelectedItem = { onClickSelectedItem(it) }
-                        )
+                                onClickCard = { onClickCard(it) },
+                                onClickDelete = { onClickDelete(it) },
+                                onClickLong = { onClickLong(it) },
+                                onClickShare = { onClickShare(it) },
+                                onClickSelectedItem = { onClickSelectedItem(it) }
+                            )
+                        }
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = modifier,
+                        state = listState,
+                        contentPadding = PaddingValues(bottom = Dp80)
+                    ) {
+                        if (showSelector.not()) {
+                            item {
+                                Text(
+                                    text = stringResource(R.string.gallery),
+                                    style = typography.h2.copy(fontSize = Sp32),
+                                    color = colors.blackWhite,
+                                    modifier = Modifier
+                                        .padding(top = Dp16, start = Dp24, end = Dp24)
+                                        .onGloballyPositioned { onSetTitleHeight(it.size.height) }
+                                )
+                            }
+                        }
+                        stickyHeader {
+                            if (platformTypes.size > 1 && showSelector.not()) {
+                                FilterContent(
+                                    modifier = Modifier
+                                        .background(colors.whiteDark)
+                                        .fillMaxWidth()
+                                        .horizontalScroll(headerScroll)
+                                        .padding(
+                                            start = Dp24,
+                                            end = Dp24,
+                                            top = Dp16,
+                                            bottom = Dp24
+                                        ),
+                                    platformTypes = platformTypes,
+                                    selectedFilter = selectedFilter
+                                ) { filter -> onClickFilter(filter) }
+                            }
+                            if (isExpanded().not()) {
+                                HorizontalDivider(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .shadow(Dp3),
+                                    thickness = Dp1,
+                                    color = colors.blackWhite.copy(alpha = 0.12f)
+                                )
+                            }
+                        }
+                        if (downloadList.size > 1) {
+                            items(
+                                items = downloadList.chunked(2),
+                                key = { it.first().id }
+                            ) { rowItems ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = Dp24)
+                                        .animateItem(),
+                                    horizontalArrangement = spacedBy(Dp16)
+                                ) {
+                                    rowItems.forEach { model ->
+                                        MeverCard(
+                                            modifier = Modifier.weight(1f),
+                                            showSelector = showSelector,
+                                            isSelected = model in selectedItems,
+                                            paddingValues = PaddingValues(vertical = Dp12),
+                                            cardArgs = MeverCardArgs(
+                                                source = model.url,
+                                                tag = model.tag,
+                                                fileName = model.fileName,
+                                                status = model.status,
+                                                progress = model.progress,
+                                                total = model.total,
+                                                path = model.path,
+                                                urlThumbnail = model.metaData,
+                                                icon = getPlatformIcon(model.tag),
+                                                iconShadowColor = colors.purpleTransparent,
+                                                iconBackgroundColor = colors.whiteDark,
+                                                iconSize = Dp24,
+                                                iconPadding = Dp5
+                                            ),
+                                            onClickCard = { onClickCard(model) },
+                                            onClickDelete = { onClickDelete(model) },
+                                            onClickLong = { onClickLong(model) },
+                                            onClickShare = { onClickShare(model) },
+                                            onClickSelectedItem = { onClickSelectedItem(model) }
+                                        )
+                                    }
+                                    if (rowItems.size < 2) {
+                                        Spacer(modifier = Modifier.weight(1f))
+                                    }
+                                }
+                            }
+                        } else {
+                            items(
+                                items = downloadList,
+                                key = { it.id },
+                                contentType = { it.status.name }
+                            ) {
+                                MeverCard(
+                                    modifier = Modifier.animateItem(),
+                                    showSelector = showSelector,
+                                    isSelected = it in selectedItems,
+                                    cardArgs = MeverCardArgs(
+                                        source = it.url,
+                                        tag = it.tag,
+                                        fileName = it.fileName,
+                                        status = it.status,
+                                        progress = it.progress,
+                                        total = it.total,
+                                        path = it.path,
+                                        urlThumbnail = it.metaData,
+                                        icon = getPlatformIcon(it.tag),
+                                        iconShadowColor = colors.purpleTransparent,
+                                        iconBackgroundColor = colors.whiteDark,
+                                        iconSize = Dp24,
+                                        iconPadding = Dp5
+                                    ),
+                                    onClickCard = { onClickCard(it) },
+                                    onClickDelete = { onClickDelete(it) },
+                                    onClickLong = { onClickLong(it) },
+                                    onClickShare = { onClickShare(it) },
+                                    onClickSelectedItem = { onClickSelectedItem(it) }
+                                )
+                            }
+                        }
                     }
                 }
             } else {
@@ -507,10 +632,10 @@ private fun GalleryContentSection(
                     )
                     MeverEmptyItem(
                         modifier = Modifier
-                            .fillMaxWidth()
+                            .weight(1f)
                             .padding(horizontal = Dp24),
-                        image = R.drawable.ic_empty_file,
-                        size = Dp200,
+                        image = R.drawable.ic_empty_state,
+                        title = stringResource(R.string.no_downloads),
                         description = stringResource(R.string.empty_list_desc)
                     )
                 }
@@ -549,14 +674,11 @@ private fun FilterContent(
     platformTypes: List<PlatformType>,
     selectedFilter: PlatformType,
     modifier: Modifier = Modifier,
+    isVertical: Boolean = false,
     onClickFilter: (PlatformType) -> Unit
 ) {
     if (platformTypes.size > 1) {
-        Row(
-            modifier = modifier,
-            horizontalArrangement = spacedBy(Dp8),
-            verticalAlignment = CenterVertically
-        ) {
+        val content = @Composable {
             MeverButton(
                 title = stringResource(R.string.all),
                 shape = RoundedCornerShape(Dp64),
@@ -571,6 +693,19 @@ private fun FilterContent(
                         buttonType = getButtonType(selectedFilter == type)
                     ) { onClickFilter(type) }
                 }
+        }
+
+        if (isVertical) {
+            Column(
+                modifier = modifier,
+                verticalArrangement = spacedBy(Dp8)
+            ) { content() }
+        } else {
+            Row(
+                modifier = modifier,
+                horizontalArrangement = spacedBy(Dp8),
+                verticalAlignment = CenterVertically
+            ) { content() }
         }
     }
 }

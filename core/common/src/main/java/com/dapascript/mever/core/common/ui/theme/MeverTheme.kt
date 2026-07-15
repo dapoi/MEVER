@@ -11,6 +11,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverColors.Dark
 import com.dapascript.mever.core.common.ui.theme.MeverColors.Light
 import com.dapascript.mever.core.common.util.DeviceType
 import com.dapascript.mever.core.common.util.LocalColors
+import com.dapascript.mever.core.common.util.LocalIsDarkMode
 import com.dapascript.mever.core.common.util.LocalTypography
 
 @Keep
@@ -29,6 +30,10 @@ object MeverTheme {
         @Composable
         @ReadOnlyComposable
         get() = LocalColors.current
+    val isDarkMode: Boolean
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalIsDarkMode.current
 }
 
 @Composable
@@ -42,6 +47,7 @@ fun MeverTheme(
 
     CompositionLocalProvider(
         LocalTypography provides meverTypography,
-        LocalColors provides customColors
+        LocalColors provides customColors,
+        LocalIsDarkMode provides darkTheme
     ) { MaterialTheme(content = content) }
 }

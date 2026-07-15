@@ -15,7 +15,7 @@ import kotlin.math.roundToInt
 
 object StorageUtil {
 
-    private val allowExt = setOf("mp4", "mp3", "jpg")
+    private val allowExt = setOf("mp4", "mp3", "jpg", "png")
 
     data class StorageInfo(
         val totalBytes: Long,

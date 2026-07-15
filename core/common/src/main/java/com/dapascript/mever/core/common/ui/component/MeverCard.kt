@@ -179,6 +179,7 @@ fun MeverCard(
                         icon?.let { icon ->
                             MeverIcon(
                                 icon = icon,
+                                iconShadowColor = iconShadowColor,
                                 iconBackgroundColor = iconBackgroundColor ?: MeverGray,
                                 iconSize = Dp24,
                                 iconPadding = Dp5
@@ -197,8 +198,7 @@ fun MeverCard(
                     Text(
                         text = stringResource(
                             R.string.type,
-                            if (isMusic(fileName)) "music/mp3"
-                            else getContentType(path)
+                            getContentType(path.ifEmpty { fileName })
                         ),
                         style = typography.label2,
                         color = MeverGray,

@@ -13,5 +13,5 @@ data class ImageAiResponse(val data: ImageAiData) {
         data class ImageAiMedia(val url: String? = null)
     }
 
-    fun mapToEntity() = ImageAiEntity(data.media?.map { it.url.orEmpty() }.orEmpty())
+    fun mapToEntity() = ImageAiEntity(data.media?.random()?.url.orEmpty())
 }

@@ -4,20 +4,11 @@ import android.content.Context
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement.SpaceAround
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
-import androidx.compose.foundation.layout.Arrangement.SpaceEvenly
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
@@ -32,13 +23,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -53,27 +45,18 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.Center
-import androidx.compose.ui.Alignment.Companion.CenterEnd
-import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.layout.ContentScale.Companion.Crop
-import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow.Companion.Ellipsis
-import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle.Event.ON_RESUME
 import androidx.lifecycle.Lifecycle.State.RESUMED
@@ -81,58 +64,46 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation3.runtime.NavKey
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Filled
-import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Outlined
 import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardArgs
 import com.dapascript.mever.core.common.ui.attr.MeverIconAttr.getPlatformIcon
-import com.dapascript.mever.core.common.ui.attr.MeverIconAttr.getPlatformIconBackgroundColor
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.ActionMenu
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
-import com.dapascript.mever.core.common.ui.component.MeverAutoSizableTextField
 import com.dapascript.mever.core.common.ui.component.MeverBannerAd
 import com.dapascript.mever.core.common.ui.component.MeverButton
 import com.dapascript.mever.core.common.ui.component.MeverCard
 import com.dapascript.mever.core.common.ui.component.MeverDeclinedPermissionDialog
 import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
-import com.dapascript.mever.core.common.ui.component.MeverFeaturesBanner
+import com.dapascript.mever.core.common.ui.component.MeverFeatureCard
 import com.dapascript.mever.core.common.ui.component.MeverIcon
+import com.dapascript.mever.core.common.ui.component.MeverImage
 import com.dapascript.mever.core.common.ui.component.MeverPermissionHandler
-import com.dapascript.mever.core.common.ui.component.MeverTabs
-import com.dapascript.mever.core.common.ui.component.MeverTextField
 import com.dapascript.mever.core.common.ui.component.MeverTopBar
 import com.dapascript.mever.core.common.ui.component.rememberInterstitialAd
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp10
+import com.dapascript.mever.core.common.ui.component.showShadow
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp0
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp150
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp160
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp20
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp200
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp5
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp75
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
-import com.dapascript.mever.core.common.ui.theme.MeverLightViolet
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp6
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
+import com.dapascript.mever.core.common.ui.theme.Dimens.DpHalf
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
-import com.dapascript.mever.core.common.ui.theme.MeverWaGreen
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
-import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp14
-import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
-import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp22
-import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp26
-import com.dapascript.mever.core.common.util.DeviceType
-import com.dapascript.mever.core.common.util.DeviceType.DESKTOP
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
-import com.dapascript.mever.core.common.util.DeviceType.TABLET
 import com.dapascript.mever.core.common.util.InAppUpdateManager
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.LocalDeviceType
@@ -142,9 +113,11 @@ import com.dapascript.mever.core.common.util.PlatformType.FACEBOOK
 import com.dapascript.mever.core.common.util.PlatformType.INSTAGRAM
 import com.dapascript.mever.core.common.util.PlatformType.PINTEREST
 import com.dapascript.mever.core.common.util.PlatformType.TIKTOK
-import com.dapascript.mever.core.common.util.PlatformType.TWITTER
+import com.dapascript.mever.core.common.util.PlatformType.X
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
 import com.dapascript.mever.core.common.util.changeToCurrentDate
+import com.dapascript.mever.core.common.util.clearFocusOnKeyboardDismiss
+import com.dapascript.mever.core.common.util.formatHighlightedText
 import com.dapascript.mever.core.common.util.getExtensionFromUrl
 import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.getStoragePermission
@@ -160,22 +133,25 @@ import com.dapascript.mever.core.common.util.storage.StorageUtil.StorageInfo
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getStorageInfo
 import com.dapascript.mever.core.common.util.storage.StorageUtil.isStorageFull
 import com.dapascript.mever.core.navigation.helper.Navigator
-import com.dapascript.mever.core.navigation.route.AiScreenRoute.AiImageResultRoute
-import com.dapascript.mever.core.navigation.route.ExploreScreenRoute.ExploreLandingRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute.Content
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute
+import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeQuickToolsRoute
+import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeQuickToolsRoute.FeatureCard
+import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeQuickToolsRoute.FeatureCard.QuickToolsType.AI_IMAGE
+import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeQuickToolsRoute.FeatureCard.QuickToolsType.FIND_IMAGE
+import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeQuickToolsRoute.FeatureCard.QuickToolsType.REMOVE_BG
+import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeQuickToolsRoute.FeatureCard.QuickToolsType.WA
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLandingRoute
-import com.dapascript.mever.core.navigation.route.WaScreenRoute.WaStatusLandingRoute
-import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.FeaturesOption
-import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.getArtStyles
-import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.getInspirePrompt
+import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.getCardColor
+import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.getRoute
 import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetDownload
 import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetPlatformSupport
 import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetYouTubeQuality
 import com.dapascript.mever.feature.home.viewmodel.HomeLandingViewModel
 import com.google.android.play.core.install.model.AppUpdateType.FLEXIBLE
 import com.google.android.play.core.install.model.UpdateAvailability.UPDATE_AVAILABLE
+import com.ketch.DownloadModel
 import com.ketch.Status.FAILED
 import com.ketch.Status.PAUSED
 import com.ketch.Status.SUCCESS
@@ -195,6 +171,7 @@ import java.lang.System.currentTimeMillis
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
+import androidx.compose.foundation.layout.Arrangement.Center as ArrangementCenter
 import com.dapascript.mever.feature.home.R as FeatureHomeR
 
 @Composable
@@ -207,44 +184,16 @@ internal fun HomeLandingScreen(
         useStatusBarsPadding = true,
         onBackHandler = { navigator.goBack() }
     ) {
-        HomeScreenContent(
-            modifier = Modifier.fillMaxSize(),
-            viewModel = this,
-            navigator = navigator
-        )
-    }
-}
-
-@Composable
-private fun HomeScreenContent(
-    viewModel: HomeLandingViewModel,
-    navigator: Navigator,
-    modifier: Modifier = Modifier
-) = with(viewModel) {
-    BoxWithConstraints(modifier = modifier) {
-        var generateButtonHeight by remember { mutableIntStateOf(0) }
         var isUpdateReady by remember { mutableStateOf(false) }
         var isUpdateRefused by rememberSaveable { mutableStateOf(false) }
         val activity = LocalActivity.current
         val context = LocalContext.current
-        val deviceType = LocalDeviceType.current
         val showBadge = showBadge.collectAsStateValue()
-        val isImageGeneratorFeatureActive = isImageGeneratorFeatureActive.collectAsStateValue()
         val getButtonClickCount = getButtonClickCount.collectAsStateValue()
-        val tabItems = remember { tabItems(context) }
-        val pagerState = rememberPagerState(pageCount = { tabItems.size })
-        val scrollState = rememberScrollState()
         val scope = rememberCoroutineScope()
         val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
         val inAppUpdateManager = remember { InAppUpdateManager(activity) }
         val updateLauncher = rememberLauncherForActivityResult(StartIntentSenderForResult()) { }
-        val interstitialController = rememberInterstitialAd {
-            navigator.navigateToImageGenerator(
-                prompt = promptState.text,
-                artStyle = selectedArtStyle.second,
-                totalImages = selectedImageCount
-            )
-        }
 
         LaunchedEffect(Unit) {
             inAppUpdateManager.registerListener { isUpdateReady = true }
@@ -288,252 +237,48 @@ private fun HomeScreenContent(
             }
         )
 
-        Column(
-            modifier = Modifier
-                .matchParentSize()
-                .verticalScroll(scrollState),
-            horizontalAlignment = CenterHorizontally
-        ) {
-            MeverTopBar(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = Dp24),
-                topBarArgs = TopBarArgs(
-                    iconBack = R.drawable.ic_mever,
-                    actionMenus = getListActionMenu(
-                        context,
-                        showBadge
-                    ).map { (name, resource) ->
-                        ActionMenu(
-                            icon = resource,
-                            nameIcon = name,
-                            showBadge = showBadge && name == stringResource(R.string.gallery),
-                        ) {
-                            navigator.handleClickActionMenu(
-                                context,
-                                name
-                            )
-                        }
-                    }
-                )
+        Box(modifier = Modifier.fillMaxSize()) {
+            HomeLandingContent(
+                modifier = Modifier.matchParentSize(),
+                viewModel = this@with,
+                context = context,
+                activity = activity,
+                scope = scope,
+                navigator = navigator,
+                getButtonClickCount = getButtonClickCount,
+                showBadge = showBadge,
+                lifecycleOwner = lifecycleOwner
             )
-            Column(
-                modifier = Modifier.height(this@BoxWithConstraints.maxHeight),
-                horizontalAlignment = CenterHorizontally
-            ) {
-                Spacer(modifier = Modifier.size(Dp16))
-                if (deviceType == PHONE) {
-                    if (isImageGeneratorFeatureActive) {
-                        MeverTabs(
-                            items = tabItems,
-                            pagerState = pagerState
-                        ) { scope.launch { pagerState.animateScrollToPage(it) } }
-                        Spacer(modifier = Modifier.size(Dp24))
-                    }
-                    CompositionLocalProvider(LocalOverscrollFactory provides null) {
-                        HorizontalPager(
-                            state = pagerState,
-                            userScrollEnabled = isImageGeneratorFeatureActive,
-                            modifier = Modifier
-                                .fillMaxHeight()
-                                .nestedScroll(remember {
-                                    object : NestedScrollConnection {
-                                        override fun onPreScroll(
-                                            available: Offset, source: NestedScrollSource
-                                        ) = if (available.y > 0) Offset.Zero
-                                        else Offset(
-                                            x = 0f,
-                                            y = -scrollState.dispatchRawDelta(-available.y)
-                                        )
-                                    }
-                                })
-                        ) { index ->
-                            when (index) {
-                                0 -> {
-                                    HomeDownloaderSection(
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .padding(horizontal = Dp24)
-                                            .navigationBarsPadding(),
-                                        viewModel = this@with,
-                                        context = context,
-                                        activity = activity,
-                                        navigator = navigator,
-                                        scope = scope,
-                                        getButtonClickCount = getButtonClickCount,
-                                        isImageGeneratorFeatureActive = isImageGeneratorFeatureActive,
-                                        lifecycleOwner = lifecycleOwner
-                                    )
-                                }
-
-                                1 -> {
-                                    HomeAiSection(
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .padding(
-                                                start = Dp24,
-                                                end = Dp24,
-                                                bottom = generateButtonHeight.dp
-                                            )
-                                            .navigationBarsPadding(),
-                                        context = context,
-                                        deviceType = deviceType,
-                                        prompt = promptState.text,
-                                        totalImageSelected = selectedImageCount,
-                                        artStyleSelected = selectedArtStyle.first,
-                                        onPromptChange = {
-                                            if (it.length <= 1000 || it.length < promptState.text.length) {
-                                                promptState = promptState.copy(text = it)
-                                            }
-                                        },
-                                        onImageCountSelected = { selectedImageCount = it },
-                                        onArtStyleSelected = { name, prompt ->
-                                            selectedArtStyle = Pair(
-                                                name,
-                                                prompt
-                                            )
-                                        }
-                                    )
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .navigationBarsPadding()
-                    ) {
-                        HomeDownloaderSection(
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(horizontal = Dp24),
-                            viewModel = this@with,
-                            context = context,
-                            activity = activity,
-                            navigator = navigator,
-                            scope = scope,
-                            getButtonClickCount = getButtonClickCount,
-                            isImageGeneratorFeatureActive = isImageGeneratorFeatureActive,
-                            isPhoneDevice = false,
-                            lifecycleOwner = lifecycleOwner
-                        )
-                        HomeAiSection(
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(horizontal = Dp24),
-                            context = context,
-                            deviceType = deviceType,
-                            prompt = promptState.text,
-                            totalImageSelected = selectedImageCount,
-                            artStyleSelected = selectedArtStyle.first,
-                            onPromptChange = {
-                                if (it.length <= 1000 || it.length < promptState.text.length) {
-                                    promptState = promptState.copy(text = it)
-                                }
-                            },
-                            onImageCountSelected = { selectedImageCount = it },
-                            onArtStyleSelected = { name, prompt ->
-                                selectedArtStyle = Pair(
-                                    name,
-                                    prompt
-                                )
-                            },
-                            onClickGenerateImage = {
-                                handleClickButton(
-                                    buttonClickCount = getButtonClickCount,
-                                    onIncrementClickCount = { incrementClickCount() },
-                                    onShowAds = { interstitialController.showAd() },
-                                    onClickAction = {
-                                        navigator.navigateToImageGenerator(
-                                            prompt = promptState.text,
-                                            artStyle = selectedArtStyle.second,
-                                            totalImages = selectedImageCount
-                                        )
-                                    }
-                                )
-                            }
-                        )
-                    }
-                }
-            }
-        }
-        if (pagerState.currentPage == 0 && deviceType == PHONE && showBadge) {
-            MeverBannerAd(
+            if (showBadge) MeverBannerAd(
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(BottomCenter)
             )
         }
-        AnimatedVisibility(
-            modifier = Modifier.align(BottomCenter),
-            visible = pagerState.currentPage == 1 && deviceType == PHONE,
-            enter = fadeIn(),
-            exit = fadeOut()
-        ) {
-            Column(
-                modifier = Modifier
-                    .padding(
-                        start = Dp24,
-                        end = Dp24,
-                        bottom = Dp24
-                    )
-                    .navigationBarsPadding()
-                    .onGloballyPositioned { generateButtonHeight = it.size.height },
-                horizontalAlignment = CenterHorizontally,
-                verticalArrangement = spacedBy(Dp16)
-            ) {
-                MeverButton(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(Dp48),
-                    title = stringResource(R.string.generate),
-                    isEnabled = promptState.text.isNotEmpty(),
-                    buttonType = Filled(
-                        backgroundColor = colors.alwaysPurple,
-                        contentColor = MeverWhite
-                    )
-                ) {
-                    handleClickButton(
-                        buttonClickCount = getButtonClickCount,
-                        onIncrementClickCount = { incrementClickCount() },
-                        onShowAds = { interstitialController.showAd() },
-                        onClickAction = {
-                            navigator.navigateToImageGenerator(
-                                prompt = promptState.text,
-                                artStyle = selectedArtStyle.second,
-                                totalImages = selectedImageCount
-                            )
-                        }
-                    )
-                }
-            }
-        }
     }
 }
 
-@Suppress("ASSIGNED_VALUE_IS_NEVER_READ")
 @Composable
-private fun HomeDownloaderSection(
+private fun HomeLandingContent(
     viewModel: HomeLandingViewModel,
     context: Context,
     activity: ComponentActivity,
-    navigator: Navigator,
     scope: CoroutineScope,
+    navigator: Navigator,
     getButtonClickCount: Int,
-    isImageGeneratorFeatureActive: Boolean,
+    showBadge: Boolean,
     lifecycleOwner: State<LifecycleOwner>,
-    modifier: Modifier = Modifier,
-    isPhoneDevice: Boolean = true
+    modifier: Modifier = Modifier
 ) = with(viewModel) {
-    val downloadList = downloadList.collectAsStateValue()?.reversed()
+    val deviceType = LocalDeviceType.current
+    val downloadList = downloadList.collectAsStateValue()
     val downloaderResponseState = downloaderResponseState.collectAsStateValue()
     val youtubeResolutions = youtubeResolutions.collectAsStateValue()
     val urlIntent = getUrlIntent.collectAsStateValue()
     var showLoading by remember { mutableStateOf(false) }
     var showYoutubeChooseQualityModal by remember { mutableStateOf(false) }
     var randomDonateDialogOffer by remember { mutableIntStateOf(0) }
-    var setStoragePermission by remember { mutableStateOf<List<String>>(emptyList()) }
+    var checkStoragePermissions by remember { mutableStateOf<List<String>>(emptyList()) }
     var showDeleteDialog by remember { mutableStateOf<Int?>(null) }
     var showFailedDialog by remember { mutableStateOf<Int?>(null) }
     var showUnsupportedYouTubeDialog by remember { mutableStateOf(false) }
@@ -543,8 +288,44 @@ private fun HomeDownloaderSection(
     var loadingItemIndex by remember { mutableStateOf<Int?>(null) }
     var isDownloadProcessing by remember { mutableStateOf(false) }
     var isInPreview by remember { mutableStateOf(false) }
+    val onClickCardAction: (DownloadModel) -> Unit = { download ->
+        with(download) {
+            when (status) {
+                SUCCESS -> {
+                    if (isMusic(fileName).not()) {
+                        navigator.navigate(
+                            GalleryContentDetailRoute(
+                                contents = downloadList.orEmpty().filterNot {
+                                    isMusic(it.fileName)
+                                }.map {
+                                    Content(
+                                        id = it.id,
+                                        isVideo = isVideo(it.path),
+                                        media = it.path,
+                                        fileName = it.fileName
+                                    )
+                                },
+                                initialIndex = downloadList.orEmpty().filterNot {
+                                    isMusic(it.fileName)
+                                }.indexOfFirst { it.id == id },
+                            )
+                        )
+                    } else {
+                        navigateToMusic(
+                            context = context,
+                            file = File(path)
+                        )
+                    }
+                }
+
+                FAILED -> showFailedDialog = id
+                PAUSED -> resumeDownload(id)
+                else -> pauseDownload(id)
+            }
+        }
+    }
     val interstitialController = rememberInterstitialAd {
-        setStoragePermission = getStoragePermission()
+        checkStoragePermissions = getStoragePermission()
     }
 
     LaunchedEffect(downloadList) {
@@ -562,7 +343,7 @@ private fun HomeDownloaderSection(
         if (urlIntent.isNotEmpty()) {
             urlSocialMediaState = TextFieldValue(urlIntent)
             resetUrlIntent()
-            setStoragePermission = getStoragePermission()
+            checkStoragePermissions = getStoragePermission()
         }
     }
 
@@ -588,11 +369,11 @@ private fun HomeDownloaderSection(
         }
     }
 
-    if (setStoragePermission.isNotEmpty()) {
+    if (checkStoragePermissions.isNotEmpty()) {
         MeverPermissionHandler(
-            permissions = setStoragePermission,
+            permissions = checkStoragePermissions,
             onGranted = {
-                setStoragePermission = emptyList()
+                checkStoragePermissions = emptyList()
                 checkStateBeforeDownload(
                     urlSocialMediaState = urlSocialMediaState,
                     storageInfo = storageInfo,
@@ -615,11 +396,11 @@ private fun HomeDownloaderSection(
                 MeverDeclinedPermissionDialog(
                     isPermissionsDeclined = isPermanentlyDeclined,
                     onGoToSetting = {
-                        setStoragePermission = emptyList()
-                        activity.goToSetting()
+                        checkStoragePermissions = emptyList()
+                        scope.launch { activity.goToSetting() }
                     },
                     onRetry = { retry() },
-                    onDismiss = { setStoragePermission = emptyList() }
+                    onDismiss = { checkStoragePermissions = emptyList() }
                 )
             }
         )
@@ -754,14 +535,14 @@ private fun HomeDownloaderSection(
 
     MeverDialog(
         showDialog = randomDonateDialogOffer == 1,
-        image = R.drawable.ic_wallet,
+        image = R.drawable.ic_coffee,
         title = stringResource(R.string.thanks),
         description = stringResource(R.string.donation_desc),
         primaryActionLabel = stringResource(R.string.sure),
         secondaryActionLabel = stringResource(R.string.later),
         onClickPrimaryAction = {
             randomDonateDialogOffer = 0
-            navigator.navigate(SettingLandingRoute(showQrisDialog = true))
+            navigator.navigateToSettingScreen(showQrisDialog = true)
         },
         onClickSecondaryAction = { randomDonateDialogOffer = 0 }
     )
@@ -822,46 +603,306 @@ private fun HomeDownloaderSection(
     }
 
     CompositionLocalProvider(LocalOverscrollFactory provides null) {
-        LazyColumn(modifier = modifier) {
-            if (isImageGeneratorFeatureActive.not() && isPhoneDevice) item {
-                Spacer(modifier = Modifier.size(Dp32))
-            }
+        LazyColumn(
+            modifier = modifier,
+            contentPadding = PaddingValues(bottom = if (showBadge) Dp64 else Dp0)
+        ) {
             item {
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(R.string.downloader_title),
-                    textAlign = if (isImageGeneratorFeatureActive.not() && isPhoneDevice) {
-                        TextAlign.Center
-                    } else TextAlign.Start,
-                    style = typography.h2.copy(fontSize = if (isImageGeneratorFeatureActive) Sp22 else Sp26),
-                    color = colors.blackWhite
+                MeverTopBar(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = Dp24),
+                    topBarArgs = TopBarArgs(
+                        iconBack = R.drawable.ic_mever,
+                        actionMenus = getListActionMenu(
+                            context = context,
+                            hasDownloadProgress = showBadge
+                        ).map { (name, resource) ->
+                            ActionMenu(
+                                icon = resource,
+                                nameIcon = name,
+                                showBadge = showBadge && name == stringResource(R.string.gallery),
+                            ) {
+                                navigator.handleClickActionMenu(
+                                    context = context,
+                                    name = name
+                                )
+                            }
+                        }
+                    )
                 )
             }
-            item {
-                Spacer(modifier = Modifier.size(Dp16))
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(R.string.downloader_desc),
-                    textAlign = if (isImageGeneratorFeatureActive.not() && isPhoneDevice) {
-                        TextAlign.Center
-                    } else TextAlign.Start,
-                    style = typography.body2,
-                    color = colors.grayLightGray
-                )
+            if (deviceType == PHONE) {
+                item {
+                    HeaderSection(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = Dp24, end = Dp24, top = Dp6)
+                    )
+                }
+                item {
+                    DownloaderSection(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = Dp24, end = Dp24, top = Dp16),
+                        isLoading = showLoading,
+                        getButtonClickCount = getButtonClickCount,
+                        onIncrementClickCount = { incrementClickCount() },
+                        onShowAds = { interstitialController.showAd() },
+                        onClickSeeSupportedPlatform = { showPlatformSupportDialog = true },
+                        onClickDownload = { url ->
+                            checkStoragePermissions = getStoragePermission()
+                            urlSocialMediaState = TextFieldValue(url)
+                        }
+                    )
+                }
+                item {
+                    QuickToolsSection(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = Dp24, end = Dp24, top = Dp32),
+                        context = context
+                    ) { route -> navigator.navigate(route) }
+                }
+                item {
+                    RecentlyDownloadedSection(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = Dp32, horizontal = Dp24)
+                            .navigationBarsPadding(),
+                        downloadList = downloadList.orEmpty().take(3),
+                        onClickViewAll = { navigator.navigateToGalleryScreen() },
+                        onClickDelete = { id -> showDeleteDialog = id },
+                        onClickShare = { path ->
+                            shareContent(
+                                context = context,
+                                contentPath = path
+                            )
+                        },
+                        onClickCard = onClickCardAction
+                    )
+                }
+            } else {
+                item {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = Dp24, vertical = Dp32)
+                            .navigationBarsPadding(),
+                        verticalArrangement = spacedBy(Dp32)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(IntrinsicSize.Max),
+                            horizontalArrangement = spacedBy(Dp32)
+                        ) {
+                            HeaderSection(modifier = Modifier.weight(1f))
+                            DownloaderSection(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxHeight(),
+                                isLoading = showLoading,
+                                getButtonClickCount = getButtonClickCount,
+                                onIncrementClickCount = { incrementClickCount() },
+                                onShowAds = { interstitialController.showAd() },
+                                onClickSeeSupportedPlatform = { showPlatformSupportDialog = true },
+                                onClickDownload = { url ->
+                                    checkStoragePermissions = getStoragePermission()
+                                    urlSocialMediaState = TextFieldValue(url)
+                                }
+                            )
+                        }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = spacedBy(Dp32)
+                        ) {
+                            QuickToolsSection(
+                                modifier = Modifier.weight(1f),
+                                context = context
+                            ) { route ->
+                                navigator.navigate(route)
+                            }
+                            RecentlyDownloadedSection(
+                                modifier = Modifier.weight(1f),
+                                downloadList = downloadList.orEmpty().take(2),
+                                isPhoneDevice = false,
+                                onClickViewAll = { navigator.navigateToGalleryScreen() },
+                                onClickDelete = { id -> showDeleteDialog = id },
+                                onClickShare = { path ->
+                                    shareContent(context = context, contentPath = path)
+                                },
+                                onClickCard = onClickCardAction
+                            )
+                        }
+                    }
+                }
             }
-            if (isImageGeneratorFeatureActive || isPhoneDevice.not()) item {
-                Spacer(modifier = Modifier.size(Dp24))
+        }
+    }
+}
+
+@Composable
+private fun HeaderSection(modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = CenterVertically,
+        horizontalArrangement = SpaceBetween
+    ) {
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = spacedBy(Dp6)
+        ) {
+            Text(
+                text = formatHighlightedText(
+                    fullText = stringResource(R.string.downloader_title),
+                    highlightedText = stringResource(R.string.target_title),
+                    highlightedColor = colors.alwaysPurple
+                ),
+                color = colors.blackWhite,
+                style = typography.h2
+            )
+            Text(
+                text = stringResource(R.string.downloader_desc),
+                style = typography.body3,
+                color = colors.alwaysGray
+            )
+        }
+        MeverImage(
+            modifier = Modifier.weight(1f),
+            source = R.drawable.ic_header
+        )
+    }
+}
+
+@Composable
+private fun DownloaderSection(
+    isLoading: Boolean,
+    getButtonClickCount: Int,
+    modifier: Modifier = Modifier,
+    onIncrementClickCount: () -> Unit,
+    onShowAds: () -> Unit,
+    onClickSeeSupportedPlatform: () -> Unit,
+    onClickDownload: (String) -> Unit
+) {
+    val focusManager = LocalFocusManager.current
+    var url by rememberSaveable { mutableStateOf("") }
+
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(Dp24),
+        colors = CardDefaults.cardColors(containerColor = colors.whiteDarkGray),
+        elevation = CardDefaults.cardElevation(defaultElevation = Dp2)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxHeight()
+                .padding(vertical = Dp16, horizontal = Dp12),
+            verticalArrangement = ArrangementCenter
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = CenterVertically,
+                horizontalArrangement = spacedBy(Dp12)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(Dp40)
+                        .clip(CircleShape)
+                        .background(colors.lightSoftPurpleDark),
+                    contentAlignment = Center
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_link),
+                        tint = MeverPurple,
+                        contentDescription = null
+                    )
+                }
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.weight(1f),
+                    verticalAlignment = CenterVertically
+                ) {
+                    Box(modifier = Modifier.weight(1f)) {
+                        url.ifEmpty {
+                            Text(
+                                text = stringResource(R.string.paste_url),
+                                style = typography.body2,
+                                color = colors.alwaysGray
+                            )
+                        }
+                        BasicTextField(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clearFocusOnKeyboardDismiss(focusManager),
+                            value = url,
+                            singleLine = true,
+                            cursorBrush = SolidColor(colors.alwaysGray),
+                            textStyle = typography.body2.copy(color = colors.blackWhite),
+                            onValueChange = { url = it }
+                        )
+                    }
+                    Spacer(modifier = Modifier.size(Dp4))
+                    if (url.isNotEmpty()) {
+                        IconButton(
+                            modifier = Modifier.size(Dp24),
+                            onClick = { url = "" }
+                        ) {
+                            Icon(
+                                modifier = Modifier.size(Dp20),
+                                painter = painterResource(R.drawable.ic_clear),
+                                tint = colors.alwaysGray,
+                                contentDescription = "Clear"
+                            )
+                        }
+                    }
+                }
+                MeverButton(
+                    modifier = Modifier.size(Dp40),
+                    title = "",
+                    buttonType = Filled(
+                        backgroundColor = colors.alwaysPurple,
+                        contentColor = MeverWhite
+                    ),
+                    shape = CircleShape,
+                    isEnabled = getPlatformType(url.trim()) != ALL && isLoading.not(),
+                    isLoading = isLoading
+                ) {
+                    handleClickButton(
+                        buttonClickCount = getButtonClickCount,
+                        onIncrementClickCount = { onIncrementClickCount() },
+                        onShowAds = { onShowAds() },
+                        onClickAction = { if (isLoading.not()) onClickDownload(url.trim()) }
+                    )
+                }
+            }
+            HorizontalDivider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = Dp16),
+                thickness = DpHalf,
+                color = colors.lightGrayGray
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = CenterVertically,
+                horizontalArrangement = SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(R.string.platforms_supported),
+                    style = typography.label3,
+                    color = colors.alwaysGray
+                )
+                Row(
+                    modifier = Modifier.onCustomClick { onClickSeeSupportedPlatform() },
                     verticalAlignment = CenterVertically,
                     horizontalArrangement = spacedBy(Dp16)
                 ) {
-                    Row(horizontalArrangement = spacedBy((-Dp20))) {
+                    Row(horizontalArrangement = spacedBy(Dp6)) {
                         val displayedPlatforms = listOf(
                             FACEBOOK,
                             INSTAGRAM,
                             TIKTOK,
-                            TWITTER,
+                            X,
                             PINTEREST
                         )
                         val otherCount = PlatformType.entries.count {
@@ -873,426 +914,208 @@ private fun HomeDownloaderSection(
                                 PlatformType.YOUTUBE_MUSIC,
                                 PlatformType.DOUYIN
                             )
-                        } + if (youtubeResolutions.isNotEmpty()) 1 else 0
+                        }
 
                         displayedPlatforms.forEach { type ->
                             MeverIcon(
                                 icon = getPlatformIcon(type.platformName),
-                                iconBackgroundColor = getPlatformIconBackgroundColor(type.platformName),
-                                iconSize = Dp48,
-                                iconPadding = Dp10
+                                iconShadowColor = colors.purpleTransparent,
+                                iconBackgroundColor = colors.whiteDark,
+                                iconSize = Dp24,
+                                iconPadding = Dp5
                             )
                         }
                         Box(
                             modifier = Modifier
+                                .size(Dp24)
+                                .showShadow(colors.purpleTransparent)
                                 .background(
-                                    color = MeverLightViolet,
+                                    color = colors.lightSoftPurpleDark,
                                     shape = CircleShape
-                                )
-                                .size(Dp48),
+                                ),
                             contentAlignment = Center
                         ) {
                             Text(
                                 text = "+$otherCount",
                                 textAlign = TextAlign.Center,
-                                style = typography.bodyBold1,
-                                color = MeverPurple
-                            )
-                        }
-                    }
-                    Text(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(Dp8))
-                            .onCustomClick { showPlatformSupportDialog = true },
-                        text = stringResource(R.string.see_all_supported_platforms),
-                        maxLines = 2,
-                        overflow = Ellipsis,
-                        style = typography.bodyBold1,
-                        color = MeverPurple
-                    )
-                }
-            }
-            item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = Dp24),
-                    verticalAlignment = CenterVertically,
-                    horizontalArrangement = spacedBy(Dp8)
-                ) {
-                    MeverTextField(
-                        modifier = Modifier.weight(1f),
-                        context = context,
-                        value = urlSocialMediaState,
-                        onValueChange = { urlSocialMediaState = it }
-                    )
-                    MeverButton(
-                        modifier = Modifier.size(Dp48),
-                        title = "",
-                        buttonType = Filled(
-                            backgroundColor = colors.alwaysPurple,
-                            contentColor = MeverWhite
-                        ),
-                        shape = CircleShape,
-                        isEnabled = getPlatformType(
-                            urlSocialMediaState.text.trim()
-                        ) != ALL && showLoading.not(),
-                        isLoading = showLoading
-                    ) {
-                        handleClickButton(
-                            buttonClickCount = getButtonClickCount,
-                            onIncrementClickCount = { incrementClickCount() },
-                            onShowAds = { interstitialController.showAd() },
-                            onClickAction = {
-                                if (showLoading.not()) setStoragePermission = getStoragePermission()
-                            }
-                        )
-                    }
-                }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(IntrinsicSize.Max),
-                    horizontalArrangement = spacedBy(Dp16)
-                ) {
-                    val features = getFeaturesSectionItem(
-                        viewModel = this@with,
-                        context = context
-                    )
-                    val activeFeatures = features.filter { it.isEnabled == true }
-
-                    activeFeatures.forEach { data ->
-                        MeverFeaturesBanner(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight(),
-                            icon = data.icon,
-                            title = data.featureName,
-                            arrowColor = data.arrowColor,
-                            isSingleItem = activeFeatures.size == 1
-                        ) { navigator.navigate(data.route) }
-                    }
-                }
-                Spacer(modifier = Modifier.size(Dp8))
-            }
-            stickyHeader {
-                Row(
-                    modifier = Modifier
-                        .background(color = colors.whiteDark)
-                        .fillMaxWidth()
-                        .padding(top = Dp16),
-                    verticalAlignment = CenterVertically,
-                    horizontalArrangement = SpaceBetween
-                ) {
-                    Text(
-                        text = stringResource(R.string.recently_downloaded),
-                        style = typography.bodyBold1,
-                        color = colors.blackWhite
-                    )
-                    if (downloadList.isNullOrEmpty().not()) Text(
-                        text = stringResource(R.string.view_all),
-                        style = typography.body2,
-                        color = colors.alwaysPurple,
-                        modifier = Modifier
-                            .animateItem()
-                            .clip(RoundedCornerShape(Dp8))
-                            .onCustomClick { navigator.navigateToGalleryScreen() }
-                    )
-                }
-            }
-            downloadList?.let { files ->
-                if (files.isNotEmpty()) {
-                    items(
-                        items = files.toMutableStateList().apply {
-                            if (size > 3) removeRange(
-                                3,
-                                size
-                            )
-                        },
-                        key = { it.id },
-                        contentType = { it.status.name }
-                    ) { model ->
-                        MeverCard(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(Dp12))
-                                .animateItem(),
-                            paddingValues = PaddingValues(vertical = Dp24),
-                            cardArgs = MeverCardArgs(
-                                source = model.url,
-                                tag = model.tag,
-                                fileName = model.fileName,
-                                status = model.status,
-                                progress = model.progress,
-                                total = model.total,
-                                path = model.path,
-                                urlThumbnail = model.metaData,
-                                icon = getPlatformIcon(model.tag),
-                                iconBackgroundColor = getPlatformIconBackgroundColor(model.tag),
-                                iconSize = Dp24,
-                                iconPadding = Dp5
-                            ),
-                            onClickCard = {
-                                with(model) {
-                                    when (status) {
-                                        SUCCESS -> {
-                                            if (isMusic(fileName).not()) {
-                                                navigator.navigate(
-                                                    GalleryContentDetailRoute(
-                                                        contents = downloadList.filterNot {
-                                                            isMusic(it.fileName)
-                                                        }.map {
-                                                            Content(
-                                                                id = it.id,
-                                                                isVideo = isVideo(it.path),
-                                                                media = it.path,
-                                                                fileName = it.fileName
-                                                            )
-                                                        },
-                                                        initialIndex = downloadList.filterNot {
-                                                            isMusic(it.fileName)
-                                                        }.indexOfFirst { it.id == id },
-                                                    )
-                                                )
-                                            } else {
-                                                navigateToMusic(
-                                                    context = context,
-                                                    file = File(path)
-                                                )
-                                            }
-                                        }
-
-                                        FAILED -> showFailedDialog = id
-                                        PAUSED -> resumeDownload(id)
-                                        else -> pauseDownload(id)
-                                    }
-                                }
-                            },
-                            onClickLong = { showDeleteDialog = model.id },
-                            onClickShare = {
-                                shareContent(
-                                    context = context,
-                                    contentPath = model.path
-                                )
-                            },
-                            onClickDelete = { showDeleteDialog = model.id })
-                    }
-                    item { Spacer(modifier = Modifier.size(Dp24)) }
-                } else item {
-                    MeverEmptyItem(
-                        modifier = Modifier.padding(top = Dp24),
-                        image = R.drawable.ic_empty_file,
-                        size = Dp200,
-                        description = stringResource(R.string.empty_list_desc)
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun HomeAiSection(
-    context: Context,
-    prompt: String,
-    deviceType: DeviceType,
-    totalImageSelected: Int,
-    artStyleSelected: String,
-    modifier: Modifier = Modifier,
-    onPromptChange: (String) -> Unit,
-    onImageCountSelected: (Int) -> Unit,
-    onArtStyleSelected: (String, String) -> Unit,
-    onClickGenerateImage: (() -> Unit)? = null
-) = CompositionLocalProvider(LocalOverscrollFactory provides null) {
-    val imagesCountGenerated = remember { List(4) { it + 1 } }
-    val artStyles = remember { getArtStyles(context) }
-
-    Column(modifier = modifier) {
-        LazyColumn(modifier = Modifier.fillMaxWidth()) {
-            item {
-                Text(
-                    modifier = Modifier.padding(bottom = Dp16),
-                    text = stringResource(R.string.image_generator),
-                    style = typography.h2.copy(fontSize = Sp22),
-                    color = colors.blackWhite
-                )
-            }
-            item {
-                Text(
-                    modifier = Modifier.padding(bottom = Dp24),
-                    text = stringResource(R.string.image_generator_desc),
-                    style = typography.body2,
-                    color = colors.grayLightGray
-                )
-            }
-            item {
-                MeverAutoSizableTextField(
-                    heightFreeTextContainer = Dp150,
-                    value = prompt,
-                    fontSize = Sp18,
-                    minFontSize = Sp14,
-                    maxLines = 4,
-                    onClickInspire = { onPromptChange(getInspirePrompt()) },
-                    onValueChange = { onPromptChange(it) }
-                )
-            }
-            item {
-                Text(
-                    modifier = Modifier.padding(vertical = Dp24),
-                    text = stringResource(R.string.total_images),
-                    style = typography.bodyBold1,
-                    color = colors.blackWhite
-                )
-            }
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = spacedBy(Dp8)
-                ) {
-                    imagesCountGenerated.forEach { count ->
-                        MeverButton(
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(Dp40),
-                            title = count.toString(),
-                            buttonType = if (totalImageSelected == count) Filled(
-                                backgroundColor = colors.alwaysPurple,
-                                contentColor = MeverWhite
-                            ) else Outlined(
-                                borderColor = colors.alwaysPurple,
-                                contentColor = colors.alwaysPurple
-                            ),
-                            shape = RoundedCornerShape(Dp12)
-                        ) { if (totalImageSelected != count) onImageCountSelected(count) }
-                    }
-                }
-            }
-            item {
-                Row(modifier = Modifier.padding(vertical = Dp24)) {
-                    Text(
-                        text = stringResource(R.string.art_style),
-                        style = typography.bodyBold1,
-                        color = colors.blackWhite
-                    )
-                    Spacer(modifier = Modifier.size(Dp4))
-                    Text(
-                        text = stringResource(R.string.optional),
-                        style = typography.body2,
-                        color = colors.blackWhite
-                    )
-                    if (artStyleSelected.isNotEmpty()) Box(modifier = Modifier.weight(1f)) {
-                        Text(
-                            modifier = Modifier
-                                .align(CenterEnd)
-                                .clip(RoundedCornerShape(Dp12))
-                                .onCustomClick {
-                                    onArtStyleSelected(
-                                        "",
-                                        ""
-                                    )
-                                },
-                            text = stringResource(R.string.clear),
-                            style = typography.bodyBold2,
-                            color = colors.alwaysPurple
-                        )
-                    }
-                }
-            }
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = when (deviceType) {
-                        TABLET -> SpaceAround
-                        DESKTOP -> SpaceEvenly
-                        else -> SpaceBetween
-                    },
-                    verticalAlignment = CenterVertically
-                ) {
-                    artStyles.forEach {
-                        val imageSize by animateDpAsState(
-                            targetValue = if (artStyleSelected == it.styleName) Dp80 else Dp75
-                        )
-                        Column(
-                            horizontalAlignment = CenterHorizontally,
-                            verticalArrangement = spacedBy(Dp4)
-                        ) {
-                            Box(
-                                modifier = Modifier.size(Dp80),
-                                contentAlignment = Center
-                            ) {
-                                Image(
-                                    modifier = Modifier
-                                        .size(imageSize)
-                                        .clip(RoundedCornerShape(Dp12))
-                                        .then(
-                                            if (artStyleSelected == it.styleName) Modifier.border(
-                                                width = Dp4,
-                                                color = colors.alwaysPurple,
-                                                shape = RoundedCornerShape(Dp12)
-                                            )
-                                            else Modifier
-                                        )
-                                        .onCustomClick {
-                                            if (artStyleSelected != it.styleName) {
-                                                onArtStyleSelected(
-                                                    it.styleName,
-                                                    it.promptKeywords
-                                                )
-                                            }
-                                        },
-                                    painter = painterResource(it.image),
-                                    contentScale = Crop,
-                                    contentDescription = it.styleName
-                                )
-                            }
-                            Text(
-                                text = it.styleName,
                                 style = typography.bodyBold3,
-                                color = colors.blackWhite
+                                color = colors.alwaysPurple
                             )
                         }
                     }
                 }
-            }
-            if (deviceType != PHONE) item {
-                Spacer(modifier = Modifier.size(Dp32))
-                MeverButton(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(Dp48),
-                    title = stringResource(R.string.generate),
-                    buttonType = Filled(
-                        backgroundColor = colors.alwaysPurple,
-                        contentColor = MeverWhite
-                    ),
-                    isEnabled = prompt.isNotEmpty()
-                ) { onClickGenerateImage?.invoke() }
             }
         }
     }
 }
 
 @Composable
-private fun getFeaturesSectionItem(
-    viewModel: HomeLandingViewModel,
-    context: Context
-): List<FeaturesOption> = with(viewModel) {
-    val isWhatsAppStatusFeatureActive = isWhatsAppStatusFeatureActive.collectAsStateValue()
-    val isGoImgFeatureActive = isGoImgFeatureActive.collectAsStateValue()
+private fun QuickToolsSection(
+    context: Context,
+    modifier: Modifier = Modifier,
+    onClick: (NavKey) -> Unit
+) {
+    val deviceType = LocalDeviceType.current
 
-    return listOf(
-        FeaturesOption(
-            featureName = context.getString(R.string.view_wa_status),
+    Column(
+        modifier = modifier,
+        verticalArrangement = spacedBy(Dp16)
+    ) {
+        val featuresCard = remember(context) { getFeatureCards(context) }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = CenterVertically,
+            horizontalArrangement = SpaceBetween
+        ) {
+            Text(
+                text = stringResource(R.string.quick_tools),
+                style = typography.h3,
+                color = colors.blackWhite
+            )
+            Text(
+                modifier = Modifier.onCustomClick {
+                    onClick(HomeQuickToolsRoute(featureCards = featuresCard))
+                },
+                text = stringResource(R.string.all_tools),
+                style = typography.bodyBold2,
+                color = colors.alwaysPurple
+            )
+        }
+
+        if (deviceType == PHONE) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(IntrinsicSize.Max),
+                horizontalArrangement = spacedBy(Dp16)
+            ) {
+                featuresCard.take(2).forEach { data ->
+                    MeverFeatureCard(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight(),
+                        icon = data.icon,
+                        title = data.featureName,
+                        desc = data.featureDesc,
+                        cardColor = data.toolsType.getCardColor(),
+                        titleStyle = typography.bodyBold2,
+                        descStyle = typography.body3
+                    ) { onClick(data.toolsType.getRoute()) }
+                }
+            }
+        } else {
+            featuresCard.take(2).forEach { data ->
+                MeverFeatureCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    icon = data.icon,
+                    title = data.featureName,
+                    desc = data.featureDesc,
+                    cardColor = data.toolsType.getCardColor(),
+                    titleStyle = typography.bodyBold2,
+                    descStyle = typography.body3
+                ) { onClick(data.toolsType.getRoute()) }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RecentlyDownloadedSection(
+    downloadList: List<DownloadModel>,
+    modifier: Modifier = Modifier,
+    isPhoneDevice: Boolean = true,
+    onClickViewAll: () -> Unit,
+    onClickDelete: (Int) -> Unit,
+    onClickShare: (String) -> Unit,
+    onClickCard: (DownloadModel) -> Unit
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = spacedBy(Dp16)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = CenterVertically,
+            horizontalArrangement = SpaceBetween
+        ) {
+            Text(
+                text = stringResource(R.string.recently_downloaded),
+                style = typography.h3,
+                color = colors.blackWhite
+            )
+            if (downloadList.isNotEmpty()) Text(
+                modifier = Modifier.onCustomClick { onClickViewAll() },
+                text = stringResource(R.string.view_all),
+                style = typography.bodyBold2,
+                color = colors.alwaysPurple
+            )
+        }
+        if (downloadList.isEmpty()) {
+            MeverEmptyItem(
+                modifier = Modifier.fillMaxWidth(),
+                image = R.drawable.ic_empty_state,
+                imageSize = Dp160,
+                title = stringResource(R.string.no_downloads),
+                description = stringResource(R.string.empty_list_desc),
+                isHorizontal = isPhoneDevice
+            )
+        } else {
+            downloadList.forEach { download ->
+                MeverCard(
+                    modifier = Modifier
+                        .padding(top = Dp16)
+                        .clip(RoundedCornerShape(Dp12)),
+                    paddingValues = PaddingValues(vertical = Dp0),
+                    cardArgs = MeverCardArgs(
+                        source = download.url,
+                        tag = download.tag,
+                        fileName = download.fileName,
+                        status = download.status,
+                        progress = download.progress,
+                        total = download.total,
+                        path = download.path,
+                        urlThumbnail = download.metaData,
+                        icon = getPlatformIcon(download.tag),
+                        iconShadowColor = colors.purpleTransparent,
+                        iconBackgroundColor = colors.whiteDark,
+                        iconSize = Dp24,
+                        iconPadding = Dp5
+                    ),
+                    onClickDelete = { onClickDelete(download.id) },
+                    onClickShare = { onClickShare(download.path) },
+                    onClickCard = { onClickCard(download) }
+                )
+            }
+        }
+    }
+}
+
+private fun getFeatureCards(context: Context) = with(context) {
+    setOf(
+        FeatureCard(
+            featureName = getString(R.string.wa_status),
+            featureDesc = getString(R.string.wa_status_desc),
             icon = R.drawable.ic_wa,
-            arrowColor = MeverWaGreen,
-            isEnabled = isWhatsAppStatusFeatureActive,
-            route = WaStatusLandingRoute
+            toolsType = WA
         ),
-        FeaturesOption(
-            featureName = context.getString(R.string.find_image),
-            icon = R.drawable.ic_explore_image,
-            arrowColor = colors.purpleYellow,
-            isEnabled = isGoImgFeatureActive,
-            route = ExploreLandingRoute
+        FeatureCard(
+            featureName = getString(R.string.remove_bg),
+            featureDesc = getString(R.string.remove_bg_desc),
+            icon = R.drawable.ic_remove_bg,
+            toolsType = REMOVE_BG
+        ),
+        FeatureCard(
+            featureName = getString(R.string.images_finder),
+            featureDesc = getString(R.string.images_finder_desc),
+            icon = R.drawable.ic_find_image,
+            toolsType = FIND_IMAGE
+        ),
+        FeatureCard(
+            featureName = getString(R.string.ai_image_generator),
+            featureDesc = getString(R.string.ai_image_generator_desc),
+            icon = R.drawable.ic_awesome,
+            toolsType = AI_IMAGE
         )
     )
 }
@@ -1317,11 +1140,6 @@ private fun getListActionMenu(context: Context, hasDownloadProgress: Boolean) = 
     context.getString(R.string.settings) to FeatureHomeR.drawable.ic_setting
 )
 
-private fun tabItems(context: Context) = listOf(
-    context.getString(R.string.downloader_tab),
-    context.getString(R.string.ai_tab)
-)
-
 private fun Navigator.handleClickActionMenu(context: Context, name: String) = when (name) {
     context.getString(R.string.gallery) -> navigateToGalleryScreen()
     context.getString(R.string.settings) -> navigateToSettingScreen(showQrisDialog = false)
@@ -1333,15 +1151,3 @@ private fun Navigator.navigateToGalleryScreen() = navigate(GalleryLandingRoute)
 private fun Navigator.navigateToSettingScreen(
     showQrisDialog: Boolean
 ) = navigate(SettingLandingRoute(showQrisDialog))
-
-private fun Navigator.navigateToImageGenerator(
-    prompt: String,
-    artStyle: String,
-    totalImages: Int
-) = navigate(
-    route = AiImageResultRoute(
-        prompt = prompt,
-        artStyle = artStyle,
-        totalImages = totalImages
-    )
-)

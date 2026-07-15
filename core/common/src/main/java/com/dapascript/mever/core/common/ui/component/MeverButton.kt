@@ -49,7 +49,7 @@ fun MeverButton(
     Box(
         modifier = modifier
             .background(
-                color = if (isEnabled) backgroundColor else colors.lightGrayDarkGray,
+                color = if (isEnabled) backgroundColor else colors.lightGrayGray,
                 shape = shape
             )
             .applyBorder(

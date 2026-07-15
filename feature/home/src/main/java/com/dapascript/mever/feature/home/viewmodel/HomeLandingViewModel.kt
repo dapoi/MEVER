@@ -3,12 +3,13 @@ package com.dapascript.mever.feature.home.viewmodel
 import android.content.Context
 import android.media.MediaScannerConnection
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
+import com.dapascript.mever.core.common.util.PlatformType.AI
+import com.dapascript.mever.core.common.util.PlatformType.EXPLORE
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE_MUSIC
 import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.sanitizeFilename
@@ -24,6 +25,7 @@ import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFolder
 import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.source.local.MeverDataStore
+import com.ketch.DownloadModel
 import com.ketch.Ketch
 import com.ketch.Status.PAUSED
 import com.ketch.Status.PROGRESS
@@ -36,11 +38,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.File
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
 
@@ -52,9 +57,6 @@ class HomeLandingViewModel @Inject constructor(
 ) : BaseViewModel() {
     private val meverFolder by lazy { getMeverFolder() }
 
-    /**
-     * Downloader
-     */
     var urlSocialMediaState by mutableStateOf(TextFieldValue(""))
     var selectedQuality by mutableStateOf("")
     var shouldShowDonationOfferDialog by mutableStateOf(true)
@@ -62,23 +64,49 @@ class HomeLandingViewModel @Inject constructor(
     var errorMessage by mutableStateOf("")
     var storageInfo by mutableStateOf<StorageInfo?>(null)
 
-    /**
-     * Image Generator
-     */
-    var promptState by mutableStateOf(TextFieldValue(""))
-    var selectedImageCount by mutableIntStateOf(1)
-    var selectedArtStyle by mutableStateOf(Pair("", ""))
+    private val _refreshTrigger = MutableStateFlow(0)
 
     val downloadList = ketch.observeDownloads()
-        .map { downloads ->
-            downloads.map { downloadModel ->
-                downloadModel.copy(
+        .combine(_refreshTrigger) { downloads, _ ->
+            val folderFiles = getMeverFiles(meverFolder)
+            val ketchFiles = downloads.map { it.fileName.lowercase() }.toSet()
+
+            val ketchItems = downloads.map {
+                it.copy(
                     path = getFilePath(
                         dir = meverFolder,
-                        fileName = downloadModel.fileName
+                        fileName = it.fileName
                     )?.absolutePath.orEmpty()
                 )
             }
+
+            val localItems = folderFiles
+                .filter { it.name.lowercase() !in ketchFiles }
+                .map { file ->
+                    DownloadModel(
+                        id = file.name.hashCode(),
+                        url = "file://${file.absolutePath}",
+                        path = file.absolutePath,
+                        fileName = file.name,
+                        tag = if (file.name.contains("BG_REMOVAL", true)) AI.platformName else EXPLORE.platformName,
+                        status = SUCCESS,
+                        progress = 100,
+                        total = file.length(),
+                        metaData = file.absolutePath,
+                        eTag = "",
+                        failureReason = "",
+                        headers = hashMapOf(),
+                        lastModified = file.lastModified(),
+                        speedInBytePerMs = 0f,
+                        timeQueued = file.lastModified()
+                    )
+                }
+
+            (ketchItems + localItems).sortedWith(
+                compareByDescending<DownloadModel> { 
+                    it.status in listOf(QUEUED, STARTED, PROGRESS) 
+                }.thenByDescending { it.lastModified }
+            )
         }
         .distinctUntilChanged()
         .flowOn(Default)
@@ -96,24 +124,6 @@ class HomeLandingViewModel @Inject constructor(
             started = WhileSubscribed(5000),
             initialValue = false
         )
-
-    val isImageGeneratorFeatureActive = dataStore.isImageAiEnabled.stateIn(
-        scope = viewModelScope,
-        started = WhileSubscribed(),
-        initialValue = true
-    )
-
-    val isGoImgFeatureActive = dataStore.isGoImgEnabled.stateIn(
-        scope = viewModelScope,
-        started = WhileSubscribed(),
-        initialValue = true
-    )
-
-    val isWhatsAppStatusFeatureActive = dataStore.isWhatsAppStatusFeatureActive.stateIn(
-        scope = viewModelScope,
-        started = WhileSubscribed(),
-        initialValue = true
-    )
 
     val youtubeResolutions = dataStore.getYoutubeVideoAndAudioQuality.stateIn(
         scope = viewModelScope,
@@ -183,7 +193,15 @@ class HomeLandingViewModel @Inject constructor(
 
     fun retryDownload(id: Int) = ketch.retry(id)
 
-    fun delete(id: Int) = ketch.clearDb(id)
+    fun delete(id: Int) {
+        val item = downloadList.value?.find { it.id == id }
+        if (item != null && item.url.startsWith("file://")) {
+            File(item.path).delete()
+            _refreshTrigger.update { it + 1 }
+        } else {
+            ketch.clearDb(id)
+        }
+    }
 
     fun syncToGallery(context: Context, fileName: String) {
         viewModelScope.launch {
@@ -199,6 +217,7 @@ class HomeLandingViewModel @Inject constructor(
     }
 
     fun refreshDatabase() {
+        _refreshTrigger.update { it + 1 }
         viewModelScope.launch {
             val existingNames = getMeverFiles(meverFolder)
                 .map { it.name.lowercase() }

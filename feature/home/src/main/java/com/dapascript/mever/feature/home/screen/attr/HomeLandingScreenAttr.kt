@@ -1,71 +1,30 @@
 package com.dapascript.mever.feature.home.screen.attr
 
-import android.content.Context
-import androidx.compose.ui.graphics.Color
-import androidx.navigation3.runtime.NavKey
-import com.dapascript.mever.feature.home.R
-import com.dapascript.mever.core.common.R as coreUiR
+import androidx.compose.runtime.Composable
+import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
+import com.dapascript.mever.core.navigation.route.AiScreenRoute.AiBackgroundRemovalRoute
+import com.dapascript.mever.core.navigation.route.AiScreenRoute.AiImageGeneratorRoute
+import com.dapascript.mever.core.navigation.route.ExploreScreenRoute.ExploreLandingRoute
+import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeQuickToolsRoute.FeatureCard.QuickToolsType
+import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeQuickToolsRoute.FeatureCard.QuickToolsType.AI_IMAGE
+import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeQuickToolsRoute.FeatureCard.QuickToolsType.FIND_IMAGE
+import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeQuickToolsRoute.FeatureCard.QuickToolsType.REMOVE_BG
+import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeQuickToolsRoute.FeatureCard.QuickToolsType.WA
+import com.dapascript.mever.core.navigation.route.WaScreenRoute.WaStatusLandingRoute
 
 object HomeLandingScreenAttr {
-    data class FeaturesOption(
-        val featureName: String,
-        val icon: Int,
-        val route: NavKey,
-        val isEnabled: Boolean? = null,
-        val arrowColor: Color? = null
-    )
+    @Composable
+    internal fun QuickToolsType.getCardColor() = when (this) {
+        WA -> colors.lightGreenDarkGray
+        REMOVE_BG -> colors.lightPurpleDarkGray
+        FIND_IMAGE -> colors.lightOrangeDarkGray
+        AI_IMAGE -> colors.lightPinkDarkGray
+    }
 
-    data class StyleOption(
-        val styleName: String,
-        val promptKeywords: String,
-        val image: Int
-    )
-
-    fun getInspirePrompt() = listOf(
-        "A lonely robot discovering an ancient forest",
-        "A futuristic city floating in the clouds",
-        "A dreamy landscape with giant glowing mushrooms",
-        "A cinematic moment of two strangers meeting at a station",
-        "An astronaut landing in an alien underwater world",
-        "An oil painting of life in the 31st century",
-        "Flying cats in a pastel-colored sky",
-        "A time traveler arrives in a neon-lit future city",
-        "A portrait of a woman from a mystical forest kingdom",
-        "A child playing among purple-colored clouds",
-        "A cyberpunk hero standing in the neon rain",
-        "A sunset scene like an indie romance movie",
-        "A secret garden hidden in the sky",
-        "A post-apocalyptic world in soft pastel colors",
-        "A fantasy character walking on a bridge of light",
-        "A battle between galactic creatures in a futuristic city",
-        "A little girl looking at Earth from the moon",
-        "An ancient illustration of a city that never existed",
-        "A light festival in a floating village",
-        "A surreal painting of an endless dream"
-    ).random()
-
-    fun getArtStyles(context: Context) = with(context) {
-        listOf(
-            StyleOption(
-                styleName = getString(coreUiR.string.dreamy),
-                promptKeywords = "dreamy, soft colors, ethereal, pastel tones",
-                image = R.drawable.dreamy
-            ),
-            StyleOption(
-                styleName = getString(coreUiR.string.cinematic),
-                promptKeywords = "cinematic lighting, film still, dramatic composition",
-                image = R.drawable.cinematic
-            ),
-            StyleOption(
-                styleName = getString(coreUiR.string.futuristic),
-                promptKeywords = "futuristic, neon lights, sci-fi style, high-tech",
-                image = R.drawable.futuristic
-            ),
-            StyleOption(
-                styleName = getString(coreUiR.string.painterly),
-                promptKeywords = "oil painting, brush strokes, traditional art",
-                image = R.drawable.oil
-            )
-        )
+    internal fun QuickToolsType.getRoute() = when (this) {
+        WA -> WaStatusLandingRoute
+        REMOVE_BG -> AiBackgroundRemovalRoute
+        FIND_IMAGE -> ExploreLandingRoute
+        AI_IMAGE -> AiImageGeneratorRoute
     }
 }

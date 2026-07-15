@@ -19,12 +19,12 @@ import androidx.compose.ui.text.style.TextAlign
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.component.MeverBottomSheet
 import com.dapascript.mever.core.common.ui.component.MeverPlatformSupportedItem
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp10
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
+import com.dapascript.mever.core.common.ui.theme.Dimens.DpHalf
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
@@ -66,8 +66,8 @@ internal fun HandleBottomSheetPlatformSupport(
         )
         HorizontalDivider(
             modifier = Modifier.fillMaxWidth(),
-            thickness = Dp1,
-            color = colors.lightGrayDarkGray
+            thickness = DpHalf,
+            color = colors.lightGrayGray
         )
         Column(
             modifier = Modifier
@@ -101,16 +101,16 @@ internal fun HandleBottomSheetPlatformSupport(
 
                 if (index < platforms.size - 1) HorizontalDivider(
                     modifier = Modifier.fillMaxWidth(),
-                    thickness = Dp1,
-                    color = colors.lightGrayDarkGray
+                    thickness = DpHalf,
+                    color = colors.lightGrayGray
                 )
             }
             Spacer(modifier = Modifier.size(Dp4))
         }
         HorizontalDivider(
             modifier = Modifier.fillMaxWidth(),
-            thickness = Dp1,
-            color = colors.lightGrayDarkGray
+            thickness = DpHalf,
+            color = colors.lightGrayGray
         )
         Text(
             modifier = Modifier

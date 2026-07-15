@@ -99,13 +99,9 @@ internal fun SplashScreen(
             }
         }
 
-        LaunchedEffect(Unit) {
-            hideSystemBar(activity, true)
-            getAppConfig()
-        }
-
         LaunchedEffect(appConfigState) {
             appConfigState.handleUiState(
+                onLoading = { hideSystemBar(activity, true) },
                 onSuccess = { response ->
                     if (response.maintenanceDay != null) {
                         showMaintenanceModal = true

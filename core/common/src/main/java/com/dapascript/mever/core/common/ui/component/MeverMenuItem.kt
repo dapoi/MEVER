@@ -53,7 +53,6 @@ fun MeverMenuItem(
             bottomEnd = Dp8
         )
     }
-    val descriptionColor = remember(themeColors.blackWhite) { themeColors.blackWhite.copy(alpha = 0.5f) }
 
     Row(
         modifier = modifier
@@ -87,14 +86,13 @@ fun MeverMenuItem(
                         text = leadingDesc,
                         style = themeTypography.bodyBold3,
                         fontStyle = Italic,
-                        color = descriptionColor
+                        color = themeColors.alwaysGray
                     )
                 }
             }
         }
         when (trailingType) {
             is Default -> {
-                val trailingTitleColor = trailingType.trailingTitleColor ?: themeColors.blackWhite
                 val boxBackground = remember(MeverLightGray) { MeverLightGray.copy(alpha = 0.1f) }
                 Row(
                     horizontalArrangement = spacedBy(Dp16),
@@ -104,7 +102,7 @@ fun MeverMenuItem(
                         Text(
                             text = title,
                             style = themeTypography.body2,
-                            color = trailingTitleColor
+                            color = themeColors.blackWhite.copy(alpha = 0.7f)
                         )
                     }
                     Box(

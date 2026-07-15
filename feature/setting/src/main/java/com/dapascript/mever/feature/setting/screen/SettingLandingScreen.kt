@@ -14,7 +14,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.LocalOverscrollFactory
-import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -51,7 +50,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap.Companion.Round
+import androidx.compose.ui.graphics.StrokeCap.Companion.Butt
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
@@ -142,8 +141,8 @@ internal fun SettingLandingScreen(
     var showPaypalDialog by remember { mutableStateOf(false) }
     val isExpanded = remember(listState, titleHeight) {
         derivedStateOf {
-            listState.firstVisibleItemIndex == 0 &&
-                    listState.firstVisibleItemScrollOffset < titleHeight / 2
+            if (titleHeight == 0) return@derivedStateOf true
+            listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset < (titleHeight / 2)
         }
     }
     var showBottomSheetQris by rememberSaveable { mutableStateOf<Boolean?>(null) }
@@ -185,8 +184,8 @@ internal fun SettingLandingScreen(
         LaunchedEffect(args.showQrisDialog) {
             if (showBottomSheetQris == null && args.showQrisDialog) {
                 delay(300.milliseconds)
-                listState.animateScrollBy(listState.layoutInfo.totalItemsCount * 100f)
                 showBottomSheetQris = true
+                listState.animateScrollToItem(listState.layoutInfo.totalItemsCount - 1)
             }
         }
 
@@ -458,7 +457,7 @@ private fun AvailableStorageSection(
                     color = statusColor,
                     strokeWidth = Dp8,
                     trackColor = colors.lightGrayDarkGray,
-                    strokeCap = Round,
+                    strokeCap = Butt,
                     gapSize = Dp0
                 )
                 Text(

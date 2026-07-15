@@ -14,6 +14,7 @@ import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.pm.PackageManager.NameNotFoundException
 import android.graphics.Bitmap
 import android.graphics.Bitmap.CompressFormat.JPEG
+import android.graphics.Bitmap.CompressFormat.PNG
 import android.graphics.BitmapFactory.decodeStream
 import android.media.MediaMetadataRetriever
 import android.os.Build.VERSION.SDK_INT
@@ -29,6 +30,10 @@ import android.util.Patterns.WEB_URL
 import android.webkit.MimeTypeMap.getSingleton
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.core.app.ShareCompat.IntentBuilder
 import androidx.core.content.FileProvider.getUriForFile
 import androidx.core.net.toUri
@@ -49,7 +54,7 @@ import com.dapascript.mever.core.common.util.PlatformType.SPOTIFY
 import com.dapascript.mever.core.common.util.PlatformType.TERABOX
 import com.dapascript.mever.core.common.util.PlatformType.THREADS
 import com.dapascript.mever.core.common.util.PlatformType.TIKTOK
-import com.dapascript.mever.core.common.util.PlatformType.TWITTER
+import com.dapascript.mever.core.common.util.PlatformType.X
 import com.dapascript.mever.core.common.util.PlatformType.VIDEY
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE_MUSIC
@@ -116,11 +121,16 @@ suspend fun getExtensionFromUrl(
 suspend fun saveBitmapToStorage(
     context: Context,
     bitmap: Bitmap,
-    fileName: String
+    fileName: String,
+    isPng: Boolean = false
 ) = withContext(IO) {
+    val extension = if (isPng) "png" else "jpeg"
+    val mimeType = if (isPng) "image/png" else "image/jpeg"
+    val format = if (isPng) PNG else JPEG
+
     val values = ContentValues().apply {
-        put(DISPLAY_NAME, fileName)
-        put(MIME_TYPE, "image/jpeg")
+        put(DISPLAY_NAME, if (fileName.endsWith(".$extension")) fileName else "$fileName.$extension")
+        put(MIME_TYPE, mimeType)
         if (SDK_INT >= Q) put(RELATIVE_PATH, DIRECTORY_PICTURES)
     }
 
@@ -131,10 +141,27 @@ suspend fun saveBitmapToStorage(
         uri?.let {
             val outputStream: OutputStream? = resolver.openOutputStream(it)
             outputStream?.use { stream ->
-                bitmap.compress(JPEG, 100, stream)
+                bitmap.compress(format, 100, stream)
             }
             true
         } ?: false
+    } catch (e: Exception) {
+        e.printStackTrace()
+        false
+    }
+}
+
+suspend fun saveBitmapToFile(
+    bitmap: Bitmap,
+    file: File,
+    isPng: Boolean = false
+) = withContext(IO) {
+    try {
+        val format = if (isPng) PNG else JPEG
+        file.outputStream().use {
+            bitmap.compress(format, 100, it)
+        }
+        true
     } catch (e: Exception) {
         e.printStackTrace()
         false
@@ -154,10 +181,16 @@ fun calculateDownloadPercentage(downloadedBytes: Long, totalBytes: Long): String
     return percentage.toInt().toString() + "%"
 }
 
-fun getContentType(path: String) = when {
-    path.isEmpty() -> "..."
-    isVideo(path) -> "video/mp4"
-    else -> "image/jpg"
+fun getContentType(path: String): String {
+    if (path.isEmpty()) return "..."
+    val extension = path.substringAfterLast(".", "").lowercase()
+    return when (extension) {
+        "mp4" -> "video/mp4"
+        "png" -> "image/png"
+        "mp3" -> "audio/mpeg"
+        "jpg", "jpeg" -> "image/jpeg"
+        else -> "image/jpeg"
+    }
 }
 
 fun getContentTypeFromFile(file: File) =
@@ -337,7 +370,7 @@ fun getPlatformType(url: String, type: String = "video"): PlatformType {
         listTeraboxUrl.any { url.contains(it) } -> TERABOX
         listThreadsUrl.any { url.contains(it) } -> THREADS
         listTiktokUrl.any { url.contains(it) } -> TIKTOK
-        listTwitterUrl.any { url.contains(it) } -> TWITTER
+        listTwitterUrl.any { url.contains(it) } -> X
         listVideyUrl.any { url.contains(it) } -> VIDEY
         listYouTubeUrl.any { url.contains(it) } -> {
             if (type.contains("audio")) YOUTUBE_MUSIC else YOUTUBE
@@ -457,10 +490,8 @@ fun displayFileName(fileName: String) = try {
 
         "$finalPrefix - ${day.toInt()} $monthName $year - $timeString"
     } else {
-        cleanName.replace("_", " ")
+        cleanName.replace("_", "")
             .split(" ")
-            .filter { it.isNotBlank() }
-            .take(5)
             .joinToString(" ") { word ->
                 word.lowercase().replaceFirstChar { it.uppercase() }
             }
@@ -477,4 +508,21 @@ fun recreateActivity(context: Context, activity: Activity) {
     }
     context.startActivity(intent)
     activity.finish()
+}
+
+fun formatHighlightedText(
+    fullText: String,
+    highlightedText: String,
+    highlightedColor: Color
+) = buildAnnotatedString {
+    val startIndex = fullText.indexOf(highlightedText, ignoreCase = true)
+    if (startIndex != -1) {
+        append(fullText.substring(0, startIndex))
+        withStyle(style = SpanStyle(color = highlightedColor)) {
+            append(fullText.substring(startIndex, startIndex + highlightedText.length))
+        }
+        append(fullText.substring(startIndex + highlightedText.length))
+    } else {
+        append(fullText)
+    }
 }

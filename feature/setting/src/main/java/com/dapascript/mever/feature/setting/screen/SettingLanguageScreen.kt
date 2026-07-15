@@ -4,7 +4,6 @@ import androidx.activity.SystemBarStyle.Companion.dark
 import androidx.activity.SystemBarStyle.Companion.light
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.LocalOverscrollFactory
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -51,12 +50,11 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp3
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.MeverDark
+import com.dapascript.mever.core.common.ui.theme.MeverTheme
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
-import com.dapascript.mever.core.common.ui.theme.ThemeType.Dark
-import com.dapascript.mever.core.common.ui.theme.ThemeType.Light
 import com.dapascript.mever.core.common.util.LanguageManager
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.recreateActivity
@@ -78,12 +76,7 @@ internal fun SettingLanguageScreen(
     val scrollState = rememberScrollState()
     val scope = rememberCoroutineScope()
     val isFirstTimeChangeLanguage = isFirstTimeChangeLanguage.collectAsStateValue()
-    val themeType = themeType.collectAsStateValue()
-    val darkTheme = when (themeType) {
-        Light -> false
-        Dark -> true
-        else -> isSystemInDarkTheme()
-    }
+    val darkTheme = MeverTheme.isDarkMode
     var titleHeight by rememberSaveable { mutableIntStateOf(0) }
     val isExpanded by remember { derivedStateOf { scrollState.value < titleHeight / 2 } }
     var languageCode by rememberSaveable { mutableStateOf(args.languageCode) }

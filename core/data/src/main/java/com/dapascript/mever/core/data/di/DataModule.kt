@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.work.WorkManager
 import com.chuckerteam.chucker.api.ChuckerCollector
 import com.chuckerteam.chucker.api.ChuckerInterceptor
+import com.dapascript.mever.core.common.util.AiBackgroundRemovalProcessor
 import com.dapascript.mever.core.data.BuildConfig.BASE_URL
 import com.dapascript.mever.core.data.BuildConfig.DEBUG
 import com.dapascript.mever.core.data.repository.MeverRepository
@@ -92,4 +93,7 @@ class DataModule {
     fun provideWorkManager(
         @ApplicationContext context: Context
     ): WorkManager = WorkManager.getInstance(context)
+
+    @Provides
+    fun provideAiBackgroundRemovalProcessor(): AiBackgroundRemovalProcessor = AiBackgroundRemovalProcessor()
 }

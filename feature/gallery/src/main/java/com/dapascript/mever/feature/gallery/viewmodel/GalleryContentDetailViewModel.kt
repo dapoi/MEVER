@@ -2,7 +2,6 @@ package com.dapascript.mever.feature.gallery.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
-import com.dapascript.mever.core.common.ui.theme.ThemeType.System
 import com.dapascript.mever.core.common.util.PlatformType.EXPLORE
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFolder
 import com.dapascript.mever.core.data.source.local.MeverDataStore
@@ -20,12 +19,6 @@ class GalleryContentDetailViewModel @Inject constructor(
 ) : BaseViewModel() {
 
     private val meverFolder by lazy { getMeverFolder() }
-
-    val themeType = dataStore.getTheme.stateIn(
-        scope = viewModelScope,
-        started = WhileSubscribed(),
-        initialValue = System
-    )
 
     val isPipEnabled = dataStore.isPipEnabled.stateIn(
         scope = viewModelScope,

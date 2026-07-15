@@ -1,16 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:locale="en">
-    <string name="downloader_tab">Downloader</string>
-    <string name="ai_tab">AI Image</string>
-    <string name="downloader_title">Content Downloader</string>
-    <string name="downloader_desc">Save your favorite social media content — paste link, tap, done!</string>
-    <string name="see_all_supported_platforms">Tap to see more…</string>
+    <string name="downloader_title">All-in-One\nSocial Saver!</string>
+    <string name="target_title">Saver!</string>
+    <string name="downloader_desc">No more switching apps for every platform. Just one tap, instantly downloaded.</string>
     <string name="platforms_supported">Supported Platforms</string>
-    <string name="paste_url">Paste the link here</string>
+    <string name="paste_url">Paste the link here…</string>
     <string name="download">Download</string>
-    <string name="download_all">Download All</string>
     <string name="recently_downloaded">Recently Downloaded</string>
-    <string name="view_all">View All</string>
+    <string name="view_all">View All ></string>
     <string name="choose_preferrence">Choose Preference</string>
     <string name="system_default">System Default</string>
     <string name="dark">Dark</string>
@@ -33,7 +30,7 @@
     <string name="download_failed_desc">Oops, your download failed 😅 Want to try again?</string>
     <string name="retry">Try Again</string>
     <string name="cancel">Cancel</string>
-    <string name="empty_list_desc">Looks like you haven’t saved anything yet~</string>
+    <string name="empty_list_desc">Looks like you haven’t downloaded anything yet~</string>
     <string name="gallery">Gallery</string>
     <string name="settings">Settings</string>
     <string name="explore">Find Image</string>
@@ -55,9 +52,7 @@
     <string name="gmail_not_found">Gmail app not found 😕</string>
     <string name="choose_quality">Choose Quality</string>
     <string name="type_anything">Type something…</string>
-    <string name="image_generator">Image Generator</string>
     <string name="image_generator_desc">Create images from text with the latest AI technology — fast and super easy!</string>
-    <string name="total_images">Total Images</string>
     <string name="art_style">Art Style</string>
     <string name="optional">(Optional)</string>
     <string name="cinematic">Cinematic</string>
@@ -112,14 +107,12 @@
     <string name="failed_playback">This video failed to play 😕 please try again later.</string>
     <string name="disclaimer_supported_platforms">By using this app, you agree to follow each platform’s terms and copyright. Make sure you have the right to download and use the content under applicable laws.</string>
     <string name="unsupported_yt">Sorry… YouTube downloads aren’t available right now</string>
-    <string name="find_image">Find Awesome Images!</string>
     <string name="lets_start">Let’s Get Started!</string>
     <string name="easy_to_use">Easy to use and 100% free!</string>
     <string name="supports">Supports</string>
     <string name="multiple">Multiple</string>
     <string name="source">Source</string>
     <string name="download_easily">Download media from Social Media easily.</string>
-    <string name="view_wa_status">View WhatsApp Status</string>
     <string name="empty_wa_status_desc">No status found. Please check your WhatsApp first.</string>
     <string name="wa_not_installed">WhatsApp is not installed on this device.</string>
     <string name="install">Install</string>
@@ -128,14 +121,36 @@
     <string name="submit">Submit</string>
     <string name="wa_regular">WA Regular</string>
     <string name="wa_business">WA Business</string>
-    <string name="wa_status">WhatsApp Status</string>
     <string name="when_video_is_playing">When video is playing</string>
     <string name="clean_cache">Clean Cache</string>
     <string name="email" translatable="false">daffaprabowo5@gmail.com</string>
     <string name="update_available">Update Available</string>
     <string name="update_has_completed">The update has been completed. Please restart the app to enjoy the new features and improvements!</string>
     <string name="faq">FAQ</string>
-
+    <string name="quick_tools">Quick Tools</string>
+    <string name="all_tools">All Tools ></string>
+    <string name="wa_status">WhatsApp Status</string>
+    <string name="wa_status_desc">View WhatsApp status before it disappears.</string>
+    <string name="remove_bg">Clear Background</string>
+    <string name="remove_bg_desc">Remove background from the image.</string>
+    <string name="images_finder">Images Finder</string>
+    <string name="images_finder_desc">Explore high-quality images for free.</string>
+    <string name="ai_image_generator">AI Image Generator</string>
+    <string name="ai_image_generator_desc">Create stunning images from text with AI.</string>
+    <string name="wa_empty_title">No Status Found</string>
+    <string name="no_downloads">No Downloads Yet</string>
+    <string name="select_image">Select Image</string>
+    <string name="save_png">Save PNG</string>
+    <string name="process_now">Process Now</string>
+    <string name="pick_portrait">Pick a portrait photo</string>
+    <string name="supported_format">PNG, JPG or WEBP supported</string>
+    <string name="processing_ai">Processing AI Model…</string>
+    <string name="hint_generating">Generating high-precision mask on-device.</string>
+    <string name="hint_mlkit">Works best with people or clear objects.</string>
+    <string name="hint_ready">Ready. Preview looks good? Tap \'Process Now\'.</string>
+    <string name="hint_success">Success! Background is now transparent.</string>
+    <string name="failed_process_ai">Failed to process image. Try another photo.</string>
+    <string name="failed_save_image">Failed to save image.</string>
     <string name="faq_q1">So, what\'s MEVER all about?</string>
     <string name="faq_a1">MEVER is your go-to tool for grabbing media from social platforms. It\'s fast, simple, and gets the job done!</string>
     <string name="faq_q2">Is this gonna cost me anything?</string>

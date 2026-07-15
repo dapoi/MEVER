@@ -2,12 +2,14 @@ package com.dapascript.mever.core.common.ui.component
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -55,6 +57,7 @@ import kotlin.math.ceil
 fun MeverAutoSizableTextField(
     value: String,
     minFontSize: TextUnit,
+    modifier: Modifier = Modifier,
     isReadOnly: Boolean = false,
     fontSize: TextUnit = Sp32,
     maxLines: Int = MAX_VALUE,
@@ -63,7 +66,7 @@ fun MeverAutoSizableTextField(
     heightFreeTextContainer: Dp? = null,
     onClickInspire: (() -> Unit)? = null,
     onValueChange: (String) -> Unit
-) = BoxWithConstraints {
+) = BoxWithConstraints(modifier = modifier) {
     val interactionSource = remember { MutableInteractionSource() }
     val focusManager = LocalFocusManager.current
     var nFontSize = fontSize
@@ -82,7 +85,8 @@ fun MeverAutoSizableTextField(
 
     var intrinsics = calculateParagraph()
     with(LocalDensity.current) {
-        while ((intrinsics.height.toDp() > maxHeight || intrinsics.didExceedMaxLines) && nFontSize >= minFontSize) {
+        val containerHeight = if (heightFreeTextContainer != null) heightFreeTextContainer.toPx() else maxHeight.toPx()
+        while ((intrinsics.height > containerHeight || intrinsics.didExceedMaxLines) && nFontSize >= minFontSize) {
             nFontSize *= scaleFactor
             intrinsics = calculateParagraph()
         }
@@ -90,6 +94,7 @@ fun MeverAutoSizableTextField(
 
     Column(
         modifier = Modifier
+            .fillMaxSize()
             .shadow(elevation = Dp3, shape = shape)
             .background(color = colors.whiteDarkGray, shape = shape)
             .clip(shape),
@@ -99,7 +104,7 @@ fun MeverAutoSizableTextField(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(Dp8)
-                .then(heightFreeTextContainer?.let { Modifier.height(it) } ?: Modifier)
+                .then(heightFreeTextContainer?.let { Modifier.height(it) } ?: Modifier.weight(1f))
                 .clearFocusOnKeyboardDismiss(focusManager),
             textStyle = typography.body1.copy(
                 fontSize = nFontSize,
@@ -131,7 +136,7 @@ fun MeverAutoSizableTextField(
                     modifier = Modifier
                         .size(Dp22)
                         .clip(shape)
-                        .onCustomClick { it.invoke() },
+                        .clickable { it.invoke() },
                     painter = painterResource(R.drawable.ic_inspire),
                     tint = colors.blackWhite,
                     contentDescription = "Inspire"

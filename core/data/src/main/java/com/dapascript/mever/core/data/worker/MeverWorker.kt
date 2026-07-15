@@ -16,7 +16,7 @@ import com.dapascript.mever.core.common.util.PlatformType.SPOTIFY
 import com.dapascript.mever.core.common.util.PlatformType.TERABOX
 import com.dapascript.mever.core.common.util.PlatformType.THREADS
 import com.dapascript.mever.core.common.util.PlatformType.TIKTOK
-import com.dapascript.mever.core.common.util.PlatformType.TWITTER
+import com.dapascript.mever.core.common.util.PlatformType.X
 import com.dapascript.mever.core.common.util.PlatformType.VIDEY
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE_MUSIC
@@ -122,7 +122,7 @@ class MeverWorker @AssistedInject constructor(
         TERABOX -> apiService.getTeraBoxDownloader(url).mapToEntity().orEmpty()
         THREADS -> apiService.getThreadsDownloader(url).mapToEntity().orEmpty()
         TIKTOK -> apiService.getTiktokDownloader(url).mapToEntity()
-        TWITTER -> apiService.getTwitterDownloader(url).mapToEntity().orEmpty()
+        X -> apiService.getTwitterDownloader(url).mapToEntity().orEmpty()
         VIDEY -> apiService.getVideyDownloader(url).mapToEntity()
         YOUTUBE, YOUTUBE_MUSIC -> apiService.getYoutubeDownloader(url, quality, type).mapToEntity()
         else -> emptyList()
