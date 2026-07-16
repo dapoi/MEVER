@@ -72,6 +72,16 @@ class MeverDataStore @Inject constructor(
         preferences[KEY_IS_ONBOARDED] ?: false
     }
 
+    suspend fun setShowSupportedPlatform(isShow: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[KEY_SHOW_SUPPORTED_PLATFORM] = isShow
+        }
+    }
+
+    val showSupportedPlatform = dataStore.data.map { preferences ->
+        preferences[KEY_SHOW_SUPPORTED_PLATFORM] ?: true
+    }
+
     suspend fun saveTheme(mode: ThemeType) {
         dataStore.edit { preferences ->
             preferences[KEY_THEME] = mode.name
@@ -131,8 +141,9 @@ class MeverDataStore @Inject constructor(
         private val KEY_VERSION = stringPreferencesKey("version")
         private val KEY_IS_IMAGE_AI_ENABLED = booleanPreferencesKey("is_image_ai_enabled")
         private val KEY_IS_GO_IMG_ENABLED = booleanPreferencesKey("is_go_img_enabled")
-        private val KEY_RESOLUTIONS = stringPreferencesKey("youtube_resolutions")
         private val KEY_IS_ONBOARDED = booleanPreferencesKey("is_onboarded")
+        private val KEY_SHOW_SUPPORTED_PLATFORM = booleanPreferencesKey("show_supported_platform")
+        private val KEY_RESOLUTIONS = stringPreferencesKey("youtube_resolutions")
         private val KEY_THEME = stringPreferencesKey("theme")
         private val KEY_CLICK_COUNT = intPreferencesKey("click_count")
         private val KEY_URL_INTENT = stringPreferencesKey("url_intent")

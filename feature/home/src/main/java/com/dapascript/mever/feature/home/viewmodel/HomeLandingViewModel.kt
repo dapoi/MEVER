@@ -143,6 +143,12 @@ class HomeLandingViewModel @Inject constructor(
         initialValue = ""
     )
 
+    val showSupportedPlatform = dataStore.showSupportedPlatform.stateIn(
+        scope = viewModelScope,
+        started = WhileSubscribed(),
+        initialValue = true
+    )
+
     private val _downloaderResponseState =
         MutableStateFlow<UiState<List<ContentEntity>>>(StateInitial)
     val downloaderResponseState = _downloaderResponseState.asStateFlow()

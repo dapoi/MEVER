@@ -299,6 +299,7 @@ private fun HomeLandingContent(
     val downloaderResponseState = downloaderResponseState.collectAsStateValue()
     val youtubeResolutions = youtubeResolutions.collectAsStateValue()
     val urlIntent = getUrlIntent.collectAsStateValue()
+    val showSupportedPlatform = showSupportedPlatform.collectAsStateValue()
     var showLoading by remember { mutableStateOf(false) }
     var showYoutubeChooseQualityModal by remember { mutableStateOf(false) }
     var randomDonateDialogOffer by remember { mutableIntStateOf(0) }
@@ -669,6 +670,7 @@ private fun HomeLandingContent(
                             .padding(top = Dp16),
                         context = context,
                         isLoading = showLoading,
+                        showSupportedPlatform = showSupportedPlatform,
                         getButtonClickCount = getButtonClickCount,
                         onIncrementClickCount = { incrementClickCount() },
                         onShowAds = { url ->
@@ -730,6 +732,7 @@ private fun HomeLandingContent(
                                     .fillMaxHeight(),
                                 context = context,
                                 isLoading = showLoading,
+                                showSupportedPlatform = showSupportedPlatform,
                                 getButtonClickCount = getButtonClickCount,
                                 onIncrementClickCount = { incrementClickCount() },
                                 onShowAds = { url ->
@@ -808,6 +811,7 @@ private fun HeaderSection(modifier: Modifier = Modifier) {
 @Composable
 private fun DownloaderSection(
     context: Context,
+    showSupportedPlatform: Boolean,
     isLoading: Boolean,
     getButtonClickCount: Int,
     modifier: Modifier = Modifier,
@@ -909,72 +913,74 @@ private fun DownloaderSection(
                     )
                 }
             }
-            HorizontalDivider(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = Dp16),
-                thickness = DpHalf,
-                color = colors.lightGrayGray
-            )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = CenterVertically,
-                horizontalArrangement = SpaceBetween
-            ) {
-                Text(
-                    text = stringResource(R.string.platforms_supported),
-                    style = typography.label3,
-                    color = colors.alwaysGray
+            if (showSupportedPlatform) {
+                HorizontalDivider(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = Dp16),
+                    thickness = DpHalf,
+                    color = colors.lightGrayGray
                 )
                 Row(
-                    modifier = Modifier.onCustomClick { onClickSeeSupportedPlatform() },
+                    modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = CenterVertically,
-                    horizontalArrangement = spacedBy(Dp16)
+                    horizontalArrangement = SpaceBetween
                 ) {
-                    Row(horizontalArrangement = spacedBy(Dp6)) {
-                        val displayedPlatforms = listOf(
-                            FACEBOOK,
-                            INSTAGRAM,
-                            TIKTOK,
-                            X,
-                            PINTEREST
-                        )
-                        val otherCount = PlatformType.entries.count {
-                            it !in displayedPlatforms && it !in listOf(
-                                PlatformType.AI,
-                                ALL,
-                                PlatformType.EXPLORE,
-                                YOUTUBE,
-                                PlatformType.YOUTUBE_MUSIC,
-                                PlatformType.DOUYIN
+                    Text(
+                        text = stringResource(R.string.platforms_supported),
+                        style = typography.label3,
+                        color = colors.alwaysGray
+                    )
+                    Row(
+                        modifier = Modifier.onCustomClick { onClickSeeSupportedPlatform() },
+                        verticalAlignment = CenterVertically,
+                        horizontalArrangement = spacedBy(Dp16)
+                    ) {
+                        Row(horizontalArrangement = spacedBy(Dp6)) {
+                            val displayedPlatforms = listOf(
+                                FACEBOOK,
+                                INSTAGRAM,
+                                TIKTOK,
+                                X,
+                                PINTEREST
                             )
-                        }
+                            val otherCount = PlatformType.entries.count {
+                                it !in displayedPlatforms && it !in listOf(
+                                    PlatformType.AI,
+                                    ALL,
+                                    PlatformType.EXPLORE,
+                                    YOUTUBE,
+                                    PlatformType.YOUTUBE_MUSIC,
+                                    PlatformType.DOUYIN
+                                )
+                            }
 
-                        displayedPlatforms.forEach { type ->
-                            MeverIcon(
-                                icon = getPlatformIcon(type.platformName),
-                                iconShadowColor = colors.purpleTransparent,
-                                iconBackgroundColor = colors.whiteDark,
-                                iconSize = Dp24,
-                                iconPadding = Dp5
-                            )
-                        }
-                        Box(
-                            modifier = Modifier
-                                .size(Dp24)
-                                .showShadow(colors.purpleTransparent)
-                                .background(
-                                    color = colors.lightSoftPurpleDark,
-                                    shape = CircleShape
-                                ),
-                            contentAlignment = Center
-                        ) {
-                            Text(
-                                text = "+$otherCount",
-                                textAlign = TextAlign.Center,
-                                style = typography.bodyBold3,
-                                color = colors.alwaysPurple
-                            )
+                            displayedPlatforms.forEach { type ->
+                                MeverIcon(
+                                    icon = getPlatformIcon(type.platformName),
+                                    iconShadowColor = colors.purpleTransparent,
+                                    iconBackgroundColor = colors.whiteDark,
+                                    iconSize = Dp24,
+                                    iconPadding = Dp5
+                                )
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .size(Dp24)
+                                    .showShadow(colors.purpleTransparent)
+                                    .background(
+                                        color = colors.lightSoftPurpleDark,
+                                        shape = CircleShape
+                                    ),
+                                contentAlignment = Center
+                            ) {
+                                Text(
+                                    text = "+$otherCount",
+                                    textAlign = TextAlign.Center,
+                                    style = typography.bodyBold3,
+                                    color = colors.alwaysPurple
+                                )
+                            }
                         }
                     }
                 }
