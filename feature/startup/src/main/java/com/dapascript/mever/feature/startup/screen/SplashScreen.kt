@@ -190,10 +190,10 @@ internal fun SplashScreen(
             ) {
                 AnimatedVisibility(
                     visibleState = logoVisibleState,
-                    enter = fadeIn(animationSpec = tween(durationMillis = 400)) +
-                            slideInVertically(animationSpec = tween(400)) { -it / 2 },
-                    exit = slideOutVertically(animationSpec = tween(durationMillis = 400)) { -it / 2 } +
-                            fadeOut(animationSpec = tween(durationMillis = 400))
+                    enter = fadeIn(animationSpec = tween(durationMillis = 300)) +
+                            slideInVertically(animationSpec = tween(300)) { -it / 2 },
+                    exit = slideOutVertically(animationSpec = tween(durationMillis = 300)) { -it / 2 } +
+                            fadeOut(animationSpec = tween(durationMillis = 300))
                 ) {
                     Image(
                         modifier = Modifier
@@ -206,10 +206,10 @@ internal fun SplashScreen(
                 }
                 AnimatedVisibility(
                     visibleState = logoVisibleState,
-                    enter = fadeIn(animationSpec = tween(400)) +
-                            slideInVertically(animationSpec = tween(400)) { it / 2 },
-                    exit = slideOutVertically(animationSpec = tween(durationMillis = 400)) { it / 2 } +
-                            fadeOut(animationSpec = tween(durationMillis = 400))
+                    enter = fadeIn(animationSpec = tween(300)) +
+                            slideInVertically(animationSpec = tween(300)) { it / 2 },
+                    exit = slideOutVertically(animationSpec = tween(durationMillis = 300)) { it / 2 } +
+                            fadeOut(animationSpec = tween(durationMillis = 300))
                 ) {
                     Text(
                         text = "Media Saver",
@@ -223,8 +223,8 @@ internal fun SplashScreen(
                     .align(BottomCenter)
                     .padding(bottom = Dp48),
                 visibleState = logoVisibleState,
-                enter = fadeIn(animationSpec = tween(400)),
-                exit = fadeOut(animationSpec = tween(400))
+                enter = fadeIn(animationSpec = tween(300)),
+                exit = fadeOut(animationSpec = tween(300))
             ) {
                 Text(
                     text = "v${appVersion}",

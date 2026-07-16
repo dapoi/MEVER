@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,7 +19,9 @@ import androidx.compose.ui.unit.Dp
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp250
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
@@ -104,8 +107,9 @@ private fun MeverEmptyItemContent(
         color = colors.grayLightGray
     )
     onClickAction?.let {
-        Spacer(modifier = Modifier.size(Dp16))
+        Spacer(modifier = Modifier.size(Dp24))
         MeverButton(
+            modifier = Modifier.height(Dp40),
             title = actionButtonLabel ?: stringResource(R.string.ok),
             buttonType = MeverButtonAttr.MeverButtonType.Filled(
                 backgroundColor = colors.alwaysPurple,

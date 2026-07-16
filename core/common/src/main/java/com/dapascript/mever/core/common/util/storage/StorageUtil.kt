@@ -67,7 +67,7 @@ object StorageUtil {
     suspend fun getMeverFiles(dir: File): List<File> = withContext(IO) {
         if ((dir.exists() && dir.isDirectory).not()) return@withContext emptyList()
         dir.listFiles()?.asSequence()
-            ?.filter { it.isFile && it.extension.lowercase() in allowExt }
+            ?.filter { it.isFile && !it.name.startsWith(".") && it.extension.lowercase() in allowExt }
             ?.toList()
             ?: emptyList()
     }

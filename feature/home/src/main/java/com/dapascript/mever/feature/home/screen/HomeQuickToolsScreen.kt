@@ -37,7 +37,7 @@ import com.dapascript.mever.core.common.ui.component.MeverBannerAd
 import com.dapascript.mever.core.common.ui.component.MeverFeatureCard
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp160
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp189
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp3
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
@@ -100,7 +100,7 @@ internal fun HomeQuickToolsScreen(
                 }
                 LazyColumn(
                     modifier = Modifier.fillMaxWidth(),
-                    contentPadding = PaddingValues(bottom = Dp160),
+                    contentPadding = PaddingValues(bottom = Dp189),
                     state = listState
                 ) {
                     item {

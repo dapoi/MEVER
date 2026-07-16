@@ -4,7 +4,7 @@ import androidx.compose.ui.graphics.Color
 
 // Neutrals
 val MeverWhite = Color(0xFFFFFFFF)
-val MeverBlack = Color(0xFF121212)
+val MeverBlack = Color(0xFF171717)
 val MeverTransparent = Color(0x00000000)
 
 // Darks & Grays
@@ -32,6 +32,7 @@ sealed class MeverColors(
     val alwaysPurple: Color,
     val alwaysWhite: Color,
     val alwaysGray: Color,
+    val whiteBlack: Color,
     val whiteDark: Color,
     val blackWhite: Color,
     val grayLightGray: Color,
@@ -49,6 +50,7 @@ sealed class MeverColors(
         alwaysPurple = MeverPurple,
         alwaysWhite = MeverWhite,
         alwaysGray = MeverGray,
+        whiteBlack = MeverWhite,
         whiteDark = MeverWhite,
         blackWhite = MeverBlack,
         grayLightGray = MeverGray,
@@ -67,6 +69,7 @@ sealed class MeverColors(
         alwaysPurple = MeverPurple,
         alwaysWhite = MeverWhite,
         alwaysGray = MeverGray,
+        whiteBlack = MeverBlack,
         whiteDark = MeverDark,
         blackWhite = MeverWhite,
         grayLightGray = MeverLightGray,

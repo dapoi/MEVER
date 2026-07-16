@@ -6,6 +6,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
@@ -45,7 +46,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
@@ -72,7 +72,6 @@ import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardArgs
 import com.dapascript.mever.core.common.ui.attr.MeverIconAttr.getPlatformIcon
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.ActionMenu
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
-import com.dapascript.mever.core.common.ui.component.MeverBannerAd
 import com.dapascript.mever.core.common.ui.component.MeverButton
 import com.dapascript.mever.core.common.ui.component.MeverCard
 import com.dapascript.mever.core.common.ui.component.MeverDeclinedPermissionDialog
@@ -97,7 +96,6 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp5
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp6
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.Dimens.DpHalf
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
@@ -127,6 +125,7 @@ import com.dapascript.mever.core.common.util.isMusic
 import com.dapascript.mever.core.common.util.isVideo
 import com.dapascript.mever.core.common.util.navigateToMusic
 import com.dapascript.mever.core.common.util.onCustomClick
+import com.dapascript.mever.core.common.util.pasteFromClipboard
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.common.util.storage.StorageUtil.StorageInfo
@@ -237,24 +236,19 @@ internal fun HomeLandingScreen(
             }
         )
 
-        Box(modifier = Modifier.fillMaxSize()) {
-            HomeLandingContent(
-                modifier = Modifier.matchParentSize(),
-                viewModel = this@with,
-                context = context,
-                activity = activity,
-                scope = scope,
-                navigator = navigator,
-                getButtonClickCount = getButtonClickCount,
-                showBadge = showBadge,
-                lifecycleOwner = lifecycleOwner
-            )
-            if (showBadge) MeverBannerAd(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(BottomCenter)
-            )
-        }
+        HomeLandingContent(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = Dp24),
+            viewModel = this@with,
+            context = context,
+            activity = activity,
+            scope = scope,
+            navigator = navigator,
+            getButtonClickCount = getButtonClickCount,
+            showBadge = showBadge,
+            lifecycleOwner = lifecycleOwner
+        )
     }
 }
 
@@ -603,15 +597,10 @@ private fun HomeLandingContent(
     }
 
     CompositionLocalProvider(LocalOverscrollFactory provides null) {
-        LazyColumn(
-            modifier = modifier,
-            contentPadding = PaddingValues(bottom = if (showBadge) Dp64 else Dp0)
-        ) {
+        LazyColumn(modifier = modifier) {
             item {
                 MeverTopBar(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = Dp24),
+                    modifier = Modifier.fillMaxWidth(),
                     topBarArgs = TopBarArgs(
                         iconBack = R.drawable.ic_mever,
                         actionMenus = getListActionMenu(
@@ -637,14 +626,15 @@ private fun HomeLandingContent(
                     HeaderSection(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(start = Dp24, end = Dp24, top = Dp6)
+                            .padding(top = Dp6)
                     )
                 }
                 item {
                     DownloaderSection(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(start = Dp24, end = Dp24, top = Dp16),
+                            .padding(top = Dp16),
+                        context = context,
                         isLoading = showLoading,
                         getButtonClickCount = getButtonClickCount,
                         onIncrementClickCount = { incrementClickCount() },
@@ -660,7 +650,7 @@ private fun HomeLandingContent(
                     QuickToolsSection(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(start = Dp24, end = Dp24, top = Dp32),
+                            .padding(top = Dp32),
                         context = context
                     ) { route -> navigator.navigate(route) }
                 }
@@ -668,7 +658,7 @@ private fun HomeLandingContent(
                     RecentlyDownloadedSection(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = Dp32, horizontal = Dp24)
+                            .padding(vertical = Dp32)
                             .navigationBarsPadding(),
                         downloadList = downloadList.orEmpty().take(3),
                         onClickViewAll = { navigator.navigateToGalleryScreen() },
@@ -687,7 +677,7 @@ private fun HomeLandingContent(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = Dp24, vertical = Dp32)
+                            .padding(vertical = Dp32)
                             .navigationBarsPadding(),
                         verticalArrangement = spacedBy(Dp32)
                     ) {
@@ -702,6 +692,7 @@ private fun HomeLandingContent(
                                 modifier = Modifier
                                     .weight(1f)
                                     .fillMaxHeight(),
+                                context = context,
                                 isLoading = showLoading,
                                 getButtonClickCount = getButtonClickCount,
                                 onIncrementClickCount = { incrementClickCount() },
@@ -777,6 +768,7 @@ private fun HeaderSection(modifier: Modifier = Modifier) {
 
 @Composable
 private fun DownloaderSection(
+    context: Context,
     isLoading: Boolean,
     getButtonClickCount: Int,
     modifier: Modifier = Modifier,
@@ -813,6 +805,9 @@ private fun DownloaderSection(
                     contentAlignment = Center
                 ) {
                     Icon(
+                        modifier = Modifier.clickable {
+                            pasteFromClipboard(context)?.let { url = it }
+                        },
                         painter = painterResource(id = R.drawable.ic_link),
                         tint = MeverPurple,
                         contentDescription = null

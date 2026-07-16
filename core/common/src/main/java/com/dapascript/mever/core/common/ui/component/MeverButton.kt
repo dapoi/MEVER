@@ -29,7 +29,6 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp20
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp30
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
-import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.util.onCustomClick
 
@@ -49,7 +48,7 @@ fun MeverButton(
     Box(
         modifier = modifier
             .background(
-                color = if (isEnabled) backgroundColor else colors.lightGrayGray,
+                color = if (isEnabled) backgroundColor else backgroundColor.copy(alpha = 0.6f),
                 shape = shape
             )
             .applyBorder(

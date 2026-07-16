@@ -42,6 +42,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.component.MeverPermissionHandler
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp0
@@ -67,9 +68,7 @@ import com.dapascript.mever.core.common.util.getNotificationPermission
 import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeLandingRoute
 import com.dapascript.mever.core.navigation.route.StartupScreenRoute.OnboardRoute
-import com.dapascript.mever.feature.startup.R
 import com.dapascript.mever.feature.startup.viewmodel.OnboardViewModel
-import com.dapascript.mever.core.common.R as coreUiR
 
 @Composable
 internal fun OnboardScreen(
@@ -101,7 +100,9 @@ internal fun OnboardScreen(
         }
 
         if (deviceType == PHONE) Box(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = colors.whiteBlack)
         ) {
             Column(
                 modifier = Modifier
@@ -119,12 +120,14 @@ internal fun OnboardScreen(
                 DescriptionOnboardSection(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .background(color = colors.whiteBlack)
                         .padding(top = Dp40, bottom = buttonSize, start = Dp24, end = Dp24)
                 )
             }
             ButtonOnboardSection(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .background(color = colors.whiteBlack)
                     .padding(start = Dp24, end = Dp24, bottom = Dp16)
                     .navigationBarsPadding()
                     .align(BottomCenter)
@@ -137,7 +140,9 @@ internal fun OnboardScreen(
                 } else navigator.navigateToHome()
             }
         } else Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(color = colors.whiteBlack),
             horizontalArrangement = SpaceAround
         ) {
             Box(
@@ -159,7 +164,7 @@ internal fun OnboardScreen(
                         .matchParentSize()
                         .background(
                             brush = Brush.horizontalGradient(
-                                colors = listOf(MeverTransparent, colors.whiteDark),
+                                colors = listOf(MeverTransparent, colors.whiteBlack),
                                 startX = 100f,
                                 endX = 1000f
                             )
@@ -170,14 +175,23 @@ internal fun OnboardScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .background(color = colors.whiteBlack)
                     .weight(1f)
                     .padding(top = Dp40, bottom = Dp24, start = Dp16, end = Dp16),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally
             ) {
-                DescriptionOnboardSection(modifier = Modifier.fillMaxWidth())
+                DescriptionOnboardSection(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(color = colors.whiteBlack)
+                )
                 Spacer(modifier = Modifier.size(Dp40))
-                ButtonOnboardSection(modifier = Modifier.fillMaxWidth()) {
+                ButtonOnboardSection(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(color = colors.whiteBlack)
+                ) {
                     setIsOnboarded(true)
                     val perm = getNotificationPermission().firstOrNull()
                     if (perm != null && context.checkSelfPermission(perm) != PERMISSION_GRANTED) {
@@ -200,13 +214,13 @@ private fun ButtonOnboardSection(
     onClick = onClick,
     content = {
         Text(
-            text = stringResource(coreUiR.string.lets_start),
+            text = stringResource(R.string.lets_start),
             style = typography.body1.copy(fontSize = Sp18),
             color = MeverWhite
         )
         Spacer(modifier = Modifier.size(Dp16))
         Icon(
-            painter = painterResource(coreUiR.drawable.ic_arrow_started),
+            painter = painterResource(R.drawable.ic_arrow_started),
             tint = MeverYellow,
             contentDescription = "Arrow Right"
         )
@@ -216,13 +230,13 @@ private fun ButtonOnboardSection(
 @Composable
 private fun DescriptionOnboardSection(modifier: Modifier = Modifier) = Column(modifier = modifier) {
     Text(
-        text = stringResource(coreUiR.string.easy_to_use),
+        text = stringResource(R.string.easy_to_use),
         style = typography.body2,
         color = colors.grayLightGray
     )
     Spacer(modifier = Modifier.size(Dp8))
     Text(
-        text = stringResource(coreUiR.string.supports),
+        text = stringResource(R.string.supports),
         style = typography.h2.copy(fontSize = Sp36),
         color = colors.blackWhite
     )
@@ -235,18 +249,18 @@ private fun DescriptionOnboardSection(modifier: Modifier = Modifier) = Column(mo
                 fontWeight = typography.h2.fontWeight
             )
             withStyle(baseStyle.copy(color = MeverPurple)) {
-                append(stringResource(coreUiR.string.multiple))
+                append(stringResource(R.string.multiple))
             }
             append(" ")
             withStyle(baseStyle.copy(color = colors.blackWhite)) {
-                append(stringResource(coreUiR.string.source))
+                append(stringResource(R.string.source))
             }
         },
         lineHeight = Sp50
     )
     Spacer(modifier = Modifier.size(Dp8))
     Text(
-        text = stringResource(coreUiR.string.download_easily),
+        text = stringResource(R.string.download_easily),
         style = typography.body2,
         color = colors.grayLightGray
     )

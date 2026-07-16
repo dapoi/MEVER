@@ -15,7 +15,6 @@ import com.dapascript.mever.feature.wa.screen.WaStatusLandingAttr.WaMediaModel
 import com.dapascript.mever.feature.wa.screen.WaStatusLandingAttr.WaMediaModel.WaType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -25,18 +24,17 @@ import javax.inject.Inject
 class WaStatusViewModel @Inject constructor(
     @param:ApplicationContext private val context: Context
 ) : BaseViewModel() {
-    private val _waStatuses = MutableStateFlow<List<WaMediaModel>>(emptyList())
+    private val _waStatuses = MutableStateFlow<List<WaMediaModel>?>(null)
     val waStatuses = _waStatuses.asStateFlow()
 
     private val allStatuses = mutableListOf<WaMediaModel>()
 
-    fun clearStatuses() {
-        allStatuses.clear()
-        _waStatuses.value = emptyList()
+    fun onFetchFinished() {
+        if (_waStatuses.value == null) _waStatuses.value = emptyList()
     }
 
     fun fetchStatuses(folderUri: Uri, type: WaType) {
-        viewModelScope.launch(IO) {
+        viewModelScope.launch {
             val statuses = mutableListOf<WaMediaModel>()
 
             try {
@@ -81,6 +79,7 @@ class WaStatusViewModel @Inject constructor(
                         }
                     }
 
+                allStatuses.removeAll { it.waType == type }
                 allStatuses.addAll(statuses)
 
                 _waStatuses.value = allStatuses
