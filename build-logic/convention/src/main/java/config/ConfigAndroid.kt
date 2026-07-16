@@ -65,6 +65,9 @@ private fun ApplicationExtension.configure(project: Project) = apply {
                 "BASE_URL",
                 "\"${project.getEnvVariable("BASE_URL_RELEASE")}\""
             )
+            ndk {
+                debugSymbolLevel = "FULL"
+            }
         }
     }
 
@@ -118,6 +121,9 @@ private fun LibraryExtension.configure(project: Project) = apply {
                 "BASE_URL",
                 "\"${project.getEnvVariable("BASE_URL_RELEASE")}\""
             )
+            ndk {
+                debugSymbolLevel = "FULL"
+            }
         }
     }
 
