@@ -17,6 +17,7 @@ import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -94,11 +95,13 @@ import com.dapascript.mever.core.common.ui.theme.ThemeType
 import com.dapascript.mever.core.common.util.DeviceType
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.DeviceType.TABLET
+import com.dapascript.mever.core.common.util.FadeSide.Bottom
 import com.dapascript.mever.core.common.util.LanguageManager.getLanguageCode
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.LocalDeviceType
 import com.dapascript.mever.core.common.util.cleanCache
 import com.dapascript.mever.core.common.util.copyToClipboard
+import com.dapascript.mever.core.common.util.fadingEdge
 import com.dapascript.mever.core.common.util.getNotificationPermission
 import com.dapascript.mever.core.common.util.navigateToGmail
 import com.dapascript.mever.core.common.util.navigateToNotificationSettings
@@ -296,7 +299,16 @@ private fun SettingLandingContent(
     onSetTitleHeight: (Int) -> Unit
 ) = CompositionLocalProvider(LocalOverscrollFactory provides null) {
     val menus = remember(context) { getSettingMenus(context) }
-    Column(modifier = modifier) {
+    val showBottomFade by remember {
+        derivedStateOf { listState.canScrollForward }
+    }
+
+    Column(
+        modifier = modifier.fadingEdge(
+            side = Bottom,
+            isVisible = showBottomFade
+        )
+    ) {
         if (isExpanded().not() && titleHeight > 0) {
             HorizontalDivider(
                 modifier = Modifier
@@ -308,7 +320,8 @@ private fun SettingLandingContent(
         }
         LazyColumn(
             modifier = Modifier.fillMaxWidth(),
-            state = listState
+            state = listState,
+            contentPadding = PaddingValues(bottom = Dp32)
         ) {
             item {
                 Column(

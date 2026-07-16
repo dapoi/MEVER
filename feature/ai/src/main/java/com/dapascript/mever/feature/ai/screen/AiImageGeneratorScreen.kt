@@ -6,6 +6,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
@@ -25,6 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -69,7 +71,9 @@ import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp14
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
+import com.dapascript.mever.core.common.util.FadeSide.Bottom
 import com.dapascript.mever.core.common.util.LocalDeviceType
+import com.dapascript.mever.core.common.util.fadingEdge
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.AiScreenRoute.AiImageGeneratorResultRoute
@@ -82,6 +86,9 @@ internal fun AiImageGeneratorScreen(navigator: Navigator) {
     val density = LocalDensity.current
     val deviceType = LocalDeviceType.current
     val listState = rememberLazyListState()
+    val showBottomFade by remember {
+        derivedStateOf { listState.canScrollForward }
+    }
     var titleHeight by rememberSaveable { mutableIntStateOf(0) }
     var rightColumnHeight by remember { mutableStateOf(Dp0) }
     val isExpanded by remember(titleHeight) {
@@ -109,165 +116,174 @@ internal fun AiImageGeneratorScreen(navigator: Navigator) {
         ),
         onBackHandler = { navigator.goBack() }
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = Dp64)
-        ) {
-            if (isExpanded.not() && titleHeight > 0) {
-                HorizontalDivider(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .shadow(Dp3),
-                    thickness = Dp1,
-                    color = colors.blackWhite.copy(alpha = 0.12f)
-                )
-            }
-            LazyColumn(
+        CompositionLocalProvider(LocalOverscrollFactory provides null) {
+            Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(start = Dp24, end = Dp24),
-                contentPadding = PaddingValues(bottom = if (deviceType == PHONE) Dp64 else Dp90),
-                state = listState
+                    .fillMaxWidth()
+                    .padding(top = Dp64)
+                    .fadingEdge(
+                        side = Bottom,
+                        isVisible = showBottomFade
+                    )
             ) {
-                if (deviceType == PHONE) {
-                    item {
-                        HeaderSection(
-                            isExpanded = isExpanded,
-                            onSetTitleHeight = { titleHeight = it }
-                        )
-                    }
-                    item {
-                        MeverAutoSizableTextField(
-                            heightFreeTextContainer = Dp150,
-                            value = prompt,
-                            fontSize = Sp18,
-                            minFontSize = Sp14,
-                            maxLines = 4,
-                            onClickInspire = { prompt = getInspirePrompt() },
-                            onValueChange = { prompt = it }
-                        )
-                    }
-                    item {
-                        ArtStyleHeader(
-                            modifier = Modifier.padding(vertical = Dp24),
-                            artStyleSelected = artStyleSelected,
-                            onClear = { artStyleSelected = "" }
-                        )
-                    }
-                    item {
-                        Column(verticalArrangement = spacedBy(Dp16)) {
-                            artStyles.chunked(2).forEach { rowItems ->
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = spacedBy(Dp16)
-                                ) {
-                                    rowItems.forEach { item ->
-                                        ArtStyleItem(
-                                            style = item,
-                                            isSelected = artStyleSelected == item.styleName,
-                                            onSelect = { name -> artStyleSelected = name },
-                                            modifier = Modifier.weight(1f)
-                                        )
+                if (isExpanded.not() && titleHeight > 0) {
+                    HorizontalDivider(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .shadow(Dp3),
+                        thickness = Dp1,
+                        color = colors.blackWhite.copy(alpha = 0.12f)
+                    )
+                }
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(start = Dp24, end = Dp24),
+                    contentPadding = PaddingValues(bottom = if (deviceType == PHONE) Dp64 else Dp90),
+                    state = listState
+                ) {
+                    if (deviceType == PHONE) {
+                        item {
+                            HeaderSection(
+                                isExpanded = isExpanded,
+                                onSetTitleHeight = { titleHeight = it }
+                            )
+                        }
+                        item {
+                            MeverAutoSizableTextField(
+                                heightFreeTextContainer = Dp150,
+                                value = prompt,
+                                fontSize = Sp18,
+                                minFontSize = Sp14,
+                                maxLines = 4,
+                                onClickInspire = { prompt = getInspirePrompt() },
+                                onValueChange = { prompt = it }
+                            )
+                        }
+                        item {
+                            ArtStyleHeader(
+                                modifier = Modifier.padding(vertical = Dp24),
+                                artStyleSelected = artStyleSelected,
+                                onClear = { artStyleSelected = "" }
+                            )
+                        }
+                        item {
+                            Column(verticalArrangement = spacedBy(Dp16)) {
+                                artStyles.chunked(2).forEach { rowItems ->
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = spacedBy(Dp16)
+                                    ) {
+                                        rowItems.forEach { item ->
+                                            ArtStyleItem(
+                                                style = item,
+                                                isSelected = artStyleSelected == item.styleName,
+                                                onSelect = { name -> artStyleSelected = name },
+                                                modifier = Modifier.weight(1f)
+                                            )
+                                        }
+                                        if (rowItems.size < 2) Spacer(modifier = Modifier.weight(1f))
                                     }
-                                    if (rowItems.size < 2) Spacer(modifier = Modifier.weight(1f))
                                 }
                             }
                         }
-                    }
-                    item {
-                        Spacer(modifier = Modifier.size(Dp32))
-                        MeverButton(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(Dp48),
-                            title = stringResource(R.string.generate),
-                            buttonType = Filled(
-                                backgroundColor = colors.alwaysPurple,
-                                contentColor = MeverWhite
-                            ),
-                            isEnabled = prompt.isNotEmpty(),
-                            onClick = onGenerate
-                        )
-                    }
-                } else {
-                    item {
-                        HeaderSection(
-                            isExpanded = isExpanded,
-                            onSetTitleHeight = { titleHeight = it }
-                        )
-                    }
-                    item {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = Dp16),
-                            horizontalArrangement = spacedBy(Dp32)
-                        ) {
-                            Column(
+                        item {
+                            Spacer(modifier = Modifier.size(Dp32))
+                            MeverButton(
                                 modifier = Modifier
-                                    .weight(1f)
-                                    .then(
-                                        if (rightColumnHeight > Dp0) Modifier.height(
-                                            rightColumnHeight
-                                        )
-                                        else Modifier
-                                    ),
-                                verticalArrangement = spacedBy(Dp24)
+                                    .fillMaxWidth()
+                                    .height(Dp48),
+                                title = stringResource(R.string.generate),
+                                buttonType = Filled(
+                                    backgroundColor = colors.alwaysPurple,
+                                    contentColor = MeverWhite
+                                ),
+                                isEnabled = prompt.isNotEmpty(),
+                                onClick = onGenerate
+                            )
+                        }
+                    } else {
+                        item {
+                            HeaderSection(
+                                isExpanded = isExpanded,
+                                onSetTitleHeight = { titleHeight = it }
+                            )
+                        }
+                        item {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = Dp16),
+                                horizontalArrangement = spacedBy(Dp32)
                             ) {
-                                MeverAutoSizableTextField(
-                                    modifier = Modifier.weight(1f),
-                                    value = prompt,
-                                    fontSize = Sp18,
-                                    minFontSize = Sp14,
-                                    maxLines = 4,
-                                    onClickInspire = { prompt = getInspirePrompt() },
-                                    onValueChange = { prompt = it }
-                                )
-                                MeverButton(
+                                Column(
                                     modifier = Modifier
-                                        .height(Dp64)
-                                        .fillMaxWidth(),
-                                    title = stringResource(R.string.generate),
-                                    buttonType = Filled(
-                                        backgroundColor = colors.alwaysPurple,
-                                        contentColor = MeverWhite
-                                    ),
-                                    isEnabled = prompt.isNotEmpty(),
-                                    onClick = onGenerate
-                                )
-                            }
-                            Column(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .onGloballyPositioned {
-                                        rightColumnHeight = with(density) { it.size.height.toDp() }
-                                    }
-                            ) {
-                                ArtStyleHeader(
-                                    modifier = Modifier.padding(bottom = Dp24),
-                                    artStyleSelected = artStyleSelected,
-                                    onClear = { artStyleSelected = "" }
-                                )
-                                Column(verticalArrangement = spacedBy(Dp16)) {
-                                    artStyles.chunked(2).forEach { rowItems ->
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = spacedBy(Dp16)
-                                        ) {
-                                            rowItems.forEach { item ->
-                                                ArtStyleItem(
-                                                    style = item,
-                                                    isSelected = artStyleSelected == item.styleName,
-                                                    onSelect = { name -> artStyleSelected = name },
-                                                    modifier = Modifier.weight(1f)
+                                        .weight(1f)
+                                        .then(
+                                            if (rightColumnHeight > Dp0) Modifier.height(
+                                                rightColumnHeight
+                                            )
+                                            else Modifier
+                                        ),
+                                    verticalArrangement = spacedBy(Dp24)
+                                ) {
+                                    MeverAutoSizableTextField(
+                                        modifier = Modifier.weight(1f),
+                                        value = prompt,
+                                        fontSize = Sp18,
+                                        minFontSize = Sp14,
+                                        maxLines = 4,
+                                        onClickInspire = { prompt = getInspirePrompt() },
+                                        onValueChange = { prompt = it }
+                                    )
+                                    MeverButton(
+                                        modifier = Modifier
+                                            .height(Dp64)
+                                            .fillMaxWidth(),
+                                        title = stringResource(R.string.generate),
+                                        buttonType = Filled(
+                                            backgroundColor = colors.alwaysPurple,
+                                            contentColor = MeverWhite
+                                        ),
+                                        isEnabled = prompt.isNotEmpty(),
+                                        onClick = onGenerate
+                                    )
+                                }
+                                Column(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .onGloballyPositioned {
+                                            rightColumnHeight =
+                                                with(density) { it.size.height.toDp() }
+                                        }
+                                ) {
+                                    ArtStyleHeader(
+                                        modifier = Modifier.padding(bottom = Dp24),
+                                        artStyleSelected = artStyleSelected,
+                                        onClear = { artStyleSelected = "" }
+                                    )
+                                    Column(verticalArrangement = spacedBy(Dp16)) {
+                                        artStyles.chunked(2).forEach { rowItems ->
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                horizontalArrangement = spacedBy(Dp16)
+                                            ) {
+                                                rowItems.forEach { item ->
+                                                    ArtStyleItem(
+                                                        style = item,
+                                                        isSelected = artStyleSelected == item.styleName,
+                                                        onSelect = { name ->
+                                                            artStyleSelected = name
+                                                        },
+                                                        modifier = Modifier.weight(1f)
+                                                    )
+                                                }
+                                                if (rowItems.size < 2) Spacer(
+                                                    modifier = Modifier.weight(
+                                                        1f
+                                                    )
                                                 )
                                             }
-                                            if (rowItems.size < 2) Spacer(
-                                                modifier = Modifier.weight(
-                                                    1f
-                                                )
-                                            )
                                         }
                                     }
                                 }

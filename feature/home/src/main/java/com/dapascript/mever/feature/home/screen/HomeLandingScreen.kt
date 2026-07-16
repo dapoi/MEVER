@@ -24,6 +24,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -38,6 +40,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -102,6 +105,8 @@ import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
+import com.dapascript.mever.core.common.util.FadeSide.Bottom
+import com.dapascript.mever.core.common.util.FadeSide.Top
 import com.dapascript.mever.core.common.util.InAppUpdateManager
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.LocalDeviceType
@@ -115,6 +120,7 @@ import com.dapascript.mever.core.common.util.PlatformType.X
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
 import com.dapascript.mever.core.common.util.changeToCurrentDate
 import com.dapascript.mever.core.common.util.clearFocusOnKeyboardDismiss
+import com.dapascript.mever.core.common.util.fadingEdge
 import com.dapascript.mever.core.common.util.formatHighlightedText
 import com.dapascript.mever.core.common.util.getExtensionFromUrl
 import com.dapascript.mever.core.common.util.getPlatformType
@@ -180,7 +186,7 @@ internal fun HomeLandingScreen(
 ) = with(viewModel) {
     BaseScreen(
         hideDefaultTopBar = true,
-        useStatusBarsPadding = true,
+        useStatusBarsPadding = false,
         onBackHandler = { navigator.goBack() }
     ) {
         var isUpdateReady by remember { mutableStateOf(false) }
@@ -193,6 +199,15 @@ internal fun HomeLandingScreen(
         val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
         val inAppUpdateManager = remember { InAppUpdateManager(activity) }
         val updateLauncher = rememberLauncherForActivityResult(StartIntentSenderForResult()) { }
+        val lazyListState = rememberLazyListState()
+        val showTopFade by remember {
+            derivedStateOf {
+                lazyListState.firstVisibleItemIndex > 0 || lazyListState.firstVisibleItemScrollOffset > 0
+            }
+        }
+        val showBottomFade by remember {
+            derivedStateOf { lazyListState.canScrollForward }
+        }
 
         LaunchedEffect(Unit) {
             inAppUpdateManager.registerListener { isUpdateReady = true }
@@ -236,19 +251,33 @@ internal fun HomeLandingScreen(
             }
         )
 
-        HomeLandingContent(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = Dp24),
-            viewModel = this@with,
-            context = context,
-            activity = activity,
-            scope = scope,
-            navigator = navigator,
-            getButtonClickCount = getButtonClickCount,
-            showBadge = showBadge,
-            lifecycleOwner = lifecycleOwner
-        )
+                .fadingEdge(
+                    side = Top,
+                    isVisible = showTopFade
+                )
+                .fadingEdge(
+                    side = Bottom,
+                    isVisible = showBottomFade
+                )
+        ) {
+            HomeLandingContent(
+                modifier = Modifier
+                    .matchParentSize()
+                    .padding(horizontal = Dp24),
+                viewModel = this@with,
+                context = context,
+                activity = activity,
+                scope = scope,
+                navigator = navigator,
+                getButtonClickCount = getButtonClickCount,
+                showBadge = showBadge,
+                lifecycleOwner = lifecycleOwner,
+                lazyListState = lazyListState
+            )
+        }
     }
 }
 
@@ -262,7 +291,8 @@ private fun HomeLandingContent(
     getButtonClickCount: Int,
     showBadge: Boolean,
     lifecycleOwner: State<LifecycleOwner>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    lazyListState: LazyListState = rememberLazyListState()
 ) = with(viewModel) {
     val deviceType = LocalDeviceType.current
     val downloadList = downloadList.collectAsStateValue()
@@ -597,7 +627,10 @@ private fun HomeLandingContent(
     }
 
     CompositionLocalProvider(LocalOverscrollFactory provides null) {
-        LazyColumn(modifier = modifier) {
+        LazyColumn(
+            modifier = modifier,
+            state = lazyListState
+        ) {
             item {
                 MeverTopBar(
                     modifier = Modifier.fillMaxWidth(),
@@ -638,7 +671,10 @@ private fun HomeLandingContent(
                         isLoading = showLoading,
                         getButtonClickCount = getButtonClickCount,
                         onIncrementClickCount = { incrementClickCount() },
-                        onShowAds = { interstitialController.showAd() },
+                        onShowAds = { url ->
+                            interstitialController.showAd()
+                            urlSocialMediaState = TextFieldValue(url)
+                        },
                         onClickSeeSupportedPlatform = { showPlatformSupportDialog = true },
                         onClickDownload = { url ->
                             checkStoragePermissions = getStoragePermission()
@@ -696,7 +732,10 @@ private fun HomeLandingContent(
                                 isLoading = showLoading,
                                 getButtonClickCount = getButtonClickCount,
                                 onIncrementClickCount = { incrementClickCount() },
-                                onShowAds = { interstitialController.showAd() },
+                                onShowAds = { url ->
+                                    interstitialController.showAd()
+                                    urlSocialMediaState = TextFieldValue(url)
+                                },
                                 onClickSeeSupportedPlatform = { showPlatformSupportDialog = true },
                                 onClickDownload = { url ->
                                     checkStoragePermissions = getStoragePermission()
@@ -773,7 +812,7 @@ private fun DownloaderSection(
     getButtonClickCount: Int,
     modifier: Modifier = Modifier,
     onIncrementClickCount: () -> Unit,
-    onShowAds: () -> Unit,
+    onShowAds: (String) -> Unit,
     onClickSeeSupportedPlatform: () -> Unit,
     onClickDownload: (String) -> Unit
 ) {
@@ -865,7 +904,7 @@ private fun DownloaderSection(
                     handleClickButton(
                         buttonClickCount = getButtonClickCount,
                         onIncrementClickCount = { onIncrementClickCount() },
-                        onShowAds = { onShowAds() },
+                        onShowAds = { onShowAds(url.trim()) },
                         onClickAction = { if (isLoading.not()) onClickDownload(url.trim()) }
                     )
                 }

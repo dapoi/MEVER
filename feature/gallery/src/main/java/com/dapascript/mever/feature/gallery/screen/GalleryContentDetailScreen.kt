@@ -5,7 +5,6 @@ import androidx.activity.SystemBarStyle.Companion.dark
 import androidx.activity.SystemBarStyle.Companion.light
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.OptIn
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -34,7 +33,6 @@ import com.dapascript.mever.core.common.ui.component.MeverPermissionHandler
 import com.dapascript.mever.core.common.ui.component.MeverPhotoViewer
 import com.dapascript.mever.core.common.ui.component.MeverVideoPlayer
 import com.dapascript.mever.core.common.ui.component.rememberInterstitialAd
-import com.dapascript.mever.core.common.ui.theme.MeverBlack
 import com.dapascript.mever.core.common.ui.theme.MeverDark
 import com.dapascript.mever.core.common.ui.theme.MeverTheme
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
@@ -160,9 +158,7 @@ internal fun GalleryContentDetailScreen(
         }
 
         HorizontalPager(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MeverBlack),
+            modifier = Modifier.fillMaxSize(),
             state = pagerState,
             userScrollEnabled = isFullScreen.not(),
             beyondViewportPageCount = 1,

@@ -130,6 +130,7 @@ fun MeverPhotoViewer(
     ) {
         PhotoViewer(
             modifier = Modifier
+                .background(MeverBlack)
                 .wrapContentSize()
                 .align(Center),
             primaryImage = image,
