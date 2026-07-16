@@ -50,7 +50,7 @@ jobs:
         run: |
           VERSION_NAME="${{ github.ref_name }}"
           VERSION_NAME="${VERSION_NAME#v}"
-          VERSION_CODE=$((20260505 + ${{ github.run_number }}))
+          VERSION_CODE=$((20260701 + ${{ github.run_number }}))
           
           echo "Building version $VERSION_NAME ($VERSION_CODE)"
 
