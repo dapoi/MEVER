@@ -71,6 +71,26 @@ if [ "$TRACK_CHOICE" = "1" ] || [ "$TRACK_CHOICE" = "2" ]; then
   fi
 fi
 
+# --- Deployment Summary & Confirmation ---
+echo ""
+echo "------------------------------------------"
+echo "🚀 DEPLOYMENT SUMMARY"
+echo "------------------------------------------"
+echo "Version:         $VERSION"
+echo "Tag:             $TAG"
+echo "Track:           $TRACK_LABEL"
+echo "Play Store:      $([ "$UPLOAD_PLAY_STORE" = "true" ] && echo "✅ Yes" || echo "❌ No")"
+echo "GitHub Release:  $([ "$UPLOAD_GITHUB_RELEASE" = "true" ] && echo "✅ Yes" || echo "❌ No")"
+echo "------------------------------------------"
+echo ""
+printf "Confirm deployment? (y/n): "
+read CONFIRM
+
+if [ "$CONFIRM" != "y" ] && [ "$CONFIRM" != "Y" ]; then
+  echo "❌ Deployment cancelled."
+  exit 0
+fi
+
 echo ""
 echo "🚀 Tagging $TRACK_LABEL build: $TAG"
 
