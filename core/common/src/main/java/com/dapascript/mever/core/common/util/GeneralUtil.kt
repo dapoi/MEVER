@@ -1,6 +1,7 @@
 package com.dapascript.mever.core.common.util
 
 import android.app.Activity
+import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
@@ -15,8 +16,10 @@ import android.content.pm.PackageManager.NameNotFoundException
 import android.graphics.Bitmap
 import android.graphics.Bitmap.CompressFormat.JPEG
 import android.graphics.Bitmap.CompressFormat.PNG
+import android.graphics.BitmapFactory
 import android.graphics.BitmapFactory.decodeStream
 import android.media.MediaMetadataRetriever
+import android.net.Uri
 import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.Q
 import android.os.Environment.DIRECTORY_PICTURES
@@ -54,8 +57,8 @@ import com.dapascript.mever.core.common.util.PlatformType.SPOTIFY
 import com.dapascript.mever.core.common.util.PlatformType.TERABOX
 import com.dapascript.mever.core.common.util.PlatformType.THREADS
 import com.dapascript.mever.core.common.util.PlatformType.TIKTOK
-import com.dapascript.mever.core.common.util.PlatformType.X
 import com.dapascript.mever.core.common.util.PlatformType.VIDEY
+import com.dapascript.mever.core.common.util.PlatformType.X
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE_MUSIC
 import kotlinx.coroutines.Dispatchers.IO
@@ -525,4 +528,37 @@ fun formatHighlightedText(
     } else {
         append(fullText)
     }
+}
+
+fun decodeResizedBitmap(
+    contentResolver: ContentResolver,
+    uri: Uri,
+    reqWidth: Int,
+    reqHeight: Int
+) = try {
+    val options = BitmapFactory.Options().apply {
+        inJustDecodeBounds = true
+    }
+    contentResolver.openInputStream(uri)?.use {
+        decodeStream(it, null, options)
+    }
+
+    val (height: Int, width: Int) = options.outHeight to options.outWidth
+    var inSampleSize = 1
+    if (height > reqHeight || width > reqWidth) {
+        val halfHeight: Int = height / 2
+        val halfWidth: Int = width / 2
+        while (halfHeight / inSampleSize >= reqHeight && halfWidth / inSampleSize >= reqWidth) {
+            inSampleSize *= 2
+        }
+    }
+
+    options.inSampleSize = inSampleSize
+    options.inJustDecodeBounds = false
+    contentResolver.openInputStream(uri)?.use {
+        decodeStream(it, null, options)
+    }
+} catch (e: Exception) {
+    e.printStackTrace()
+    null
 }

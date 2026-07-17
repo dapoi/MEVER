@@ -2,16 +2,17 @@ package com.dapascript.mever.core.common.util
 
 import android.content.ContentResolver
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
+import android.graphics.Bitmap.Config.ARGB_8888
 import android.net.Uri
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.scale
 import com.google.android.gms.tasks.Task
-import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.segmentation.Segmentation
+import com.google.mlkit.vision.common.InputImage.fromBitmap
+import com.google.mlkit.vision.segmentation.Segmentation.getClient
 import com.google.mlkit.vision.segmentation.SegmentationMask
 import com.google.mlkit.vision.segmentation.selfie.SelfieSegmenterOptions
-import kotlinx.coroutines.Dispatchers
+import com.google.mlkit.vision.segmentation.selfie.SelfieSegmenterOptions.SINGLE_IMAGE_MODE
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import java.nio.ByteOrder
@@ -23,17 +24,20 @@ class AiBackgroundRemovalProcessor @Inject constructor() {
     suspend fun removeBackground(
         contentResolver: ContentResolver,
         imageUri: Uri
-    ): Bitmap? = withContext(Dispatchers.IO) {
+    ): Bitmap? = withContext(IO) {
         runCatching {
-            val source = contentResolver.openInputStream(imageUri)?.use { inputStream ->
-                BitmapFactory.decodeStream(inputStream).scaleForProcessing()
-            } ?: return@runCatching null
+            val source = decodeResizedBitmap(
+                contentResolver = contentResolver,
+                uri = imageUri,
+                reqWidth = 1024,
+                reqHeight = 1024
+            )?.scaleForProcessing() ?: return@runCatching null
 
             val options = SelfieSegmenterOptions.Builder()
-                .setDetectorMode(SelfieSegmenterOptions.SINGLE_IMAGE_MODE)
+                .setDetectorMode(SINGLE_IMAGE_MODE)
                 .build()
-            val segmenter = Segmentation.getClient(options)
-            val mask = segmenter.process(InputImage.fromBitmap(source, 0)).await()
+            val segmenter = getClient(options)
+            val mask = segmenter.process(fromBitmap(source, 0)).await()
             segmenter.close()
             source.applySegmentationMask(mask)
         }.getOrNull()
@@ -41,13 +45,13 @@ class AiBackgroundRemovalProcessor @Inject constructor() {
 
     private fun Bitmap.scaleForProcessing(maxSize: Int = 1024): Bitmap {
         val largestSide = max(width, height)
-        if (largestSide <= maxSize) return copy(Bitmap.Config.ARGB_8888, true)
+        if (largestSide <= maxSize) return copy(ARGB_8888, true)
 
         val scale = maxSize.toFloat() / largestSide
         return this.scale(
             (width * scale).toInt().coerceAtLeast(1),
             (height * scale).toInt().coerceAtLeast(1)
-        ).copy(Bitmap.Config.ARGB_8888, true)
+        ).copy(ARGB_8888, true)
     }
 
     private fun Bitmap.applySegmentationMask(mask: SegmentationMask): Bitmap {
