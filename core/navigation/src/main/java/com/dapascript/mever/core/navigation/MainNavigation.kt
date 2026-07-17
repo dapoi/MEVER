@@ -8,7 +8,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSerializable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavEntry
@@ -33,7 +32,6 @@ import kotlinx.coroutines.flow.Flow
 @Composable
 fun MainNavigation(
     navGraphs: Set<@JvmSuppressWildcards BaseNavGraph>,
-    modifier: Modifier = Modifier,
     navigationToHomeEvent: Flow<Unit>? = null
 ) {
     val context = LocalContext.current
@@ -58,7 +56,6 @@ fun MainNavigation(
     }
 
     NavDisplay(
-        modifier = modifier,
         entries = navigationState.toEntries(entryProvider),
         onBack = { navigator.goBack() },
         transitionSpec = {
