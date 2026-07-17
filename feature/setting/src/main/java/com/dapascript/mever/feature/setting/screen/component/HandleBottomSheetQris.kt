@@ -52,7 +52,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.getStoragePermission
-import com.dapascript.mever.core.common.util.goToSetting
+import com.dapascript.mever.core.common.util.navigateToAppSettings
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.saveBitmapToStorage
 import kotlinx.coroutines.launch
@@ -101,7 +101,7 @@ internal fun HandleBottomSheetQris(
                     isPermissionsDeclined = isPermanentlyDeclined,
                     onGoToSetting = {
                         setStoragePermission = emptyList()
-                        activity.goToSetting()
+                        navigateToAppSettings(activity)
                     },
                     onRetry = { onRetry() },
                     onDismiss = { setStoragePermission = emptyList() }

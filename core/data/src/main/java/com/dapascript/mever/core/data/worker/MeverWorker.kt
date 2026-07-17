@@ -62,19 +62,15 @@ class MeverWorker @AssistedInject constructor(
 
         val (resultData, resultType) = when (action) {
             ACTION_DOWNLOAD -> {
+                currentCoroutineContext().ensureActive()
                 val url = inputData.getString(KEY_URL).orEmpty()
                 val quality = inputData.getString(KEY_QUALITY).orEmpty()
                 val type = inputData.getString(KEY_TYPE) ?: "video"
-
-                currentCoroutineContext().ensureActive()
-
                 val res = getApiDownloader(
                     url = url,
                     quality = quality,
                     type = type
                 )
-
-                currentCoroutineContext().ensureActive()
 
                 if (res.firstOrNull()?.status != true) {
                     throw Exception(context.getString(R.string.url_error))
@@ -84,6 +80,7 @@ class MeverWorker @AssistedInject constructor(
             }
 
             ACTION_GENERATE_AI -> {
+                currentCoroutineContext().ensureActive()
                 apiService.getImageAiGenerator(
                     prompt = inputData.getString(KEY_PROMPT).orEmpty()
                 ).mapToEntity() to ImageAiEntity::class.java

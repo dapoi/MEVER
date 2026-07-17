@@ -39,7 +39,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.convertFilename
 import com.dapascript.mever.core.common.util.getStoragePermission
-import com.dapascript.mever.core.common.util.goToSetting
+import com.dapascript.mever.core.common.util.navigateToAppSettings
 import com.dapascript.mever.core.common.util.handleClickButton
 import com.dapascript.mever.core.common.util.sanitizeFilename
 import com.dapascript.mever.core.common.util.shareContent
@@ -148,7 +148,7 @@ internal fun GalleryContentDetailScreen(
                         isPermissionsDeclined = isPermanentlyDeclined,
                         onGoToSetting = {
                             setStoragePermission = emptyList()
-                            activity.goToSetting()
+                            navigateToAppSettings(activity)
                         },
                         onRetry = { retry() },
                         onDismiss = { setStoragePermission = emptyList() }

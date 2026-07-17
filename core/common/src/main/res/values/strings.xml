@@ -130,9 +130,9 @@
     <string name="quick_tools">Quick Tools</string>
     <string name="all_tools">All Tools ></string>
     <string name="wa_status">WhatsApp Status</string>
-    <string name="wa_status_desc">View WhatsApp status before it disappears.</string>
+    <string name="wa_status_desc">View status before it disappears.</string>
     <string name="remove_bg">Clear Background</string>
-    <string name="remove_bg_desc">Remove background from the image.</string>
+    <string name="remove_bg_desc">Remove background image with AI.</string>
     <string name="images_finder">Images Finder</string>
     <string name="images_finder_desc">Explore high-quality images for free.</string>
     <string name="ai_image_generator">AI Image Generator</string>

@@ -116,9 +116,10 @@ interface ApiService {
 
     @Multipart
     @POST
-    suspend fun uploadToCatbox(
-        @Url url: String,
+    suspend fun uploadToLitterbox(
         @Part reqtype: MultipartBody.Part,
-        @Part fileToUpload: MultipartBody.Part
+        @Part time: MultipartBody.Part,
+        @Part fileToUpload: MultipartBody.Part,
+        @Url url: String = "https://litterbox.catbox.moe/resources/internals/api.php"
     ): ResponseBody
 }

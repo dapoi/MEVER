@@ -1,6 +1,7 @@
 package com.dapascript.mever.core.common.util
 
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
@@ -20,6 +21,7 @@ import android.graphics.BitmapFactory
 import android.graphics.BitmapFactory.decodeStream
 import android.media.MediaMetadataRetriever
 import android.net.Uri
+import android.net.Uri.fromParts
 import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.Q
 import android.os.Environment.DIRECTORY_PICTURES
@@ -27,6 +29,7 @@ import android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI
 import android.provider.MediaStore.MediaColumns.DISPLAY_NAME
 import android.provider.MediaStore.MediaColumns.MIME_TYPE
 import android.provider.MediaStore.MediaColumns.RELATIVE_PATH
+import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS
 import android.provider.Settings.EXTRA_APP_PACKAGE
 import android.util.Patterns.WEB_URL
@@ -326,6 +329,33 @@ fun navigateToGmail(context: Context) {
 fun navigateToBrowser(context: Context, url: String) {
     val intent = Intent(ACTION_VIEW, url.toUri())
     context.startActivity(intent)
+}
+
+fun navigateToAppSettings(activity: Activity) {
+    Intent(
+        ACTION_APPLICATION_DETAILS_SETTINGS,
+        fromParts("package", activity.packageName, null)
+    ).also(activity::startActivity)
+}
+
+fun navigateToWaStore(activity: Activity, appPackageName: String = "com.whatsapp") {
+    try {
+        activity.startActivity(
+            Intent(
+                ACTION_VIEW,
+                "market://details?id=$appPackageName".toUri()
+            ).apply {
+                addFlags(FLAG_ACTIVITY_NEW_TASK)
+            }
+        )
+    } catch (_: ActivityNotFoundException) {
+        activity.startActivity(
+            Intent(
+                ACTION_VIEW,
+                "https://play.google.com/store/apps/details?id=$appPackageName".toUri()
+            )
+        )
+    }
 }
 
 fun navigateToSystemGallery(context: Context) {

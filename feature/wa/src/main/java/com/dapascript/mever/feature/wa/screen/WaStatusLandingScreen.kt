@@ -86,7 +86,7 @@ import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.LocalDeviceType
-import com.dapascript.mever.core.common.util.goToWaStore
+import com.dapascript.mever.core.common.util.navigateToWaStore
 import com.dapascript.mever.core.common.util.isAppInstalled
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
@@ -235,7 +235,7 @@ internal fun WaStatusLandingScreen(
             primaryActionLabel = stringResource(R.string.install),
             onClickPrimaryAction = {
                 showWaNotInstalledDialog = false
-                activity.goToWaStore()
+                navigateToWaStore(activity)
                 navigator.goBack()
             },
             onClickSecondaryAction = { navigator.goBack() }

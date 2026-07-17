@@ -87,7 +87,7 @@ import com.dapascript.mever.core.common.util.LocalDeviceType
 import com.dapascript.mever.core.common.util.copyToClipboard
 import com.dapascript.mever.core.common.util.fetchPhotoFromUrl
 import com.dapascript.mever.core.common.util.getStoragePermission
-import com.dapascript.mever.core.common.util.goToSetting
+import com.dapascript.mever.core.common.util.navigateToAppSettings
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
@@ -192,7 +192,7 @@ internal fun AiImageGeneratorResultScreen(
                         isPermissionsDeclined = isPermanentlyDeclined,
                         onGoToSetting = {
                             setStoragePermission = emptyList()
-                            activity.goToSetting()
+                            navigateToAppSettings(activity)
                         },
                         onRetry = { retry() },
                         onDismiss = { setStoragePermission = emptyList() }

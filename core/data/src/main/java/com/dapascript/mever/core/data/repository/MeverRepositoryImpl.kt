@@ -1,10 +1,10 @@
 package com.dapascript.mever.core.data.repository
 
 import android.graphics.Bitmap
-import android.graphics.Bitmap.CompressFormat.PNG
 import androidx.work.workDataOf
-import com.dapascript.mever.core.common.util.state.ApiState.Error
-import com.dapascript.mever.core.common.util.state.ApiState.Loading
+import com.dapascript.mever.core.common.util.getContentTypeFromFile
+import com.dapascript.mever.core.common.util.sanitizeFilename
+import com.dapascript.mever.core.common.util.saveBitmapToFile
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.ACTION_DOWNLOAD
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.ACTION_GENERATE_AI
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_PROMPT
@@ -18,10 +18,6 @@ import com.dapascript.mever.core.data.model.local.ImageAiEntity
 import com.dapascript.mever.core.data.repository.base.BaseRepository
 import com.dapascript.mever.core.data.repository.base.BaseRepositoryArgs
 import com.dapascript.mever.core.data.source.remote.ApiService
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody.Part.Companion.createFormData
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -64,29 +60,24 @@ class MeverRepositoryImpl @Inject constructor(
         apiService.reportAiImage(message)
     }
 
-    override fun uploadToCatbox(file: File) = safeApiCall {
-        val reqType = createFormData("reqtype", "fileupload")
-        val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
-        val body = createFormData("fileToUpload", file.name, requestFile)
-        apiService.uploadToCatbox(
-            url = "https://catbox.moe/user/api.php",
-            reqtype = reqType,
-            fileToUpload = body
-        ).string()
-    }
-
-    override fun uploadImage(bitmap: Bitmap, fileName: String) = flow {
-        emit(Loading)
-        val cacheFile = File(context.cacheDir, fileName)
+    override fun uploadImage(bitmap: Bitmap, fileName: String) = safeApiCall {
+        val cacheFile = File(context.cacheDir, sanitizeFilename(fileName))
         try {
-            cacheFile.outputStream().use {
-                bitmap.compress(PNG, 100, it)
-            }
-            emitAll(uploadToCatbox(cacheFile))
-        } catch (e: Exception) {
-            emit(Error(e))
+            val isSaved = saveBitmapToFile(bitmap, cacheFile, true)
+            if (isSaved.not()) throw Exception("Failed to save bitmap to cache")
+
+            val reqType = createFormData("reqtype", "fileupload")
+            val time = createFormData("time", "1h")
+            val mimeType = getContentTypeFromFile(cacheFile)
+            val requestFile = cacheFile.asRequestBody(mimeType?.toMediaTypeOrNull())
+            val body = createFormData("fileToUpload", cacheFile.name, requestFile)
+            apiService.uploadToLitterbox(
+                reqtype = reqType,
+                time = time,
+                fileToUpload = body
+            ).string()
         } finally {
             if (cacheFile.exists()) cacheFile.delete()
         }
-    }.flowOn(IO)
+    }
 }

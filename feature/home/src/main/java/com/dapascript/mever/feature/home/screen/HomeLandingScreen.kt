@@ -125,7 +125,7 @@ import com.dapascript.mever.core.common.util.formatHighlightedText
 import com.dapascript.mever.core.common.util.getExtensionFromUrl
 import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.getStoragePermission
-import com.dapascript.mever.core.common.util.goToSetting
+import com.dapascript.mever.core.common.util.navigateToAppSettings
 import com.dapascript.mever.core.common.util.handleClickButton
 import com.dapascript.mever.core.common.util.isMusic
 import com.dapascript.mever.core.common.util.isVideo
@@ -422,7 +422,7 @@ private fun HomeLandingContent(
                     isPermissionsDeclined = isPermanentlyDeclined,
                     onGoToSetting = {
                         checkStoragePermissions = emptyList()
-                        scope.launch { activity.goToSetting() }
+                        navigateToAppSettings(activity)
                     },
                     onRetry = { retry() },
                     onDismiss = { checkStoragePermissions = emptyList() }
