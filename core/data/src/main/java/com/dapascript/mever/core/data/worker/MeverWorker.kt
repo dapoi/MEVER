@@ -41,6 +41,9 @@ import com.dapascript.mever.core.data.util.MoshiHelper
 import com.squareup.moshi.Types
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import retrofit2.HttpException
 import java.io.IOException
 import java.net.SocketTimeoutException
@@ -62,11 +65,16 @@ class MeverWorker @AssistedInject constructor(
                 val url = inputData.getString(KEY_URL).orEmpty()
                 val quality = inputData.getString(KEY_QUALITY).orEmpty()
                 val type = inputData.getString(KEY_TYPE) ?: "video"
+
+                currentCoroutineContext().ensureActive()
+
                 val res = getApiDownloader(
                     url = url,
                     quality = quality,
                     type = type
                 )
+
+                currentCoroutineContext().ensureActive()
 
                 if (res.firstOrNull()?.status != true) {
                     throw Exception(context.getString(R.string.url_error))
@@ -95,6 +103,8 @@ class MeverWorker @AssistedInject constructor(
         } else {
             Result.success(workDataOf(KEY_OUTPUT_IS_FILE to false, KEY_RESULT to jsonOutput))
         }
+    } catch (e: CancellationException) {
+        throw e
     } catch (e: Exception) {
         val errorMessage = when (e) {
             is SocketTimeoutException -> context.getString(R.string.error_timeout)
