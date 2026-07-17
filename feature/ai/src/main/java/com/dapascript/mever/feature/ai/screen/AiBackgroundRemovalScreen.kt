@@ -311,7 +311,7 @@ internal fun AiBackgroundRemovalScreen(
                                 isProcessing = isProcessing,
                                 isSaving = saveImageState is StateLoading,
                                 errorMessage = errorMessage,
-                                onPickImage = { imagePicker.launch("image/*") },
+                                onPickImage = { if (imageUri == null) imagePicker.launch("image/*") },
                                 onRemoveBackground = {
                                     imageUri?.let {
                                         removeBackground(
