@@ -38,22 +38,30 @@ fun MeverSnackbar(
 
     LaunchedEffect(message.value) {
         if (message.value.isNotEmpty()) {
-            snackbarHostState.showSnackbar(message = message.value, duration = duration)
+            val result = snackbarHostState.showSnackbar(
+                message = message.value,
+                actionLabel = actionMessage,
+                duration = duration
+            )
+            if (result == androidx.compose.material3.SnackbarResult.ActionPerformed) {
+                onClickSnackbarAction?.invoke()
+            }
             message.value = ""
         }
     }
 
-    SnackbarHost(hostState = snackbarHostState) {
-        Box(modifier = modifier) {
-            MeverLabel(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(color = snackbarColor, shape = RoundedCornerShape(Dp8)),
-                message = message.value,
-                messageColor = snackbarContentColor,
-                actionMessage = actionMessage
-            ) { onClickSnackbarAction?.invoke() }
-        }
+    SnackbarHost(
+        hostState = snackbarHostState,
+        modifier = modifier
+    ) { data ->
+        MeverLabel(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(color = snackbarColor, shape = RoundedCornerShape(Dp8)),
+            message = data.visuals.message,
+            messageColor = snackbarContentColor,
+            actionMessage = data.visuals.actionLabel
+        ) { data.performAction() }
     }
 }
 

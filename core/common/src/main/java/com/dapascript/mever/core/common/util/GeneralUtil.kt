@@ -328,6 +328,14 @@ fun navigateToBrowser(context: Context, url: String) {
     context.startActivity(intent)
 }
 
+fun navigateToSystemGallery(context: Context) {
+    val intent = Intent(ACTION_VIEW).apply {
+        type = "image/*"
+        flags = FLAG_ACTIVITY_NEW_TASK
+    }
+    context.startActivity(intent)
+}
+
 fun convertToTimeFormat(milliseconds: Long): String {
     val seconds = milliseconds / 1000
     val minutes = seconds / 60

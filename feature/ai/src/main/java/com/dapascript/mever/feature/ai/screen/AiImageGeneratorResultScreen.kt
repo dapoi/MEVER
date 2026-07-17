@@ -31,7 +31,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -63,7 +62,6 @@ import com.dapascript.mever.core.common.ui.component.MeverDeclinedPermissionDial
 import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverImage
 import com.dapascript.mever.core.common.ui.component.MeverPermissionHandler
-import com.dapascript.mever.core.common.ui.component.MeverSnackbar
 import com.dapascript.mever.core.common.ui.component.meverShimmer
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp10
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
@@ -126,7 +124,6 @@ internal fun AiImageGeneratorResultScreen(
     var showCancelExitConfirmation by remember { mutableStateOf(false) }
     var showReportDialog by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
-    val snackbarMessage = remember { mutableStateOf("") }
     var setStoragePermission by remember { mutableStateOf<List<String>>(emptyList()) }
 
     BaseScreen(
@@ -284,7 +281,6 @@ internal fun AiImageGeneratorResultScreen(
                 promptText = args.prompt,
                 hasCopied = hasCopied,
                 scrollState = scrollState,
-                snackbarMessage = snackbarMessage,
                 onClickReport = { showReportDialog = true },
                 onClickCopy = {
                     copyToClipboard(context, args.prompt)
@@ -332,7 +328,6 @@ private fun ImageGeneratorResultContent(
     promptText: String,
     hasCopied: Boolean,
     scrollState: ScrollState,
-    snackbarMessage: MutableState<String>,
     modifier: Modifier = Modifier,
     onClickReport: () -> Unit,
     onClickCopy: () -> Unit,
@@ -487,12 +482,6 @@ private fun ImageGeneratorResultContent(
             .align(BottomCenter)
     ) {
         Column {
-            MeverSnackbar(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = Dp24, vertical = Dp16),
-                message = snackbarMessage
-            )
             Column(
                 modifier = Modifier
                     .fillMaxWidth()

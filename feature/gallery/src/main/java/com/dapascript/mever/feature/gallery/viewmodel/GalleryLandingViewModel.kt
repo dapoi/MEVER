@@ -8,9 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.util.PlatformType
-import com.dapascript.mever.core.common.util.PlatformType.AI
 import com.dapascript.mever.core.common.util.PlatformType.ALL
-import com.dapascript.mever.core.common.util.PlatformType.EXPLORE
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getFilePath
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFiles
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFolder
@@ -48,43 +46,13 @@ class GalleryLandingViewModel @Inject constructor(
 
     val downloadList = ketch.observeDownloads()
         .combine(_refreshTrigger) { downloads, _ ->
-            val folderFiles = getMeverFiles(meverFolder)
-            val ketchFiles = downloads.map { it.fileName.lowercase() }.toSet()
-            
-            val ketchItems = downloads.map {
+            downloads.map {
                 it.copy(
-                    path = getFilePath(
-                        dir = meverFolder,
-                        fileName = it.fileName
-                    )?.absolutePath.orEmpty()
+                    path = File(meverFolder, it.fileName).absolutePath
                 )
-            }
-            
-            val localItems = folderFiles
-                .filter { it.name.lowercase() !in ketchFiles }
-                .map { file ->
-                    DownloadModel(
-                        id = file.name.hashCode(),
-                        url = "file://${file.absolutePath}",
-                        path = file.absolutePath,
-                        fileName = file.name,
-                        tag = if (file.name.contains("BG_REMOVAL", true)) AI.platformName else EXPLORE.platformName,
-                        status = SUCCESS,
-                        progress = 100,
-                        total = file.length(),
-                        metaData = file.absolutePath,
-                        eTag = "",
-                        failureReason = "",
-                        headers = hashMapOf(),
-                        lastModified = file.lastModified(),
-                        speedInBytePerMs = 0f,
-                        timeQueued = file.lastModified()
-                    )
-                }
-            
-            (ketchItems + localItems).sortedWith(
-                compareByDescending<DownloadModel> { 
-                    it.status in listOf(QUEUED, STARTED, PROGRESS) 
+            }.sortedWith(
+                compareByDescending<DownloadModel> {
+                    it.status in listOf(QUEUED, STARTED, PROGRESS)
                 }.thenByDescending { it.lastModified }
             )
         }
@@ -126,19 +94,31 @@ class GalleryLandingViewModel @Inject constructor(
     fun retryDownload(id: Int) = ketch.retry(id)
 
     fun delete(id: Int) {
-        val item = downloadList.value?.find { it.id == id }
-        if (item != null && item.url.startsWith("file://")) {
-            File(item.path).delete()
+        deleteItems(listOf(id))
+    }
+
+    fun deleteItems(ids: List<Int>) {
+        val items = downloadList.value?.filter { it.id in ids } ?: return
+        viewModelScope.launch {
+            items.forEach { item ->
+                val file = File(item.path)
+                if (file.exists()) file.delete()
+                ketch.clearDb(item.id)
+            }
             _refreshTrigger.update { it + 1 }
-        } else {
-            ketch.clearDb(id)
         }
     }
 
     fun deleteAll() {
-        ketch.clearAllDb()
-        meverFolder.listFiles()?.forEach { it.delete() }
-        _refreshTrigger.update { it + 1 }
+        viewModelScope.launch {
+            val downloads = downloadList.value ?: return@launch
+            downloads.forEach { item ->
+                val file = File(item.path)
+                if (file.exists()) file.delete()
+            }
+            ketch.clearAllDb()
+            _refreshTrigger.update { it + 1 }
+        }
     }
 
     fun syncToGallery(context: Context, fileName: String) {

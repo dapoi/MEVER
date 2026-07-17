@@ -116,7 +116,7 @@ internal fun GalleryLandingScreen(
     viewModel: GalleryLandingViewModel = hiltViewModel()
 ) = with(viewModel) {
     val context = LocalContext.current
-    val downloadList = downloadList.collectAsStateValue()
+    val allDownloads = downloadList.collectAsStateValue()
     val platformTypes = platformTypes.collectAsStateValue()
     val selectedItems = selectedItems.collectAsStateValue()
     val listState = rememberLazyListState()
@@ -138,9 +138,9 @@ internal fun GalleryLandingScreen(
                     showSelector.not()
         }
     }
-    val downloadFilter by remember(downloadList, selectedFilter) {
+    val filteredDownloads by remember(allDownloads, selectedFilter) {
         derivedStateOf {
-            downloadList?.filter {
+            allDownloads?.filter {
                 selectedFilter == ALL || it.tag == selectedFilter.platformName
             }
         }
@@ -148,7 +148,7 @@ internal fun GalleryLandingScreen(
 
     BaseScreen(
         topBarArgs = TopBarArgs(
-            actionMenus = if (downloadFilter.orEmpty().size > 1) {
+            actionMenus = if (filteredDownloads.orEmpty().size > 1) {
                 listOf(
                     ActionMenu(
                         icon = R.drawable.ic_more,
@@ -159,7 +159,7 @@ internal fun GalleryLandingScreen(
             } else emptyList(),
             title = when {
                 showSelector -> stringResource(R.string.total_item_selected, selectedItems.size)
-                isExpanded.value.not() && downloadFilter.isNullOrEmpty().not() -> stringResource(R.string.gallery)
+                isExpanded.value.not() && filteredDownloads.isNullOrEmpty().not() -> stringResource(R.string.gallery)
                 else -> ""
             },
             isCenterTitle = showSelector.not(),
@@ -191,8 +191,8 @@ internal fun GalleryLandingScreen(
                 }
         }
 
-        LaunchedEffect(downloadList) {
-            downloadList
+        LaunchedEffect(allDownloads) {
+            allDownloads
                 ?.filter { it.status == SUCCESS }
                 ?.forEach { syncToGallery(context, it.fileName) }
         }
@@ -204,8 +204,8 @@ internal fun GalleryLandingScreen(
             }
         }
 
-        LaunchedEffect(selectedFilter, downloadFilter) {
-            if (selectedFilter != ALL && downloadFilter?.isEmpty() == true) selectedFilter = ALL
+        LaunchedEffect(selectedFilter, filteredDownloads) {
+            if (selectedFilter != ALL && filteredDownloads?.isEmpty() == true) selectedFilter = ALL
         }
 
         BackHandler(showSelector) {
@@ -218,16 +218,16 @@ internal fun GalleryLandingScreen(
             modifier = Modifier.padding(top = Dp64, end = Dp24),
             listDropDown = GalleryActionMenu.entries.filter { menu ->
                 when (menu) {
-                    SELECT_ALL -> showSelector && selectedItems.size != downloadFilter?.size
-                    SELECT_FILES -> downloadList.isNullOrEmpty().not() && showSelector.not()
-                    DELETE_ALL -> downloadList.isNullOrEmpty().not() && showSelector.not()
+                    SELECT_ALL -> showSelector && selectedItems.size != filteredDownloads?.size
+                    SELECT_FILES -> allDownloads.isNullOrEmpty().not() && showSelector.not()
+                    DELETE_ALL -> allDownloads.isNullOrEmpty().not() && showSelector.not()
                     DELETE_SELECTED -> selectedItems.isNotEmpty()
                     SHARE_SELECTED -> selectedItems.isNotEmpty()
-                    PAUSE_ALL -> downloadList?.any { model ->
+                    PAUSE_ALL -> allDownloads?.any { model ->
                         model.status == PROGRESS
                     } == true
 
-                    RESUME_ALL -> downloadList?.any { model ->
+                    RESUME_ALL -> allDownloads?.any { model ->
                         model.progress < model.total && model.status == PAUSED
                     } == true
 
@@ -246,7 +246,7 @@ internal fun GalleryLandingScreen(
             onClick = { menu ->
                 when (menu) {
                     SELECT_ALL -> {
-                        toggleSelectionAll(downloadFilter.orEmpty())
+                        toggleSelectionAll(filteredDownloads.orEmpty())
                         isSelectedAll = true
                     }
 
@@ -272,7 +272,7 @@ internal fun GalleryLandingScreen(
                     PAUSE_ALL -> pauseAllDownloads()
                     HIDE_FILTER -> showFilter = false
                     SHOW_FILTER -> showFilter = true
-                    else -> downloadList?.filter { model -> model.status == PAUSED }?.forEach {
+                    else -> allDownloads?.filter { model -> model.status == PAUSED }?.forEach {
                         resumeDownload(it.id)
                     }
                 }
@@ -285,7 +285,7 @@ internal fun GalleryLandingScreen(
             showSelector = showSelector,
             selectedItems = selectedItems,
             platformTypes = if (showFilter) platformTypes else emptyList(),
-            downloadList = downloadFilter,
+            filteredDownloads = filteredDownloads,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = Dp64),
@@ -302,7 +302,7 @@ internal fun GalleryLandingScreen(
                         SUCCESS -> {
                             if (isMusic(model.fileName).not()) navigator.navigate(
                                 GalleryContentDetailRoute(
-                                    contents = downloadFilter
+                                    contents = filteredDownloads
                                         ?.filterNot { isMusic(it.fileName) }
                                         ?.map {
                                             Content(
@@ -312,7 +312,7 @@ internal fun GalleryLandingScreen(
                                                 fileName = it.fileName
                                             )
                                         } ?: emptyList(),
-                                    initialIndex = downloadFilter?.filterNot {
+                                    initialIndex = filteredDownloads?.filterNot {
                                         isMusic(it.fileName)
                                     }?.indexOfFirst { it.id == id } ?: 0
                                 )
@@ -332,8 +332,10 @@ internal fun GalleryLandingScreen(
             },
             onClickDelete = { showDeleteDialog = listOf(it.id) },
             onClickLong = {
-                showSelector = showSelector.not()
-                toggleSelection(it)
+                if (filteredDownloads.orEmpty().size > 1) {
+                    showSelector = showSelector.not()
+                    toggleSelection(it)
+                }
             },
             onClickShare = {
                 shareContent(
@@ -367,7 +369,7 @@ internal fun GalleryLandingScreen(
                 description = stringResource(R.string.delete_desc),
                 primaryActionLabel = stringResource(R.string.delete_button),
                 onClickPrimaryAction = {
-                    ids.forEach { delete(it) }
+                    deleteItems(ids)
                     showDeleteDialog = null
                     showSelector = false
                     clearSelection()
@@ -403,7 +405,7 @@ private fun GalleryContentSection(
     showSelector: Boolean,
     selectedItems: Set<DownloadModel>,
     platformTypes: List<PlatformType>,
-    downloadList: List<DownloadModel>?,
+    filteredDownloads: List<DownloadModel>?,
     modifier: Modifier = Modifier,
     isExpanded: () -> Boolean,
     onClickFilter: (PlatformType) -> Unit,
@@ -418,8 +420,8 @@ private fun GalleryContentSection(
     CompositionLocalProvider(LocalOverscrollFactory provides null) {
         val headerScroll = rememberScrollState()
 
-        downloadList?.let {
-            if (downloadList.isNotEmpty()) {
+        filteredDownloads?.let {
+            if (filteredDownloads.isNotEmpty()) {
                 if (deviceType == PHONE) {
                     LazyColumn(
                         modifier = modifier,
@@ -466,7 +468,7 @@ private fun GalleryContentSection(
                             }
                         }
                         items(
-                            items = downloadList,
+                            items = filteredDownloads,
                             key = { it.id },
                             contentType = { it.status.name }
                         ) {
@@ -542,9 +544,9 @@ private fun GalleryContentSection(
                                 )
                             }
                         }
-                        if (downloadList.size > 1) {
+                        if (filteredDownloads.size > 1) {
                             items(
-                                items = downloadList.chunked(2),
+                                items = filteredDownloads.chunked(2),
                                 key = { it.first().id }
                             ) { rowItems ->
                                 Row(
@@ -589,7 +591,7 @@ private fun GalleryContentSection(
                             }
                         } else {
                             items(
-                                items = downloadList,
+                                items = filteredDownloads,
                                 key = { it.id },
                                 contentType = { it.status.name }
                             ) {

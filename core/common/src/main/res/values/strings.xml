@@ -151,6 +151,8 @@
     <string name="hint_success">Success! Background is now transparent.</string>
     <string name="failed_process_ai">Failed to process image. Try another photo.</string>
     <string name="failed_save_image">Failed to save image.</string>
+    <string name="success_save_image">Saved to gallery</string>
+    <string name="view">View</string>
     <string name="faq_q1">So, what\'s MEVER all about?</string>
     <string name="faq_a1">MEVER is your go-to tool for grabbing media from social platforms. It\'s fast, simple, and gets the job done!</string>
     <string name="faq_q2">Is this gonna cost me anything?</string>

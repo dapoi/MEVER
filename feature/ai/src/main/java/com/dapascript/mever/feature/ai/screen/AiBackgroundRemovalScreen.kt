@@ -45,6 +45,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
@@ -73,6 +74,7 @@ import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverButton
 import com.dapascript.mever.core.common.ui.component.MeverImage
+import com.dapascript.mever.core.common.ui.component.MeverSnackbar
 import com.dapascript.mever.core.common.ui.component.rememberInterstitialAd
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp10
@@ -93,14 +95,13 @@ import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.util.DeviceType
 import com.dapascript.mever.core.common.util.LocalDeviceType
 import com.dapascript.mever.core.common.util.handleClickButton
+import com.dapascript.mever.core.common.util.navigateToSystemGallery
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.state.UiState.StateFailed
 import com.dapascript.mever.core.common.util.state.UiState.StateLoading
 import com.dapascript.mever.core.common.util.state.UiState.StateSuccess
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.navigation.helper.Navigator
-import com.dapascript.mever.core.navigation.route.AiScreenRoute.AiBackgroundRemovalRoute
-import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute
 import com.dapascript.mever.feature.ai.viewmodel.AiBackgroundRemovalViewModel
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
@@ -119,6 +120,7 @@ internal fun AiBackgroundRemovalScreen(
     var resultBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var errorMessage by rememberSaveable { mutableStateOf("") }
     var isProcessing by remember { mutableStateOf(false) }
+    val snackbarMessage = remember { mutableStateOf("") }
     val listState = rememberLazyListState()
     var titleHeight by rememberSaveable { mutableIntStateOf(0) }
     val isExpanded by remember(titleHeight) {
@@ -168,11 +170,7 @@ internal fun AiBackgroundRemovalScreen(
     LaunchedEffect(saveImageState) {
         when (saveImageState) {
             is StateSuccess -> {
-                navigator.navigate(
-                    route = GalleryLandingRoute,
-                    popUpTo = AiBackgroundRemovalRoute,
-                    isInclusive = true
-                )
+                snackbarMessage.value = resources.getString(R.string.success_save_image)
             }
 
             is StateFailed -> Toast.makeText(
@@ -189,151 +187,162 @@ internal fun AiBackgroundRemovalScreen(
         topBarArgs = TopBarArgs(title = if (isExpanded.not()) stringResource(R.string.remove_bg) else ""),
         onBackHandler = { navigator.goBack() }
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = Dp64)
-        ) {
-            if (isExpanded.not() && titleHeight > 0) {
-                HorizontalDivider(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .shadow(Dp3),
-                    thickness = Dp1,
-                    color = colors.blackWhite.copy(alpha = 0.12f)
-                )
-            }
-            CompositionLocalProvider(LocalOverscrollFactory provides null) {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    state = listState,
-                    verticalArrangement = spacedBy(Dp24),
-                    contentPadding = PaddingValues(bottom = Dp40)
-                ) {
-                    item {
-                        AnimatedVisibility(
-                            visible = isExpanded,
-                            enter = expandVertically() + fadeIn(),
-                            exit = shrinkVertically() + fadeOut()
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(top = Dp16, start = Dp24, end = Dp24),
-                                verticalArrangement = spacedBy(Dp8)
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = Dp64)
+            ) {
+                if (isExpanded.not() && titleHeight > 0) {
+                    HorizontalDivider(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .shadow(Dp3),
+                        thickness = Dp1,
+                        color = colors.blackWhite.copy(alpha = 0.12f)
+                    )
+                }
+                CompositionLocalProvider(LocalOverscrollFactory provides null) {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        state = listState,
+                        verticalArrangement = spacedBy(Dp24),
+                        contentPadding = PaddingValues(bottom = Dp40)
+                    ) {
+                        item {
+                            AnimatedVisibility(
+                                visible = isExpanded,
+                                enter = expandVertically() + fadeIn(),
+                                exit = shrinkVertically() + fadeOut()
                             ) {
-                                Text(
-                                    modifier = Modifier.onGloballyPositioned {
-                                        titleHeight = it.size.height
-                                    },
-                                    text = stringResource(R.string.remove_bg),
-                                    style = typography.h2.copy(fontSize = Sp32),
-                                    color = colors.blackWhite
-                                )
-                                Text(
-                                    text = stringResource(R.string.remove_bg_desc),
-                                    style = typography.body2,
-                                    color = colors.grayLightGray
-                                )
+                                Column(
+                                    modifier = Modifier.padding(top = Dp16, start = Dp24, end = Dp24),
+                                    verticalArrangement = spacedBy(Dp8)
+                                ) {
+                                    Text(
+                                        modifier = Modifier.onGloballyPositioned {
+                                            titleHeight = it.size.height
+                                        },
+                                        text = stringResource(R.string.remove_bg),
+                                        style = typography.h2.copy(fontSize = Sp32),
+                                        color = colors.blackWhite
+                                    )
+                                    Text(
+                                        text = stringResource(R.string.remove_bg_desc),
+                                        style = typography.body2,
+                                        color = colors.grayLightGray
+                                    )
+                                }
                             }
                         }
-                    }
-                    item {
-                        if (deviceType != DeviceType.PHONE) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = Dp24),
-                                horizontalArrangement = spacedBy(Dp24),
-                                verticalAlignment = CenterVertically
-                            ) {
-                                Box(modifier = Modifier.weight(1.2f)) {
-                                    ImagePreviewCard(
-                                        imageUri = imageUri,
-                                        resultBitmap = resultBitmap,
-                                        isProcessing = isProcessing,
-                                        onPickImage = {
-                                            if (imageUri == null) imagePicker.launch("image/*")
-                                        }
-                                    )
-                                }
-                                Column(
-                                    modifier = Modifier.weight(1f),
-                                    verticalArrangement = spacedBy(Dp20)
+                        item {
+                            if (deviceType != DeviceType.PHONE) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = Dp24),
+                                    horizontalArrangement = spacedBy(Dp24),
+                                    verticalAlignment = CenterVertically
                                 ) {
-                                    ActionButtons(
-                                        imageUri = imageUri,
-                                        resultBitmap = resultBitmap,
-                                        isProcessing = isProcessing,
-                                        isSaving = saveImageState is StateLoading,
-                                        onPickImage = { imagePicker.launch("image/*") },
-                                        onRemoveBackground = {
-                                            imageUri?.let {
-                                                removeBackground(
-                                                    context = context,
-                                                    imageUri = it
-                                                )
+                                    Box(modifier = Modifier.weight(1.2f)) {
+                                        ImagePreviewCard(
+                                            imageUri = imageUri,
+                                            resultBitmap = resultBitmap,
+                                            isProcessing = isProcessing,
+                                            onPickImage = {
+                                                if (imageUri == null) imagePicker.launch("image/*")
                                             }
-                                        },
-                                        onSaveImage = {
-                                            handleClickButton(
-                                                buttonClickCount = getButtonClickCount,
-                                                onIncrementClickCount = { incrementClickCount() },
-                                                onShowAds = { interstitialAd.showAd() },
-                                                onClickAction = {
-                                                    resultBitmap?.let {
-                                                        saveImage(
-                                                            context = context,
-                                                            bitmap = it
-                                                        )
-                                                    }
-                                                }
-                                            )
-                                        },
-                                        onClearImage = {
-                                            imageUri = null
-                                            resultBitmap = null
-                                            errorMessage = ""
-                                            reset()
-                                        }
-                                    )
-                                    ProcessingHint(
-                                        imageUri = imageUri,
-                                        resultBitmap = resultBitmap,
-                                        isProcessing = isProcessing,
-                                        errorMessage = errorMessage
-                                    )
-                                }
-                            }
-                        } else {
-                            ActionPanel(
-                                modifier = Modifier.padding(horizontal = Dp24),
-                                imageUri = imageUri,
-                                resultBitmap = resultBitmap,
-                                isProcessing = isProcessing,
-                                isSaving = saveImageState is StateLoading,
-                                errorMessage = errorMessage,
-                                onPickImage = { if (imageUri == null) imagePicker.launch("image/*") },
-                                onRemoveBackground = {
-                                    imageUri?.let {
-                                        removeBackground(
-                                            context = context,
-                                            imageUri = it
                                         )
                                     }
-                                },
-                                onSaveImage = {
-                                    resultBitmap?.let { saveImage(context = context, bitmap = it) }
-                                },
-                                onClearImage = {
-                                    imageUri = null
-                                    resultBitmap = null
-                                    errorMessage = ""
-                                    reset()
+                                    Column(
+                                        modifier = Modifier.weight(1f),
+                                        verticalArrangement = spacedBy(Dp20)
+                                    ) {
+                                        ActionButtons(
+                                            imageUri = imageUri,
+                                            resultBitmap = resultBitmap,
+                                            isProcessing = isProcessing,
+                                            isSaving = saveImageState is StateLoading,
+                                            onPickImage = { imagePicker.launch("image/*") },
+                                            onRemoveBackground = {
+                                                imageUri?.let {
+                                                    removeBackground(
+                                                        context = context,
+                                                        imageUri = it
+                                                    )
+                                                }
+                                            },
+                                            onSaveImage = {
+                                                handleClickButton(
+                                                    buttonClickCount = getButtonClickCount,
+                                                    onIncrementClickCount = { incrementClickCount() },
+                                                    onShowAds = { interstitialAd.showAd() },
+                                                    onClickAction = {
+                                                        resultBitmap?.let {
+                                                            saveImage(
+                                                                context = context,
+                                                                bitmap = it
+                                                            )
+                                                        }
+                                                    }
+                                                )
+                                            },
+                                            onClearImage = {
+                                                imageUri = null
+                                                resultBitmap = null
+                                                errorMessage = ""
+                                                reset()
+                                            }
+                                        )
+                                        ProcessingHint(
+                                            imageUri = imageUri,
+                                            resultBitmap = resultBitmap,
+                                            isProcessing = isProcessing,
+                                            errorMessage = errorMessage
+                                        )
+                                    }
                                 }
-                            )
+                            } else {
+                                ActionPanel(
+                                    modifier = Modifier.padding(horizontal = Dp24),
+                                    imageUri = imageUri,
+                                    resultBitmap = resultBitmap,
+                                    isProcessing = isProcessing,
+                                    isSaving = saveImageState is StateLoading,
+                                    errorMessage = errorMessage,
+                                    onPickImage = { if (imageUri == null) imagePicker.launch("image/*") },
+                                    onRemoveBackground = {
+                                        imageUri?.let {
+                                            removeBackground(
+                                                context = context,
+                                                imageUri = it
+                                            )
+                                        }
+                                    },
+                                    onSaveImage = {
+                                        resultBitmap?.let { saveImage(context = context, bitmap = it) }
+                                    },
+                                    onClearImage = {
+                                        imageUri = null
+                                        resultBitmap = null
+                                        errorMessage = ""
+                                        reset()
+                                    }
+                                )
+                            }
                         }
                     }
                 }
             }
+
+            MeverSnackbar(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(start = Dp24, end = Dp24, bottom = Dp40),
+                message = snackbarMessage,
+                actionMessage = stringResource(R.string.view),
+                onClickSnackbarAction = { navigateToSystemGallery(context) }
+            )
         }
     }
 }

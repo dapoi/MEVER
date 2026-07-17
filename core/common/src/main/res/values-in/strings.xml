@@ -150,6 +150,8 @@
     <string name="hint_success">Berhasil! Latar belakang sekarang transparan.</string>
     <string name="failed_process_ai">Gagal memproses gambar. Coba foto lain.</string>
     <string name="failed_save_image">Gagal menyimpan gambar.</string>
+    <string name="success_save_image">Tersimpan di galeri</string>
+    <string name="view">Lihat</string>
     <string name="faq_q1">Jadi, MEVER itu apa?</string>
     <string name="faq_a1">MEVER adalah alat andalanmu untuk mengambil media dari platform sosial. Cepat, sederhana, dan sangat membantu!</string>
     <string name="faq_q2">Apakah ini berbayar?</string>
