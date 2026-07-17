@@ -16,9 +16,14 @@ import com.dapascript.mever.core.data.model.remote.TiktokDownloaderResponse
 import com.dapascript.mever.core.data.model.remote.TwitterDownloaderResponse
 import com.dapascript.mever.core.data.model.remote.VideyDownloaderResponse
 import com.dapascript.mever.core.data.model.remote.YouTubeDownloaderResponse
+import okhttp3.MultipartBody
+import okhttp3.ResponseBody
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.Part
 import retrofit2.http.Query
+import retrofit2.http.Url
 
 interface ApiService {
     @GET("app-config")
@@ -108,4 +113,12 @@ interface ApiService {
 
     @POST("report")
     suspend fun reportAiImage(@Query("message") message: String)
+
+    @Multipart
+    @POST
+    suspend fun uploadToCatbox(
+        @Url url: String,
+        @Part reqtype: MultipartBody.Part,
+        @Part fileToUpload: MultipartBody.Part
+    ): ResponseBody
 }

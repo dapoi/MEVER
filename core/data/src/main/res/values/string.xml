@@ -6,4 +6,6 @@
     <string name="error_http">Server error occurred (%1$d).</string>
     <string name="error_unknown">An unknown error occurred.</string>
     <string name="url_error">Invalid URL. Please check the URL and try again.</string>
+    <string name="error_no_internet">No internet connection. Please check your network.</string>
+    <string name="error_airplane_mode">Airplane mode is on. Please disable it to continue.</string>
 </resources>

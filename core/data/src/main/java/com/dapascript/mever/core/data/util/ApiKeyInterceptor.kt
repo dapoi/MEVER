@@ -8,6 +8,9 @@ import javax.inject.Inject
 
 class ApiKeyInterceptor @Inject constructor() : Interceptor {
     override fun intercept(chain: Chain) = chain.request().let { request ->
+        val urlHost = request.url.host
+        if (urlHost.contains("catbox.moe")) return@let chain.proceed(request)
+
         val builder = request
             .newBuilder()
             .addHeader("X-Package-Name", "com.dapascript.mever")

@@ -6,4 +6,6 @@
     <string name="error_http">Terjadi kesalahan server (%1$d).</string>
     <string name="error_unknown">Terjadi kesalahan yang tidak diketahui.</string>
     <string name="url_error">URL tidak valid. Periksa URL dan coba lagi.</string>
+    <string name="error_no_internet">Tidak ada koneksi internet. Periksa jaringan kamu.</string>
+    <string name="error_airplane_mode">Mode pesawat aktif. Harap nonaktifkan untuk melanjutkan.</string>
 </resources>
