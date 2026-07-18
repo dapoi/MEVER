@@ -96,7 +96,7 @@
     <string name="video">Video %1$s</string>
     <string name="image">Gambar %1$s</string>
     <string name="audio">Audio</string>
-    <string name="preview">Lihat Pratinjau</string>
+    <string name="preview">Pratinjau</string>
     <string name="storage">Penyimpanan Internal</string>
     <string name="storage_full">Penyimpananmu hampir penuh 😬 Kosongin sedikit ruang ya.</string>
     <string name="used_storage">Terpakai %1$s dari %2$s</string>

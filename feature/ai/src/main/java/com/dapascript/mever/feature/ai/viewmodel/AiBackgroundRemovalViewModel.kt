@@ -115,6 +115,27 @@ class AiBackgroundRemovalViewModel @Inject constructor(
         dataStore.incrementClickCount()
     }
 
+    fun saveToCache(context: Context, bitmap: Bitmap, onResult: (String?) -> Unit) {
+        viewModelScope.launch {
+            withContext(IO) {
+                context.cacheDir.listFiles { file ->
+                    file.name.startsWith("temp_bg_removal_") && file.name.endsWith(".png")
+                }?.forEach { it.delete() }
+            }
+
+            val fileName = "temp_bg_removal_${currentTimeMillis()}.png"
+            val cacheFile = File(context.cacheDir, fileName)
+            val isSuccess = withContext(IO) {
+                saveBitmapToFile(bitmap, cacheFile, true)
+            }
+            if (isSuccess) {
+                onResult(cacheFile.absolutePath)
+            } else {
+                onResult(null)
+            }
+        }
+    }
+
     private suspend fun saveImageLocally(context: Context, bitmap: Bitmap, fileName: String) {
         val destFile = File(meverFolder, fileName)
         val isSuccess = withContext(IO) {

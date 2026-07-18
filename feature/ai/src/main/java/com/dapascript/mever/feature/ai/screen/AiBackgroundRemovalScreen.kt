@@ -103,6 +103,8 @@ import com.dapascript.mever.core.common.util.state.UiState.StateSuccess
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.AiScreenRoute.AiBackgroundRemovalRoute
+import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
+import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute.Content
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute
 import com.dapascript.mever.feature.ai.viewmodel.AiBackgroundRemovalViewModel
 import com.dapascript.mever.feature.ai.viewmodel.AiBackgroundRemovalViewModel.ImageLocation.GALLERY
@@ -141,7 +143,6 @@ internal fun AiBackgroundRemovalScreen(
             )
         }
     }
-
     val imagePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
@@ -252,7 +253,16 @@ internal fun AiBackgroundRemovalScreen(
                         item {
                             if (deviceType == PHONE) {
                                 ActionPanel(
-                                    modifier = Modifier.padding(horizontal = Dp24),
+                                    modifier = Modifier
+                                        .padding(horizontal = Dp24)
+                                        .clip(RoundedCornerShape(Dp32))
+                                        .background(colors.whiteDarkGray)
+                                        .border(
+                                            width = Dp1,
+                                            color = colors.blackWhite.copy(alpha = 0.08f),
+                                            shape = RoundedCornerShape(Dp32)
+                                        )
+                                        .padding(Dp16),
                                     imageUri = imageUri,
                                     resultBitmap = resultBitmap,
                                     isProcessing = isProcessing,
@@ -260,6 +270,30 @@ internal fun AiBackgroundRemovalScreen(
                                     isSaved = saveImageState is StateSuccess,
                                     errorMessage = errorMessage,
                                     onPickImage = { if (imageUri == null) imagePicker.launch("image/*") },
+                                    onPreviewImage = {
+                                        resultBitmap?.let { bitmap ->
+                                            saveToCache(context, bitmap) { path ->
+                                                path?.let {
+                                                    navigator.navigate(
+                                                        GalleryContentDetailRoute(
+                                                            contents = listOf(
+                                                                Content(
+                                                                    id = 0,
+                                                                    isVideo = false,
+                                                                    fileName = resources.getString(R.string.preview),
+                                                                    media = path,
+                                                                    isPreview = true,
+                                                                    isDeletable = false,
+                                                                    isDownloadable = false
+                                                                )
+                                                            ),
+                                                            initialIndex = 0
+                                                        )
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    },
                                     onRemoveBackground = {
                                         imageUri?.let {
                                             removeBackground(
@@ -301,11 +335,37 @@ internal fun AiBackgroundRemovalScreen(
                                 ) {
                                     Box(modifier = Modifier.weight(1.2f)) {
                                         ImagePreviewCard(
+                                            isProcessing = isProcessing,
                                             imageUri = imageUri,
                                             resultBitmap = resultBitmap,
-                                            isProcessing = isProcessing,
                                             onPickImage = {
                                                 if (imageUri == null) imagePicker.launch("image/*")
+                                            },
+                                            onPreviewImage = {
+                                                resultBitmap?.let { bitmap ->
+                                                    saveToCache(context, bitmap) { path ->
+                                                        path?.let {
+                                                            navigator.navigate(
+                                                                GalleryContentDetailRoute(
+                                                                    contents = listOf(
+                                                                        Content(
+                                                                            id = 0,
+                                                                            isVideo = false,
+                                                                            fileName = resources.getString(
+                                                                                R.string.preview
+                                                                            ),
+                                                                            media = path,
+                                                                            isPreview = true,
+                                                                            isDeletable = false,
+                                                                            isDownloadable = false
+                                                                        )
+                                                                    ),
+                                                                    initialIndex = 0
+                                                                )
+                                                            )
+                                                        }
+                                                    }
+                                                }
                                             }
                                         )
                                     }
@@ -314,11 +374,11 @@ internal fun AiBackgroundRemovalScreen(
                                         verticalArrangement = spacedBy(Dp20)
                                     ) {
                                         ActionButtons(
-                                            imageUri = imageUri,
-                                            resultBitmap = resultBitmap,
                                             isProcessing = isProcessing,
                                             isSaving = saveImageState is StateLoading,
                                             isSaved = saveImageState is StateSuccess,
+                                            imageUri = imageUri,
+                                            resultBitmap = resultBitmap,
                                             onPickImage = { imagePicker.launch("image/*") },
                                             onRemoveBackground = {
                                                 imageUri?.let {
@@ -352,10 +412,10 @@ internal fun AiBackgroundRemovalScreen(
                                             }
                                         )
                                         ProcessingHint(
-                                            imageUri = imageUri,
-                                            resultBitmap = resultBitmap,
                                             isProcessing = isProcessing,
-                                            errorMessage = errorMessage
+                                            errorMessage = errorMessage,
+                                            imageUri = imageUri,
+                                            resultBitmap = resultBitmap
                                         )
                                     }
                                 }
@@ -384,33 +444,31 @@ private fun ActionPanel(
     isSaving: Boolean,
     isSaved: Boolean,
     errorMessage: String,
+    modifier: Modifier = Modifier,
     onPickImage: () -> Unit,
+    onPreviewImage: () -> Unit,
     onRemoveBackground: () -> Unit,
     onSaveImage: () -> Unit,
     onOpenGallery: () -> Unit,
-    onClearImage: () -> Unit,
-    modifier: Modifier = Modifier
+    onClearImage: () -> Unit
 ) {
     Column(
-        modifier = modifier
-            .clip(RoundedCornerShape(Dp32))
-            .background(colors.whiteDarkGray)
-            .border(Dp1, colors.blackWhite.copy(alpha = 0.08f), RoundedCornerShape(Dp32))
-            .padding(Dp16),
+        modifier = modifier,
         verticalArrangement = spacedBy(Dp20)
     ) {
         ImagePreviewCard(
+            isProcessing = isProcessing,
             imageUri = imageUri,
             resultBitmap = resultBitmap,
-            isProcessing = isProcessing,
-            onPickImage = onPickImage
+            onPickImage = onPickImage,
+            onPreviewImage = onPreviewImage
         )
         ActionButtons(
-            imageUri = imageUri,
-            resultBitmap = resultBitmap,
             isProcessing = isProcessing,
             isSaving = isSaving,
             isSaved = isSaved,
+            imageUri = imageUri,
+            resultBitmap = resultBitmap,
             onPickImage = onPickImage,
             onRemoveBackground = onRemoveBackground,
             onSaveImage = onSaveImage,
@@ -418,22 +476,21 @@ private fun ActionPanel(
             onClearImage = onClearImage
         )
         ProcessingHint(
-            imageUri = imageUri,
-            resultBitmap = resultBitmap,
             isProcessing = isProcessing,
-            errorMessage = errorMessage
+            errorMessage = errorMessage,
+            imageUri = imageUri,
+            resultBitmap = resultBitmap
         )
     }
 }
 
 @Composable
 private fun ActionButtons(
+    isProcessing: Boolean,
     isSaving: Boolean,
     isSaved: Boolean,
     imageUri: Uri?,
-    modifier: Modifier = Modifier,
     resultBitmap: Bitmap?,
-    isProcessing: Boolean,
     onPickImage: () -> Unit,
     onRemoveBackground: () -> Unit,
     onSaveImage: () -> Unit,
@@ -441,7 +498,7 @@ private fun ActionButtons(
     onClearImage: () -> Unit
 ) {
     Row(
-        modifier = modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = spacedBy(Dp12)
     ) {
         MeverButton(
@@ -485,14 +542,14 @@ private fun ActionButtons(
 
 @Composable
 private fun ImagePreviewCard(
+    isProcessing: Boolean,
     imageUri: Uri?,
     resultBitmap: Bitmap?,
-    isProcessing: Boolean,
     onPickImage: () -> Unit,
-    modifier: Modifier = Modifier
+    onPreviewImage: () -> Unit
 ) {
     Box(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
             .aspectRatio(1f)
             .clip(RoundedCornerShape(28.dp))
@@ -514,7 +571,10 @@ private fun ImagePreviewCard(
                 }
             }
             .border(Dp1, colors.blackWhite.copy(alpha = 0.08f), RoundedCornerShape(28.dp))
-            .onCustomClick(enabled = isProcessing.not()) { onPickImage() },
+            .onCustomClick(enabled = isProcessing.not()) {
+                if (resultBitmap != null) onPreviewImage()
+                else onPickImage()
+            },
         contentAlignment = Center
     ) {
         if (imageUri == null) EmptyPickerState()
@@ -603,10 +663,10 @@ private fun ProcessingOverlay() {
 
 @Composable
 private fun ProcessingHint(
-    imageUri: Uri?,
-    resultBitmap: Bitmap?,
     isProcessing: Boolean,
-    errorMessage: String
+    errorMessage: String,
+    imageUri: Uri?,
+    resultBitmap: Bitmap?
 ) {
     val (text, color) = when {
         errorMessage.isNotEmpty() -> errorMessage to colors.alwaysPurple
