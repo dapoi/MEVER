@@ -48,6 +48,8 @@ import androidx.core.view.WindowInsetsCompat.Type.systemBars
 import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
 import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 import com.dapascript.mever.core.common.R
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.withContext
 import com.dapascript.mever.core.common.util.PlatformType.ALL
 import com.dapascript.mever.core.common.util.PlatformType.APPLE_MUSIC
 import com.dapascript.mever.core.common.util.PlatformType.DOUYIN
@@ -64,8 +66,6 @@ import com.dapascript.mever.core.common.util.PlatformType.VIDEY
 import com.dapascript.mever.core.common.util.PlatformType.X
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE_MUSIC
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.File
@@ -481,7 +481,7 @@ fun isAppInstalled(context: Context, packageName: String) = try {
     false
 }
 
-fun cleanCache(context: Context) {
+suspend fun cleanCache(context: Context) = withContext(IO) {
     try {
         val cacheDir = context.cacheDir
         if (cacheDir.isDirectory) {

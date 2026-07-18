@@ -42,6 +42,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -120,6 +121,7 @@ import com.dapascript.mever.feature.setting.viewmodel.SettingLandingViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
@@ -136,6 +138,7 @@ internal fun SettingLandingScreen(
     val activity = LocalActivity.current
     val resources = LocalResources.current
     val deviceType = LocalDeviceType.current
+    val scope = rememberCoroutineScope()
     val listState = rememberLazyListState()
     val statusColor = remember(storageInfo?.usedPercent) {
         getStatusStorageColor(storageInfo?.usedPercent ?: 0)
@@ -258,8 +261,10 @@ internal fun SettingLandingScreen(
             },
             onClickChangeTheme = { navigator.navigate(SettingScreenRoute.SettingThemeRoute(it)) },
             onClickCleanCache = {
-                cleanCache(context)
-                recreateActivity(context, activity)
+                scope.launch {
+                    cleanCache(context)
+                    recreateActivity(context, activity)
+                }
             },
             onClickPip = { savePipState(isPipEnabled.not()) },
             onClickPaypal = { showPaypalDialog = true },
