@@ -117,6 +117,18 @@ class HomeLandingViewModel @Inject constructor(
         initialValue = true
     )
 
+    val isImageAiEnabled = dataStore.isImageAiEnabled.stateIn(
+        scope = viewModelScope,
+        started = WhileSubscribed(),
+        initialValue = true
+    )
+
+    val isGoImgEnabled = dataStore.isGoImgEnabled.stateIn(
+        scope = viewModelScope,
+        started = WhileSubscribed(),
+        initialValue = true
+    )
+
     private val _downloaderResponseState =
         MutableStateFlow<UiState<List<ContentEntity>>>(StateInitial)
     val downloaderResponseState = _downloaderResponseState.asStateFlow()

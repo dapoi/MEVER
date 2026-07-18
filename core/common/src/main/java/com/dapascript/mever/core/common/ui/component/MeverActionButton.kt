@@ -14,7 +14,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Badge
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.TopEnd
 import androidx.compose.ui.Modifier
@@ -25,18 +24,22 @@ import androidx.compose.ui.res.painterResource
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp15
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp28
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
+import com.dapascript.mever.core.common.util.DeviceType.PHONE
+import com.dapascript.mever.core.common.util.LocalDeviceType
 import com.dapascript.mever.core.common.util.onCustomClick
 
 @Composable
 fun MeverActionButton(
     resource: Int,
-    modifier: Modifier = Modifier,
     showBadge: Boolean = false,
     onClick: () -> Unit
 ) {
+    val deviceType = LocalDeviceType.current
     val animateIconVibrate = rememberInfiniteTransition(label = "Infinite Transition").animateFloat(
         initialValue = 25f,
         targetValue = -25f,
@@ -51,14 +54,14 @@ fun MeverActionButton(
     )
 
     Box(
-        modifier = modifier
-            .size(Dp32)
+        modifier = Modifier
+            .size(if (deviceType == PHONE) Dp32 else Dp40)
             .clip(RoundedCornerShape(Dp8))
             .onCustomClick { onClick() }
     ) {
         Icon(
             modifier = Modifier
-                .size(Dp24)
+                .size(if (deviceType == PHONE) Dp24 else Dp28)
                 .showGraphicLayer(state = showBadge, value = { animateIconVibrate.value })
                 .align(Center),
             painter = painterResource(id = resource),

@@ -125,10 +125,10 @@ import com.dapascript.mever.core.common.util.formatHighlightedText
 import com.dapascript.mever.core.common.util.getExtensionFromUrl
 import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.getStoragePermission
-import com.dapascript.mever.core.common.util.navigateToAppSettings
 import com.dapascript.mever.core.common.util.handleClickButton
 import com.dapascript.mever.core.common.util.isMusic
 import com.dapascript.mever.core.common.util.isVideo
+import com.dapascript.mever.core.common.util.navigateToAppSettings
 import com.dapascript.mever.core.common.util.navigateToMusic
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.pasteFromClipboard
@@ -300,6 +300,11 @@ private fun HomeLandingContent(
     val youtubeResolutions = youtubeResolutions.collectAsStateValue()
     val urlIntent = getUrlIntent.collectAsStateValue()
     val showSupportedPlatform = showSupportedPlatform.collectAsStateValue()
+    val isImageAiEnabled = isImageAiEnabled.collectAsStateValue()
+    val isGoImgEnabled = isGoImgEnabled.collectAsStateValue()
+    val featuresCard = remember(context, isImageAiEnabled, isGoImgEnabled) {
+        getFeatureCards(context, isImageAiEnabled, isGoImgEnabled)
+    }
     var showLoading by remember { mutableStateOf(false) }
     var showYoutubeChooseQualityModal by remember { mutableStateOf(false) }
     var randomDonateDialogOffer by remember { mutableIntStateOf(0) }
@@ -532,9 +537,11 @@ private fun HomeLandingContent(
 
     HandleBottomSheetYouTubeQuality(
         showBottomSheet = showYoutubeChooseQualityModal,
-        qualityList = youtubeResolutions.takeIf {
-            urlSocialMediaState.text.contains("music").not()
-        } ?: listOf(youtubeResolutions.lastOrNull().orEmpty()),
+        qualityListProvider = {
+            youtubeResolutions.takeIf {
+                urlSocialMediaState.text.contains("music").not()
+            } ?: listOf(youtubeResolutions.lastOrNull().orEmpty())
+        },
         onApplyQuality = { quality ->
             showYoutubeChooseQualityModal = false
             selectedQuality = quality
@@ -673,10 +680,12 @@ private fun HomeLandingContent(
                         showSupportedPlatform = showSupportedPlatform,
                         getButtonClickCount = getButtonClickCount,
                         onIncrementClickCount = { incrementClickCount() },
+                        urlProvider = { urlSocialMediaState },
                         onShowAds = { url ->
                             interstitialController.showAd()
                             urlSocialMediaState = TextFieldValue(url)
                         },
+                        onChangeUrl = { urlSocialMediaState = it },
                         onClickSeeSupportedPlatform = { showPlatformSupportDialog = true },
                         onClickDownload = { url ->
                             checkStoragePermissions = getStoragePermission()
@@ -689,7 +698,8 @@ private fun HomeLandingContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = Dp32),
-                        context = context
+                        featuresCard = featuresCard,
+                        isPhoneDevice = true
                     ) { route -> navigator.navigate(route) }
                 }
                 item {
@@ -735,10 +745,12 @@ private fun HomeLandingContent(
                                 showSupportedPlatform = showSupportedPlatform,
                                 getButtonClickCount = getButtonClickCount,
                                 onIncrementClickCount = { incrementClickCount() },
+                                urlProvider = { urlSocialMediaState },
                                 onShowAds = { url ->
                                     interstitialController.showAd()
                                     urlSocialMediaState = TextFieldValue(url)
                                 },
+                                onChangeUrl = { urlSocialMediaState = it },
                                 onClickSeeSupportedPlatform = { showPlatformSupportDialog = true },
                                 onClickDownload = { url ->
                                     checkStoragePermissions = getStoragePermission()
@@ -752,13 +764,12 @@ private fun HomeLandingContent(
                         ) {
                             QuickToolsSection(
                                 modifier = Modifier.weight(1f),
-                                context = context
-                            ) { route ->
-                                navigator.navigate(route)
-                            }
+                                featuresCard = featuresCard,
+                                isPhoneDevice = false
+                            ) { route -> navigator.navigate(route) }
                             RecentlyDownloadedSection(
                                 modifier = Modifier.weight(1f),
-                                downloadList = downloadList.orEmpty().take(2),
+                                downloadList = downloadList.orEmpty().take(featuresCard.size),
                                 isPhoneDevice = false,
                                 onClickViewAll = { navigator.navigateToGalleryScreen() },
                                 onClickDelete = { id -> showDeleteDialog = id },
@@ -815,13 +826,14 @@ private fun DownloaderSection(
     isLoading: Boolean,
     getButtonClickCount: Int,
     modifier: Modifier = Modifier,
+    urlProvider: () -> TextFieldValue,
     onIncrementClickCount: () -> Unit,
     onShowAds: (String) -> Unit,
+    onChangeUrl: (TextFieldValue) -> Unit,
     onClickSeeSupportedPlatform: () -> Unit,
     onClickDownload: (String) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
-    var url by rememberSaveable { mutableStateOf("") }
 
     Card(
         modifier = modifier,
@@ -849,7 +861,7 @@ private fun DownloaderSection(
                 ) {
                     Icon(
                         modifier = Modifier.clickable {
-                            pasteFromClipboard(context)?.let { url = it }
+                            pasteFromClipboard(context)?.let { onChangeUrl(TextFieldValue(it)) }
                         },
                         painter = painterResource(id = R.drawable.ic_link),
                         tint = MeverPurple,
@@ -861,7 +873,7 @@ private fun DownloaderSection(
                     verticalAlignment = CenterVertically
                 ) {
                     Box(modifier = Modifier.weight(1f)) {
-                        url.ifEmpty {
+                        if (urlProvider().text.isEmpty()) {
                             Text(
                                 text = stringResource(R.string.paste_url),
                                 style = typography.body2,
@@ -872,18 +884,18 @@ private fun DownloaderSection(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clearFocusOnKeyboardDismiss(focusManager),
-                            value = url,
+                            value = urlProvider(),
                             singleLine = true,
                             cursorBrush = SolidColor(colors.alwaysGray),
                             textStyle = typography.body2.copy(color = colors.blackWhite),
-                            onValueChange = { url = it }
+                            onValueChange = onChangeUrl
                         )
                     }
                     Spacer(modifier = Modifier.size(Dp4))
-                    if (url.isNotEmpty()) {
+                    if (urlProvider().text.isNotEmpty()) {
                         IconButton(
                             modifier = Modifier.size(Dp24),
-                            onClick = { url = "" }
+                            onClick = { onChangeUrl(TextFieldValue("")) }
                         ) {
                             Icon(
                                 modifier = Modifier.size(Dp20),
@@ -902,14 +914,14 @@ private fun DownloaderSection(
                         contentColor = MeverWhite
                     ),
                     shape = CircleShape,
-                    isEnabled = getPlatformType(url.trim()) != ALL && isLoading.not(),
+                    isEnabled = getPlatformType(urlProvider().text.trim()) != ALL && isLoading.not(),
                     isLoading = isLoading
                 ) {
                     handleClickButton(
                         buttonClickCount = getButtonClickCount,
                         onIncrementClickCount = { onIncrementClickCount() },
-                        onShowAds = { onShowAds(url.trim()) },
-                        onClickAction = { if (isLoading.not()) onClickDownload(url.trim()) }
+                        onShowAds = { onShowAds(urlProvider().text.trim()) },
+                        onClickAction = { if (isLoading.not()) onClickDownload(urlProvider().text.trim()) }
                     )
                 }
             }
@@ -991,7 +1003,8 @@ private fun DownloaderSection(
 
 @Composable
 private fun QuickToolsSection(
-    context: Context,
+    featuresCard: List<FeatureCard>,
+    isPhoneDevice: Boolean,
     modifier: Modifier = Modifier,
     onClick: (NavKey) -> Unit
 ) {
@@ -1001,8 +1014,6 @@ private fun QuickToolsSection(
         modifier = modifier,
         verticalArrangement = spacedBy(Dp16)
     ) {
-        val featuresCard = remember(context) { getFeatureCards(context) }
-
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = CenterVertically,
@@ -1013,9 +1024,9 @@ private fun QuickToolsSection(
                 style = typography.h3,
                 color = colors.blackWhite
             )
-            Text(
+            if (isPhoneDevice) Text(
                 modifier = Modifier.onCustomClick {
-                    onClick(HomeQuickToolsRoute(featureCards = featuresCard))
+                    onClick(HomeQuickToolsRoute(featureCards = featuresCard.toSet()))
                 },
                 text = stringResource(R.string.all_tools),
                 style = typography.bodyBold2,
@@ -1045,7 +1056,7 @@ private fun QuickToolsSection(
                 }
             }
         } else {
-            featuresCard.take(2).forEach { data ->
+            featuresCard.forEach { data ->
                 MeverFeatureCard(
                     modifier = Modifier.fillMaxWidth(),
                     icon = data.icon,
@@ -1131,8 +1142,12 @@ private fun RecentlyDownloadedSection(
     }
 }
 
-private fun getFeatureCards(context: Context) = with(context) {
-    setOf(
+private fun getFeatureCards(
+    context: Context,
+    isImageAiEnabled: Boolean,
+    isGoImgEnabled: Boolean
+) = with(context) {
+    listOfNotNull(
         FeatureCard(
             featureName = getString(R.string.wa_status),
             featureDesc = getString(R.string.wa_status_desc),
@@ -1145,18 +1160,22 @@ private fun getFeatureCards(context: Context) = with(context) {
             icon = R.drawable.ic_remove_bg,
             toolsType = REMOVE_BG
         ),
-        FeatureCard(
-            featureName = getString(R.string.images_finder),
-            featureDesc = getString(R.string.images_finder_desc),
-            icon = R.drawable.ic_find_image,
-            toolsType = FIND_IMAGE
-        ),
-        FeatureCard(
-            featureName = getString(R.string.ai_image_generator),
-            featureDesc = getString(R.string.ai_image_generator_desc),
-            icon = R.drawable.ic_awesome,
-            toolsType = AI_IMAGE
-        )
+        if (isGoImgEnabled) {
+            FeatureCard(
+                featureName = getString(R.string.images_finder),
+                featureDesc = getString(R.string.images_finder_desc),
+                icon = R.drawable.ic_find_image,
+                toolsType = FIND_IMAGE
+            )
+        } else null,
+        if (isImageAiEnabled) {
+            FeatureCard(
+                featureName = getString(R.string.ai_image_generator),
+                featureDesc = getString(R.string.ai_image_generator_desc),
+                icon = R.drawable.ic_awesome,
+                toolsType = AI_IMAGE
+            )
+        } else null
     )
 }
 

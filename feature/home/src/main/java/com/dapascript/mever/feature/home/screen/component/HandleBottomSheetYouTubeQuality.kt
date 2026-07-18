@@ -43,11 +43,12 @@ import com.dapascript.mever.core.common.util.onCustomClick
 @Composable
 internal fun HandleBottomSheetYouTubeQuality(
     showBottomSheet: Boolean,
-    qualityList: List<String>,
+    qualityListProvider: () -> List<String>,
     modifier: Modifier = Modifier,
     onApplyQuality: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
+    val qualityList = qualityListProvider()
     var chooseQuality by remember(qualityList) {
         mutableStateOf(if (qualityList.isNotEmpty()) qualityList.first() else "")
     }

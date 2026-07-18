@@ -34,6 +34,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SnackbarDuration.Long
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -45,7 +46,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
@@ -98,11 +99,14 @@ import com.dapascript.mever.core.common.util.handleClickButton
 import com.dapascript.mever.core.common.util.navigateToSystemGallery
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.state.UiState.StateLoading
+import com.dapascript.mever.core.common.util.state.UiState.StateSuccess
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.AiScreenRoute.AiBackgroundRemovalRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute
 import com.dapascript.mever.feature.ai.viewmodel.AiBackgroundRemovalViewModel
+import com.dapascript.mever.feature.ai.viewmodel.AiBackgroundRemovalViewModel.ImageLocation.GALLERY
+import com.dapascript.mever.feature.ai.viewmodel.AiBackgroundRemovalViewModel.ImageLocation.IN_APP
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
@@ -166,14 +170,18 @@ internal fun AiBackgroundRemovalScreen(
 
     LaunchedEffect(saveImageState) {
         saveImageState.handleUiState(
-            onSuccess = {
-                if (it) {
-                    navigator.navigate(
+            onSuccess = { location ->
+                when (location) {
+                    IN_APP -> navigator.navigate(
                         route = GalleryLandingRoute,
                         popUpTo = AiBackgroundRemovalRoute,
                         isInclusive = true
                     )
-                } else snackbarMessage.value = resources.getString(R.string.success_save_image)
+
+                    GALLERY -> snackbarMessage.value = resources.getString(
+                        R.string.success_save_image
+                    )
+                }
             },
             onFailed = { message ->
                 Toast.makeText(
@@ -269,6 +277,7 @@ internal fun AiBackgroundRemovalScreen(
                                             resultBitmap = resultBitmap,
                                             isProcessing = isProcessing,
                                             isSaving = saveImageState is StateLoading,
+                                            isSaved = saveImageState is StateSuccess,
                                             onPickImage = { imagePicker.launch("image/*") },
                                             onRemoveBackground = {
                                                 imageUri?.let {
@@ -293,6 +302,7 @@ internal fun AiBackgroundRemovalScreen(
                                                     }
                                                 )
                                             },
+                                            onOpenGallery = { navigateToSystemGallery(context) },
                                             onClearImage = {
                                                 imageUri = null
                                                 resultBitmap = null
@@ -315,6 +325,7 @@ internal fun AiBackgroundRemovalScreen(
                                     resultBitmap = resultBitmap,
                                     isProcessing = isProcessing,
                                     isSaving = saveImageState is StateLoading,
+                                    isSaved = saveImageState is StateSuccess,
                                     errorMessage = errorMessage,
                                     onPickImage = { if (imageUri == null) imagePicker.launch("image/*") },
                                     onRemoveBackground = {
@@ -333,6 +344,7 @@ internal fun AiBackgroundRemovalScreen(
                                             )
                                         }
                                     },
+                                    onOpenGallery = { navigateToSystemGallery(context) },
                                     onClearImage = {
                                         imageUri = null
                                         resultBitmap = null
@@ -348,11 +360,10 @@ internal fun AiBackgroundRemovalScreen(
 
             MeverSnackbar(
                 modifier = Modifier
-                    .align(Alignment.BottomCenter)
+                    .align(BottomCenter)
                     .padding(start = Dp24, end = Dp24, bottom = Dp40),
                 message = snackbarMessage,
-                actionMessage = stringResource(R.string.view),
-                onClickSnackbarAction = { navigateToSystemGallery(context) }
+                duration = Long
             )
         }
     }
@@ -364,10 +375,12 @@ private fun ActionPanel(
     resultBitmap: Bitmap?,
     isProcessing: Boolean,
     isSaving: Boolean,
+    isSaved: Boolean,
     errorMessage: String,
     onPickImage: () -> Unit,
     onRemoveBackground: () -> Unit,
     onSaveImage: () -> Unit,
+    onOpenGallery: () -> Unit,
     onClearImage: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -385,18 +398,18 @@ private fun ActionPanel(
             isProcessing = isProcessing,
             onPickImage = onPickImage
         )
-
         ActionButtons(
             imageUri = imageUri,
             resultBitmap = resultBitmap,
             isProcessing = isProcessing,
             isSaving = isSaving,
+            isSaved = isSaved,
             onPickImage = onPickImage,
             onRemoveBackground = onRemoveBackground,
             onSaveImage = onSaveImage,
+            onOpenGallery = onOpenGallery,
             onClearImage = onClearImage
         )
-
         ProcessingHint(
             imageUri = imageUri,
             resultBitmap = resultBitmap,
@@ -409,6 +422,7 @@ private fun ActionPanel(
 @Composable
 private fun ActionButtons(
     isSaving: Boolean,
+    isSaved: Boolean,
     imageUri: Uri?,
     modifier: Modifier = Modifier,
     resultBitmap: Bitmap?,
@@ -416,6 +430,7 @@ private fun ActionButtons(
     onPickImage: () -> Unit,
     onRemoveBackground: () -> Unit,
     onSaveImage: () -> Unit,
+    onOpenGallery: () -> Unit,
     onClearImage: () -> Unit
 ) {
     Row(
@@ -428,6 +443,7 @@ private fun ActionButtons(
                 .height(Dp52),
             title = when {
                 imageUri == null -> stringResource(R.string.select_image)
+                isSaved -> stringResource(R.string.view_in_gallery)
                 resultBitmap != null -> stringResource(R.string.save_png)
                 else -> stringResource(R.string.process_now)
             },
@@ -439,6 +455,7 @@ private fun ActionButtons(
             isEnabled = !isProcessing && !isSaving,
             onClick = when {
                 imageUri == null -> onPickImage
+                isSaved -> onOpenGallery
                 resultBitmap != null -> onSaveImage
                 else -> onRemoveBackground
             }

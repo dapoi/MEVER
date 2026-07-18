@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -24,8 +25,12 @@ import androidx.compose.ui.text.style.TextOverflow.Companion.Ellipsis
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.component.MeverActionButton
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp28
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
+import com.dapascript.mever.core.common.util.DeviceType.PHONE
+import com.dapascript.mever.core.common.util.LocalDeviceType
 import com.dapascript.mever.core.common.util.onCustomClick
 
 object MeverTopBarAttr {
@@ -55,6 +60,8 @@ object MeverTopBarAttr {
         icon: Int? = null,
         onClickBack: (() -> Unit)?
     ): @Composable () -> Unit = {
+        val deviceType = LocalDeviceType.current
+
         Box(
             modifier = Modifier
                 .then(icon?.let { Modifier } ?: Modifier.clip(CircleShape))
@@ -62,6 +69,8 @@ object MeverTopBarAttr {
             contentAlignment = Center
         ) {
             Icon(
+                modifier = Modifier.then(icon?.let { Modifier }
+                    ?: Modifier.size(if (deviceType == PHONE) Dp24 else Dp28)),
                 imageVector = ImageVector.vectorResource(icon ?: R.drawable.ic_back),
                 contentDescription = "Navigation Icon"
             )

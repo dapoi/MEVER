@@ -31,7 +31,7 @@ object CollectionLibs {
             implementation(libs.media3.exoplayer.get())
             implementation(libs.media3.session.get())
             implementation(libs.media3.ui.get())
-            implementation(libs.mlkit.segmentation.selfie.get())
+            implementation(libs.mlkit.subject.segmentation.get())
             implementation(libs.timber.get())
         }
     }

@@ -29,7 +29,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
@@ -44,32 +43,16 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
-import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeQuickToolsRoute
-import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeQuickToolsRoute.FeatureCard.QuickToolsType.AI_IMAGE
-import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeQuickToolsRoute.FeatureCard.QuickToolsType.FIND_IMAGE
 import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.getCardColor
 import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.getRoute
-import com.dapascript.mever.feature.home.viewmodel.HomeQuickToolsViewModel
 
 @Composable
 internal fun HomeQuickToolsScreen(
     navigator: Navigator,
-    args: HomeQuickToolsRoute,
-    viewModel: HomeQuickToolsViewModel = hiltViewModel()
-) = with(viewModel) {
-    val isImageAiEnabled = isImageAiEnabled.collectAsStateValue()
-    val isGoImgEnabled = isGoImgEnabled.collectAsStateValue()
-    val filteredFeatureCards = remember(args.featureCards, isImageAiEnabled, isGoImgEnabled) {
-        args.featureCards.filter { data ->
-            when (data.toolsType) {
-                AI_IMAGE -> isImageAiEnabled
-                FIND_IMAGE -> isGoImgEnabled
-                else -> true
-            }
-        }
-    }
+    args: HomeQuickToolsRoute
+) {
     val listState = rememberLazyListState()
     var titleHeight by rememberSaveable { mutableIntStateOf(0) }
     val isExpanded by remember(titleHeight) {
@@ -124,8 +107,7 @@ internal fun HomeQuickToolsScreen(
                             )
                         }
                     }
-
-                    items(filteredFeatureCards.toList()) { data ->
+                    items(args.featureCards.toList()) { data ->
                         MeverFeatureCard(
                             modifier = Modifier.padding(
                                 start = Dp24,
