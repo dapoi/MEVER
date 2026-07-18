@@ -79,11 +79,10 @@ class Navigator(
 
         val currentBackStack = state.backStacks[state.topLevelRoute] ?: return
         val currentRoute = currentBackStack.last()
-        val isRootScreen = currentRoute is HomeLandingRoute ||
-                currentRoute is OnboardRoute ||
-                currentRoute is SplashRoute
+        val isRootScreen = currentRoute is OnboardRoute || currentRoute is SplashRoute
 
         when {
+            currentRoute is HomeLandingRoute -> activity?.moveTaskToBack(true)
             isRootScreen -> activity?.finish()
             currentRoute == state.topLevelRoute -> state.topLevelRoute = state.startRoute
             else -> currentBackStack.removeLastOrNull()
