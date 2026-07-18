@@ -64,7 +64,7 @@ internal fun GalleryContentDetailScreen(
     var isFullScreen by rememberSaveable { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
     var imageExploreData by remember { mutableStateOf(Pair("", "")) }
-    var setStoragePermission by remember { mutableStateOf<List<String>>(emptyList()) }
+    var checkStoragePermissions by remember { mutableStateOf<List<String>>(emptyList()) }
     val pagerState = rememberPagerState(args.initialIndex) { args.contents.size }
     val context = LocalContext.current
     val activity = LocalActivity.current
@@ -72,7 +72,7 @@ internal fun GalleryContentDetailScreen(
     val isPipEnabled = isPipEnabled.collectAsStateValue()
     val getButtonClickCount = getButtonClickCount.collectAsStateValue()
     val scope = rememberCoroutineScope()
-    val interstitialAd = rememberInterstitialAd { setStoragePermission = getStoragePermission() }
+    val interstitialAd = rememberInterstitialAd { checkStoragePermissions = getStoragePermission() }
     val darkTheme = MeverTheme.isDarkMode
 
     BaseScreen(
@@ -125,12 +125,12 @@ internal fun GalleryContentDetailScreen(
             onClickSecondaryAction = { errorMessage = "" }
         )
 
-        if (setStoragePermission.isNotEmpty()) {
+        if (checkStoragePermissions.isNotEmpty()) {
             val storageInfo = remember { getStorageInfo(context) }
             MeverPermissionHandler(
-                permissions = setStoragePermission,
+                permissions = checkStoragePermissions,
                 onGranted = {
-                    setStoragePermission = emptyList()
+                    checkStoragePermissions = emptyList()
                     if (isStorageFull(storageInfo)) {
                         errorMessage = resources.getString(R.string.storage_full)
                     } else {
@@ -147,11 +147,11 @@ internal fun GalleryContentDetailScreen(
                     MeverDeclinedPermissionDialog(
                         isPermissionsDeclined = isPermanentlyDeclined,
                         onGoToSetting = {
-                            setStoragePermission = emptyList()
+                            checkStoragePermissions = emptyList()
                             navigateToAppSettings(activity)
                         },
                         onRetry = { retry() },
-                        onDismiss = { setStoragePermission = emptyList() }
+                        onDismiss = { checkStoragePermissions = emptyList() }
                     )
                 }
             )
@@ -228,7 +228,7 @@ internal fun GalleryContentDetailScreen(
                                 imageExploreData = Pair(url, sanitizeFilename(filename))
                             },
                             onShowAds = { interstitialAd.showAd() },
-                            onClickAction = { setStoragePermission = getStoragePermission() }
+                            onClickAction = { checkStoragePermissions = getStoragePermission() }
                         )
                     }
                 )
