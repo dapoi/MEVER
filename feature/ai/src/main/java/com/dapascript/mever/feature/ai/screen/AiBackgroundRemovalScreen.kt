@@ -93,7 +93,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
-import com.dapascript.mever.core.common.util.DeviceType
+import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.LocalDeviceType
 import com.dapascript.mever.core.common.util.handleClickButton
 import com.dapascript.mever.core.common.util.navigateToSystemGallery
@@ -250,7 +250,48 @@ internal fun AiBackgroundRemovalScreen(
                             }
                         }
                         item {
-                            if (deviceType != DeviceType.PHONE) {
+                            if (deviceType == PHONE) {
+                                ActionPanel(
+                                    modifier = Modifier.padding(horizontal = Dp24),
+                                    imageUri = imageUri,
+                                    resultBitmap = resultBitmap,
+                                    isProcessing = isProcessing,
+                                    isSaving = saveImageState is StateLoading,
+                                    isSaved = saveImageState is StateSuccess,
+                                    errorMessage = errorMessage,
+                                    onPickImage = { if (imageUri == null) imagePicker.launch("image/*") },
+                                    onRemoveBackground = {
+                                        imageUri?.let {
+                                            removeBackground(
+                                                context = context,
+                                                imageUri = it
+                                            )
+                                        }
+                                    },
+                                    onSaveImage = {
+                                        handleClickButton(
+                                            buttonClickCount = getButtonClickCount,
+                                            onIncrementClickCount = { incrementClickCount() },
+                                            onShowAds = { interstitialAd.showAd() },
+                                            onClickAction = {
+                                                resultBitmap?.let {
+                                                    saveImage(
+                                                        context = context,
+                                                        bitmap = it
+                                                    )
+                                                }
+                                            }
+                                        )
+                                    },
+                                    onOpenGallery = { navigateToSystemGallery(context) },
+                                    onClearImage = {
+                                        imageUri = null
+                                        resultBitmap = null
+                                        errorMessage = ""
+                                        reset()
+                                    }
+                                )
+                            } else {
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -318,40 +359,6 @@ internal fun AiBackgroundRemovalScreen(
                                         )
                                     }
                                 }
-                            } else {
-                                ActionPanel(
-                                    modifier = Modifier.padding(horizontal = Dp24),
-                                    imageUri = imageUri,
-                                    resultBitmap = resultBitmap,
-                                    isProcessing = isProcessing,
-                                    isSaving = saveImageState is StateLoading,
-                                    isSaved = saveImageState is StateSuccess,
-                                    errorMessage = errorMessage,
-                                    onPickImage = { if (imageUri == null) imagePicker.launch("image/*") },
-                                    onRemoveBackground = {
-                                        imageUri?.let {
-                                            removeBackground(
-                                                context = context,
-                                                imageUri = it
-                                            )
-                                        }
-                                    },
-                                    onSaveImage = {
-                                        resultBitmap?.let {
-                                            saveImage(
-                                                context = context,
-                                                bitmap = it
-                                            )
-                                        }
-                                    },
-                                    onOpenGallery = { navigateToSystemGallery(context) },
-                                    onClearImage = {
-                                        imageUri = null
-                                        resultBitmap = null
-                                        errorMessage = ""
-                                        reset()
-                                    }
-                                )
                             }
                         }
                     }
