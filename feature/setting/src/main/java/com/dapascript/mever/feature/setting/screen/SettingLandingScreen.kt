@@ -14,6 +14,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.LocalOverscrollFactory
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -190,8 +191,8 @@ internal fun SettingLandingScreen(
         LaunchedEffect(args.showQrisDialog) {
             if (showBottomSheetQris == null && args.showQrisDialog) {
                 delay(300.milliseconds)
+                listState.animateScrollBy(listState.layoutInfo.totalItemsCount * 100f)
                 showBottomSheetQris = true
-                listState.animateScrollToItem(listState.layoutInfo.totalItemsCount - 1)
             }
         }
 
