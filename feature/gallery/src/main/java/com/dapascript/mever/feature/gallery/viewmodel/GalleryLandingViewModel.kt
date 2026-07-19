@@ -1,7 +1,5 @@
 package com.dapascript.mever.feature.gallery.viewmodel
 
-import android.content.Context
-import android.media.MediaScannerConnection
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -9,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.util.PlatformType
 import com.dapascript.mever.core.common.util.PlatformType.ALL
-import com.dapascript.mever.core.common.util.storage.StorageUtil.getFilePath
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFiles
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFolder
 import com.ketch.DownloadModel
@@ -118,19 +115,6 @@ class GalleryLandingViewModel @Inject constructor(
             }
             ketch.clearAllDb()
             _refreshTrigger.update { it + 1 }
-        }
-    }
-
-    fun syncToGallery(context: Context, fileName: String) {
-        viewModelScope.launch {
-            getFilePath(meverFolder, fileName)?.let { filePath ->
-                MediaScannerConnection.scanFile(
-                    context,
-                    arrayOf(filePath.absolutePath),
-                    null,
-                    null
-                )
-            }
         }
     }
 

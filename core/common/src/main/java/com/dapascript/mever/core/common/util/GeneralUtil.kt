@@ -20,11 +20,14 @@ import android.graphics.Bitmap.CompressFormat.PNG
 import android.graphics.BitmapFactory
 import android.graphics.BitmapFactory.decodeStream
 import android.media.MediaMetadataRetriever
+import android.media.MediaScannerConnection
 import android.net.Uri
 import android.net.Uri.fromParts
 import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.Q
+import android.os.Environment.DIRECTORY_DOWNLOADS
 import android.os.Environment.DIRECTORY_PICTURES
+import android.os.Environment.getExternalStoragePublicDirectory
 import android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI
 import android.provider.MediaStore.MediaColumns.DISPLAY_NAME
 import android.provider.MediaStore.MediaColumns.MIME_TYPE
@@ -48,8 +51,6 @@ import androidx.core.view.WindowInsetsCompat.Type.systemBars
 import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
 import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 import com.dapascript.mever.core.common.R
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.withContext
 import com.dapascript.mever.core.common.util.PlatformType.ALL
 import com.dapascript.mever.core.common.util.PlatformType.APPLE_MUSIC
 import com.dapascript.mever.core.common.util.PlatformType.DOUYIN
@@ -66,6 +67,8 @@ import com.dapascript.mever.core.common.util.PlatformType.VIDEY
 import com.dapascript.mever.core.common.util.PlatformType.X
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE_MUSIC
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.File
@@ -135,7 +138,10 @@ suspend fun saveBitmapToStorage(
     val format = if (isPng) PNG else JPEG
 
     val values = ContentValues().apply {
-        put(DISPLAY_NAME, if (fileName.endsWith(".$extension")) fileName else "$fileName.$extension")
+        put(
+            DISPLAY_NAME,
+            if (fileName.endsWith(".$extension")) fileName else "$fileName.$extension"
+        )
         put(MIME_TYPE, mimeType)
         if (SDK_INT >= Q) put(RELATIVE_PATH, DIRECTORY_PICTURES)
     }
@@ -359,11 +365,49 @@ fun navigateToWaStore(activity: Activity, appPackageName: String = "com.whatsapp
 }
 
 fun navigateToSystemGallery(context: Context) {
-    val intent = Intent(ACTION_VIEW).apply {
-        type = "image/*"
-        flags = FLAG_ACTIVITY_NEW_TASK
+    val galleryPackages = listOf(
+        "com.sec.android.gallery3d",
+        "com.miui.gallery",
+        "com.coloros.gallery",
+        "com.vivo.gallery",
+        "com.oneplus.gallery",
+        "com.google.android.apps.photos"
+    )
+
+    val packageManager = context.packageManager
+    var galleryIntent: Intent? = null
+
+    for (packageName in galleryPackages) {
+        galleryIntent = packageManager.getLaunchIntentForPackage(packageName)
+        if (galleryIntent != null) break
     }
-    context.startActivity(intent)
+
+    if (galleryIntent == null) {
+        galleryIntent = Intent(ACTION_VIEW).apply {
+            setDataAndType(EXTERNAL_CONTENT_URI, "image/*")
+        }
+    }
+
+    galleryIntent.addFlags(FLAG_ACTIVITY_NEW_TASK)
+
+    try {
+        context.startActivity(galleryIntent)
+    } catch (_: Exception) {
+        Toast.makeText(context, R.string.gallery_not_found, LENGTH_SHORT).show()
+    }
+}
+
+fun syncToGallery(context: Context, fileName: String) {
+    val folder = File(getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS), "MEVER")
+    val file = File(folder, fileName)
+    if (file.exists()) {
+        MediaScannerConnection.scanFile(
+            context,
+            arrayOf(file.absolutePath),
+            null,
+            null
+        )
+    }
 }
 
 fun convertToTimeFormat(milliseconds: Long): String {

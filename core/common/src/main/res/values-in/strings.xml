@@ -152,6 +152,8 @@
     <string name="failed_save_image">Gagal menyimpan gambar.</string>
     <string name="success_save_image">Tersimpan di galeri</string>
     <string name="view_in_gallery">Lihat di galeri</string>
+    <string name="view">Lihat</string>
+    <string name="gallery_not_found">Aplikasi galeri tidak ditemukan di perangkat ini.</string>
     <string name="faq_q1">Jadi, MEVER itu apa?</string>
     <string name="faq_a1">MEVER adalah alat andalanmu untuk mengambil media dari platform sosial. Cepat, sederhana, dan sangat membantu!</string>
     <string name="faq_q2">Apakah ini berbayar?</string>

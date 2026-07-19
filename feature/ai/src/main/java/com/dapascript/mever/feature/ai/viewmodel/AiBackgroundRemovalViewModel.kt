@@ -2,7 +2,6 @@ package com.dapascript.mever.feature.ai.viewmodel
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.media.MediaScannerConnection
 import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.R
@@ -20,6 +19,8 @@ import com.dapascript.mever.core.common.util.state.UiState.StateSuccess
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFolder
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.source.local.MeverDataStore
+import com.dapascript.mever.feature.ai.viewmodel.AiBackgroundRemovalViewModel.ImageLocation.GALLERY
+import com.dapascript.mever.feature.ai.viewmodel.AiBackgroundRemovalViewModel.ImageLocation.IN_APP
 import com.ketch.Ketch
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers.IO
@@ -57,7 +58,7 @@ class AiBackgroundRemovalViewModel @Inject constructor(
     private val _backgroundRemovalState = MutableStateFlow<UiState<Bitmap>>(StateInitial)
     val backgroundRemovalState = _backgroundRemovalState.asStateFlow()
 
-    private val _saveImageState = MutableStateFlow<UiState<ImageLocation>>(StateInitial)
+    private val _saveImageState = MutableStateFlow<UiState<SaveResult>>(StateInitial)
     val saveImageState = _saveImageState.asStateFlow()
 
     fun removeBackground(context: Context, imageUri: Uri) {
@@ -97,7 +98,7 @@ class AiBackgroundRemovalViewModel @Inject constructor(
                         tag = AI.platformName,
                         metaData = url
                     )
-                    _saveImageState.value = StateSuccess(ImageLocation.IN_APP)
+                    _saveImageState.value = StateSuccess(SaveResult(IN_APP, fileName))
                 } else {
                     viewModelScope.launch { saveImageLocally(context, bitmap, fileName) }
                 }
@@ -143,17 +144,16 @@ class AiBackgroundRemovalViewModel @Inject constructor(
         }
 
         if (isSuccess) {
-            MediaScannerConnection.scanFile(
-                context,
-                arrayOf(destFile.absolutePath),
-                arrayOf("image/png"),
-                null
-            )
-            _saveImageState.value = StateSuccess(ImageLocation.GALLERY)
+            _saveImageState.value = StateSuccess(SaveResult(GALLERY, fileName))
         } else {
             _saveImageState.value = StateFailed(context.getString(R.string.failed_save_image))
         }
     }
+
+    data class SaveResult(
+        val location: ImageLocation,
+        val fileName: String
+    )
 
     enum class ImageLocation {
         IN_APP, GALLERY

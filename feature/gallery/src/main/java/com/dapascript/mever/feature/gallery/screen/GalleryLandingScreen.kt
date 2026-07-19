@@ -83,6 +83,7 @@ import com.dapascript.mever.core.common.util.isVideo
 import com.dapascript.mever.core.common.util.navigateToMusic
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
+import com.dapascript.mever.core.common.util.syncToGallery
 import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute.Content

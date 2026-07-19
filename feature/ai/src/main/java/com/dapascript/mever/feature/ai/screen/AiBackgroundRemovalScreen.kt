@@ -98,9 +98,8 @@ import com.dapascript.mever.core.common.util.LocalDeviceType
 import com.dapascript.mever.core.common.util.handleClickButton
 import com.dapascript.mever.core.common.util.navigateToSystemGallery
 import com.dapascript.mever.core.common.util.onCustomClick
-import com.dapascript.mever.core.common.util.state.UiState.StateLoading
-import com.dapascript.mever.core.common.util.state.UiState.StateSuccess
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
+import com.dapascript.mever.core.common.util.syncToGallery
 import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.AiScreenRoute.AiBackgroundRemovalRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
@@ -122,6 +121,8 @@ internal fun AiBackgroundRemovalScreen(
     val backgroundRemovalState = backgroundRemovalState.collectAsStateValue()
     val saveImageState = saveImageState.collectAsStateValue()
     val getButtonClickCount = getButtonClickCount.collectAsStateValue()
+    var isLoading by remember { mutableStateOf(false) }
+    var isSaved by rememberSaveable { mutableStateOf(false) }
     var imageUri by rememberSaveable { mutableStateOf<Uri?>(null) }
     var resultBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var errorMessage by rememberSaveable { mutableStateOf("") }
@@ -150,6 +151,7 @@ internal fun AiBackgroundRemovalScreen(
             imageUri = uri
             resultBitmap = null
             errorMessage = ""
+            isSaved = false
             reset()
         }
     }
@@ -171,20 +173,36 @@ internal fun AiBackgroundRemovalScreen(
 
     LaunchedEffect(saveImageState) {
         saveImageState.handleUiState(
-            onSuccess = { location ->
-                when (location) {
-                    IN_APP -> navigator.navigate(
-                        route = GalleryLandingRoute,
-                        popUpTo = AiBackgroundRemovalRoute,
-                        isInclusive = true
-                    )
+            onLoading = { isLoading = true },
+            onSuccess = { result ->
+                isLoading = false
+                val location = result.location
+                val fileName = result.fileName
 
-                    GALLERY -> snackbarMessage.value = resources.getString(
-                        R.string.success_save_image
-                    )
+                when (location) {
+                    IN_APP -> {
+                        isSaved = true
+                        navigator.navigate(
+                            route = GalleryLandingRoute,
+                            popUpTo = AiBackgroundRemovalRoute,
+                            isInclusive = true
+                        )
+                    }
+
+                    GALLERY -> {
+                        if (isSaved.not()) {
+                            snackbarMessage.value = resources.getString(
+                                R.string.success_save_image
+                            )
+                        }
+                        isSaved = true
+                    }
                 }
+
+                syncToGallery(context, fileName)
             },
             onFailed = { message ->
+                isLoading = false
                 Toast.makeText(
                     context,
                     message ?: resources.getString(R.string.failed_save_image),
@@ -266,8 +284,8 @@ internal fun AiBackgroundRemovalScreen(
                                     imageUri = imageUri,
                                     resultBitmap = resultBitmap,
                                     isProcessing = isProcessing,
-                                    isSaving = saveImageState is StateLoading,
-                                    isSaved = saveImageState is StateSuccess,
+                                    isLoading = isLoading,
+                                    isSaved = isSaved,
                                     errorMessage = errorMessage,
                                     onPickImage = { if (imageUri == null) imagePicker.launch("image/*") },
                                     onPreviewImage = {
@@ -322,6 +340,7 @@ internal fun AiBackgroundRemovalScreen(
                                         imageUri = null
                                         resultBitmap = null
                                         errorMessage = ""
+                                        isSaved = false
                                         reset()
                                     }
                                 )
@@ -375,8 +394,8 @@ internal fun AiBackgroundRemovalScreen(
                                     ) {
                                         ActionButtons(
                                             isProcessing = isProcessing,
-                                            isSaving = saveImageState is StateLoading,
-                                            isSaved = saveImageState is StateSuccess,
+                                            isLoading = isLoading,
+                                            isSaved = isSaved,
                                             imageUri = imageUri,
                                             resultBitmap = resultBitmap,
                                             onPickImage = { imagePicker.launch("image/*") },
@@ -408,6 +427,7 @@ internal fun AiBackgroundRemovalScreen(
                                                 imageUri = null
                                                 resultBitmap = null
                                                 errorMessage = ""
+                                                isSaved = false
                                                 reset()
                                             }
                                         )
@@ -430,7 +450,12 @@ internal fun AiBackgroundRemovalScreen(
                     .align(BottomCenter)
                     .padding(start = Dp24, end = Dp24, bottom = Dp40),
                 message = snackbarMessage,
-                duration = Long
+                duration = Long,
+                actionMessage = stringResource(R.string.view),
+                onClickSnackbarAction = {
+                    snackbarMessage.value = ""
+                    navigateToSystemGallery(context)
+                }
             )
         }
     }
@@ -441,7 +466,7 @@ private fun ActionPanel(
     imageUri: Uri?,
     resultBitmap: Bitmap?,
     isProcessing: Boolean,
-    isSaving: Boolean,
+    isLoading: Boolean,
     isSaved: Boolean,
     errorMessage: String,
     modifier: Modifier = Modifier,
@@ -465,7 +490,7 @@ private fun ActionPanel(
         )
         ActionButtons(
             isProcessing = isProcessing,
-            isSaving = isSaving,
+            isLoading = isLoading,
             isSaved = isSaved,
             imageUri = imageUri,
             resultBitmap = resultBitmap,
@@ -487,7 +512,7 @@ private fun ActionPanel(
 @Composable
 private fun ActionButtons(
     isProcessing: Boolean,
-    isSaving: Boolean,
+    isLoading: Boolean,
     isSaved: Boolean,
     imageUri: Uri?,
     resultBitmap: Bitmap?,
@@ -515,8 +540,8 @@ private fun ActionButtons(
                 backgroundColor = colors.alwaysPurple,
                 contentColor = MeverWhite
             ),
-            isLoading = isProcessing || isSaving,
-            isEnabled = !isProcessing && !isSaving,
+            isLoading = isProcessing || isLoading,
+            isEnabled = isProcessing.not() && isLoading.not(),
             onClick = when {
                 imageUri == null -> onPickImage
                 isSaved -> onOpenGallery
@@ -524,7 +549,7 @@ private fun ActionButtons(
                 else -> onRemoveBackground
             }
         )
-        if (imageUri != null && isSaving.not()) {
+        if (imageUri != null && isLoading.not()) {
             MeverButton(
                 modifier = Modifier
                     .weight(0.4f)

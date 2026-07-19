@@ -137,6 +137,7 @@ import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.common.util.storage.StorageUtil.StorageInfo
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getStorageInfo
 import com.dapascript.mever.core.common.util.storage.StorageUtil.isStorageFull
+import com.dapascript.mever.core.common.util.syncToGallery
 import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute.Content
