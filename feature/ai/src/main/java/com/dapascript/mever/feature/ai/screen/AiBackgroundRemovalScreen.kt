@@ -6,7 +6,9 @@ import android.net.Uri
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -144,9 +146,7 @@ internal fun AiBackgroundRemovalScreen(
             )
         }
     }
-    val imagePicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri ->
+    val imagePicker = rememberLauncherForActivityResult(PickVisualMedia()) { uri ->
         if (uri != null) {
             imageUri = uri
             resultBitmap = null
@@ -287,7 +287,11 @@ internal fun AiBackgroundRemovalScreen(
                                     isLoading = isLoading,
                                     isSaved = isSaved,
                                     errorMessage = errorMessage,
-                                    onPickImage = { if (imageUri == null) imagePicker.launch("image/*") },
+                                    onPickImage = {
+                                        if (imageUri == null) imagePicker.launch(
+                                            PickVisualMediaRequest(ImageOnly)
+                                        )
+                                    },
                                     onPreviewImage = {
                                         resultBitmap?.let { bitmap ->
                                             saveToCache(context, bitmap) { path ->
@@ -358,7 +362,9 @@ internal fun AiBackgroundRemovalScreen(
                                             imageUri = imageUri,
                                             resultBitmap = resultBitmap,
                                             onPickImage = {
-                                                if (imageUri == null) imagePicker.launch("image/*")
+                                                if (imageUri == null) imagePicker.launch(
+                                                    PickVisualMediaRequest(ImageOnly)
+                                                )
                                             },
                                             onPreviewImage = {
                                                 resultBitmap?.let { bitmap ->
@@ -398,7 +404,11 @@ internal fun AiBackgroundRemovalScreen(
                                             isSaved = isSaved,
                                             imageUri = imageUri,
                                             resultBitmap = resultBitmap,
-                                            onPickImage = { imagePicker.launch("image/*") },
+                                            onPickImage = {
+                                                if (imageUri == null) imagePicker.launch(
+                                                    PickVisualMediaRequest(ImageOnly)
+                                                )
+                                            },
                                             onRemoveBackground = {
                                                 imageUri?.let {
                                                     removeBackground(
