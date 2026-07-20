@@ -19,6 +19,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow.Companion.Ellipsis
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
@@ -38,6 +39,7 @@ fun MeverFeatureCard(
     desc: String,
     cardColor: Color,
     modifier: Modifier = Modifier,
+    maxLines: Int = Int.MAX_VALUE,
     titleStyle: TextStyle = typography.bodyBold3,
     descStyle: TextStyle = typography.label3,
     onClick: () -> Unit
@@ -101,6 +103,8 @@ fun MeverFeatureCard(
                 modifier = Modifier.fillMaxWidth(),
                 text = desc,
                 style = descStyle,
+                maxLines = maxLines,
+                overflow = Ellipsis,
                 color = colors.alwaysGray
             )
         }

@@ -1051,6 +1051,7 @@ private fun QuickToolsSection(
                         title = data.featureName,
                         desc = data.featureDesc,
                         cardColor = data.toolsType.getCardColor(),
+                        maxLines = 2,
                         titleStyle = typography.bodyBold2,
                         descStyle = typography.body3
                     ) { onClick(data.toolsType.getRoute()) }

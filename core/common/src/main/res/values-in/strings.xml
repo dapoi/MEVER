@@ -33,7 +33,6 @@
     <string name="empty_list_desc">Tidak ada file yang ditemukan. Coba unduh dulu, ya!</string>
     <string name="gallery">Galeri</string>
     <string name="settings">Pengaturan</string>
-    <string name="explore">Cari Gambar</string>
     <string name="application">Aplikasi</string>
     <string name="language">Bahasa</string>
     <string name="notification">Notifikasi</string>
@@ -129,9 +128,9 @@
     <string name="quick_tools">Alat Cepat</string>
     <string name="all_tools">Semua Alat ></string>
     <string name="wa_status">Status WhatsApp</string>
-    <string name="wa_status_desc">Lihat status sebelum menghilang.</string>
+    <string name="wa_status_desc">Lihat status sebelum dihapus.</string>
     <string name="remove_bg">Hapus Belakang</string>
-    <string name="remove_bg_desc">Bersihkan gambar dengan mudah.</string>
+    <string name="remove_bg_desc">Buat gambar jadi transparan.</string>
     <string name="images_finder">Cari Gambar</string>
     <string name="images_finder_desc">Temukan gambar menarik dari berbagai sumber di internet.</string>
     <string name="ai_image_generator">Pembuat Gambar AI</string>

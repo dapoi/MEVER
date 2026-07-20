@@ -91,7 +91,7 @@ internal fun ExploreLandingScreen(
     var lastQuery by rememberSaveable { mutableStateOf("") }
 
     BaseScreen(
-        topBarArgs = TopBarArgs(title = stringResource(R.string.explore)),
+        topBarArgs = TopBarArgs(title = stringResource(R.string.images_finder)),
         onBackHandler = { navigator.goBack() }
     ) {
         LaunchedEffect(query) {
