@@ -41,10 +41,7 @@ class AiImageResultViewModelTest {
     private lateinit var viewModel: AiImageResultViewModel
 
     private val fakeImageAi = ImageAiEntity(
-        imagesUrl = listOf(
-            "https://ai-img1.jpg",
-            "https://ai-img2.jpg"
-        )
+        imagesUrl = "https://example.com/fake_image.png",
     )
 
     /** Helper to reflectively get the backing _aiResponseState flow */
@@ -79,7 +76,7 @@ class AiImageResultViewModelTest {
 
     @Test
     fun `aiResponseState emits StateLoading when set via backing flow`() = testScope.runTest {
-        val states = mutableListOf<UiState<ImageAiEntity>>()
+        val states = mutableListOf<UiState<ImageAiEntity?>>()
         val job = launch { viewModel.aiResponseState.collect { states.add(it) } }
         backingFlow().value = UiState.StateLoading
         advanceUntilIdle()
@@ -89,7 +86,7 @@ class AiImageResultViewModelTest {
 
     @Test
     fun `aiResponseState emits StateSuccess when set via backing flow`() = testScope.runTest {
-        val states = mutableListOf<UiState<ImageAiEntity>>()
+        val states = mutableListOf<UiState<ImageAiEntity?>>()
         val job = launch { viewModel.aiResponseState.collect { states.add(it) } }
         backingFlow().value = UiState.StateSuccess(fakeImageAi)
         advanceUntilIdle()
@@ -102,7 +99,7 @@ class AiImageResultViewModelTest {
 
     @Test
     fun `aiResponseState emits StateFailed when set via backing flow`() = testScope.runTest {
-        val states = mutableListOf<UiState<ImageAiEntity>>()
+        val states = mutableListOf<UiState<ImageAiEntity?>>()
         val job = launch { viewModel.aiResponseState.collect { states.add(it) } }
         backingFlow().value = UiState.StateFailed("AI error")
         advanceUntilIdle()

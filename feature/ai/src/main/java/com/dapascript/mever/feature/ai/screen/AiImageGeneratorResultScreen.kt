@@ -138,7 +138,7 @@ internal fun AiImageGeneratorResultScreen(
                 onLoading = { showShimmer = true },
                 onSuccess = { result ->
                     showShimmer = false
-                    urlImage = result.imagesUrl
+                    urlImage = result?.imagesUrl.orEmpty()
                 },
                 onFailed = { message ->
                     showShimmer = false

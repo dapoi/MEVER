@@ -86,7 +86,8 @@ class SplashScreenViewModel @Inject constructor(
                         }
                     }
                 },
-                onFailed = { _appConfigState.value = StateFailed(it) }
+                onFailed = { _appConfigState.value = StateFailed(it) },
+                onReset = { _appConfigState.value = StateInitial }
             )
         }
     }

@@ -11,15 +11,41 @@ import com.dapascript.mever.core.common.util.state.UiState.StateFailed
 import com.dapascript.mever.core.common.util.state.UiState.StateInitial
 import com.dapascript.mever.core.common.util.state.UiState.StateLoading
 import com.dapascript.mever.core.common.util.state.UiState.StateSuccess
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
 
-@HiltViewModel
-open class BaseViewModel @Inject constructor() : ViewModel() {
+open class BaseViewModel : ViewModel() {
+    fun <T> collectApiAsUiState(
+        response: Flow<ApiState<T>>,
+        state: MutableStateFlow<UiState<T>>
+    ) = viewModelScope.launch {
+        response.collect { apiState ->
+            when (apiState) {
+                is Loading -> state.value = StateLoading
+
+                is Success -> {
+                    apiState.data?.let {
+                        state.value = StateSuccess(it)
+                    }
+
+                    delay(300.milliseconds)
+                    state.value = StateInitial
+                }
+
+                is Error -> {
+                    state.value = StateFailed(
+                        apiState.throwable.message.orEmpty()
+                    )
+
+                    delay(300.milliseconds)
+                    state.value = StateInitial
+                }
+            }
+        }
+    }
 
     fun <T> collectApiAsUiState(
         response: Flow<ApiState<T>>,

@@ -103,7 +103,8 @@ class AiBackgroundRemovalViewModel @Inject constructor(
                     viewModelScope.launch { saveImageLocally(context, bitmap, fileName) }
                 }
             },
-            onFailed = { viewModelScope.launch { saveImageLocally(context, bitmap, fileName) } }
+            onFailed = { viewModelScope.launch { saveImageLocally(context, bitmap, fileName) } },
+            onReset = { _saveImageState.value = StateInitial }
         )
     }
 

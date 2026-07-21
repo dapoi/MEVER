@@ -5,7 +5,6 @@ import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.util.PlatformType.AI
 import com.dapascript.mever.core.common.util.changeToCurrentDate
 import com.dapascript.mever.core.common.util.state.UiState
-import com.dapascript.mever.core.common.util.state.UiState.StateFailed
 import com.dapascript.mever.core.common.util.state.UiState.StateInitial
 import com.dapascript.mever.core.common.util.state.UiState.StateLoading
 import com.dapascript.mever.core.common.util.state.UiState.StateSuccess
@@ -30,7 +29,7 @@ class AiImageResultViewModel @Inject constructor(
 ) : BaseViewModel() {
     private val meverFolder by lazy { getMeverFolder() }
 
-    private val _aiResponseState = MutableStateFlow<UiState<ImageAiEntity>>(StateInitial)
+    private val _aiResponseState = MutableStateFlow<UiState<ImageAiEntity?>>(StateInitial)
     val aiResponseState = _aiResponseState.asStateFlow()
 
     private val _aiReportState = MutableStateFlow<UiState<Unit>>(StateInitial)
@@ -43,9 +42,7 @@ class AiImageResultViewModel @Inject constructor(
         response = repository.getImageAiGenerator(
             prompt = "$prompt. Style ${artStyle.ifEmpty { "Realistic" }}"
         ),
-        onLoading = { _aiResponseState.value = StateLoading },
-        onSuccess = { _aiResponseState.value = StateSuccess(it) },
-        onFailed = { _aiResponseState.value = StateFailed(it) }
+        state = _aiResponseState
     )
 
     fun postReportAiImage(message: String) {
@@ -57,9 +54,7 @@ class AiImageResultViewModel @Inject constructor(
             }
         } else collectApiAsUiState(
             response = repository.postReportAiImage(message),
-            onLoading = { _aiReportState.value = StateLoading },
-            onSuccess = { _aiReportState.value = StateSuccess(it) },
-            onFailed = { _aiReportState.value = StateFailed(it) }
+            state = _aiReportState
         )
     }
 

@@ -86,7 +86,7 @@ internal fun ExploreLandingScreen(
     val context = LocalContext.current
     val deviceType = LocalDeviceType.current
     val exploreResponseState = exploreResponseState.collectAsStateValue()
-    var contents by remember { mutableStateOf<List<ContentEntity>?>(null) }
+    var contents by rememberSaveable { mutableStateOf<List<ContentEntity>?>(null) }
     var errorMessage by remember { mutableStateOf("") }
     var lastQuery by rememberSaveable { mutableStateOf("") }
 
