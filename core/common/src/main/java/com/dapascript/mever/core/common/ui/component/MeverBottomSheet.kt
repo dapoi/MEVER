@@ -39,7 +39,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
-import com.dapascript.mever.core.common.ui.theme.MeverWhite
+import com.dapascript.mever.core.common.util.LocalIsDarkMode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -121,15 +121,15 @@ fun MeverBottomSheet(
         onDismissRequest = onDismissBottomSheet
     ) {
         val view = LocalView.current
-        val isAppInDarkMode = colors.whiteDark != MeverWhite
+        val isDarkMode = LocalIsDarkMode.current
 
-        LaunchedEffect(view, isAppInDarkMode) {
+        LaunchedEffect(view, isDarkMode) {
             val window = (view.parent as? DialogWindowProvider)?.window
             if (window != null) {
                 WindowCompat.setDecorFitsSystemWindows(window, false)
                 WindowCompat.getInsetsController(window, view).apply {
-                    isAppearanceLightStatusBars = isAppInDarkMode.not()
-                    isAppearanceLightNavigationBars = isAppInDarkMode.not()
+                    isAppearanceLightStatusBars = isDarkMode.not()
+                    isAppearanceLightNavigationBars = isDarkMode.not()
                 }
             }
         }
