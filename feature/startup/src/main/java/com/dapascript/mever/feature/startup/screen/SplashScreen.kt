@@ -12,7 +12,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -72,6 +71,7 @@ internal fun SplashScreen(
     BaseScreen(
         hideDefaultTopBar = true,
         useStatusBarsPadding = false,
+        backgroundColor = MeverPurple,
         onBackHandler = { navigator.goBack() }
     ) {
         val isOnboarded = isOnboarded.collectAsStateValue()
@@ -99,9 +99,12 @@ internal fun SplashScreen(
             }
         }
 
+        LaunchedEffect(Unit) {
+            hideSystemBar(activity, true)
+        }
+
         LaunchedEffect(appConfigState) {
             appConfigState.handleUiState(
-                onLoading = { hideSystemBar(activity, true) },
                 onSuccess = { response ->
                     if (response.maintenanceDay != null) {
                         showMaintenanceModal = true
@@ -178,11 +181,7 @@ internal fun SplashScreen(
             }
         }
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MeverPurple)
-        ) {
+        Box(modifier = Modifier.fillMaxSize()) {
             Column(
                 modifier = Modifier.align(Center),
                 horizontalAlignment = CenterHorizontally,

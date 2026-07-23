@@ -16,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverTopBar
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
@@ -30,6 +31,7 @@ fun BaseScreen(
     useStatusBarsPadding: Boolean = true,
     useNavigationBarsPadding: Boolean = false,
     lockOrientation: Boolean = true,
+    backgroundColor: Color? = null,
     onBackHandler: () -> Unit,
     content: @Composable () -> Unit
 ) {
@@ -53,6 +55,7 @@ fun BaseScreen(
         hideDefaultTopBar = hideDefaultTopBar,
         useStatusBarsPadding = useStatusBarsPadding,
         useNavigationBarsPadding = useNavigationBarsPadding,
+        backgroundColor = backgroundColor,
         onBackHandler = { currentOnBack() }
     ) { content() }
 }
@@ -63,6 +66,7 @@ private fun BaseScreenContent(
     hideDefaultTopBar: Boolean,
     useStatusBarsPadding: Boolean,
     useNavigationBarsPadding: Boolean,
+    backgroundColor: Color?,
     onBackHandler: () -> Unit,
     content: @Composable () -> Unit
 ) {
@@ -72,7 +76,7 @@ private fun BaseScreenContent(
 
     Box(
         modifier = Modifier
-            .background(color = colors.whiteDark)
+            .background(color = backgroundColor ?: colors.whiteDark)
             .then(systemBarsPadding)
     ) {
         content()
