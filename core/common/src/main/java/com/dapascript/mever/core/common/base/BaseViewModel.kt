@@ -49,10 +49,10 @@ open class BaseViewModel : ViewModel() {
 
     fun <T> collectApiAsUiState(
         response: Flow<ApiState<T>>,
-        onLoading: () -> Unit = {},
-        onSuccess: (T) -> Unit = {},
-        onFailed: (String) -> Unit = {},
-        onReset: (() -> Unit)? = null
+        onLoading: suspend () -> Unit = {},
+        onSuccess: suspend (T) -> Unit = {},
+        onFailed: suspend (String) -> Unit = {},
+        onReset: (suspend () -> Unit)? = null
     ) = viewModelScope.launch {
         response.collect { apiState ->
             when (apiState) {
@@ -67,10 +67,10 @@ open class BaseViewModel : ViewModel() {
         }
     }
 
-    fun <T> UiState<T>.handleUiState(
-        onSuccess: (T) -> Unit = {},
-        onLoading: () -> Unit = {},
-        onFailed: (String?) -> Unit = {}
+    suspend fun <T> UiState<T>.handleUiState(
+        onSuccess: suspend (T) -> Unit = {},
+        onLoading: suspend () -> Unit = {},
+        onFailed: suspend (String?) -> Unit = {}
     ) = when (this) {
         is StateSuccess -> data?.let { onSuccess(it) }
         is StateLoading -> onLoading()

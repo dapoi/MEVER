@@ -42,7 +42,7 @@ class SplashScreenViewModel @Inject constructor(
     val appConfigState = _appConfigState.asStateFlow()
 
     init {
-        viewModelScope.launch { getAppConfig() }
+        getAppConfig()
     }
 
     fun getAppConfig() {
@@ -73,16 +73,14 @@ class SplashScreenViewModel @Inject constructor(
             collectApiAsUiState(
                 response = meverRepository.getAppConfig(),
                 onLoading = { _appConfigState.value = StateLoading },
-                onSuccess = {
-                    _appConfigState.value = StateSuccess(it)
-                    viewModelScope.launch {
-                        it?.let {
-                            with(dataStore) {
-                                setIsImageAiEnabled(it.isImageGeneratorFeatureActive)
-                                setIsGoImgEnabled(it.isGoImgFeatureActive)
-                                setShowSupportedPlatform(it.showSupportedPlatform)
-                                saveYoutubeVideoAndAudioQuality(it.videoResolutionsAndAudioQualities)
-                            }
+                onSuccess = { response ->
+                    _appConfigState.value = StateSuccess(response)
+                    response?.let {
+                        with(dataStore) {
+                            setIsImageAiEnabled(it.isImageGeneratorFeatureActive)
+                            setIsGoImgEnabled(it.isGoImgFeatureActive)
+                            setShowSupportedPlatform(it.showSupportedPlatform)
+                            saveYoutubeVideoAndAudioQuality(it.videoResolutionsAndAudioQualities)
                         }
                     }
                 },
