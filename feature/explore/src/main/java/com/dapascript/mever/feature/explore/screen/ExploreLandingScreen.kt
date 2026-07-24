@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -179,6 +180,8 @@ internal fun ExploreLandingScreen(
                         ) { index, item ->
                             MeverImage(
                                 modifier = Modifier
+                                    .fillMaxWidth()
+                                    .aspectRatio(if (index % 3 == 0) 0.8f else if (index % 2 == 0) 1.2f else 1f)
                                     .clip(RoundedCornerShape(Dp8))
                                     .onCustomClick {
                                         navigator.navigate(
