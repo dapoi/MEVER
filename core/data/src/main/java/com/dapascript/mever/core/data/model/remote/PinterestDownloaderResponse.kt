@@ -1,32 +1,26 @@
 package com.dapascript.mever.core.data.model.remote
 
 import com.dapascript.mever.core.data.model.local.ContentEntity
-import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class PinterestDownloaderResponse(
     val status: Boolean? = null,
-    val data: DataContent? = null
+    val data: List<DataContent>? = null
 ) {
     @JsonClass(generateAdapter = true)
     data class DataContent(
-        @param:Json(name = "is_video") val isVideo: Boolean? = null,
-        @param:Json(name = "content") val contents: List<Contents>? = null
-    ) {
-        @JsonClass(generateAdapter = true)
-        data class Contents(
-            val url: String? = null,
-            val thumbnail: String? = null
-        )
-    }
+        val url: String? = null,
+        val thumbnail: String? = null
+    )
 
-    fun mapToEntity() = data?.contents?.map {
+    fun mapToEntity() = data?.mapIndexed { index, content ->
         ContentEntity(
-            url = it.url.orEmpty(),
+            id = index.toString(),
+            url = content.url.orEmpty(),
             status = status ?: true,
-            thumbnail = it.thumbnail.orEmpty(),
-            type = if (data.isVideo == true) "mp4" else "jpg"
+            thumbnail = content.thumbnail.orEmpty(),
+            type = content.url?.substringAfterLast(".") ?: "jpg"
         )
     }
 }

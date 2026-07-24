@@ -49,7 +49,7 @@ interface ApiService {
         @Query("url") url: String
     ): InstagramDownloaderResponse
 
-    @GET("pin-v2")
+    @GET("pin")
     suspend fun getPinterestDownloader(
         @Query("url") url: String
     ): PinterestDownloaderResponse
@@ -101,12 +101,14 @@ interface ApiService {
         @Query("type") type: String
     ): YouTubeDownloaderResponse
 
-    @GET("goimg")
+    @GET("pinterest-v2")
     suspend fun getImageSearch(
-        @Query("q") query: String
+        @Query("q") query: String,
+        @Query("show") show: Int = 25,
+        @Query("type") type: String = "image"
     ): ImageSearchResponse
 
-    @GET("meta")
+    @GET("bardimg")
     suspend fun getImageAiGenerator(
         @Query("q") prompt: String
     ): ImageAiResponse

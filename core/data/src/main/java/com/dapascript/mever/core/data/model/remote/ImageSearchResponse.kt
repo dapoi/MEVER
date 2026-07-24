@@ -10,25 +10,21 @@ data class ImageSearchResponse(
 ) {
     @JsonClass(generateAdapter = true)
     data class ImageSearchData(
-        val id: String? = null,
-        val url: String? = null,
-        val preview: Preview? = null,
-        val origin: ImageOrigin? = null
+        val title: String? = null,
+        val content: List<ContentData>? = null
     ) {
         @JsonClass(generateAdapter = true)
-        data class Preview(val url: String? = null)
-
-        @JsonClass(generateAdapter = true)
-        data class ImageOrigin(val title: String? = null)
+        data class ContentData(val url: String? = null)
     }
 
-    fun mapToEntity() = data?.map {
+    fun mapToEntity() = data?.mapIndexed { index, content ->
+        val url = content.content?.firstOrNull()?.url.orEmpty()
         ContentEntity(
-            url = it.url.orEmpty(),
-            previewUrl = it.preview?.url.orEmpty(),
-            id = it.id.orEmpty(),
+            id = index.toString(),
             status = status ?: true,
-            fileName = it.origin?.title.orEmpty()
+            url = url,
+            thumbnail = url.replace("/original/", "/236x/"),
+            fileName = content.title.orEmpty()
         )
     }
 }

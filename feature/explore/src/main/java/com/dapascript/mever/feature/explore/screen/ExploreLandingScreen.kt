@@ -197,7 +197,7 @@ internal fun ExploreLandingScreen(
                                             )
                                         )
                                     },
-                                source = item.previewUrl
+                                source = item.thumbnail
                             )
                         }
                     } else KeywordNotFoundComponent()

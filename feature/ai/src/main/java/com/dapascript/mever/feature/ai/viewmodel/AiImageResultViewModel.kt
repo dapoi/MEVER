@@ -40,7 +40,7 @@ class AiImageResultViewModel @Inject constructor(
         artStyle: String
     ) = collectApiAsUiState(
         response = repository.getImageAiGenerator(
-            prompt = "$prompt. Style ${artStyle.ifEmpty { "Realistic" }}"
+            prompt = "$prompt. Art style: $artStyle."
         ),
         state = _aiResponseState
     )

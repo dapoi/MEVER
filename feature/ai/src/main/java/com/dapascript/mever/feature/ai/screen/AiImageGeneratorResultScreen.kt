@@ -346,6 +346,7 @@ private fun ImageGeneratorResultContent(
         MeverImage(
             modifier = Modifier
                 .fillMaxWidth()
+                .aspectRatio(1f)
                 .clip(RoundedCornerShape(Dp12)),
             source = urlImage,
             contentScale = FillBounds
