@@ -71,6 +71,6 @@ fun handleClickButton(
     onShowAds: () -> Unit,
     onClickAction: () -> Unit
 ) {
-    if (buttonClickCount > 0 && buttonClickCount % 3 == 0) onShowAds() else onClickAction()
+    if (buttonClickCount > 0 && buttonClickCount % 2 == 0) onShowAds() else onClickAction()
     onIncrementClickCount()
 }
