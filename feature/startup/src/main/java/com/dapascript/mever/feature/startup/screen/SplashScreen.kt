@@ -83,9 +83,7 @@ internal fun SplashScreen(
         var showMaintenanceModal by remember { mutableStateOf(false) }
         var forceUpdateInProgress by remember { mutableStateOf(false) }
         var errorMessage by remember { mutableStateOf("") }
-        val logoVisibleState = remember {
-            MutableTransitionState(false).apply { targetState = true }
-        }
+        val logoVisibleState = remember { MutableTransitionState(false) }
         val inAppUpdateManager = remember { InAppUpdateManager(activity) }
         val updateLauncher = rememberLauncherForActivityResult(
             contract = StartIntentSenderForResult()
@@ -101,6 +99,7 @@ internal fun SplashScreen(
 
         LaunchedEffect(Unit) {
             hideSystemBar(activity, true)
+            logoVisibleState.targetState = true
         }
 
         LaunchedEffect(appConfigState) {
