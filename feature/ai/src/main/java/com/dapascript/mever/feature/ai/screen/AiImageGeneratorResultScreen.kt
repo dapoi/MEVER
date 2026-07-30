@@ -63,6 +63,7 @@ import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverImage
 import com.dapascript.mever.core.common.ui.component.MeverPermissionHandler
 import com.dapascript.mever.core.common.ui.component.meverShimmer
+import com.dapascript.mever.core.common.ui.component.rememberInterstitialAd
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp10
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp120
@@ -87,12 +88,14 @@ import com.dapascript.mever.core.common.util.LocalDeviceType
 import com.dapascript.mever.core.common.util.copyToClipboard
 import com.dapascript.mever.core.common.util.fetchPhotoFromUrl
 import com.dapascript.mever.core.common.util.getStoragePermission
+import com.dapascript.mever.core.common.util.handleClickButton
 import com.dapascript.mever.core.common.util.navigateToAppSettings
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getStorageInfo
 import com.dapascript.mever.core.common.util.storage.StorageUtil.isStorageFull
+import com.dapascript.mever.core.data.model.local.ImageAiEntity
 import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.AiScreenRoute.AiImageGeneratorResultRoute
 import com.dapascript.mever.core.navigation.route.AiScreenRoute.AiImageGeneratorRoute
@@ -117,14 +120,20 @@ internal fun AiImageGeneratorResultScreen(
     val scrollState = rememberScrollState()
     val aiResponseState = aiResponseState.collectAsStateValue()
     val aiReportState = aiReportState.collectAsStateValue()
+    val getButtonClickCount = getButtonClickCount.collectAsStateValue()
     var hasCopied by remember { mutableStateOf(false) }
-    var urlImage by remember { mutableStateOf("") }
-    var showShimmer by remember { mutableStateOf(false) }
+    var imageResult by remember { mutableStateOf<ImageAiEntity?>(null) }
+    var showShimmer by remember { mutableStateOf(true) }
     var showLoadingReport by remember { mutableStateOf(false) }
     var showCancelExitConfirmation by remember { mutableStateOf(false) }
     var showReportDialog by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
     var setStoragePermission by remember { mutableStateOf<List<String>>(emptyList()) }
+    val interstitialAd = rememberInterstitialAd {
+        imageResult = null
+        showShimmer = true
+        getImageAiGenerator(args.prompt, args.artStyle)
+    }
 
     BaseScreen(
         topBarArgs = TopBarArgs(title = stringResource(R.string.ai_image_generator)),
@@ -135,14 +144,13 @@ internal fun AiImageGeneratorResultScreen(
 
         LaunchedEffect(aiResponseState) {
             aiResponseState.handleUiState(
-                onLoading = { showShimmer = true },
                 onSuccess = { result ->
                     showShimmer = false
-                    urlImage = result?.imagesUrl.orEmpty()
+                    imageResult = result
                 },
                 onFailed = { message ->
                     showShimmer = false
-                    urlImage = ""
+                    imageResult = null
                     errorMessage = message ?: resources.getString(R.string.error_desc)
                 }
             )
@@ -181,10 +189,11 @@ internal fun AiImageGeneratorResultScreen(
                     if (isStorageFull(storageInfo)) {
                         errorMessage = resources.getString(R.string.storage_full)
                     } else {
-                        scope.launch {
-                            startDownload(url = urlImage)
-                            navigator.navigateToGallery()
-                        }
+                        startDownload(
+                            url = imageResult?.imagesUrl.orEmpty(),
+                            fileName = imageResult?.fileName.orEmpty()
+                        )
+                        navigator.navigateToGallery()
                     }
                 },
                 onDenied = { isPermanentlyDeclined, retry ->
@@ -262,7 +271,7 @@ internal fun AiImageGeneratorResultScreen(
         }
 
         AnimatedContent(
-            targetState = showShimmer && urlImage.isEmpty(),
+            targetState = showShimmer && imageResult?.imagesUrl.isNullOrEmpty(),
             transitionSpec = { (fadeIn() togetherWith fadeOut()).using(SizeTransform(clip = false)) }
         ) { isLoading ->
             if (isLoading) ImageGeneratorLoading(
@@ -277,7 +286,7 @@ internal fun AiImageGeneratorResultScreen(
                     .padding(top = Dp64),
                 context = context,
                 deviceType = deviceType,
-                urlImage = urlImage,
+                urlImage = imageResult?.imagesUrl.orEmpty(),
                 promptText = args.prompt,
                 hasCopied = hasCopied,
                 scrollState = scrollState,
@@ -291,7 +300,7 @@ internal fun AiImageGeneratorResultScreen(
                         val cachePath = File(context.cacheDir, "images")
                         if (!cachePath.exists()) cachePath.mkdirs()
                         val cacheFile = File(cachePath, "shared_image.png")
-                        val bitmap = fetchPhotoFromUrl(urlImage)
+                        val bitmap = fetchPhotoFromUrl(imageResult?.imagesUrl.orEmpty())
 
                         bitmap?.let {
                             val stream = FileOutputStream(cacheFile)
@@ -311,8 +320,16 @@ internal fun AiImageGeneratorResultScreen(
                     }
                 },
                 onClickRegenerate = {
-                    urlImage = ""
-                    getImageAiGenerator(args.prompt, args.artStyle)
+                    handleClickButton(
+                        buttonClickCount = getButtonClickCount,
+                        onIncrementClickCount = { incrementClickCount() },
+                        onShowAds = { interstitialAd.showAd() },
+                        onClickAction = {
+                            imageResult = null
+                            showShimmer = true
+                            getImageAiGenerator(args.prompt, args.artStyle)
+                        }
+                    )
                 },
                 onClickDownload = { setStoragePermission = getStoragePermission() }
             )

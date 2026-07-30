@@ -11,12 +11,15 @@ import com.dapascript.mever.core.common.util.state.UiState.StateSuccess
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFolder
 import com.dapascript.mever.core.data.model.local.ImageAiEntity
 import com.dapascript.mever.core.data.repository.MeverRepository
+import com.dapascript.mever.core.data.source.local.MeverDataStore
 import com.dapascript.mever.feature.ai.BuildConfig.DEBUG
 import com.ketch.Ketch
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.lang.System.currentTimeMillis
 import javax.inject.Inject
@@ -25,9 +28,16 @@ import kotlin.time.Duration.Companion.seconds
 @HiltViewModel
 class AiImageResultViewModel @Inject constructor(
     private val ketch: Ketch,
-    private val repository: MeverRepository
+    private val repository: MeverRepository,
+    private val dataStore: MeverDataStore
 ) : BaseViewModel() {
     private val meverFolder by lazy { getMeverFolder() }
+
+    val getButtonClickCount = dataStore.clickCount.stateIn(
+        scope = viewModelScope,
+        started = WhileSubscribed(),
+        initialValue = 1
+    )
 
     private val _aiResponseState = MutableStateFlow<UiState<ImageAiEntity?>>(StateInitial)
     val aiResponseState = _aiResponseState.asStateFlow()
@@ -40,7 +50,7 @@ class AiImageResultViewModel @Inject constructor(
         artStyle: String
     ) = collectApiAsUiState(
         response = repository.getImageAiGenerator(
-            prompt = "$prompt. Art style: $artStyle."
+            prompt = "Generate an image of $prompt in $artStyle style"
         ),
         state = _aiResponseState
     )
@@ -58,13 +68,17 @@ class AiImageResultViewModel @Inject constructor(
         )
     }
 
-    fun startDownload(url: String) {
+    fun startDownload(url: String, fileName: String) {
         if (url.isBlank()) return
         ketch.download(
             url = url,
-            fileName = changeToCurrentDate(currentTimeMillis()) + ".jpg",
+            fileName = fileName.ifEmpty { changeToCurrentDate(currentTimeMillis()) + ".jpg" },
             path = meverFolder.path,
             tag = AI.platformName
         )
+    }
+
+    fun incrementClickCount() = viewModelScope.launch {
+        dataStore.incrementClickCount()
     }
 }

@@ -1,3 +1,6 @@
 package com.dapascript.mever.core.data.model.local
 
-data class ImageAiEntity(val imagesUrl: String)
+data class ImageAiEntity(
+    val imagesUrl: String,
+    val fileName: String
+)

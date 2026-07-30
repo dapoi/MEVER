@@ -8,6 +8,7 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -77,7 +78,7 @@ import com.dapascript.mever.core.common.util.fadingEdge
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.AiScreenRoute.AiImageGeneratorResultRoute
-import com.dapascript.mever.feature.ai.screen.attr.AiImageGeneratorAttr
+import com.dapascript.mever.feature.ai.screen.attr.AiImageGeneratorAttr.StyleOption
 import com.dapascript.mever.feature.ai.screen.attr.AiImageGeneratorAttr.getArtStyles
 
 @Composable
@@ -99,13 +100,13 @@ internal fun AiImageGeneratorScreen(navigator: Navigator) {
     }
     var prompt by rememberSaveable { mutableStateOf("") }
     val artStyles = remember(context) { getArtStyles(context) }
-    var artStyleSelected by rememberSaveable { mutableStateOf("") }
+    var artStyleSelected by remember { mutableStateOf<StyleOption?>(null) }
 
     val onGenerate = {
         navigator.navigate(
             AiImageGeneratorResultRoute(
                 prompt = prompt,
-                artStyle = artStyleSelected
+                artStyle = artStyleSelected?.promptKeywords.orEmpty()
             )
         )
     }
@@ -156,7 +157,7 @@ internal fun AiImageGeneratorScreen(navigator: Navigator) {
                                 fontSize = Sp18,
                                 minFontSize = Sp14,
                                 maxLines = 4,
-                                onClickInspire = { prompt = getInspirePrompt() },
+                                onClickInspire = { prompt = getInspirePrompt().lowercase() },
                                 onValueChange = { prompt = it }
                             )
                         }
@@ -164,7 +165,7 @@ internal fun AiImageGeneratorScreen(navigator: Navigator) {
                             ArtStyleHeader(
                                 modifier = Modifier.padding(vertical = Dp24),
                                 artStyleSelected = artStyleSelected,
-                                onClear = { artStyleSelected = "" }
+                                onClear = { artStyleSelected = null }
                             )
                         }
                         item {
@@ -177,8 +178,8 @@ internal fun AiImageGeneratorScreen(navigator: Navigator) {
                                         rowItems.forEach { item ->
                                             ArtStyleItem(
                                                 style = item,
-                                                isSelected = artStyleSelected == item.styleName,
-                                                onSelect = { name -> artStyleSelected = name },
+                                                isSelected = artStyleSelected == item,
+                                                onSelect = { style -> artStyleSelected = style },
                                                 modifier = Modifier.weight(1f)
                                             )
                                         }
@@ -233,7 +234,7 @@ internal fun AiImageGeneratorScreen(navigator: Navigator) {
                                         fontSize = Sp18,
                                         minFontSize = Sp14,
                                         maxLines = 4,
-                                        onClickInspire = { prompt = getInspirePrompt() },
+                                        onClickInspire = { prompt = getInspirePrompt().lowercase() },
                                         onValueChange = { prompt = it }
                                     )
                                     MeverButton(
@@ -260,7 +261,7 @@ internal fun AiImageGeneratorScreen(navigator: Navigator) {
                                     ArtStyleHeader(
                                         modifier = Modifier.padding(bottom = Dp24),
                                         artStyleSelected = artStyleSelected,
-                                        onClear = { artStyleSelected = "" }
+                                        onClear = { artStyleSelected = null }
                                     )
                                     Column(verticalArrangement = spacedBy(Dp16)) {
                                         artStyles.chunked(2).forEach { rowItems ->
@@ -271,9 +272,9 @@ internal fun AiImageGeneratorScreen(navigator: Navigator) {
                                                 rowItems.forEach { item ->
                                                     ArtStyleItem(
                                                         style = item,
-                                                        isSelected = artStyleSelected == item.styleName,
-                                                        onSelect = { name ->
-                                                            artStyleSelected = name
+                                                        isSelected = artStyleSelected == item,
+                                                        onSelect = { style ->
+                                                            artStyleSelected = style
                                                         },
                                                         modifier = Modifier.weight(1f)
                                                     )
@@ -328,7 +329,7 @@ private fun HeaderSection(
 
 @Composable
 private fun ArtStyleHeader(
-    artStyleSelected: String,
+    artStyleSelected: StyleOption?,
     onClear: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -344,25 +345,27 @@ private fun ArtStyleHeader(
             style = typography.body2,
             color = colors.blackWhite
         )
-        if (artStyleSelected.isNotEmpty()) Box(modifier = Modifier.weight(1f)) {
-            Text(
-                modifier = Modifier
-                    .align(CenterEnd)
-                    .clip(RoundedCornerShape(Dp12))
-                    .onCustomClick { onClear() },
-                text = stringResource(R.string.clear),
-                style = typography.bodyBold2,
-                color = colors.alwaysPurple
-            )
+        artStyleSelected?.let {
+            Box(modifier = Modifier.weight(1f)) {
+                Text(
+                    modifier = Modifier
+                        .align(CenterEnd)
+                        .clip(RoundedCornerShape(Dp12))
+                        .onCustomClick { onClear() },
+                    text = stringResource(R.string.clear),
+                    style = typography.bodyBold2,
+                    color = colors.alwaysPurple
+                )
+            }
         }
     }
 }
 
 @Composable
 private fun ArtStyleItem(
-    style: AiImageGeneratorAttr.StyleOption,
+    style: StyleOption,
     isSelected: Boolean,
-    onSelect: (String) -> Unit,
+    onSelect: (StyleOption) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -383,9 +386,7 @@ private fun ArtStyleItem(
                     )
                     else Modifier
                 )
-                .onCustomClick {
-                    onSelect(style.styleName)
-                },
+                .clickable { onSelect(style) },
             painter = painterResource(style.image),
             contentScale = Crop,
             contentDescription = style.styleName
@@ -400,24 +401,24 @@ private fun ArtStyleItem(
 }
 
 private fun getInspirePrompt() = listOf(
-    "A lonely robot discovering an ancient forest",
-    "A futuristic city floating in the clouds",
-    "A dreamy landscape with giant glowing mushrooms",
-    "A cinematic moment of two strangers meeting at a station",
-    "An astronaut landing in an alien underwater world",
-    "An oil painting of life in the 31st century",
-    "Flying cats in a pastel-colored sky",
-    "A time traveler arrives in a neon-lit future city",
-    "A portrait of a woman from a mystical forest kingdom",
-    "A child playing among purple-colored clouds",
-    "A cyberpunk hero standing in the neon rain",
-    "A sunset scene like an indie romance movie",
-    "A secret garden hidden in the sky",
-    "A post-apocalyptic world in soft pastel colors",
-    "A fantasy character walking on a bridge of light",
-    "A battle between galactic creatures in a futuristic city",
-    "A little girl looking at Earth from the moon",
-    "An ancient illustration of a city that never existed",
-    "A light festival in a floating village",
-    "A surreal painting of an endless dream"
+    "Forgotten king returning after a thousand years",
+    "Last dragon protecting an ancient secret",
+    "Girl who can control gravity",
+    "Masked traveler with an unknown past",
+    "Guardian of an abandoned city",
+    "Legendary swordsman with no shadow",
+    "Queen made entirely of crystal",
+    "Warrior blessed by the stars",
+    "Thief who steals magical abilities",
+    "Musician whose songs change reality",
+    "Prince cursed to become a monster",
+    "Strongest mage in history",
+    "Spirit wandering through empty worlds",
+    "Traveler who never ages",
+    "Villain everyone secretly admires",
+    "Living constellation walking across the night sky",
+    "Person who can rewrite destiny",
+    "Guardian of forgotten dreams",
+    "Explorer discovering a lost civilization",
+    "Legend whispered across generations"
 ).random()

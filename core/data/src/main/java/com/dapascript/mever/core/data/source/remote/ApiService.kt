@@ -108,9 +108,9 @@ interface ApiService {
         @Query("type") type: String = "image"
     ): ImageSearchResponse
 
-    @GET("bardimg")
+    @GET("genimg")
     suspend fun getImageAiGenerator(
-        @Query("q") prompt: String
+        @Query("prompt") prompt: String
     ): ImageAiResponse
 
     @POST("report")
