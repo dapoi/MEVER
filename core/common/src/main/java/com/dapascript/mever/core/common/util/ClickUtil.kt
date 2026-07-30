@@ -10,6 +10,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.semantics.Role
+import kotlin.random.Random
 
 @Composable
 fun rememberDebounceHandler(interval: Long = 500L) = remember { DebounceHandler(interval) }
@@ -71,6 +72,7 @@ fun onClickWithAds(
     onShowAds: () -> Unit,
     onClickAction: () -> Unit
 ) {
-    if (buttonClickCount > 0 && buttonClickCount % 2 == 0) onShowAds() else onClickAction()
+    val randomThreshold = Random.nextInt(2, 5)
+    if (buttonClickCount > 0 && buttonClickCount % randomThreshold == 0) onShowAds() else onClickAction()
     onIncrementClickCount()
 }

@@ -99,7 +99,7 @@ class HomeLandingViewModel @Inject constructor(
     val getButtonClickCount = dataStore.clickCount.stateIn(
         scope = viewModelScope,
         started = WhileSubscribed(),
-        initialValue = 1
+        initialValue = 0
     )
 
     val getUrlIntent = dataStore.getUrlIntent.stateIn(

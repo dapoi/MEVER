@@ -98,13 +98,13 @@ class MeverDataStore @Inject constructor(
 
     suspend fun incrementClickCount() {
         dataStore.edit { preferences ->
-            val currentCount = preferences[KEY_CLICK_COUNT] ?: 1
-            preferences[KEY_CLICK_COUNT] = if (currentCount == 4) 1 else currentCount + 1
+            val currentCount = preferences[KEY_CLICK_COUNT] ?: 0
+            preferences[KEY_CLICK_COUNT] = currentCount + 1
         }
     }
 
     val clickCount = dataStore.data.map { preferences ->
-        preferences[KEY_CLICK_COUNT] ?: 1
+        preferences[KEY_CLICK_COUNT] ?: 0
     }
 
     suspend fun saveUrlIntent(url: String) {

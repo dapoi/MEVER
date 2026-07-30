@@ -29,7 +29,7 @@ class GalleryContentDetailViewModel @Inject constructor(
     val getButtonClickCount = dataStore.clickCount.stateIn(
         scope = viewModelScope,
         started = WhileSubscribed(),
-        initialValue = 1
+        initialValue = 0
     )
 
     fun startDownload(
