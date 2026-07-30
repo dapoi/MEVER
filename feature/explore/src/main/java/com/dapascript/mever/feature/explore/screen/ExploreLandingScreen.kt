@@ -1,5 +1,10 @@
 package com.dapascript.mever.feature.explore.screen
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement.Center
@@ -20,12 +25,15 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.itemsIndexed
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -37,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.ColorFilter.Companion.tint
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -62,8 +71,11 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
+import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
+import com.dapascript.mever.core.common.util.FadeSide.Bottom
 import com.dapascript.mever.core.common.util.LocalDeviceType
+import com.dapascript.mever.core.common.util.fadingEdge
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.data.model.local.ContentEntity
@@ -72,9 +84,11 @@ import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryCont
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute.Content
 import com.dapascript.mever.feature.explore.viewmodel.ExploreLandingViewModel
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlin.time.Duration.Companion.seconds
 
@@ -87,14 +101,57 @@ internal fun ExploreLandingScreen(
     val context = LocalContext.current
     val deviceType = LocalDeviceType.current
     val exploreResponseState = exploreResponseState.collectAsStateValue()
+    val gridState = rememberLazyStaggeredGridState()
     var contents by rememberSaveable { mutableStateOf<List<ContentEntity>?>(null) }
     var errorMessage by remember { mutableStateOf("") }
     var lastQuery by rememberSaveable { mutableStateOf("") }
+    var titleHeight by rememberSaveable { mutableIntStateOf(0) }
+    var lastExpandedState by rememberSaveable { mutableStateOf(true) }
+    val isExpanded = remember(gridState, titleHeight, contents, lastExpandedState) {
+        derivedStateOf {
+            if (titleHeight == 0) return@derivedStateOf true
+            if (contents == null) return@derivedStateOf lastExpandedState
+
+            val currentExpanded = gridState.firstVisibleItemIndex == 0 &&
+                    gridState.firstVisibleItemScrollOffset < (titleHeight / 2)
+            currentExpanded
+        }
+    }
+    val showBottomFade by remember {
+        derivedStateOf { gridState.canScrollForward }
+    }
+    val expanded by isExpanded
 
     BaseScreen(
-        topBarArgs = TopBarArgs(title = stringResource(R.string.images_finder)),
+        topBarArgs = TopBarArgs(
+            title = if (isExpanded.value.not()) stringResource(R.string.images_finder) else ""
+        ),
         onBackHandler = { navigator.goBack() }
     ) {
+        LaunchedEffect(expanded, contents) {
+            if (contents != null) {
+                lastExpandedState = expanded
+            }
+        }
+
+        LaunchedEffect(gridState, titleHeight) {
+            delay(1.seconds)
+            snapshotFlow { gridState.isScrollInProgress }
+                .distinctUntilChanged()
+                .filter { it.not() }
+                .collect {
+                    if (titleHeight == 0 || gridState.firstVisibleItemIndex > 0) return@collect
+
+                    val threshold = titleHeight / 2
+                    val currentOffset = gridState.firstVisibleItemScrollOffset
+
+                    if (currentOffset in 1 until titleHeight) {
+                        val targetIndex = if (currentOffset < threshold) 0 else 1
+                        gridState.animateScrollToItem(targetIndex)
+                    }
+                }
+        }
+
         LaunchedEffect(query) {
             snapshotFlow { query }
                 .debounce(2.seconds)
@@ -137,31 +194,60 @@ internal fun ExploreLandingScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = Dp64)
+                    .fadingEdge(
+                        side = Bottom,
+                        isVisible = showBottomFade
+                    )
             ) {
-                MeverTextField(
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = Dp24)
-                        .background(colors.whiteDark),
-                    context = context,
-                    value = TextFieldValue(query),
-                    leadingIcon = R.drawable.ic_search,
-                    hint = R.string.keyword_hint,
-                    onValueChange = { query = it.text },
-                    onClickLeadingIcon = {}
-                )
-                Spacer(modifier = Modifier.height(Dp16))
-                HorizontalDivider(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .shadow(Dp3),
-                    thickness = Dp1,
-                    color = colors.blackWhite.copy(alpha = 0.12f)
-                )
+                        .onGloballyPositioned { titleHeight = it.size.height }
+                ) {
+                    Spacer(modifier = Modifier.height(Dp16))
+                    AnimatedVisibility(
+                        visible = expanded,
+                        enter = expandVertically() + fadeIn(),
+                        exit = shrinkVertically() + fadeOut()
+                    ) {
+                        Column {
+                            Text(
+                                text = stringResource(R.string.images_finder),
+                                style = typography.h2.copy(fontSize = Sp32),
+                                color = colors.blackWhite,
+                                modifier = Modifier.padding(horizontal = Dp24)
+                            )
+                            Spacer(modifier = Modifier.height(Dp16))
+                        }
+                    }
+                    MeverTextField(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = Dp24)
+                            .background(colors.whiteDark),
+                        context = context,
+                        value = TextFieldValue(query),
+                        leadingIcon = R.drawable.ic_search,
+                        hint = R.string.keyword_hint,
+                        onValueChange = { query = it.text },
+                        onClickLeadingIcon = {}
+                    )
+                    Spacer(modifier = Modifier.height(Dp16))
+                }
+                if (expanded.not() && titleHeight > 0) {
+                    HorizontalDivider(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .shadow(Dp3),
+                        thickness = Dp1,
+                        color = colors.blackWhite.copy(alpha = 0.12f)
+                    )
+                }
                 Spacer(modifier = Modifier.height(Dp1))
                 contents?.let { result ->
                     if (result.isNotEmpty()) LazyVerticalStaggeredGrid(
                         modifier = Modifier.fillMaxSize(),
+                        state = gridState,
                         columns = if (deviceType == PHONE) StaggeredGridCells.Fixed(2)
                         else StaggeredGridCells.Adaptive(Dp150),
                         contentPadding = PaddingValues(
