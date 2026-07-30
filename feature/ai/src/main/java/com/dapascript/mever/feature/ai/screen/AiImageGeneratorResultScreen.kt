@@ -121,6 +121,7 @@ internal fun AiImageGeneratorResultScreen(
     val aiResponseState = aiResponseState.collectAsStateValue()
     val aiReportState = aiReportState.collectAsStateValue()
     val getButtonClickCount = getButtonClickCount.collectAsStateValue()
+    val adsThreshold = adsThreshold.collectAsStateValue()
     var hasCopied by remember { mutableStateOf(false) }
     var imageResult by remember { mutableStateOf<ImageAiEntity?>(null) }
     var showShimmer by remember { mutableStateOf(true) }
@@ -322,6 +323,7 @@ internal fun AiImageGeneratorResultScreen(
                 onClickRegenerate = {
                     onClickWithAds(
                         buttonClickCount = getButtonClickCount,
+                        adsThreshold = adsThreshold,
                         onIncrementClickCount = { incrementClickCount() },
                         onShowAds = { interstitialAd.showAd() },
                         onClickAction = {

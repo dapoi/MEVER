@@ -32,6 +32,12 @@ class GalleryContentDetailViewModel @Inject constructor(
         initialValue = 0
     )
 
+    val adsThreshold = dataStore.adsThreshold.stateIn(
+        scope = viewModelScope,
+        started = WhileSubscribed(),
+        initialValue = 3
+    )
+
     fun startDownload(
         url: String,
         fileName: String

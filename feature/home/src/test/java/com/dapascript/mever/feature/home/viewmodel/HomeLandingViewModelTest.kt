@@ -57,6 +57,7 @@ class HomeLandingViewModelTest {
         whenever(dataStore.isGoImgEnabled).thenReturn(flowOf(true))
         whenever(dataStore.getYoutubeVideoAndAudioQuality).thenReturn(flowOf(emptyList()))
         whenever(dataStore.clickCount).thenReturn(flowOf(1))
+        whenever(dataStore.adsThreshold).thenReturn(flowOf(3))
         whenever(dataStore.getUrlIntent).thenReturn(flowOf(""))
         whenever(ketch.observeDownloads()).thenReturn(flowOf(emptyList()))
         viewModel = HomeLandingViewModel(dataStore, ketch, repository)

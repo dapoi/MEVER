@@ -196,6 +196,7 @@ internal fun HomeLandingScreen(
         val context = LocalContext.current
         val showBadge = showBadge.collectAsStateValue()
         val getButtonClickCount = getButtonClickCount.collectAsStateValue()
+        val adsThresholdValue = adsThreshold.collectAsStateValue()
         val scope = rememberCoroutineScope()
         val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
         val inAppUpdateManager = remember { InAppUpdateManager(activity) }
@@ -274,6 +275,7 @@ internal fun HomeLandingScreen(
                 scope = scope,
                 navigator = navigator,
                 getButtonClickCount = getButtonClickCount,
+                adsThreshold = adsThresholdValue,
                 showBadge = showBadge,
                 lifecycleOwner = lifecycleOwner,
                 lazyListState = lazyListState
@@ -290,6 +292,7 @@ private fun HomeLandingContent(
     scope: CoroutineScope,
     navigator: Navigator,
     getButtonClickCount: Int,
+    adsThreshold: Int,
     showBadge: Boolean,
     lifecycleOwner: State<LifecycleOwner>,
     modifier: Modifier = Modifier,
@@ -680,6 +683,7 @@ private fun HomeLandingContent(
                         isLoading = showLoading,
                         showSupportedPlatform = showSupportedPlatform,
                         getButtonClickCount = getButtonClickCount,
+                        adsThreshold = adsThreshold,
                         onIncrementClickCount = { incrementClickCount() },
                         urlProvider = { urlSocialMediaState },
                         onShowAds = { url ->
@@ -745,6 +749,7 @@ private fun HomeLandingContent(
                                 isLoading = showLoading,
                                 showSupportedPlatform = showSupportedPlatform,
                                 getButtonClickCount = getButtonClickCount,
+                                adsThreshold = adsThreshold,
                                 onIncrementClickCount = { incrementClickCount() },
                                 urlProvider = { urlSocialMediaState },
                                 onShowAds = { url ->
@@ -826,6 +831,7 @@ private fun DownloaderSection(
     showSupportedPlatform: Boolean,
     isLoading: Boolean,
     getButtonClickCount: Int,
+    adsThreshold: Int,
     modifier: Modifier = Modifier,
     urlProvider: () -> TextFieldValue,
     onIncrementClickCount: () -> Unit,
@@ -920,6 +926,7 @@ private fun DownloaderSection(
                 ) {
                     onClickWithAds(
                         buttonClickCount = getButtonClickCount,
+                        adsThreshold = adsThreshold,
                         onIncrementClickCount = { onIncrementClickCount() },
                         onShowAds = { onShowAds(urlProvider().text.trim()) },
                         onClickAction = { if (isLoading.not()) onClickDownload(urlProvider().text.trim()) }

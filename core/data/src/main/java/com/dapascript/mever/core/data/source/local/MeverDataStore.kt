@@ -98,13 +98,24 @@ class MeverDataStore @Inject constructor(
 
     suspend fun incrementClickCount() {
         dataStore.edit { preferences ->
-            val currentCount = preferences[KEY_CLICK_COUNT] ?: 0
-            preferences[KEY_CLICK_COUNT] = currentCount + 1
+            val threshold = preferences[KEY_ADS_THRESHOLD] ?: DEFAULT_ADS_THRESHOLD
+            val newCount = (preferences[KEY_CLICK_COUNT] ?: 0) + 1
+
+            if (newCount >= threshold) {
+                preferences[KEY_CLICK_COUNT] = 0
+                preferences[KEY_ADS_THRESHOLD] = (MIN_ADS_THRESHOLD..MAX_ADS_THRESHOLD).random()
+            } else {
+                preferences[KEY_CLICK_COUNT] = newCount
+            }
         }
     }
 
     val clickCount = dataStore.data.map { preferences ->
         preferences[KEY_CLICK_COUNT] ?: 0
+    }
+
+    val adsThreshold = dataStore.data.map { preferences ->
+        preferences[KEY_ADS_THRESHOLD] ?: DEFAULT_ADS_THRESHOLD
     }
 
     suspend fun saveUrlIntent(url: String) {
@@ -146,6 +157,10 @@ class MeverDataStore @Inject constructor(
         private val KEY_RESOLUTIONS = stringPreferencesKey("youtube_resolutions")
         private val KEY_THEME = stringPreferencesKey("theme")
         private val KEY_CLICK_COUNT = intPreferencesKey("click_count")
+        private val KEY_ADS_THRESHOLD = intPreferencesKey("ads_threshold")
+        private const val MIN_ADS_THRESHOLD = 2
+        private const val MAX_ADS_THRESHOLD = 4
+        private const val DEFAULT_ADS_THRESHOLD = 3
         private val KEY_URL_INTENT = stringPreferencesKey("url_intent")
         private val KEY_PIP = booleanPreferencesKey("pip_enabled")
         private val KEY_IS_FIRST_CHANGE_LANGUAGE = booleanPreferencesKey("is_first_change_language")

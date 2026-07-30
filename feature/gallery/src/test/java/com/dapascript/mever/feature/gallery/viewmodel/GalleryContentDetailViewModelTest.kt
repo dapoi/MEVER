@@ -45,6 +45,7 @@ class GalleryContentDetailViewModelTest {
 
         whenever(dataStore.isPipEnabled).thenReturn(flowOf(true))
         whenever(dataStore.clickCount).thenReturn(flowOf(1))
+        whenever(dataStore.adsThreshold).thenReturn(flowOf(3))
 
         viewModel = GalleryContentDetailViewModel(ketch, dataStore)
     }

@@ -55,6 +55,12 @@ class AiBackgroundRemovalViewModel @Inject constructor(
         initialValue = 0
     )
 
+    val adsThreshold = dataStore.adsThreshold.stateIn(
+        scope = viewModelScope,
+        started = WhileSubscribed(),
+        initialValue = 3
+    )
+
     private val _backgroundRemovalState = MutableStateFlow<UiState<Bitmap>>(StateInitial)
     val backgroundRemovalState = _backgroundRemovalState.asStateFlow()
 

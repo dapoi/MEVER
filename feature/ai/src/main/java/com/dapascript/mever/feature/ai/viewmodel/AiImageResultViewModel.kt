@@ -39,6 +39,12 @@ class AiImageResultViewModel @Inject constructor(
         initialValue = 0
     )
 
+    val adsThreshold = dataStore.adsThreshold.stateIn(
+        scope = viewModelScope,
+        started = WhileSubscribed(),
+        initialValue = 3
+    )
+
     private val _aiResponseState = MutableStateFlow<UiState<ImageAiEntity?>>(StateInitial)
     val aiResponseState = _aiResponseState.asStateFlow()
 

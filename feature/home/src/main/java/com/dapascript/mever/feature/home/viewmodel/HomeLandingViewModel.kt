@@ -102,6 +102,12 @@ class HomeLandingViewModel @Inject constructor(
         initialValue = 0
     )
 
+    val adsThreshold = dataStore.adsThreshold.stateIn(
+        scope = viewModelScope,
+        started = WhileSubscribed(),
+        initialValue = 3
+    )
+
     val getUrlIntent = dataStore.getUrlIntent.stateIn(
         scope = viewModelScope,
         started = WhileSubscribed(),

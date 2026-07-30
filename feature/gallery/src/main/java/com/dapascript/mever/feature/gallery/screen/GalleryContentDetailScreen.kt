@@ -71,6 +71,7 @@ internal fun GalleryContentDetailScreen(
     val resources = LocalResources.current
     val isPipEnabled = isPipEnabled.collectAsStateValue()
     val getButtonClickCount = getButtonClickCount.collectAsStateValue()
+    val adsThreshold = adsThreshold.collectAsStateValue()
     val scope = rememberCoroutineScope()
     val interstitialAd = rememberInterstitialAd { checkStoragePermissions = getStoragePermission() }
     val darkTheme = MeverTheme.isDarkMode
@@ -223,6 +224,7 @@ internal fun GalleryContentDetailScreen(
                     onClickDownload = { url, filename ->
                         onClickWithAds(
                             buttonClickCount = getButtonClickCount,
+                            adsThreshold = adsThreshold,
                             onIncrementClickCount = {
                                 incrementClickCount()
                                 imageExploreData = Pair(url, sanitizeFilename(filename))

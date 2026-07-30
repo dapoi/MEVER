@@ -123,6 +123,7 @@ internal fun AiBackgroundRemovalScreen(
     val backgroundRemovalState = backgroundRemovalState.collectAsStateValue()
     val saveImageState = saveImageState.collectAsStateValue()
     val getButtonClickCount = getButtonClickCount.collectAsStateValue()
+    val adsThreshold = adsThreshold.collectAsStateValue()
     var isLoading by remember { mutableStateOf(false) }
     var isSaved by rememberSaveable { mutableStateOf(false) }
     var imageUri by rememberSaveable { mutableStateOf<Uri?>(null) }
@@ -327,6 +328,7 @@ internal fun AiBackgroundRemovalScreen(
                                     onSaveImage = {
                                         onClickWithAds(
                                             buttonClickCount = getButtonClickCount,
+                                            adsThreshold = adsThreshold,
                                             onIncrementClickCount = { incrementClickCount() },
                                             onShowAds = { interstitialAd.showAd() },
                                             onClickAction = {
@@ -420,6 +422,7 @@ internal fun AiBackgroundRemovalScreen(
                                             onSaveImage = {
                                                 onClickWithAds(
                                                     buttonClickCount = getButtonClickCount,
+                                                    adsThreshold = adsThreshold,
                                                     onIncrementClickCount = { incrementClickCount() },
                                                     onShowAds = { interstitialAd.showAd() },
                                                     onClickAction = {
