@@ -88,7 +88,7 @@ import com.dapascript.mever.core.common.util.LocalDeviceType
 import com.dapascript.mever.core.common.util.copyToClipboard
 import com.dapascript.mever.core.common.util.fetchPhotoFromUrl
 import com.dapascript.mever.core.common.util.getStoragePermission
-import com.dapascript.mever.core.common.util.handleClickButton
+import com.dapascript.mever.core.common.util.onClickWithAds
 import com.dapascript.mever.core.common.util.navigateToAppSettings
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.shareContent
@@ -320,7 +320,7 @@ internal fun AiImageGeneratorResultScreen(
                     }
                 },
                 onClickRegenerate = {
-                    handleClickButton(
+                    onClickWithAds(
                         buttonClickCount = getButtonClickCount,
                         onIncrementClickCount = { incrementClickCount() },
                         onShowAds = { interstitialAd.showAd() },

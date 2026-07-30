@@ -97,7 +97,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.LocalDeviceType
-import com.dapascript.mever.core.common.util.handleClickButton
+import com.dapascript.mever.core.common.util.onClickWithAds
 import com.dapascript.mever.core.common.util.navigateToSystemGallery
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
@@ -325,7 +325,7 @@ internal fun AiBackgroundRemovalScreen(
                                         }
                                     },
                                     onSaveImage = {
-                                        handleClickButton(
+                                        onClickWithAds(
                                             buttonClickCount = getButtonClickCount,
                                             onIncrementClickCount = { incrementClickCount() },
                                             onShowAds = { interstitialAd.showAd() },
@@ -418,7 +418,7 @@ internal fun AiBackgroundRemovalScreen(
                                                 }
                                             },
                                             onSaveImage = {
-                                                handleClickButton(
+                                                onClickWithAds(
                                                     buttonClickCount = getButtonClickCount,
                                                     onIncrementClickCount = { incrementClickCount() },
                                                     onShowAds = { interstitialAd.showAd() },

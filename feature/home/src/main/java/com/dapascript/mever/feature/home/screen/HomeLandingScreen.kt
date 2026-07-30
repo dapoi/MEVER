@@ -125,7 +125,7 @@ import com.dapascript.mever.core.common.util.formatHighlightedText
 import com.dapascript.mever.core.common.util.getExtensionFromUrl
 import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.getStoragePermission
-import com.dapascript.mever.core.common.util.handleClickButton
+import com.dapascript.mever.core.common.util.onClickWithAds
 import com.dapascript.mever.core.common.util.isMusic
 import com.dapascript.mever.core.common.util.isVideo
 import com.dapascript.mever.core.common.util.navigateToAppSettings
@@ -918,7 +918,7 @@ private fun DownloaderSection(
                     isEnabled = getPlatformType(urlProvider().text.trim()) != ALL && isLoading.not(),
                     isLoading = isLoading
                 ) {
-                    handleClickButton(
+                    onClickWithAds(
                         buttonClickCount = getButtonClickCount,
                         onIncrementClickCount = { onIncrementClickCount() },
                         onShowAds = { onShowAds(urlProvider().text.trim()) },

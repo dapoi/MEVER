@@ -65,7 +65,7 @@ fun Modifier.onCustomClick(
     )
 }
 
-fun handleClickButton(
+fun onClickWithAds(
     buttonClickCount: Int,
     onIncrementClickCount: () -> Unit,
     onShowAds: () -> Unit,

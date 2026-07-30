@@ -40,7 +40,7 @@ import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.convertFilename
 import com.dapascript.mever.core.common.util.getStoragePermission
 import com.dapascript.mever.core.common.util.navigateToAppSettings
-import com.dapascript.mever.core.common.util.handleClickButton
+import com.dapascript.mever.core.common.util.onClickWithAds
 import com.dapascript.mever.core.common.util.sanitizeFilename
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
@@ -221,7 +221,7 @@ internal fun GalleryContentDetailScreen(
                     },
                     onClickBack = { navigator.goBack() },
                     onClickDownload = { url, filename ->
-                        handleClickButton(
+                        onClickWithAds(
                             buttonClickCount = getButtonClickCount,
                             onIncrementClickCount = {
                                 incrementClickCount()
