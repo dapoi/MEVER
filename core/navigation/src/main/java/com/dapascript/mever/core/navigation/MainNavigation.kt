@@ -1,5 +1,8 @@
 package com.dapascript.mever.core.navigation
 
+import androidx.compose.animation.core.Spring.StiffnessMedium
+import androidx.compose.animation.core.VisibilityThreshold
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
@@ -9,6 +12,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSerializable
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavEntryDecorator
@@ -59,19 +63,32 @@ fun MainNavigation(
         entries = navigationState.toEntries(entryProvider),
         onBack = { navigator.goBack() },
         transitionSpec = {
-            slideInHorizontally(initialOffsetX = { it }) togetherWith
-                    slideOutHorizontally(targetOffsetX = { -it })
+            horizontalSlide(initialOffsetX = { it }, targetOffsetX = { -it })
         },
         popTransitionSpec = {
-            slideInHorizontally(initialOffsetX = { -it }) togetherWith
-                    slideOutHorizontally(targetOffsetX = { it })
+            horizontalSlide(initialOffsetX = { -it }, targetOffsetX = { it })
         },
         predictivePopTransitionSpec = {
-            slideInHorizontally(initialOffsetX = { -it }) togetherWith
-                    slideOutHorizontally(targetOffsetX = { it })
+            horizontalSlide(initialOffsetX = { -it }, targetOffsetX = { it })
         }
     )
 }
+
+private val NavSpringSpec = spring(
+    stiffness = StiffnessMedium,
+    visibilityThreshold = IntOffset.VisibilityThreshold
+)
+
+private fun horizontalSlide(
+    initialOffsetX: (Int) -> Int,
+    targetOffsetX: (Int) -> Int
+) = slideInHorizontally(
+    animationSpec = NavSpringSpec,
+    initialOffsetX = initialOffsetX
+) togetherWith slideOutHorizontally(
+    animationSpec = NavSpringSpec,
+    targetOffsetX = targetOffsetX
+)
 
 @Composable
 private fun rememberNavigationState(

@@ -23,7 +23,7 @@ class HomeNavGraphImpl @Inject constructor() : BaseNavGraph {
                 put(NavDisplay.TransitionKey) {
                     slideInVertically(
                         initialOffsetY = { it },
-                        animationSpec = tween(800)
+                        animationSpec = tween(600)
                     ) togetherWith ExitTransition.KeepUntilTransitionsFinished
                 }
             }

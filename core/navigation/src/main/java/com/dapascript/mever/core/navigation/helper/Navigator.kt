@@ -17,7 +17,7 @@ class Navigator(
     val results = _results.asSharedFlow()
 
     private var lastBackPressTime = 0L
-    private val backPressThreshold = 500L
+    private val backPressThreshold = 300L
 
     fun navigate(
         route: NavKey,

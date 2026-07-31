@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -82,7 +83,6 @@ import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
 import com.dapascript.mever.core.common.ui.component.MeverFeatureCard
 import com.dapascript.mever.core.common.ui.component.MeverIcon
-import com.dapascript.mever.core.common.ui.component.MeverImage
 import com.dapascript.mever.core.common.ui.component.MeverPermissionHandler
 import com.dapascript.mever.core.common.ui.component.MeverTopBar
 import com.dapascript.mever.core.common.ui.component.rememberInterstitialAd
@@ -125,11 +125,11 @@ import com.dapascript.mever.core.common.util.formatHighlightedText
 import com.dapascript.mever.core.common.util.getExtensionFromUrl
 import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.getStoragePermission
-import com.dapascript.mever.core.common.util.onClickWithAds
 import com.dapascript.mever.core.common.util.isMusic
 import com.dapascript.mever.core.common.util.isVideo
 import com.dapascript.mever.core.common.util.navigateToAppSettings
 import com.dapascript.mever.core.common.util.navigateToMusic
+import com.dapascript.mever.core.common.util.onClickWithAds
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.pasteFromClipboard
 import com.dapascript.mever.core.common.util.shareContent
@@ -818,9 +818,10 @@ private fun HeaderSection(modifier: Modifier = Modifier) {
                 color = colors.alwaysGray
             )
         }
-        MeverImage(
+        Image(
             modifier = Modifier.weight(1f),
-            source = R.drawable.ic_header
+            painter = painterResource(id = R.drawable.ic_header),
+            contentDescription = null
         )
     }
 }
