@@ -243,17 +243,15 @@ internal fun ExploreLandingScreen(
                         onValueChange = { query = it.text },
                         onClickLeadingIcon = {}
                     )
-                    Spacer(modifier = Modifier.height(Dp16))
+                    Spacer(modifier = Modifier.height(Dp24))
                 }
-                if (expanded.not() && titleHeight > 0) {
-                    HorizontalDivider(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .shadow(Dp3),
-                        thickness = Dp1,
-                        color = colors.blackWhite.copy(alpha = 0.12f)
-                    )
-                }
+                HorizontalDivider(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .shadow(Dp3),
+                    thickness = Dp1,
+                    color = colors.blackWhite.copy(alpha = 0.12f)
+                )
                 Spacer(modifier = Modifier.height(Dp1))
                 contents?.let { result ->
                     if (result.isNotEmpty()) LazyVerticalStaggeredGrid(
