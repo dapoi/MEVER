@@ -13,7 +13,6 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -48,9 +47,7 @@ import com.dapascript.mever.core.common.util.storage.StorageUtil.getStorageInfo
 import com.dapascript.mever.core.common.util.storage.StorageUtil.isStorageFull
 import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
-import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute
 import com.dapascript.mever.feature.gallery.viewmodel.GalleryContentDetailViewModel
-import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 
 @SuppressLint("FrequentlyChangingValue")
@@ -72,7 +69,6 @@ internal fun GalleryContentDetailScreen(
     val isPipEnabled = isPipEnabled.collectAsStateValue()
     val getButtonClickCount = getButtonClickCount.collectAsStateValue()
     val adsThreshold = adsThreshold.collectAsStateValue()
-    val scope = rememberCoroutineScope()
     val interstitialAd = rememberInterstitialAd { checkStoragePermissions = getStoragePermission() }
     val darkTheme = MeverTheme.isDarkMode
 
@@ -115,13 +111,7 @@ internal fun GalleryContentDetailScreen(
             primaryActionLabel = stringResource(R.string.ok),
             onClickPrimaryAction = {
                 errorMessage = ""
-                scope.launch {
-                    startDownload(imageExploreData.first, imageExploreData.second)
-                    val nextPage = pagerState.currentPage + 1
-                    if (nextPage < pagerState.pageCount) {
-                        pagerState.animateScrollToPage(nextPage)
-                    }
-                }
+                navigator.goBack(result = imageExploreData)
             },
             onClickSecondaryAction = { errorMessage = "" }
         )
@@ -134,15 +124,7 @@ internal fun GalleryContentDetailScreen(
                     checkStoragePermissions = emptyList()
                     if (isStorageFull(storageInfo)) {
                         errorMessage = resources.getString(R.string.storage_full)
-                    } else {
-                        startDownload(imageExploreData.first, imageExploreData.second)
-                        navigator.navigate(
-                            route = GalleryLandingRoute,
-                            popUpTo = GalleryContentDetailRoute::class,
-                            isInclusive = true
-                        )
-                        imageExploreData = Pair("", "")
-                    }
+                    } else navigator.goBack(result = imageExploreData)
                 },
                 onDenied = { isPermanentlyDeclined, retry ->
                     MeverDeclinedPermissionDialog(
@@ -198,7 +180,7 @@ internal fun GalleryContentDetailScreen(
                     isPipEnabled = isPipEnabled,
                     isDeletable = isDeletable,
                     onFullScreenChange = { isFullScreen = it },
-                    onClickDelete = { deleteContent(id) },
+                    onClickDelete = { navigator.goBack(result = id) },
                     onClickShare = {
                         shareContent(
                             context = context,
@@ -213,7 +195,7 @@ internal fun GalleryContentDetailScreen(
                     isDownloadable = isDownloadable,
                     isPreview = isPreview,
                     isDeletable = isDeletable,
-                    onClickDelete = { deleteContent(id) },
+                    onClickDelete = { navigator.goBack(result = id) },
                     onClickShare = {
                         shareContent(
                             context = context,

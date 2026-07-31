@@ -222,6 +222,12 @@ internal fun HomeLandingScreen(
             withContext(IO) { storageInfo = getStorageInfo(context) }
         }
 
+        LaunchedEffect(navigator) {
+            navigator.navResult.collect { data ->
+                if (data is Int) delete(data)
+            }
+        }
+
         DisposableEffect(lifecycleOwner) {
             val observer = LifecycleEventObserver { _, event ->
                 if (event == ON_RESUME && isUpdateRefused.not()) {
@@ -341,7 +347,7 @@ private fun HomeLandingContent(
                                 },
                                 initialIndex = downloadList.orEmpty().filterNot {
                                     isMusic(it.fileName)
-                                }.indexOfFirst { it.id == id },
+                                }.indexOfFirst { it.id == id }
                             )
                         )
                     } else {

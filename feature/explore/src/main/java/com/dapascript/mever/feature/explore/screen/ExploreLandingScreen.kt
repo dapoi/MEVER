@@ -78,10 +78,10 @@ import com.dapascript.mever.core.common.util.LocalDeviceType
 import com.dapascript.mever.core.common.util.fadingEdge
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
-import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute.Content
+import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute
 import com.dapascript.mever.feature.explore.viewmodel.ExploreLandingViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
@@ -102,7 +102,6 @@ internal fun ExploreLandingScreen(
     val deviceType = LocalDeviceType.current
     val exploreResponseState = exploreResponseState.collectAsStateValue()
     val gridState = rememberLazyStaggeredGridState()
-    var contents by rememberSaveable { mutableStateOf<List<ContentEntity>?>(null) }
     var errorMessage by remember { mutableStateOf("") }
     var lastQuery by rememberSaveable { mutableStateOf("") }
     var titleHeight by rememberSaveable { mutableIntStateOf(0) }
@@ -150,6 +149,18 @@ internal fun ExploreLandingScreen(
                         gridState.animateScrollToItem(targetIndex)
                     }
                 }
+        }
+
+        LaunchedEffect(navigator) {
+            navigator.navResult.collect { data ->
+                if (data is Pair<*, *>) {
+                    val (url, fileName) = data
+                    if (url is String && fileName is String) {
+                        startDownload(url, fileName)
+                        navigator.navigate(GalleryLandingRoute)
+                    }
+                }
+            }
         }
 
         LaunchedEffect(query) {

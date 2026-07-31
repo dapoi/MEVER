@@ -160,7 +160,10 @@ internal fun GalleryLandingScreen(
             } else emptyList(),
             title = when {
                 showSelector -> stringResource(R.string.total_item_selected, selectedItems.size)
-                isExpanded.value.not() && filteredDownloads.isNullOrEmpty().not() -> stringResource(R.string.gallery)
+                isExpanded.value.not() && filteredDownloads.isNullOrEmpty().not() -> stringResource(
+                    R.string.gallery
+                )
+
                 else -> ""
             },
             isCenterTitle = showSelector.not(),
@@ -190,6 +193,12 @@ internal fun GalleryLandingScreen(
                         listState.animateScrollToItem(targetIndex)
                     }
                 }
+        }
+
+        LaunchedEffect(navigator) {
+            navigator.navResult.collect { data ->
+                if (data is Int) delete(data)
+            }
         }
 
         LaunchedEffect(allDownloads) {

@@ -2,10 +2,7 @@ package com.dapascript.mever.feature.gallery.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
-import com.dapascript.mever.core.common.util.PlatformType.EXPLORE
-import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFolder
 import com.dapascript.mever.core.data.source.local.MeverDataStore
-import com.ketch.Ketch
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.stateIn
@@ -14,11 +11,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class GalleryContentDetailViewModel @Inject constructor(
-    private val ketch: Ketch,
     private val dataStore: MeverDataStore
 ) : BaseViewModel() {
-
-    private val meverFolder by lazy { getMeverFolder() }
 
     val isPipEnabled = dataStore.isPipEnabled.stateIn(
         scope = viewModelScope,
@@ -37,23 +31,6 @@ class GalleryContentDetailViewModel @Inject constructor(
         started = WhileSubscribed(),
         initialValue = 3
     )
-
-    fun startDownload(
-        url: String,
-        fileName: String
-    ) {
-        if (url.isBlank()) return
-        ketch.download(
-            url = url,
-            fileName = "$fileName.jpg",
-            path = meverFolder.path,
-            tag = EXPLORE.platformName
-        )
-    }
-
-    fun deleteContent(id: Int) = viewModelScope.launch {
-        ketch.clearDb(id)
-    }
 
     fun incrementClickCount() = viewModelScope.launch {
         dataStore.incrementClickCount()
