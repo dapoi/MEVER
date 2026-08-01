@@ -710,6 +710,7 @@ private fun HomeLandingContent(
                             .fillMaxWidth()
                             .padding(top = Dp32),
                         featuresCard = featuresCard,
+                        downloadSize = downloadList.orEmpty().size,
                         isPhoneDevice = true
                     ) { route -> navigator.navigate(route) }
                 }
@@ -777,6 +778,7 @@ private fun HomeLandingContent(
                             QuickToolsSection(
                                 modifier = Modifier.weight(1f),
                                 featuresCard = featuresCard,
+                                downloadSize = downloadList.orEmpty().size,
                                 isPhoneDevice = false
                             ) { route -> navigator.navigate(route) }
                             RecentlyDownloadedSection(
@@ -1020,11 +1022,10 @@ private fun DownloaderSection(
 private fun QuickToolsSection(
     featuresCard: List<FeatureCard>,
     isPhoneDevice: Boolean,
+    downloadSize: Int,
     modifier: Modifier = Modifier,
     onClick: (NavKey) -> Unit
 ) {
-    val deviceType = LocalDeviceType.current
-
     Column(
         modifier = modifier,
         verticalArrangement = spacedBy(Dp16)
@@ -1039,7 +1040,7 @@ private fun QuickToolsSection(
                 style = typography.h3,
                 color = colors.blackWhite
             )
-            if (isPhoneDevice) Text(
+            if (isPhoneDevice || downloadSize < 4) Text(
                 modifier = Modifier.onCustomClick {
                     onClick(HomeQuickToolsRoute(featureCards = featuresCard.toSet()))
                 },
@@ -1049,7 +1050,7 @@ private fun QuickToolsSection(
             )
         }
 
-        if (deviceType == PHONE) {
+        if (isPhoneDevice) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -1072,17 +1073,19 @@ private fun QuickToolsSection(
                 }
             }
         } else {
-            featuresCard.forEach { data ->
-                MeverFeatureCard(
-                    modifier = Modifier.fillMaxWidth(),
-                    icon = data.icon,
-                    title = data.featureName,
-                    desc = data.featureDesc,
-                    cardColor = data.toolsType.getCardColor(),
-                    titleStyle = typography.bodyBold2,
-                    descStyle = typography.body3
-                ) { onClick(data.toolsType.getRoute()) }
-            }
+            featuresCard
+                .take(downloadSize.coerceAtLeast(2))
+                .forEach { data ->
+                    MeverFeatureCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        icon = data.icon,
+                        title = data.featureName,
+                        desc = data.featureDesc,
+                        cardColor = data.toolsType.getCardColor(),
+                        titleStyle = typography.bodyBold2,
+                        descStyle = typography.body3
+                    ) { onClick(data.toolsType.getRoute()) }
+                }
         }
     }
 }
