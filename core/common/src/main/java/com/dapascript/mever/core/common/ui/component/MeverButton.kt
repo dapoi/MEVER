@@ -2,7 +2,10 @@ package com.dapascript.mever.core.common.ui.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -17,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap.Companion.Round
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.vectorResource
@@ -25,6 +29,7 @@ import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp15
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp20
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp30
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
@@ -41,6 +46,8 @@ fun MeverButton(
     isLoading: Boolean = false,
     shape: RoundedCornerShape = RoundedCornerShape(Dp30),
     textSize: TextUnit? = null,
+    trailingIcon: Painter? = null,
+    trailingIconTint: Color? = null,
     onClick: () -> Unit
 ) = with(buttonType) {
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -77,12 +84,25 @@ fun MeverButton(
                 )
             }
 
-            title.isNotEmpty() -> Text(
-                text = title,
-                style = textSize?.let { typography.body2.copy(fontSize = it) } ?: typography.body2,
-                color = contentColor,
-                modifier = Modifier.padding(horizontal = Dp15, vertical = Dp4)
-            )
+            title.isNotEmpty() -> Row(
+                modifier = Modifier.padding(horizontal = Dp15, vertical = Dp4),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+            ) {
+                Text(
+                    text = title,
+                    style = textSize?.let { typography.body2.copy(fontSize = it) } ?: typography.body2,
+                    color = contentColor
+                )
+                if (trailingIcon != null) {
+                    Spacer(modifier = Modifier.size(Dp16))
+                    Icon(
+                        painter = trailingIcon,
+                        tint = trailingIconTint ?: contentColor,
+                        contentDescription = null
+                    )
+                }
+            }
 
             else -> Box(
                 modifier = Modifier

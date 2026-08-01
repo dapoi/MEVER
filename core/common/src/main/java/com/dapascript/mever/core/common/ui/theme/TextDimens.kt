@@ -8,6 +8,7 @@ object TextDimens {
     val Sp14 = 14.sp
     val Sp16 = 16.sp
     val Sp18 = 18.sp
+    val Sp19 = 19.sp
     val Sp20 = 20.sp
     val Sp22 = 22.sp
     val Sp26 = 26.sp
