@@ -27,9 +27,9 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.Dimens.DpHalf
 import com.dapascript.mever.core.common.ui.theme.MeverDark
-import com.dapascript.mever.core.common.ui.theme.MeverTheme
-import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
-import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
+import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr
+import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
+import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
 import com.dapascript.mever.core.common.util.onCustomClick
 
 @Composable
@@ -44,7 +44,7 @@ fun MeverFeatureCard(
     descStyle: TextStyle = typography.label3,
     onClick: () -> Unit
 ) {
-    val isDarkMode = MeverTheme.isDarkMode
+    val isDarkMode = MeverThemeAttr.isDarkMode
     Box(
         modifier = modifier
             .border(

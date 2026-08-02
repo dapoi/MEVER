@@ -33,7 +33,7 @@ import com.dapascript.mever.core.common.ui.component.MeverPhotoViewer
 import com.dapascript.mever.core.common.ui.component.MeverVideoPlayer
 import com.dapascript.mever.core.common.ui.component.rememberInterstitialAd
 import com.dapascript.mever.core.common.ui.theme.MeverDark
-import com.dapascript.mever.core.common.ui.theme.MeverTheme
+import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.convertFilename
@@ -70,7 +70,7 @@ internal fun GalleryContentDetailScreen(
     val getButtonClickCount = getButtonClickCount.collectAsStateValue()
     val adsThreshold = adsThreshold.collectAsStateValue()
     val interstitialAd = rememberInterstitialAd { checkStoragePermissions = getStoragePermission() }
-    val isDarkMode = MeverTheme.isDarkMode
+    val isDarkMode = MeverThemeAttr.isDarkMode
 
     BaseScreen(
         hideDefaultTopBar = true,

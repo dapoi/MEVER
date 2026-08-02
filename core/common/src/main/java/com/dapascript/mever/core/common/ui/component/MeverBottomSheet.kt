@@ -38,8 +38,8 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp0
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
-import com.dapascript.mever.core.common.ui.theme.MeverTheme
-import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
+import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr
+import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -121,7 +121,7 @@ fun MeverBottomSheet(
         onDismissRequest = onDismissBottomSheet
     ) {
         val view = LocalView.current
-        val isDarkMode = MeverTheme.isDarkMode
+        val isDarkMode = MeverThemeAttr.isDarkMode
 
         LaunchedEffect(view, isDarkMode) {
             val window = (view.parent as? DialogWindowProvider)?.window

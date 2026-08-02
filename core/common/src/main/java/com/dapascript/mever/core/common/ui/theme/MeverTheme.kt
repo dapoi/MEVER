@@ -21,7 +21,7 @@ enum class ThemeType(val themeResId: Int) {
     Dark(R.string.dark)
 }
 
-object MeverTheme {
+object MeverThemeAttr {
     val typography: MeverTypography
         @Composable
         @ReadOnlyComposable
@@ -39,15 +39,15 @@ object MeverTheme {
 @Composable
 fun MeverTheme(
     deviceType: DeviceType,
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    isDarkMode: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
     val meverTypography = MeverTypography(deviceType)
-    val customColors = if (darkTheme) Dark else Light
+    val customColors = if (isDarkMode) Dark else Light
 
     CompositionLocalProvider(
         LocalTypography provides meverTypography,
         LocalColors provides customColors,
-        LocalIsDarkMode provides darkTheme
+        LocalIsDarkMode provides isDarkMode
     ) { MaterialTheme(content = content) }
 }

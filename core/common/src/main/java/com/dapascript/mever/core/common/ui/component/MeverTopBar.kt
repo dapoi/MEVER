@@ -10,7 +10,7 @@ import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.actions
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.navigationIcon
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.title
-import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
+import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -25,7 +25,7 @@ import androidx.compose.ui.graphics.toArgb
 import com.dapascript.mever.BuildConfig.ADMOB_ID
 import com.dapascript.mever.core.common.ui.theme.MeverDark
 import com.dapascript.mever.core.common.ui.theme.MeverTheme
-import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
+import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.ThemeType.Dark
 import com.dapascript.mever.core.common.ui.theme.ThemeType.Light
@@ -69,16 +69,16 @@ class MainActivity : AppCompatActivity() {
                 Medium -> TABLET
                 else -> DESKTOP
             }
-            val darkTheme = when (themeType) {
+            val isDarkMode = when (themeType) {
                 Light -> false
                 Dark -> true
                 else -> isSystemInDarkTheme()
             }
             MeverTheme(
                 deviceType = deviceType,
-                darkTheme = darkTheme
+                isDarkMode = isDarkMode
             ) {
-                ApplyEdgeToEdgeSystemBars(darkTheme, deviceType)
+                ApplyEdgeToEdgeSystemBars(isDarkMode, deviceType)
                 Surface(modifier = Modifier.fillMaxSize(), color = colors.whiteDark) {
                     CompositionLocalProvider(
                         LocalActivity provides this,
@@ -111,10 +111,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     @Composable
-    private fun ApplyEdgeToEdgeSystemBars(darkTheme: Boolean, deviceType: DeviceType) {
-        LaunchedEffect(darkTheme, deviceType) {
+    private fun ApplyEdgeToEdgeSystemBars(isDarkMode: Boolean, deviceType: DeviceType) {
+        LaunchedEffect(isDarkMode, deviceType) {
             enableEdgeToEdge(
-                statusBarStyle = if (darkTheme) {
+                statusBarStyle = if (isDarkMode) {
                     dark(scrim = MeverTransparent.toArgb())
                 } else {
                     light(
@@ -122,7 +122,7 @@ class MainActivity : AppCompatActivity() {
                         darkScrim = MeverDark.toArgb()
                     )
                 },
-                navigationBarStyle = if (darkTheme) {
+                navigationBarStyle = if (isDarkMode) {
                     dark(scrim = MeverTransparent.toArgb())
                 } else {
                     light(

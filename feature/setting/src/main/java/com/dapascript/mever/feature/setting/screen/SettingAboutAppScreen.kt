@@ -41,9 +41,9 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp52
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp90
 import com.dapascript.mever.core.common.ui.theme.MeverDark
-import com.dapascript.mever.core.common.ui.theme.MeverTheme
-import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
-import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
+import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr
+import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
+import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.LocalActivity
@@ -56,7 +56,7 @@ import java.time.LocalDate
 internal fun SettingAboutAppScreen(navigator: Navigator) {
     val context = LocalContext.current
     val activity = LocalActivity.current
-    val isDarkMode = MeverTheme.isDarkMode
+    val isDarkMode = MeverThemeAttr.isDarkMode
 
     BaseScreen(
         topBarArgs = TopBarArgs(

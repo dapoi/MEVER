@@ -1,7 +1,7 @@
 package com.dapascript.mever.feature.home.screen.attr
 
 import androidx.compose.runtime.Composable
-import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
+import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.navigation.route.AiScreenRoute.AiBackgroundRemovalRoute
 import com.dapascript.mever.core.navigation.route.AiScreenRoute.AiImageGeneratorRoute
 import com.dapascript.mever.core.navigation.route.ExploreScreenRoute.ExploreLandingRoute

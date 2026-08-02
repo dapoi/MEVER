@@ -50,9 +50,9 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp3
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.MeverDark
-import com.dapascript.mever.core.common.ui.theme.MeverTheme
-import com.dapascript.mever.core.common.ui.theme.MeverTheme.colors
-import com.dapascript.mever.core.common.ui.theme.MeverTheme.typography
+import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr
+import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
+import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.util.LanguageManager
@@ -76,7 +76,7 @@ internal fun SettingLanguageScreen(
     val scrollState = rememberScrollState()
     val scope = rememberCoroutineScope()
     val isFirstTimeChangeLanguage = isFirstTimeChangeLanguage.collectAsStateValue()
-    val isDarkMode = MeverTheme.isDarkMode
+    val isDarkMode = MeverThemeAttr.isDarkMode
     var titleHeight by rememberSaveable { mutableIntStateOf(0) }
     val isExpanded by remember { derivedStateOf { scrollState.value < titleHeight / 2 } }
     var languageCode by rememberSaveable { mutableStateOf(args.languageCode) }
