@@ -6,8 +6,6 @@ import androidx.compose.ui.graphics.Color
 val MeverWhite = Color(0xFFFFFFFF)
 val MeverBlack = Color(0xFF171717)
 val MeverTransparent = Color(0x00000000)
-
-// Darks & Grays
 val MeverDark = Color(0xFF1C1C1C)
 val MeverDarkGray = Color(0xFF2C2F34)
 val MeverGray = Color(0xFF8F9095)
