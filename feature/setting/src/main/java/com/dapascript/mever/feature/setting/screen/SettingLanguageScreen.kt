@@ -76,7 +76,7 @@ internal fun SettingLanguageScreen(
     val scrollState = rememberScrollState()
     val scope = rememberCoroutineScope()
     val isFirstTimeChangeLanguage = isFirstTimeChangeLanguage.collectAsStateValue()
-    val darkTheme = MeverTheme.isDarkMode
+    val isDarkMode = MeverTheme.isDarkMode
     var titleHeight by rememberSaveable { mutableIntStateOf(0) }
     val isExpanded by remember { derivedStateOf { scrollState.value < titleHeight / 2 } }
     var languageCode by rememberSaveable { mutableStateOf(args.languageCode) }
@@ -99,9 +99,9 @@ internal fun SettingLanguageScreen(
                 }
         }
 
-        LaunchedEffect(languageCode, darkTheme) {
+        LaunchedEffect(languageCode, isDarkMode) {
             if (languages.any { it.second == languageCode }) activity.enableEdgeToEdge(
-                statusBarStyle = if (darkTheme) {
+                statusBarStyle = if (isDarkMode) {
                     dark(scrim = MeverTransparent.toArgb())
                 } else {
                     light(
@@ -109,7 +109,7 @@ internal fun SettingLanguageScreen(
                         darkScrim = MeverDark.toArgb()
                     )
                 },
-                navigationBarStyle = if (darkTheme) {
+                navigationBarStyle = if (isDarkMode) {
                     dark(scrim = MeverTransparent.toArgb())
                 } else {
                     light(

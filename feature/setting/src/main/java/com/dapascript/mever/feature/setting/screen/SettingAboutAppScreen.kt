@@ -56,7 +56,7 @@ import java.time.LocalDate
 internal fun SettingAboutAppScreen(navigator: Navigator) {
     val context = LocalContext.current
     val activity = LocalActivity.current
-    val darkTheme = MeverTheme.isDarkMode
+    val isDarkMode = MeverTheme.isDarkMode
 
     BaseScreen(
         topBarArgs = TopBarArgs(
@@ -66,14 +66,14 @@ internal fun SettingAboutAppScreen(navigator: Navigator) {
         useStatusBarsPadding = false,
         onBackHandler = { navigator.goBack() }
     ) {
-        DisposableEffect(darkTheme) {
+        DisposableEffect(isDarkMode) {
             activity.enableEdgeToEdge(
                 statusBarStyle = dark(scrim = MeverTransparent.toArgb()),
                 navigationBarStyle = dark(scrim = MeverTransparent.toArgb())
             )
             onDispose {
                 activity.enableEdgeToEdge(
-                    statusBarStyle = if (darkTheme) {
+                    statusBarStyle = if (isDarkMode) {
                         dark(scrim = MeverTransparent.toArgb())
                     } else {
                         light(
@@ -81,7 +81,7 @@ internal fun SettingAboutAppScreen(navigator: Navigator) {
                             darkScrim = MeverDark.toArgb()
                         )
                     },
-                    navigationBarStyle = if (darkTheme) {
+                    navigationBarStyle = if (isDarkMode) {
                         dark(scrim = MeverTransparent.toArgb())
                     } else {
                         light(

@@ -70,7 +70,7 @@ internal fun GalleryContentDetailScreen(
     val getButtonClickCount = getButtonClickCount.collectAsStateValue()
     val adsThreshold = adsThreshold.collectAsStateValue()
     val interstitialAd = rememberInterstitialAd { checkStoragePermissions = getStoragePermission() }
-    val darkTheme = MeverTheme.isDarkMode
+    val isDarkMode = MeverTheme.isDarkMode
 
     BaseScreen(
         hideDefaultTopBar = true,
@@ -78,14 +78,14 @@ internal fun GalleryContentDetailScreen(
         lockOrientation = false,
         onBackHandler = { navigator.goBack() }
     ) {
-        DisposableEffect(darkTheme) {
+        DisposableEffect(isDarkMode) {
             activity.enableEdgeToEdge(
                 statusBarStyle = dark(scrim = MeverTransparent.toArgb()),
                 navigationBarStyle = dark(scrim = MeverTransparent.toArgb())
             )
             onDispose {
                 activity.enableEdgeToEdge(
-                    statusBarStyle = if (darkTheme) {
+                    statusBarStyle = if (isDarkMode) {
                         dark(scrim = MeverTransparent.toArgb())
                     } else {
                         light(
@@ -93,7 +93,7 @@ internal fun GalleryContentDetailScreen(
                             darkScrim = MeverDark.toArgb()
                         )
                     },
-                    navigationBarStyle = if (darkTheme) {
+                    navigationBarStyle = if (isDarkMode) {
                         dark(scrim = MeverTransparent.toArgb())
                     } else {
                         light(
