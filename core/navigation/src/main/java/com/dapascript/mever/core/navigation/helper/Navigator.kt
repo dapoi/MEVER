@@ -2,7 +2,6 @@ package com.dapascript.mever.core.navigation.helper
 
 import android.app.Activity
 import androidx.navigation3.runtime.NavKey
-import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeLandingRoute
 import com.dapascript.mever.core.navigation.route.StartupScreenRoute.OnboardRoute
 import com.dapascript.mever.core.navigation.route.StartupScreenRoute.SplashRoute
 import kotlinx.coroutines.channels.BufferOverflow.DROP_OLDEST
@@ -84,7 +83,6 @@ class Navigator(
         val isRootScreen = currentRoute is OnboardRoute || currentRoute is SplashRoute
 
         when {
-            currentRoute is HomeLandingRoute -> activity?.moveTaskToBack(true)
             isRootScreen -> activity?.finish()
             currentRoute == state.topLevelRoute -> state.topLevelRoute = state.startRoute
             else -> currentBackStack.removeLastOrNull()

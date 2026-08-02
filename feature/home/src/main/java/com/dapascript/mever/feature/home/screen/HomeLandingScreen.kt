@@ -2,6 +2,7 @@ package com.dapascript.mever.feature.home.screen
 
 import android.content.Context
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult
 import androidx.compose.foundation.Image
@@ -366,6 +367,10 @@ private fun HomeLandingContent(
     }
     val interstitialController = rememberInterstitialAd {
         checkStoragePermissions = getStoragePermission()
+    }
+
+    BackHandler {
+        if (showBadge || showLoading) activity.moveTaskToBack(true) else activity.finish()
     }
 
     LaunchedEffect(downloadList) {
