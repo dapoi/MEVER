@@ -102,6 +102,10 @@ internal fun SplashScreen(
             logoVisibleState.targetState = true
         }
 
+        LaunchedEffect(logoVisibleState.targetState) {
+            if (logoVisibleState.targetState) getAppConfig()
+        }
+
         LaunchedEffect(appConfigState) {
             appConfigState.handleUiState(
                 onSuccess = { response ->

@@ -1,6 +1,7 @@
 package com.dapascript.mever.feature.startup.screen
 
 import android.content.pm.PackageManager.PERMISSION_GRANTED
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -74,6 +75,7 @@ import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp50
 import com.dapascript.mever.core.common.util.DeviceType
 import com.dapascript.mever.core.common.util.DeviceType.DESKTOP
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
+import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.LocalDeviceType
 import com.dapascript.mever.core.common.util.formatHighlightedText
 import com.dapascript.mever.core.common.util.getNotificationPermission
@@ -96,6 +98,7 @@ internal fun OnboardScreen(
         onBackHandler = { navigator.goBack() }
     ) {
         var setRequestPermission by remember { mutableStateOf<List<String>>(emptyList()) }
+        val activity = LocalActivity.current
         val context = LocalContext.current
         val deviceType = LocalDeviceType.current
         val pagerState = rememberPagerState(pageCount = { pages.size })
@@ -113,6 +116,14 @@ internal fun OnboardScreen(
                     navigator.navigateToHome()
                 }
             )
+        }
+
+        BackHandler {
+            if (pagerState.currentPage > 0) {
+                scope.launch {
+                    pagerState.animateScrollToPage(pagerState.currentPage - 1)
+                }
+            } else activity.finish()
         }
 
         CompositionLocalProvider(LocalOverscrollFactory provides null) {

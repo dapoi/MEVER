@@ -41,10 +41,6 @@ class SplashScreenViewModel @Inject constructor(
     private val _appConfigState = MutableStateFlow<UiState<AppConfigEntity>>(StateInitial)
     val appConfigState = _appConfigState.asStateFlow()
 
-    init {
-        getAppConfig()
-    }
-
     fun getAppConfig() {
         if (DEBUG) {
             _appConfigState.value = StateLoading
