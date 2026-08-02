@@ -5,7 +5,6 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class AppConfigResponse(
-    val version: String,
     val isForceUpdateRequired: Boolean,
     val isImageGeneratorFeatureActive: Boolean,
     val isGoImgFeatureActive: Boolean,
@@ -15,7 +14,6 @@ data class AppConfigResponse(
     val maintenanceDay: String? = null
 ) {
     fun mapToEntity() = AppConfigEntity(
-        version = version,
         isForceUpdateRequired = isForceUpdateRequired,
         isImageGeneratorFeatureActive = isImageGeneratorFeatureActive,
         isGoImgFeatureActive = isGoImgFeatureActive,

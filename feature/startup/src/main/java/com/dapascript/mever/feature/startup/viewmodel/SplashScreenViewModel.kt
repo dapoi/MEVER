@@ -47,7 +47,6 @@ class SplashScreenViewModel @Inject constructor(
             viewModelScope.launch {
                 delay(1.seconds)
                 val mockAppConfig = AppConfigEntity(
-                    version = "1.0.0",
                     isImageGeneratorFeatureActive = true,
                     isGoImgFeatureActive = true,
                     showSupportedPlatform = true,
