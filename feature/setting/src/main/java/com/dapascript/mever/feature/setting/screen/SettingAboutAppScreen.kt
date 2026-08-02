@@ -124,7 +124,7 @@ private fun SettingAboutAppContent(
             )
             Spacer(modifier = Modifier.height(Dp8))
             Text(
-                text = "Social Media Saver",
+                text = "Media Saver",
                 style = typography.bodyBold2,
                 color = MeverWhite
             )
