@@ -1092,7 +1092,7 @@ private fun BackgroundSelection(
                         contentAlignment = Center
                     ) {
                         Icon(
-                            modifier = Modifier.size(Dp20),
+                            modifier = Modifier.size(Dp24),
                             imageVector = ImageVector.vectorResource(R.drawable.ic_clear),
                             contentDescription = null,
                             tint = colors.blackWhite
@@ -1115,10 +1115,9 @@ private fun BackgroundSelection(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Center
                         ) {
-                            Icon(
-                                modifier = Modifier.size(Dp20),
+                            Image(
+                                modifier = Modifier.size(Dp24),
                                 imageVector = ImageVector.vectorResource(R.drawable.ic_explore_image),
-                                tint = colors.blackWhite,
                                 contentDescription = null
                             )
                         }
@@ -1161,7 +1160,7 @@ private fun BackgroundSelection(
                         contentAlignment = Center
                     ) {
                         Icon(
-                            modifier = Modifier.size(Dp20),
+                            modifier = Modifier.size(Dp24),
                             imageVector = ImageVector.vectorResource(R.drawable.ic_color_picker),
                             tint = colors.alwaysWhite,
                             contentDescription = null
