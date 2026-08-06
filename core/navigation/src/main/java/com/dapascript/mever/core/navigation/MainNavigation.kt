@@ -61,7 +61,7 @@ fun MainNavigation(
 
     NavDisplay(
         entries = navigationState.toEntries(entryProvider),
-        onBack = { navigator.goBack() },
+        onBack = { navigator.navigateBack() },
         transitionSpec = {
             horizontalSlide(initialOffsetX = { it }, targetOffsetX = { -it })
         },

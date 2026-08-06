@@ -115,7 +115,7 @@ internal fun AiImageGeneratorScreen(navigator: Navigator) {
         topBarArgs = TopBarArgs(
             title = if (isExpanded.not()) stringResource(R.string.ai_image_generator) else ""
         ),
-        onBackHandler = { navigator.goBack() }
+        onBackHandler = { navigator.navigateBack() }
     ) {
         CompositionLocalProvider(LocalOverscrollFactory provides null) {
             Column(

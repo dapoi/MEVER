@@ -75,7 +75,7 @@ internal fun GalleryContentDetailScreen(
         hideDefaultTopBar = true,
         useStatusBarsPadding = false,
         lockOrientation = false,
-        onBackHandler = { navigator.goBack() }
+        onBackHandler = { navigator.navigateBack() }
     ) {
         DisposableEffect(isDarkMode) {
             activity.enableEdgeToEdge(
@@ -110,7 +110,7 @@ internal fun GalleryContentDetailScreen(
             primaryActionLabel = stringResource(R.string.ok),
             onClickPrimaryAction = {
                 errorMessage = ""
-                navigator.goBack(result = imageUrl)
+                navigator.navigateBack(result = imageUrl)
             },
             onClickSecondaryAction = { errorMessage = "" }
         )
@@ -123,7 +123,7 @@ internal fun GalleryContentDetailScreen(
                     checkStoragePermissions = emptyList()
                     if (isStorageFull(storageInfo)) {
                         errorMessage = resources.getString(R.string.storage_full)
-                    } else navigator.goBack(result = imageUrl)
+                    } else navigator.navigateBack(result = imageUrl)
                 },
                 onDenied = { isPermanentlyDeclined, retry ->
                     MeverDeclinedPermissionDialog(
@@ -179,14 +179,14 @@ internal fun GalleryContentDetailScreen(
                     isPipEnabled = isPipEnabled,
                     isDeletable = isDeletable,
                     onFullScreenChange = { isFullScreen = it },
-                    onClickDelete = { navigator.goBack(result = id) },
+                    onClickDelete = { navigator.navigateBack(result = id) },
                     onClickShare = {
                         shareContent(
                             context = context,
                             contentPath = media
                         )
                     },
-                    onClickBack = { navigator.goBack() }
+                    onClickBack = { navigator.navigateBack() }
                 ) else MeverPhotoViewer(
                     modifier = itemModifier,
                     fileName = displayFileName(fileName),
@@ -194,14 +194,14 @@ internal fun GalleryContentDetailScreen(
                     isDownloadable = isDownloadable,
                     isPreview = isPreview,
                     isDeletable = isDeletable,
-                    onClickDelete = { navigator.goBack(result = id) },
+                    onClickDelete = { navigator.navigateBack(result = id) },
                     onClickShare = {
                         shareContent(
                             context = context,
                             contentPath = media
                         )
                     },
-                    onClickBack = { navigator.goBack() },
+                    onClickBack = { navigator.navigateBack() },
                     onClickDownload = { url ->
                         onClickWithAds(
                             buttonClickCount = getButtonClickCount,

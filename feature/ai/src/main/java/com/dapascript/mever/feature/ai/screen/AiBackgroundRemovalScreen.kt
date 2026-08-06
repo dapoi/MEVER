@@ -460,7 +460,7 @@ internal fun AiBackgroundRemovalScreen(
 
     BaseScreen(
         topBarArgs = TopBarArgs(title = if (isExpanded.not()) stringResource(R.string.remove_bg) else ""),
-        onBackHandler = { navigator.goBack() }
+        onBackHandler = { navigator.navigateBack() }
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(

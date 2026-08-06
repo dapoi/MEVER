@@ -83,7 +83,7 @@ internal fun SettingFaqScreen(
 
     BaseScreen(
         topBarArgs = TopBarArgs(title = if (isExpanded.not()) stringResource(R.string.faq) else ""),
-        onBackHandler = { navigator.goBack() }
+        onBackHandler = { navigator.navigateBack() }
     ) {
         SettingFaqContent(
             modifier = Modifier

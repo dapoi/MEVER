@@ -64,7 +64,7 @@ internal fun HomeQuickToolsScreen(
 
     BaseScreen(
         topBarArgs = TopBarArgs(title = if (isExpanded.not()) stringResource(R.string.quick_tools) else ""),
-        onBackHandler = { navigator.goBack() }
+        onBackHandler = { navigator.navigateBack() }
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(

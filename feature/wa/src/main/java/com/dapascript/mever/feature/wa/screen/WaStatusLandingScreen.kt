@@ -196,7 +196,7 @@ internal fun WaStatusLandingScreen(
 
     BaseScreen(
         topBarArgs = TopBarArgs(title = if (isExpanded) "" else stringResource(R.string.wa_status)),
-        onBackHandler = { navigator.goBack() }
+        onBackHandler = { navigator.navigateBack() }
     ) {
         LaunchedEffect(listState, titleHeight) {
             delay(500.milliseconds)
@@ -236,9 +236,9 @@ internal fun WaStatusLandingScreen(
             onClickPrimaryAction = {
                 showWaNotInstalledDialog = false
                 navigateToWaStore(activity)
-                navigator.goBack()
+                navigator.navigateBack()
             },
-            onClickSecondaryAction = { navigator.goBack() }
+            onClickSecondaryAction = { navigator.navigateBack() }
         )
 
         WaStatusContent(

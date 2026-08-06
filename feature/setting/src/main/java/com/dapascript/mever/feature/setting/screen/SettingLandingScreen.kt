@@ -147,7 +147,7 @@ internal fun SettingLandingScreen(
         topBarArgs = TopBarArgs(
             title = if (isExpanded.value.not()) stringResource(R.string.settings) else ""
         ),
-        onBackHandler = { navigator.goBack() }
+        onBackHandler = { navigator.navigateBack() }
     ) {
         val menus = remember(context, appVersion) { getSettingMenus(context, appVersion) }
 

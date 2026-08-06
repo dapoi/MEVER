@@ -196,7 +196,7 @@ internal fun HomeLandingScreen(
     BaseScreen(
         hideDefaultTopBar = true,
         useStatusBarsPadding = false,
-        onBackHandler = { navigator.goBack() }
+        onBackHandler = { navigator.navigateBack() }
     ) {
         var isUpdateReady by remember { mutableStateOf(false) }
         var isUpdateRefused by rememberSaveable { mutableStateOf(false) }

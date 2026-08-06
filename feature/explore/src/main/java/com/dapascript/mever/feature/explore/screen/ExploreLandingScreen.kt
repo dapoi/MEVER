@@ -128,7 +128,7 @@ internal fun ExploreLandingScreen(
         topBarArgs = TopBarArgs(
             title = if (isExpanded.value.not()) stringResource(R.string.images_finder) else ""
         ),
-        onBackHandler = { navigator.goBack() }
+        onBackHandler = { navigator.navigateBack() }
     ) {
         LaunchedEffect(expanded, contents) {
             if (contents != null) {
@@ -199,7 +199,7 @@ internal fun ExploreLandingScreen(
                 errorMessage = ""
                 getExploreContents(query.ifEmpty { randomQuery() })
             },
-            onClickSecondaryAction = { navigator.goBack() }
+            onClickSecondaryAction = { navigator.navigateBack() }
         )
 
         Box {

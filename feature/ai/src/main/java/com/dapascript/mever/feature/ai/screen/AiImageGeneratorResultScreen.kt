@@ -163,7 +163,7 @@ internal fun AiImageGeneratorResultScreen(
                 onSuccess = {
                     showLoadingReport = false
                     showReportDialog = false
-                    navigator.goBack()
+                    navigator.navigateBack()
                 },
                 onFailed = { message ->
                     showLoadingReport = false
@@ -177,7 +177,7 @@ internal fun AiImageGeneratorResultScreen(
 
         HandleDialogExitConfirmation(
             showDialog = showCancelExitConfirmation,
-            onClickPrimary = { navigator.goBack() },
+            onClickPrimary = { navigator.navigateBack() },
             onClickSecondary = { showCancelExitConfirmation = false }
         )
 
@@ -218,7 +218,7 @@ internal fun AiImageGeneratorResultScreen(
                 errorMessage = ""
                 getImageAiGenerator(args.prompt, args.artStyle)
             },
-            onClickSecondaryAction = { navigator.goBack() }
+            onClickSecondaryAction = { navigator.navigateBack() }
         )
 
         MeverBottomSheet(

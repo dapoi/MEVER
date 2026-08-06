@@ -50,10 +50,10 @@ class Navigator(
         }
     }
 
-    fun goBack(
+    fun navigateBack(
+        isInclusive: Boolean = false,
         route: Any? = null,
-        result: Any? = null,
-        inclusive: Boolean = false
+        result: Any? = null
     ) {
         result?.let { _navResult.trySend(it) }
         route?.let {
@@ -64,14 +64,14 @@ class Navigator(
                     else -> -1
                 }
                 if (index != -1) {
-                    val removeCount = if (inclusive) stack.size - index else stack.size - index - 1
+                    val removeCount = if (isInclusive) stack.size - index else stack.size - index - 1
                     repeat(removeCount) { stack.removeLastOrNull() }
                 }
             }
-        } ?: goBack()
+        } ?: navigateBack()
     }
 
-    fun goBack() {
+    fun navigateBack() {
         val currentTime = System.currentTimeMillis()
         if (currentTime - lastBackPressTime < backPressThreshold) return
 

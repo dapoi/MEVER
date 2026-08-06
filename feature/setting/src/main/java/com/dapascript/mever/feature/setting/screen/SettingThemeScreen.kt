@@ -68,7 +68,7 @@ internal fun SettingThemeScreen(
 
     BaseScreen(
         topBarArgs = TopBarArgs(title = if (isExpanded.not()) stringResource(R.string.theme) else ""),
-        onBackHandler = { navigator.goBack() }
+        onBackHandler = { navigator.navigateBack() }
     ) {
         LaunchedEffect(scrollState, titleHeight) {
             snapshotFlow { scrollState.isScrollInProgress }

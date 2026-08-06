@@ -64,7 +64,7 @@ internal fun SettingAboutAppScreen(navigator: Navigator) {
             iconBackColor = MeverWhite
         ),
         useStatusBarsPadding = false,
-        onBackHandler = { navigator.goBack() }
+        onBackHandler = { navigator.navigateBack() }
     ) {
         DisposableEffect(isDarkMode) {
             activity.enableEdgeToEdge(

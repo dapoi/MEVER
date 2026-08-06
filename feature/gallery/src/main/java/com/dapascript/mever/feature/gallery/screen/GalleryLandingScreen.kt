@@ -175,7 +175,7 @@ internal fun GalleryLandingScreen(
                 showSelector = false
                 showDropDownMenu = false
                 clearSelection()
-            } else navigator.goBack()
+            } else navigator.navigateBack()
         }
     ) {
         LaunchedEffect(listState, titleHeight) {

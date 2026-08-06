@@ -72,7 +72,7 @@ internal fun SplashScreen(
         hideDefaultTopBar = true,
         useStatusBarsPadding = false,
         backgroundColor = MeverPurple,
-        onBackHandler = { navigator.goBack() }
+        onBackHandler = { navigator.navigateBack() }
     ) {
         val isOnboarded = isOnboarded.collectAsStateValue()
         val appConfigState = appConfigState.collectAsStateValue()

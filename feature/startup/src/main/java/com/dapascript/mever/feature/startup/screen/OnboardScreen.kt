@@ -95,7 +95,7 @@ internal fun OnboardScreen(
     BaseScreen(
         hideDefaultTopBar = true,
         useStatusBarsPadding = false,
-        onBackHandler = { navigator.goBack() }
+        onBackHandler = { navigator.navigateBack() }
     ) {
         var setRequestPermission by remember { mutableStateOf<List<String>>(emptyList()) }
         val activity = LocalActivity.current
