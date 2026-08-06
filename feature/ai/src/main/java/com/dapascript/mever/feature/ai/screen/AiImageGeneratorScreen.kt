@@ -320,7 +320,7 @@ private fun HeaderSection(
         }
         Text(
             modifier = Modifier.padding(bottom = Dp24),
-            text = stringResource(R.string.image_generator_desc),
+            text = stringResource(R.string.ai_image_generator_desc),
             style = typography.body2,
             color = colors.grayLightGray
         )
