@@ -8,7 +8,6 @@ import com.dapascript.mever.core.common.ui.theme.MeverLightBlue
 import com.dapascript.mever.core.common.ui.theme.MeverLightPurple
 import com.dapascript.mever.core.common.ui.theme.MeverPink
 import com.dapascript.mever.core.common.ui.theme.MeverViolet
-import com.dapascript.mever.core.common.util.getAppVersion
 import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.SettingMenus.SubMenu
 
 object SettingLandingAttr {
@@ -25,7 +24,10 @@ object SettingLandingAttr {
         )
     }
 
-    fun getSettingMenus(context: Context) = with(context){
+    fun getSettingMenus(
+        context: Context,
+        appVersion: String
+    ) = with(context){
         listOf(
             SettingMenus(
                 header = R.string.application,
@@ -90,7 +92,7 @@ object SettingLandingAttr {
                     ),
                     SubMenu(
                         leadingTitle = getString(R.string.about),
-                        leadingDesc = getAppVersion(context),
+                        leadingDesc = appVersion,
                         icon = R.drawable.ic_about,
                         iconBackgroundColor = MeverViolet
                     )

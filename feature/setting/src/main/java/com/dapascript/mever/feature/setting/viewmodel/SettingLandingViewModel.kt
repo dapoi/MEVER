@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.ui.theme.ThemeType.System
+import com.dapascript.mever.core.common.util.getAppVersion
 import com.dapascript.mever.core.common.util.storage.StorageUtil.StorageInfo
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getStorageInfo
 import com.dapascript.mever.core.data.source.local.MeverDataStore
@@ -28,6 +29,7 @@ class SettingLandingViewModel @Inject constructor(
 ) : BaseViewModel() {
     var languageCode by mutableStateOf("en")
     var animatedPercent by mutableFloatStateOf(0f)
+    var appVersion by mutableStateOf("")
 
     val themeType = dataStore.getTheme.stateIn(
         scope = viewModelScope,
@@ -44,10 +46,9 @@ class SettingLandingViewModel @Inject constructor(
     private val _storageInfo = MutableStateFlow<StorageInfo?>(null)
     val storageInfo = _storageInfo.asStateFlow()
 
-    init {
-        viewModelScope.launch(IO) {
-            _storageInfo.value = getStorageInfo(context)
-        }
+    fun fetchStorageInfo() = viewModelScope.launch(IO) {
+        appVersion = getAppVersion(context)
+        _storageInfo.value = getStorageInfo(context)
     }
 
     fun savePipState(isPipEnabled: Boolean) = viewModelScope.launch {

@@ -3,16 +3,11 @@ package com.dapascript.mever.feature.setting.screen
 import android.content.Context
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.text.format.Formatter
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
@@ -39,7 +34,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -50,10 +44,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap.Companion.Butt
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
@@ -77,7 +69,6 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp150
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp28
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp3
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
@@ -115,6 +106,7 @@ import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingAbou
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingFaqRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLandingRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLanguageRoute
+import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr
 import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.getSettingMenus
 import com.dapascript.mever.feature.setting.screen.component.HandleBottomSheetQris
 import com.dapascript.mever.feature.setting.viewmodel.SettingLandingViewModel
@@ -123,7 +115,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
 
 @Composable
 internal fun SettingLandingScreen(
@@ -143,12 +134,10 @@ internal fun SettingLandingScreen(
     val statusColor = remember(storageInfo?.usedPercent) {
         getStatusStorageColor(storageInfo?.usedPercent ?: 0)
     }
-    var titleHeight by rememberSaveable { mutableIntStateOf(0) }
     var showPaypalDialog by remember { mutableStateOf(false) }
-    val isExpanded = remember(listState, titleHeight) {
+    val isExpanded = remember(listState) {
         derivedStateOf {
-            if (titleHeight == 0) return@derivedStateOf true
-            listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset < (titleHeight / 2)
+            listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset < 150
         }
     }
     var showBottomSheetQris by rememberSaveable { mutableStateOf<Boolean?>(null) }
@@ -160,28 +149,33 @@ internal fun SettingLandingScreen(
         ),
         onBackHandler = { navigator.goBack() }
     ) {
-        LaunchedEffect(listState, titleHeight) {
-            delay(1.seconds)
+        val menus = remember(context, appVersion) { getSettingMenus(context, appVersion) }
+
+        LaunchedEffect(Unit) {
+            fetchStorageInfo()
+        }
+
+        LaunchedEffect(listState) {
             snapshotFlow { listState.isScrollInProgress }
                 .distinctUntilChanged()
                 .filter { it.not() }
                 .collect {
-                    if (titleHeight == 0 || listState.firstVisibleItemIndex > 0) return@collect
+                    if (listState.firstVisibleItemIndex > 0) return@collect
 
-                    val threshold = titleHeight / 2
+                    val threshold = 150
                     val currentOffset = listState.firstVisibleItemScrollOffset
 
-                    if (currentOffset in 1 until titleHeight) {
-                        val targetIndex = if (currentOffset < threshold) 0 else 1
+                    if (currentOffset in 1 until threshold) {
+                        val targetIndex = if (currentOffset < threshold / 2) 0 else 1
                         listState.animateScrollToItem(targetIndex)
                     }
                 }
         }
 
         LaunchedEffect(storageInfo?.usedPercent) {
-            delay(300.milliseconds)
             storageInfo?.usedPercent?.let {
-                animatedPercent = storageInfo.usedPercent / 100f
+                delay(300.milliseconds)
+                animatedPercent = it / 100f
             }
         }
 
@@ -240,7 +234,6 @@ internal fun SettingLandingScreen(
                 .fillMaxSize()
                 .padding(top = Dp64),
             context = context,
-            titleHeight = titleHeight,
             animatedPercent = animatedPercent,
             statusColor = statusColor,
             deviceType = deviceType,
@@ -249,6 +242,7 @@ internal fun SettingLandingScreen(
             getLanguageCode = languageCode,
             themeType = themeType,
             storageInfo = storageInfo,
+            menus = menus,
             isExpanded = { isExpanded.value },
             onClickChangeLanguage = { languageCode ->
                 navigator.navigate(SettingLanguageRoute(languageCode))
@@ -271,8 +265,7 @@ internal fun SettingLandingScreen(
             onClickQris = { showBottomSheetQris = true },
             onClickFaq = { navigator.navigate(SettingFaqRoute) },
             onClickContact = { navigateToGmail(context) },
-            onClickAbout = { navigator.navigate(SettingAboutAppRoute) },
-            onSetTitleHeight = { titleHeight = it }
+            onClickAbout = { navigator.navigate(SettingAboutAppRoute) }
         )
     }
 }
@@ -280,7 +273,6 @@ internal fun SettingLandingScreen(
 @Composable
 private fun SettingLandingContent(
     context: Context,
-    titleHeight: Int,
     animatedPercent: Float,
     statusColor: Color,
     deviceType: DeviceType,
@@ -289,6 +281,7 @@ private fun SettingLandingContent(
     getLanguageCode: String,
     themeType: ThemeType,
     storageInfo: StorageInfo?,
+    menus: List<SettingLandingAttr.SettingMenus>,
     modifier: Modifier = Modifier,
     isExpanded: () -> Boolean,
     onClickChangeLanguage: (String) -> Unit,
@@ -300,10 +293,8 @@ private fun SettingLandingContent(
     onClickQris: () -> Unit,
     onClickFaq: () -> Unit,
     onClickContact: () -> Unit,
-    onClickAbout: () -> Unit,
-    onSetTitleHeight: (Int) -> Unit
+    onClickAbout: () -> Unit
 ) = CompositionLocalProvider(LocalOverscrollFactory provides null) {
-    val menus = remember(context) { getSettingMenus(context) }
     val showBottomFade by remember {
         derivedStateOf { listState.canScrollForward }
     }
@@ -314,11 +305,9 @@ private fun SettingLandingContent(
             isVisible = showBottomFade
         )
     ) {
-        if (isExpanded().not() && titleHeight > 0) {
+        if (isExpanded().not()) {
             HorizontalDivider(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .shadow(Dp3),
+                modifier = Modifier.fillMaxWidth(),
                 thickness = Dp1,
                 color = colors.blackWhite.copy(alpha = 0.12f)
             )
@@ -329,16 +318,12 @@ private fun SettingLandingContent(
             contentPadding = PaddingValues(bottom = Dp32)
         ) {
             item {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .onGloballyPositioned { onSetTitleHeight(it.size.height) }
-                ) {
+                Column(modifier = Modifier.fillMaxWidth()) {
                     Spacer(modifier = Modifier.height(Dp16))
                     AnimatedVisibility(
                         visible = isExpanded(),
-                        enter = expandVertically() + fadeIn(),
-                        exit = shrinkVertically() + fadeOut()
+                        enter = fadeIn(),
+                        exit = fadeOut()
                     ) {
                         Text(
                             text = stringResource(R.string.settings),
@@ -350,23 +335,19 @@ private fun SettingLandingContent(
                 }
             }
             item {
-                AnimatedContent(
-                    targetState = storageInfo != null,
-                    transitionSpec = {
-                        (fadeIn() togetherWith fadeOut()).using(SizeTransform(clip = false))
-                    },
-                    label = "StorageSectionAnimation"
-                ) { completedFetching ->
-                    if (completedFetching) AvailableStorageSection(
+                if (storageInfo != null) {
+                    AvailableStorageSection(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = Dp24, vertical = Dp32),
                         context = context,
-                        storageInfo = storageInfo!!,
+                        storageInfo = storageInfo,
                         animatedPercent = animatedPercent,
                         statusColor = statusColor,
                         deviceType = deviceType
-                    ) else StorageSectionLoading(
+                    )
+                } else {
+                    StorageSectionLoading(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = Dp24, vertical = Dp32),
@@ -385,7 +366,8 @@ private fun SettingLandingContent(
                 }
                 items(
                     items = menus,
-                    key = { menu -> menu.leadingTitle }
+                    key = { menu -> menu.leadingTitle },
+                    contentType = { "menu_item" }
                 ) { menu ->
                     val trailingTitle = remember(menu, getLanguageCode, themeType) {
                         menu.trailingTitle?.let {
