@@ -78,6 +78,7 @@ import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.LocalDeviceType
 import com.dapascript.mever.core.common.util.PlatformType
 import com.dapascript.mever.core.common.util.PlatformType.ALL
+import com.dapascript.mever.core.common.util.PlatformType.EXPLORE
 import com.dapascript.mever.core.common.util.isMusic
 import com.dapascript.mever.core.common.util.isVideo
 import com.dapascript.mever.core.common.util.navigateToMusic
@@ -700,7 +701,7 @@ private fun FilterContent(
                 .filterNot { it == ALL }
                 .forEach { type ->
                     MeverButton(
-                        title = type.platformName,
+                        title = if (type == EXPLORE) stringResource(R.string.images_finder) else type.platformName,
                         shape = RoundedCornerShape(Dp64),
                         buttonType = getButtonType(selectedFilter == type)
                     ) { onClickFilter(type) }
