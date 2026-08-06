@@ -84,7 +84,7 @@ fun MeverPhotoViewer(
     onClickBack: () -> Unit,
     onClickDelete: () -> Unit,
     onClickShare: () -> Unit,
-    onClickDownload: (String, String) -> Unit
+    onClickDownload: (String) -> Unit
 ) {
     val context = LocalContext.current
     val activity = LocalActivity.current
@@ -167,7 +167,7 @@ fun MeverPhotoViewer(
                 backgroundColor = colors.alwaysPurple,
                 contentColor = colors.alwaysWhite
             )
-        ) { onClickDownload(image, fileName) }
+        ) { onClickDownload(image) }
         AnimatedVisibility(
             visible = isPhotoTouched.not(),
             enter = fadeIn(),

@@ -8,7 +8,9 @@ import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.util.BackgroundRemovalProcessor
 import com.dapascript.mever.core.common.util.PlatformType.AI
+import com.dapascript.mever.core.common.util.addBackground
 import com.dapascript.mever.core.common.util.changeToCurrentDate
+import com.dapascript.mever.core.common.util.decodeResizedBitmap
 import com.dapascript.mever.core.common.util.saveBitmapToFile
 import com.dapascript.mever.core.common.util.state.ApiState
 import com.dapascript.mever.core.common.util.state.UiState
@@ -30,6 +32,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.timeout
 import kotlinx.coroutines.launch
@@ -67,6 +71,23 @@ class AiBackgroundRemovalViewModel @Inject constructor(
     private val _saveImageState = MutableStateFlow<UiState<SaveResult>>(StateInitial)
     val saveImageState = _saveImageState.asStateFlow()
 
+    private val _selectedBackground =
+        MutableStateFlow<BgRemovalBackground>(BgRemovalBackground.Transparent)
+    val selectedBackground = _selectedBackground.asStateFlow()
+
+    fun selectBackground(background: BgRemovalBackground) {
+        _selectedBackground.value = background
+    }
+
+    fun loadBackgroundBitmap(context: Context, uri: Uri) {
+        viewModelScope.launch {
+            val bitmap = decodeResizedBitmap(context.contentResolver, uri, 1024, 1024)
+            if (bitmap != null) {
+                _selectedBackground.value = BgRemovalBackground.Image(uri, bitmap)
+            }
+        }
+    }
+
     fun removeBackground(context: Context, imageUri: Uri) {
         _backgroundRemovalState.value = StateLoading
         viewModelScope.launch {
@@ -79,23 +100,30 @@ class AiBackgroundRemovalViewModel @Inject constructor(
         }
     }
 
-    @OptIn(FlowPreview::class)
+    @OptIn(FlowPreview::class, kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     fun saveImage(context: Context, bitmap: Bitmap) {
         val timeStamp = changeToCurrentDate(currentTimeMillis())
-        val fileName = "MEVER_BG_REMOVAL_$timeStamp.png"
+        val fileName = "MEVER_$timeStamp.png"
+        var merged: Bitmap? = null
 
         collectApiAsUiState(
-            response = repository.uploadImage(bitmap, fileName)
-                .timeout(5.seconds)
-                .catch { e ->
-                    if (e is TimeoutCancellationException) {
-                        emit(ApiState.Error(Throwable("Fetch timeout")))
-                    } else {
-                        throw e
+            response = flow {
+                val mergedBitmap = mergeWithBackground(bitmap)
+                merged = mergedBitmap
+                emit(mergedBitmap)
+            }.flatMapLatest { mergedBitmap ->
+                repository.uploadImage(mergedBitmap, fileName)
+                    .timeout(20.seconds)
+                    .catch { e ->
+                        if (e is TimeoutCancellationException) {
+                            emit(ApiState.Error(Throwable("Fetch timeout")))
+                        } else {
+                            throw e
+                        }
                     }
-                },
+            },
             onLoading = { _saveImageState.value = StateLoading },
-            onSuccess = { url ->
+            onSuccess = { url: String? ->
                 if (url != null) {
                     ketch.download(
                         url = url,
@@ -106,10 +134,18 @@ class AiBackgroundRemovalViewModel @Inject constructor(
                     )
                     _saveImageState.value = StateSuccess(SaveResult(IN_APP, fileName))
                 } else {
-                    viewModelScope.launch { saveImageLocally(context, bitmap, fileName) }
+                    merged?.let { saveImageLocally(context, it, fileName) }
                 }
             },
-            onFailed = { viewModelScope.launch { saveImageLocally(context, bitmap, fileName) } },
+            onFailed = {
+                merged?.let {
+                    saveImageLocally(
+                        context,
+                        it,
+                        fileName
+                    )
+                }
+            },
             onReset = { _saveImageState.value = StateInitial }
         )
     }
@@ -117,6 +153,7 @@ class AiBackgroundRemovalViewModel @Inject constructor(
     fun reset() {
         _backgroundRemovalState.value = StateInitial
         _saveImageState.value = StateInitial
+        _selectedBackground.value = BgRemovalBackground.Transparent
     }
 
     fun incrementClickCount() = viewModelScope.launch {
@@ -125,6 +162,7 @@ class AiBackgroundRemovalViewModel @Inject constructor(
 
     fun saveToCache(context: Context, bitmap: Bitmap, onResult: (String?) -> Unit) {
         viewModelScope.launch {
+            val mergedBitmap = mergeWithBackground(bitmap)
             withContext(IO) {
                 context.cacheDir.listFiles { file ->
                     file.name.startsWith("temp_bg_removal_") && file.name.endsWith(".png")
@@ -134,13 +172,24 @@ class AiBackgroundRemovalViewModel @Inject constructor(
             val fileName = "temp_bg_removal_${currentTimeMillis()}.png"
             val cacheFile = File(context.cacheDir, fileName)
             val isSuccess = withContext(IO) {
-                saveBitmapToFile(bitmap, cacheFile, true)
+                saveBitmapToFile(mergedBitmap, cacheFile, true)
             }
             if (isSuccess) {
                 onResult(cacheFile.absolutePath)
             } else {
                 onResult(null)
             }
+        }
+    }
+
+    private suspend fun mergeWithBackground(bitmap: Bitmap) = withContext(IO) {
+        when (val bg = _selectedBackground.value) {
+            is BgRemovalBackground.Color -> bitmap.addBackground(bg.color)
+            is BgRemovalBackground.Image -> bg.bitmap?.let {
+                bitmap.addBackground(it)
+            } ?: bitmap
+
+            else -> bitmap
         }
     }
 
@@ -164,5 +213,11 @@ class AiBackgroundRemovalViewModel @Inject constructor(
 
     enum class ImageLocation {
         IN_APP, GALLERY
+    }
+
+    sealed class BgRemovalBackground {
+        object Transparent : BgRemovalBackground()
+        data class Color(val color: Int) : BgRemovalBackground()
+        data class Image(val uri: Uri, val bitmap: Bitmap? = null) : BgRemovalBackground()
     }
 }

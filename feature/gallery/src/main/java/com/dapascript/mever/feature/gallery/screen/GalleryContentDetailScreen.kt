@@ -36,11 +36,10 @@ import com.dapascript.mever.core.common.ui.theme.MeverDark
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.util.LocalActivity
-import com.dapascript.mever.core.common.util.convertFilename
+import com.dapascript.mever.core.common.util.displayFileName
 import com.dapascript.mever.core.common.util.getStoragePermission
 import com.dapascript.mever.core.common.util.navigateToAppSettings
 import com.dapascript.mever.core.common.util.onClickWithAds
-import com.dapascript.mever.core.common.util.sanitizeFilename
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getStorageInfo
@@ -60,7 +59,7 @@ internal fun GalleryContentDetailScreen(
 ) = with(viewModel) {
     var isFullScreen by rememberSaveable { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
-    var imageExploreData by remember { mutableStateOf(Pair("", "")) }
+    var imageUrl by remember { mutableStateOf("") }
     var checkStoragePermissions by remember { mutableStateOf<List<String>>(emptyList()) }
     val pagerState = rememberPagerState(args.initialIndex) { args.contents.size }
     val context = LocalContext.current
@@ -111,7 +110,7 @@ internal fun GalleryContentDetailScreen(
             primaryActionLabel = stringResource(R.string.ok),
             onClickPrimaryAction = {
                 errorMessage = ""
-                navigator.goBack(result = imageExploreData)
+                navigator.goBack(result = imageUrl)
             },
             onClickSecondaryAction = { errorMessage = "" }
         )
@@ -124,7 +123,7 @@ internal fun GalleryContentDetailScreen(
                     checkStoragePermissions = emptyList()
                     if (isStorageFull(storageInfo)) {
                         errorMessage = resources.getString(R.string.storage_full)
-                    } else navigator.goBack(result = imageExploreData)
+                    } else navigator.goBack(result = imageUrl)
                 },
                 onDenied = { isPermanentlyDeclined, retry ->
                     MeverDeclinedPermissionDialog(
@@ -170,7 +169,7 @@ internal fun GalleryContentDetailScreen(
             with(content) {
                 if (isVideo) MeverVideoPlayer(
                     modifier = itemModifier,
-                    fileName = convertFilename(fileName),
+                    fileName = displayFileName(fileName),
                     video = media,
                     isPreview = isPreview,
                     isPageVisible = pagerState.currentPage == page,
@@ -190,7 +189,7 @@ internal fun GalleryContentDetailScreen(
                     onClickBack = { navigator.goBack() }
                 ) else MeverPhotoViewer(
                     modifier = itemModifier,
-                    fileName = convertFilename(fileName),
+                    fileName = displayFileName(fileName),
                     image = media,
                     isDownloadable = isDownloadable,
                     isPreview = isPreview,
@@ -203,13 +202,13 @@ internal fun GalleryContentDetailScreen(
                         )
                     },
                     onClickBack = { navigator.goBack() },
-                    onClickDownload = { url, filename ->
+                    onClickDownload = { url ->
                         onClickWithAds(
                             buttonClickCount = getButtonClickCount,
                             adsThreshold = adsThreshold,
                             onIncrementClickCount = {
                                 incrementClickCount()
-                                imageExploreData = Pair(url, sanitizeFilename(filename))
+                                imageUrl = url
                             },
                             onShowAds = { interstitialAd.showAd() },
                             onClickAction = { checkStoragePermissions = getStoragePermission() }

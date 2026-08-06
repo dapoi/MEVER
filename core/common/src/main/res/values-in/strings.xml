@@ -139,6 +139,12 @@
     <string name="wa_status_desc">Lihat status sebelum dihapus.</string>
     <string name="remove_bg">Hapus Belakang</string>
     <string name="remove_bg_desc">Buat gambar jadi transparan.</string>
+    <string name="change_bg">Ganti Latar</string>
+    <string name="custom_color">Warna Kustom</string>
+    <string name="choose_color">Pilih Warna</string>
+    <string name="hue">Warna</string>
+    <string name="saturation">Kejenuhan</string>
+    <string name="value">Kecerahan</string>
     <string name="images_finder">Cari Gambar</string>
     <string name="images_finder_desc">Temukan gambar menarik dari berbagai sumber di internet.</string>
     <string name="ai_image_generator">Pembuat Gambar AI</string>

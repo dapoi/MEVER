@@ -73,7 +73,8 @@ fun MeverDialog(
     primaryActionColor: Color? = null,
     secondaryActionColor: Color? = null,
     onClickPrimaryAction: (() -> Unit)? = null,
-    onClickSecondaryAction: (() -> Unit)? = null
+    onClickSecondaryAction: (() -> Unit)? = null,
+    content: @Composable (() -> Unit)? = null
 ) {
     val currentPrimary = rememberUpdatedState(onClickPrimaryAction)
     val currentSecondary = rememberUpdatedState(onClickSecondaryAction)
@@ -147,7 +148,8 @@ fun MeverDialog(
                             onClickSecondaryAction = {
                                 currentSecondary.value?.invoke()
                                 showAnimatedDialog = false
-                            }
+                            },
+                            content = content
                         )
                     }
 
@@ -173,7 +175,8 @@ private fun DialogContent(
     primaryActionColor: Color?,
     secondaryActionColor: Color?,
     onClickPrimaryAction: (() -> Unit)?,
-    onClickSecondaryAction: (() -> Unit)?
+    onClickSecondaryAction: (() -> Unit)?,
+    content: @Composable (() -> Unit)? = null
 ) = Column(
     modifier = Modifier
         .background(backgroundColor ?: colors.whiteDark)
@@ -206,6 +209,7 @@ private fun DialogContent(
             color = descriptionColor ?: colors.blackWhite
         )
     }
+    content?.invoke()
     Row(
         modifier = Modifier.height(Min),
         verticalAlignment = CenterVertically,

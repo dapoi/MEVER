@@ -75,6 +75,7 @@ import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.FadeSide.Bottom
 import com.dapascript.mever.core.common.util.LocalDeviceType
+import com.dapascript.mever.core.common.util.changeToCurrentDate
 import com.dapascript.mever.core.common.util.fadingEdge
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
@@ -90,6 +91,8 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
+import java.lang.System.currentTimeMillis
+import kotlin.text.ifEmpty
 import kotlin.time.Duration.Companion.seconds
 
 @OptIn(FlowPreview::class)
@@ -152,13 +155,12 @@ internal fun ExploreLandingScreen(
         }
 
         LaunchedEffect(navigator) {
-            navigator.navResult.collect { data ->
-                if (data is Pair<*, *>) {
-                    val (url, fileName) = data
-                    if (url is String && fileName is String) {
-                        startDownload(url, fileName)
-                        navigator.navigate(GalleryLandingRoute)
-                    }
+            navigator.navResult.collect { url ->
+                if (url is String) {
+                    val timeStamp = changeToCurrentDate(currentTimeMillis())
+                    val fileName = "MEVER_${timeStamp}.jpg"
+                    startDownload(url, fileName)
+                    navigator.navigate(GalleryLandingRoute)
                 }
             }
         }

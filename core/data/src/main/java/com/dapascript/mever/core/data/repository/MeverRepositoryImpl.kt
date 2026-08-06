@@ -21,6 +21,7 @@ import com.dapascript.mever.core.data.source.remote.ApiService
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody.Part.Companion.createFormData
 import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 import javax.inject.Inject
 
@@ -66,8 +67,8 @@ class MeverRepositoryImpl @Inject constructor(
             val isSaved = saveBitmapToFile(bitmap, cacheFile, true)
             if (isSaved.not()) throw Exception("Failed to save bitmap to cache")
 
-            val reqType = createFormData("reqtype", "fileupload")
-            val time = createFormData("time", "1h")
+            val reqType = "fileupload".toRequestBody("text/plain".toMediaTypeOrNull())
+            val time = "1h".toRequestBody("text/plain".toMediaTypeOrNull())
             val mimeType = getContentTypeFromFile(cacheFile)
             val requestFile = cacheFile.asRequestBody(mimeType?.toMediaTypeOrNull())
             val body = createFormData("fileToUpload", cacheFile.name, requestFile)

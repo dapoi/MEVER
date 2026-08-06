@@ -17,6 +17,7 @@ import com.dapascript.mever.core.data.model.remote.TwitterDownloaderResponse
 import com.dapascript.mever.core.data.model.remote.VideyDownloaderResponse
 import com.dapascript.mever.core.data.model.remote.YouTubeDownloaderResponse
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.http.GET
 import retrofit2.http.Multipart
@@ -119,8 +120,8 @@ interface ApiService {
     @Multipart
     @POST
     suspend fun uploadToLitterbox(
-        @Part reqtype: MultipartBody.Part,
-        @Part time: MultipartBody.Part,
+        @Part("reqtype") reqtype: RequestBody,
+        @Part("time") time: RequestBody,
         @Part fileToUpload: MultipartBody.Part,
         @Url url: String = "https://litterbox.catbox.moe/resources/internals/api.php"
     ): ResponseBody

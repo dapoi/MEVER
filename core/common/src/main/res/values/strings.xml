@@ -140,6 +140,12 @@
     <string name="wa_status_desc">View the status before it disappears.</string>
     <string name="remove_bg">Clear Background</string>
     <string name="remove_bg_desc">Make the image transparent.</string>
+    <string name="change_bg">Change Background</string>
+    <string name="custom_color">Custom Color</string>
+    <string name="choose_color">Choose Color</string>
+    <string name="hue">Hue</string>
+    <string name="saturation">Saturation</string>
+    <string name="value">Value</string>
     <string name="images_finder">Images Finder</string>
     <string name="images_finder_desc">Explore high-quality images for free.</string>
     <string name="ai_image_generator">AI Image Generator</string>

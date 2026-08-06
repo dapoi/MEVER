@@ -2,6 +2,12 @@ package com.dapascript.mever.feature.ai.screen
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
+import android.graphics.Color.BLACK
+import android.graphics.Color.BLUE
+import android.graphics.Color.DKGRAY
+import android.graphics.Color.MAGENTA
+import android.graphics.Color.RED
+import android.graphics.Color.WHITE
 import android.net.Uri
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
@@ -14,6 +20,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.background
@@ -23,6 +30,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,19 +38,26 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.SnackbarDuration.Long
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,9 +73,17 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Blue
+import androidx.compose.ui.graphics.Color.Companion.Cyan
+import androidx.compose.ui.graphics.Color.Companion.Green
+import androidx.compose.ui.graphics.Color.Companion.Magenta
+import androidx.compose.ui.graphics.Color.Companion.Red
+import androidx.compose.ui.graphics.Color.Companion.Yellow
 import androidx.compose.ui.graphics.StrokeCap.Companion.Round
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -68,6 +91,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.dapascript.mever.core.common.R
@@ -76,6 +101,7 @@ import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Outlined
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverButton
+import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverImage
 import com.dapascript.mever.core.common.ui.component.MeverSnackbar
 import com.dapascript.mever.core.common.ui.component.rememberInterstitialAd
@@ -87,6 +113,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp20
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp3
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp52
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
@@ -97,8 +124,8 @@ import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.LocalDeviceType
-import com.dapascript.mever.core.common.util.onClickWithAds
 import com.dapascript.mever.core.common.util.navigateToSystemGallery
+import com.dapascript.mever.core.common.util.onClickWithAds
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.common.util.syncToGallery
@@ -108,9 +135,11 @@ import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryCont
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute.Content
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute
 import com.dapascript.mever.feature.ai.viewmodel.AiBackgroundRemovalViewModel
+import com.dapascript.mever.feature.ai.viewmodel.AiBackgroundRemovalViewModel.BgRemovalBackground
 import com.dapascript.mever.feature.ai.viewmodel.AiBackgroundRemovalViewModel.ImageLocation.GALLERY
 import com.dapascript.mever.feature.ai.viewmodel.AiBackgroundRemovalViewModel.ImageLocation.IN_APP
 
+@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 internal fun AiBackgroundRemovalScreen(
@@ -122,6 +151,7 @@ internal fun AiBackgroundRemovalScreen(
     val resources = LocalResources.current
     val backgroundRemovalState = backgroundRemovalState.collectAsStateValue()
     val saveImageState = saveImageState.collectAsStateValue()
+    val selectedBackground = selectedBackground.collectAsStateValue()
     val getButtonClickCount = getButtonClickCount.collectAsStateValue()
     val adsThreshold = adsThreshold.collectAsStateValue()
     var isLoading by remember { mutableStateOf(false) }
@@ -133,6 +163,12 @@ internal fun AiBackgroundRemovalScreen(
     val snackbarMessage = remember { mutableStateOf("") }
     val listState = rememberLazyListState()
     var titleHeight by rememberSaveable { mutableIntStateOf(0) }
+    var showColorPicker by remember { mutableStateOf(false) }
+    var hue by remember { mutableFloatStateOf(0f) }
+    var saturation by remember { mutableFloatStateOf(1f) }
+    var value by remember { mutableFloatStateOf(1f) }
+    val color = remember(hue, saturation, value) { Color.hsv(hue, saturation, value) }
+
     val isExpanded by remember(titleHeight) {
         derivedStateOf {
             if (titleHeight == 0) return@derivedStateOf true
@@ -154,6 +190,11 @@ internal fun AiBackgroundRemovalScreen(
             errorMessage = ""
             isSaved = false
             reset()
+        }
+    }
+    val backgroundPicker = rememberLauncherForActivityResult(PickVisualMedia()) { uri ->
+        if (uri != null) {
+            loadBackgroundBitmap(context, uri)
         }
     }
 
@@ -281,9 +322,10 @@ internal fun AiBackgroundRemovalScreen(
                                             color = colors.blackWhite.copy(alpha = 0.08f),
                                             shape = RoundedCornerShape(Dp32)
                                         )
-                                        .padding(Dp16),
+                                        .padding(vertical = Dp16),
                                     imageUri = imageUri,
                                     resultBitmap = resultBitmap,
+                                    selectedBackground = selectedBackground,
                                     isProcessing = isProcessing,
                                     isLoading = isLoading,
                                     isSaved = isSaved,
@@ -293,6 +335,11 @@ internal fun AiBackgroundRemovalScreen(
                                             PickVisualMediaRequest(ImageOnly)
                                         )
                                     },
+                                    onPickBackground = {
+                                        backgroundPicker.launch(PickVisualMediaRequest(ImageOnly))
+                                    },
+                                    onSelectBackground = { selectBackground(it) },
+                                    onOpenColorPicker = { showColorPicker = true },
                                     onPreviewImage = {
                                         resultBitmap?.let { bitmap ->
                                             saveToCache(context, bitmap) { path ->
@@ -360,9 +407,11 @@ internal fun AiBackgroundRemovalScreen(
                                 ) {
                                     Box(modifier = Modifier.weight(1.2f)) {
                                         ImagePreviewCard(
+                                            modifier = Modifier.fillMaxWidth(),
                                             isProcessing = isProcessing,
                                             imageUri = imageUri,
                                             resultBitmap = resultBitmap,
+                                            selectedBackground = selectedBackground,
                                             onPickImage = {
                                                 if (imageUri == null) imagePicker.launch(
                                                     PickVisualMediaRequest(ImageOnly)
@@ -400,7 +449,21 @@ internal fun AiBackgroundRemovalScreen(
                                         modifier = Modifier.weight(1f),
                                         verticalArrangement = spacedBy(Dp20)
                                     ) {
+                                        if (resultBitmap != null) {
+                                            BackgroundSelection(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                selectedBackground = selectedBackground,
+                                                onPickBackground = {
+                                                    backgroundPicker.launch(
+                                                        PickVisualMediaRequest(ImageOnly)
+                                                    )
+                                                },
+                                                onSelectBackground = { selectBackground(it) },
+                                                onOpenColorPicker = { showColorPicker = true }
+                                            )
+                                        }
                                         ActionButtons(
+                                            modifier = Modifier.fillMaxWidth(),
                                             isProcessing = isProcessing,
                                             isLoading = isLoading,
                                             isSaved = isSaved,
@@ -445,6 +508,7 @@ internal fun AiBackgroundRemovalScreen(
                                             }
                                         )
                                         ProcessingHint(
+                                            modifier = Modifier.fillMaxWidth(),
                                             isProcessing = isProcessing,
                                             errorMessage = errorMessage,
                                             imageUri = imageUri,
@@ -457,7 +521,6 @@ internal fun AiBackgroundRemovalScreen(
                     }
                 }
             }
-
             MeverSnackbar(
                 modifier = Modifier
                     .align(BottomCenter)
@@ -472,18 +535,159 @@ internal fun AiBackgroundRemovalScreen(
             )
         }
     }
+
+    MeverDialog(
+        showDialog = showColorPicker,
+        title = stringResource(R.string.choose_color),
+        description = null,
+        image = null,
+        primaryActionLabel = stringResource(R.string.apply),
+        secondaryActionLabel = stringResource(R.string.cancel),
+        onClickSecondaryAction = { showColorPicker = false },
+        onClickPrimaryAction = {
+            selectBackground(BgRemovalBackground.Color(color.toArgb()))
+            showColorPicker = false
+        },
+        content = {
+            Column(
+                modifier = Modifier.padding(vertical = Dp16),
+                verticalArrangement = spacedBy(Dp12),
+                horizontalAlignment = CenterHorizontally
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(Dp64)
+                        .clip(CircleShape)
+                        .background(color)
+                        .border(Dp1, colors.blackWhite.copy(alpha = 0.1f), CircleShape)
+                )
+                Text(
+                    text = String.format("#%06X", (0xFFFFFF and color.toArgb())),
+                    style = typography.bodyBold3.copy(
+                        fontFamily = FontFamily.Monospace,
+                        fontWeight = FontWeight.Medium
+                    ),
+                    color = colors.grayLightGray
+                )
+                Column(verticalArrangement = spacedBy(Dp4)) {
+                    Text(
+                        text = stringResource(R.string.hue),
+                        style = typography.body3,
+                        color = colors.grayLightGray
+                    )
+                    Slider(
+                        modifier = Modifier.height(24.dp),
+                        value = hue,
+                        onValueChange = { hue = it },
+                        valueRange = 0f..360f,
+                        colors = SliderDefaults.colors(
+                            thumbColor = colors.alwaysPurple,
+                            activeTrackColor = Color.Transparent,
+                            inactiveTrackColor = Color.Transparent
+                        ),
+                        track = {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(8.dp)
+                                    .clip(CircleShape)
+                                    .background(
+                                        brush = Brush.horizontalGradient(
+                                            colors = listOf(
+                                                Red, Yellow, Green,
+                                                Cyan, Blue, Magenta, Red
+                                            )
+                                        )
+                                    )
+                            )
+                        }
+                    )
+                    Spacer(modifier = Modifier.height(Dp8))
+                    Text(
+                        text = stringResource(R.string.saturation),
+                        style = typography.body3,
+                        color = colors.grayLightGray
+                    )
+                    Slider(
+                        modifier = Modifier.height(24.dp),
+                        value = saturation,
+                        onValueChange = { saturation = it },
+                        valueRange = 0f..1f,
+                        colors = SliderDefaults.colors(
+                            thumbColor = colors.alwaysPurple,
+                            activeTrackColor = Color.Transparent,
+                            inactiveTrackColor = Color.Transparent
+                        ),
+                        track = {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(8.dp)
+                                    .clip(CircleShape)
+                                    .background(
+                                        brush = Brush.horizontalGradient(
+                                            colors = listOf(
+                                                Color.White,
+                                                Color.hsv(hue, 1f, 1f)
+                                            )
+                                        )
+                                    )
+                            )
+                        }
+                    )
+                    Spacer(modifier = Modifier.height(Dp8))
+                    Text(
+                        text = stringResource(R.string.value),
+                        style = typography.body3,
+                        color = colors.grayLightGray
+                    )
+                    Slider(
+                        modifier = Modifier.height(24.dp),
+                        value = value,
+                        onValueChange = { value = it },
+                        valueRange = 0f..1f,
+                        colors = SliderDefaults.colors(
+                            thumbColor = colors.alwaysPurple,
+                            activeTrackColor = Color.Transparent,
+                            inactiveTrackColor = Color.Transparent
+                        ),
+                        track = {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(8.dp)
+                                    .clip(CircleShape)
+                                    .background(
+                                        brush = Brush.horizontalGradient(
+                                            colors = listOf(
+                                                Color.Black,
+                                                Color.hsv(hue, saturation, 1f)
+                                            )
+                                        )
+                                    )
+                            )
+                        }
+                    )
+                }
+            }
+        }
+    )
 }
 
 @Composable
 private fun ActionPanel(
     imageUri: Uri?,
     resultBitmap: Bitmap?,
+    selectedBackground: BgRemovalBackground,
     isProcessing: Boolean,
     isLoading: Boolean,
     isSaved: Boolean,
     errorMessage: String,
     modifier: Modifier = Modifier,
     onPickImage: () -> Unit,
+    onPickBackground: () -> Unit,
+    onSelectBackground: (BgRemovalBackground) -> Unit,
+    onOpenColorPicker: () -> Unit,
     onPreviewImage: () -> Unit,
     onRemoveBackground: () -> Unit,
     onSaveImage: () -> Unit,
@@ -495,13 +699,25 @@ private fun ActionPanel(
         verticalArrangement = spacedBy(Dp20)
     ) {
         ImagePreviewCard(
+            modifier = Modifier.padding(horizontal = Dp16),
             isProcessing = isProcessing,
             imageUri = imageUri,
             resultBitmap = resultBitmap,
+            selectedBackground = selectedBackground,
             onPickImage = onPickImage,
             onPreviewImage = onPreviewImage
         )
+        if (resultBitmap != null) {
+            BackgroundSelection(
+                modifier = Modifier.fillMaxWidth(),
+                selectedBackground = selectedBackground,
+                onPickBackground = onPickBackground,
+                onSelectBackground = onSelectBackground,
+                onOpenColorPicker = onOpenColorPicker
+            )
+        }
         ActionButtons(
+            modifier = Modifier.padding(horizontal = Dp16),
             isProcessing = isProcessing,
             isLoading = isLoading,
             isSaved = isSaved,
@@ -514,6 +730,7 @@ private fun ActionPanel(
             onClearImage = onClearImage
         )
         ProcessingHint(
+            modifier = Modifier.padding(horizontal = Dp16),
             isProcessing = isProcessing,
             errorMessage = errorMessage,
             imageUri = imageUri,
@@ -533,10 +750,11 @@ private fun ActionButtons(
     onRemoveBackground: () -> Unit,
     onSaveImage: () -> Unit,
     onOpenGallery: () -> Unit,
-    onClearImage: () -> Unit
+    onClearImage: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         horizontalArrangement = spacedBy(Dp12)
     ) {
         MeverButton(
@@ -583,27 +801,34 @@ private fun ImagePreviewCard(
     isProcessing: Boolean,
     imageUri: Uri?,
     resultBitmap: Bitmap?,
+    selectedBackground: BgRemovalBackground,
     onPickImage: () -> Unit,
-    onPreviewImage: () -> Unit
+    onPreviewImage: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .aspectRatio(1f)
             .clip(RoundedCornerShape(28.dp))
-            .background(colors.whiteDark)
+            .background(
+                if (selectedBackground is BgRemovalBackground.Color) Color(selectedBackground.color)
+                else colors.whiteDark
+            )
             .drawBehind {
-                val sizePx = 20.dp.toPx()
-                val columns = (size.width / sizePx).toInt() + 1
-                val rows = (size.height / sizePx).toInt() + 1
-                for (i in 0 until columns) {
-                    for (j in 0 until rows) {
-                        if ((i + j) % 2 == 0) {
-                            drawRect(
-                                color = Color.Gray.copy(alpha = 0.1f),
-                                topLeft = Offset(i * sizePx, j * sizePx),
-                                size = Size(sizePx, sizePx)
-                            )
+                if (selectedBackground is BgRemovalBackground.Transparent) {
+                    val sizePx = 20.dp.toPx()
+                    val columns = (size.width / sizePx).toInt() + 1
+                    val rows = (size.height / sizePx).toInt() + 1
+                    for (i in 0 until columns) {
+                        for (j in 0 until rows) {
+                            if ((i + j) % 2 == 0) {
+                                drawRect(
+                                    color = Color.Gray.copy(alpha = 0.1f),
+                                    topLeft = Offset(i * sizePx, j * sizePx),
+                                    size = Size(sizePx, sizePx)
+                                )
+                            }
                         }
                     }
                 }
@@ -615,6 +840,14 @@ private fun ImagePreviewCard(
             },
         contentAlignment = Center
     ) {
+        if (selectedBackground is BgRemovalBackground.Image) {
+            MeverImage(
+                source = selectedBackground.uri,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(28.dp))
+            )
+        }
         if (imageUri == null) EmptyPickerState()
         else {
             if (resultBitmap != null) {
@@ -704,7 +937,8 @@ private fun ProcessingHint(
     isProcessing: Boolean,
     errorMessage: String,
     imageUri: Uri?,
-    resultBitmap: Bitmap?
+    resultBitmap: Bitmap?,
+    modifier: Modifier = Modifier
 ) {
     val (text, color) = when {
         errorMessage.isNotEmpty() -> errorMessage to colors.alwaysPurple
@@ -715,7 +949,7 @@ private fun ProcessingHint(
     }
 
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(Dp16))
             .background(colors.whiteDark)
@@ -737,4 +971,114 @@ private fun ProcessingHint(
             modifier = Modifier.weight(1f)
         )
     }
+}
+
+@Composable
+private fun BackgroundSelection(
+    selectedBackground: BgRemovalBackground,
+    modifier: Modifier = Modifier,
+    onPickBackground: () -> Unit,
+    onSelectBackground: (BgRemovalBackground) -> Unit,
+    onOpenColorPicker: () -> Unit
+) {
+    val backgroundColors = listOf(WHITE, BLACK, RED, BLUE, MAGENTA, DKGRAY)
+
+    Column(
+        modifier = modifier,
+        verticalArrangement = spacedBy(Dp12)
+    ) {
+        Text(
+            modifier = Modifier.padding(horizontal = Dp16),
+            text = stringResource(R.string.change_bg),
+            style = typography.bodyBold3,
+            color = colors.blackWhite
+        )
+        LazyRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = spacedBy(Dp12),
+            contentPadding = PaddingValues(horizontal = Dp16)
+        ) {
+            item {
+                Surface(
+                    modifier = Modifier.size(Dp40),
+                    shape = CircleShape,
+                    color = colors.whiteDark,
+                    border = border(selectedBackground is BgRemovalBackground.Transparent),
+                    onClick = { onSelectBackground(BgRemovalBackground.Transparent) }
+                ) {
+                    Box(contentAlignment = Center) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.ic_clear),
+                            contentDescription = null,
+                            tint = colors.blackWhite,
+                            modifier = Modifier.size(Dp20)
+                        )
+                    }
+                }
+            }
+            item {
+                Surface(
+                    modifier = Modifier.size(Dp40),
+                    shape = CircleShape,
+                    color = colors.whiteDark,
+                    border = border(selectedBackground is BgRemovalBackground.Image),
+                    onClick = onPickBackground
+                ) {
+                    Box(contentAlignment = Center) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.ic_explore_image),
+                            contentDescription = null,
+                            tint = colors.alwaysPurple,
+                            modifier = Modifier.size(Dp20)
+                        )
+                    }
+                }
+            }
+            item {
+                Surface(
+                    modifier = Modifier.size(Dp40),
+                    shape = CircleShape,
+                    color = colors.whiteDark,
+                    border = border(false),
+                    onClick = onOpenColorPicker
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                brush = Brush.sweepGradient(
+                                    colors = listOf(Red, Magenta, Blue, Cyan, Green, Yellow, Red)
+                                )
+                            ),
+                        contentAlignment = Center
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.ic_copy),
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(Dp20)
+                        )
+                    }
+                }
+            }
+            items(backgroundColors) { color ->
+                Surface(
+                    modifier = Modifier.size(Dp40),
+                    shape = CircleShape,
+                    color = Color(color),
+                    border = border(
+                        selectedBackground is BgRemovalBackground.Color && selectedBackground.color == color
+                    ),
+                    onClick = { onSelectBackground(BgRemovalBackground.Color(color)) }
+                ) {}
+            }
+        }
+    }
+}
+
+@Composable
+private fun border(isSelected: Boolean) = if (isSelected) {
+    BorderStroke(2.dp, colors.alwaysPurple)
+} else {
+    BorderStroke(1.dp, colors.blackWhite.copy(alpha = 0.1f))
 }

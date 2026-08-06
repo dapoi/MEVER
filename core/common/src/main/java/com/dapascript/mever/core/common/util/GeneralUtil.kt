@@ -17,8 +17,11 @@ import android.content.pm.PackageManager.NameNotFoundException
 import android.graphics.Bitmap
 import android.graphics.Bitmap.CompressFormat.JPEG
 import android.graphics.Bitmap.CompressFormat.PNG
+import android.graphics.Bitmap.Config.ARGB_8888
 import android.graphics.BitmapFactory
 import android.graphics.BitmapFactory.decodeStream
+import android.graphics.Canvas
+import android.graphics.Paint
 import android.media.MediaMetadataRetriever
 import android.media.MediaScannerConnection
 import android.net.Uri
@@ -45,6 +48,8 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.core.app.ShareCompat.IntentBuilder
 import androidx.core.content.FileProvider.getUriForFile
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.scale
 import androidx.core.net.toUri
 import androidx.core.view.WindowCompat.getInsetsController
 import androidx.core.view.WindowInsetsCompat.Type.systemBars
@@ -74,6 +79,9 @@ import okhttp3.Request
 import java.io.File
 import java.io.OutputStream
 import java.net.URL
+import java.text.DateFormatSymbols
+import java.text.Normalizer
+import java.text.Normalizer.Form.NFD
 import java.text.SimpleDateFormat
 import java.util.Calendar.getInstance
 import java.util.Locale.ROOT
@@ -370,8 +378,7 @@ fun navigateToSystemGallery(context: Context) {
         "com.miui.gallery",
         "com.coloros.gallery",
         "com.vivo.gallery",
-        "com.oneplus.gallery",
-        "com.google.android.apps.photos"
+        "com.oneplus.gallery"
     )
 
     val packageManager = context.packageManager
@@ -489,25 +496,6 @@ fun hideSystemBar(activity: Activity, value: Boolean) = with(activity) {
     }
 }
 
-fun convertFilename(filename: String): String {
-    val regex =
-        Regex("""(\d{4})\.(\d{2})\.(\d{2}) - (\d{2})_(\d{2})_(\d{2})(?: \((\d+)\))?\.(\w+)""")
-    val match = regex.find(filename)
-
-    return if (match != null) {
-        val (year, month, day, hour, minute, second, duplicate, ext) = match.destructured
-        val newDate = "$day-$month-$year"
-        val newTime = "$hour:$minute:$second"
-        val dupSuffix = if (duplicate.isNotEmpty()) " ($duplicate)" else ""
-        "$newDate • $newTime$dupSuffix.$ext"
-    } else filename
-}
-
-fun sanitizeFilename(filename: String): String {
-    val illegalCharsRegex = Regex("[^a-zA-Z0-9 ._-]")
-    return illegalCharsRegex.replace(filename, "_")
-}
-
 fun getAppVersion(context: Context): String {
     return try {
         val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
@@ -536,6 +524,13 @@ suspend fun cleanCache(context: Context) = withContext(IO) {
     }
 }
 
+fun sanitizeFilename(filename: String): String {
+    val normalized = Normalizer.normalize(filename, NFD)
+    val asciiOnly = normalized.replace(Regex("\\p{InCombiningDiacriticalMarks}+"), "")
+    val illegalCharsRegex = Regex("[^a-zA-Z0-9._-]")
+    return illegalCharsRegex.replace(asciiOnly, "_")
+}
+
 fun displayFileName(fileName: String) = try {
     val nameWithoutExt = fileName.substringBeforeLast(".")
     val cleanName = nameWithoutExt.replace("null", "", ignoreCase = true)
@@ -546,22 +541,11 @@ fun displayFileName(fileName: String) = try {
 
     if (dateMatch != null) {
         val (year, month, day) = dateMatch.destructured
-        val monthNames = listOf(
-            "Jan",
-            "Feb",
-            "Mar",
-            "Apr",
-            "May",
-            "Jun",
-            "Jul",
-            "Aug",
-            "Sep",
-            "Oct",
-            "Nov",
-            "Dec"
-        )
-        val monthName = monthNames.getOrNull(month.toInt() - 1) ?: month
-        val timeRegex = Regex("(\\d{2})[_\\s](\\d{2})[_\\s](\\d{2})")
+        val monthName = DateFormatSymbols
+            .getInstance(getDefault())
+            .shortMonths
+            .getOrNull(month.toInt() - 1) ?: month
+        val timeRegex = Regex("(\\d{2})[._\\s](\\d{2})[._\\s](\\d{2})")
         val timeMatch = timeRegex.find(cleanName, dateMatch.range.last)
 
         val timeString = if (timeMatch != null) {
@@ -575,11 +559,10 @@ fun displayFileName(fileName: String) = try {
 
         "$finalPrefix - ${day.toInt()} $monthName $year - $timeString"
     } else {
-        cleanName.replace("_", "")
+        cleanName.replace("_", " ")
+            .trim()
             .split(" ")
-            .joinToString(" ") { word ->
-                word.lowercase().replaceFirstChar { it.uppercase() }
-            }
+            .joinToString(" ") { word -> word.uppercase() }
     }
 } catch (_: Exception) {
     fileName
@@ -643,4 +626,21 @@ fun decodeResizedBitmap(
 } catch (e: Exception) {
     e.printStackTrace()
     null
+}
+
+fun Bitmap.addBackground(backgroundColor: Int): Bitmap {
+    val result = createBitmap(width, height, config ?: ARGB_8888)
+    val canvas = Canvas(result)
+    canvas.drawColor(backgroundColor)
+    canvas.drawBitmap(this, 0f, 0f, Paint())
+    return result
+}
+
+fun Bitmap.addBackground(backgroundBitmap: Bitmap): Bitmap {
+    val result = createBitmap(width, height, config ?: ARGB_8888)
+    val canvas = Canvas(result)
+    val scaledBackground = backgroundBitmap.scale(width, height)
+    canvas.drawBitmap(scaledBackground, 0f, 0f, Paint())
+    canvas.drawBitmap(this, 0f, 0f, Paint())
+    return result
 }
