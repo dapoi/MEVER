@@ -373,34 +373,24 @@ fun navigateToWaStore(activity: Activity, appPackageName: String = "com.whatsapp
 }
 
 fun navigateToSystemGallery(context: Context) {
-    val galleryPackages = listOf(
-        "com.sec.android.gallery3d",
-        "com.miui.gallery",
-        "com.coloros.gallery",
-        "com.vivo.gallery",
-        "com.oneplus.gallery"
-    )
-
-    val packageManager = context.packageManager
-    var galleryIntent: Intent? = null
-
-    for (packageName in galleryPackages) {
-        galleryIntent = packageManager.getLaunchIntentForPackage(packageName)
-        if (galleryIntent != null) break
-    }
-
-    if (galleryIntent == null) {
-        galleryIntent = Intent(ACTION_VIEW).apply {
-            setDataAndType(EXTERNAL_CONTENT_URI, "image/*")
-        }
-    }
-
-    galleryIntent.addFlags(FLAG_ACTIVITY_NEW_TASK)
+    val intent = Intent.makeMainSelectorActivity(
+        Intent.ACTION_MAIN,
+        Intent.CATEGORY_APP_GALLERY
+    ).apply { addFlags(FLAG_ACTIVITY_NEW_TASK) }
 
     try {
-        context.startActivity(galleryIntent)
+        context.startActivity(intent)
     } catch (_: Exception) {
-        Toast.makeText(context, R.string.gallery_not_found, LENGTH_SHORT).show()
+        val fallbackIntent = Intent(ACTION_VIEW).apply {
+            setDataAndType(EXTERNAL_CONTENT_URI, "image/*")
+            addFlags(FLAG_ACTIVITY_NEW_TASK)
+        }
+
+        try {
+            context.startActivity(fallbackIntent)
+        } catch (_: Exception) {
+            Toast.makeText(context, R.string.gallery_not_found, LENGTH_SHORT).show()
+        }
     }
 }
 

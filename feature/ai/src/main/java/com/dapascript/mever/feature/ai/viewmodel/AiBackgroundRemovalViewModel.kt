@@ -21,12 +21,18 @@ import com.dapascript.mever.core.common.util.state.UiState.StateSuccess
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFolder
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.source.local.MeverDataStore
-import com.dapascript.mever.feature.ai.viewmodel.AiBackgroundRemovalViewModel.ImageLocation.GALLERY
-import com.dapascript.mever.feature.ai.viewmodel.AiBackgroundRemovalViewModel.ImageLocation.IN_APP
+import com.dapascript.mever.feature.ai.screen.attr.AiBackgroundRemovalAttr.BgRemovalType
+import com.dapascript.mever.feature.ai.screen.attr.AiBackgroundRemovalAttr.BgRemovalType.CustomImage
+import com.dapascript.mever.feature.ai.screen.attr.AiBackgroundRemovalAttr.BgRemovalType.QuickColor
+import com.dapascript.mever.feature.ai.screen.attr.AiBackgroundRemovalAttr.BgRemovalType.TransparentImage
+import com.dapascript.mever.feature.ai.screen.attr.AiBackgroundRemovalAttr.SaveResult
+import com.dapascript.mever.feature.ai.screen.attr.AiBackgroundRemovalAttr.SaveResult.ImageLocation.GALLERY
+import com.dapascript.mever.feature.ai.screen.attr.AiBackgroundRemovalAttr.SaveResult.ImageLocation.IN_APP
 import com.ketch.Ketch
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -73,11 +79,10 @@ class AiBackgroundRemovalViewModel @Inject constructor(
     private val _saveImageState = MutableStateFlow<UiState<SaveResult>>(StateInitial)
     val saveImageState = _saveImageState.asStateFlow()
 
-    private val _selectedBackground =
-        MutableStateFlow<BgRemovalBackground>(BgRemovalBackground.Transparent)
+    private val _selectedBackground = MutableStateFlow<BgRemovalType>(TransparentImage)
     val selectedBackground = _selectedBackground.asStateFlow()
 
-    fun selectBackground(background: BgRemovalBackground) {
+    fun selectBackground(background: BgRemovalType) {
         _selectedBackground.value = background
     }
 
@@ -85,7 +90,7 @@ class AiBackgroundRemovalViewModel @Inject constructor(
         viewModelScope.launch {
             val bitmap = decodeResizedBitmap(context.contentResolver, uri, 1024, 1024)
             if (bitmap != null) {
-                _selectedBackground.value = BgRemovalBackground.Image(uri, bitmap)
+                _selectedBackground.value = CustomImage(uri, bitmap)
             }
         }
     }
@@ -102,7 +107,7 @@ class AiBackgroundRemovalViewModel @Inject constructor(
         }
     }
 
-    @OptIn(FlowPreview::class, kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
     fun saveImage(bitmap: Bitmap) {
         val timeStamp = changeToCurrentDate(currentTimeMillis())
         val fileName = "MEVER_$timeStamp.png"
@@ -115,7 +120,7 @@ class AiBackgroundRemovalViewModel @Inject constructor(
                 emit(mergedBitmap)
             }.flatMapLatest { mergedBitmap ->
                 repository.uploadImage(mergedBitmap, fileName)
-                    .timeout(20.seconds)
+                    .timeout(10.seconds)
                     .catch { e ->
                         if (e is TimeoutCancellationException) {
                             emit(ApiState.Error(Throwable("Fetch timeout")))
@@ -151,7 +156,7 @@ class AiBackgroundRemovalViewModel @Inject constructor(
     fun reset() {
         _backgroundRemovalState.value = StateInitial
         _saveImageState.value = StateInitial
-        _selectedBackground.value = BgRemovalBackground.Transparent
+        _selectedBackground.value = TransparentImage
     }
 
     fun incrementClickCount() = viewModelScope.launch {
@@ -182,8 +187,8 @@ class AiBackgroundRemovalViewModel @Inject constructor(
 
     private suspend fun mergeWithBackground(bitmap: Bitmap) = withContext(IO) {
         when (val bg = _selectedBackground.value) {
-            is BgRemovalBackground.Color -> bitmap.addBackground(bg.color)
-            is BgRemovalBackground.Image -> bg.bitmap?.let {
+            is QuickColor -> bitmap.addBackground(bg.color)
+            is CustomImage -> bg.bitmap?.let {
                 bitmap.addBackground(it)
             } ?: bitmap
 
@@ -202,20 +207,5 @@ class AiBackgroundRemovalViewModel @Inject constructor(
         } else {
             _saveImageState.value = StateFailed(context.getString(R.string.failed_save_image))
         }
-    }
-
-    data class SaveResult(
-        val location: ImageLocation,
-        val fileName: String
-    )
-
-    enum class ImageLocation {
-        IN_APP, GALLERY
-    }
-
-    sealed class BgRemovalBackground {
-        object Transparent : BgRemovalBackground()
-        data class Color(val color: Int) : BgRemovalBackground()
-        data class Image(val uri: Uri, val bitmap: Bitmap? = null) : BgRemovalBackground()
     }
 }
