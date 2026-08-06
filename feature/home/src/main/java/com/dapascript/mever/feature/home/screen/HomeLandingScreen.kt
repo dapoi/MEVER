@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -56,6 +57,7 @@ import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.layout.ContentScale.Companion.Fit
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -90,6 +92,7 @@ import com.dapascript.mever.core.common.ui.component.rememberInterstitialAd
 import com.dapascript.mever.core.common.ui.component.showShadow
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp0
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp150
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp160
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
@@ -112,13 +115,17 @@ import com.dapascript.mever.core.common.util.InAppUpdateManager
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.LocalDeviceType
 import com.dapascript.mever.core.common.util.PlatformType
+import com.dapascript.mever.core.common.util.PlatformType.AI
 import com.dapascript.mever.core.common.util.PlatformType.ALL
+import com.dapascript.mever.core.common.util.PlatformType.DOUYIN
+import com.dapascript.mever.core.common.util.PlatformType.EXPLORE
 import com.dapascript.mever.core.common.util.PlatformType.FACEBOOK
 import com.dapascript.mever.core.common.util.PlatformType.INSTAGRAM
 import com.dapascript.mever.core.common.util.PlatformType.PINTEREST
 import com.dapascript.mever.core.common.util.PlatformType.TIKTOK
 import com.dapascript.mever.core.common.util.PlatformType.X
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
+import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE_MUSIC
 import com.dapascript.mever.core.common.util.changeToCurrentDate
 import com.dapascript.mever.core.common.util.clearFocusOnKeyboardDismiss
 import com.dapascript.mever.core.common.util.fadingEdge
@@ -807,13 +814,14 @@ private fun HomeLandingContent(
 
 @Composable
 private fun HeaderSection(modifier: Modifier = Modifier) {
+    val deviceType = LocalDeviceType.current
     Row(
         modifier = modifier,
         verticalAlignment = CenterVertically,
         horizontalArrangement = SpaceBetween
     ) {
         Column(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(if (deviceType == PHONE) 1f else 1.3f),
             verticalArrangement = spacedBy(Dp6)
         ) {
             Text(
@@ -832,8 +840,13 @@ private fun HeaderSection(modifier: Modifier = Modifier) {
             )
         }
         Image(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier
+                .weight(if (deviceType == PHONE) 1f else 0.7f)
+                .then(
+                    if (deviceType != PHONE) Modifier.sizeIn(maxHeight = Dp150) else Modifier
+                ),
             painter = painterResource(id = R.drawable.ic_header),
+            contentScale = Fit,
             contentDescription = null
         )
     }
@@ -980,12 +993,12 @@ private fun DownloaderSection(
                             )
                             val otherCount = PlatformType.entries.count {
                                 it !in displayedPlatforms && it !in listOf(
-                                    PlatformType.AI,
+                                    AI,
                                     ALL,
-                                    PlatformType.EXPLORE,
+                                    EXPLORE,
                                     YOUTUBE,
-                                    PlatformType.YOUTUBE_MUSIC,
-                                    PlatformType.DOUYIN
+                                    YOUTUBE_MUSIC,
+                                    DOUYIN
                                 )
                             }
 
