@@ -152,7 +152,7 @@
     <string name="wa_empty_title">No Status Found</string>
     <string name="no_downloads">No Downloads Yet</string>
     <string name="select_image">Select Image</string>
-    <string name="save_png">Save PNG</string>
+    <string name="save_png">Save Image</string>
     <string name="process_now">Process Now</string>
     <string name="pick_portrait">Pick a portrait photo</string>
     <string name="supported_format">PNG, JPG or WEBP supported</string>

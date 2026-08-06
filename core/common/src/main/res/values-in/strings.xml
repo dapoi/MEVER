@@ -151,7 +151,7 @@
     <string name="wa_empty_title">Tidak ada status yang ditemukan</string>
     <string name="no_downloads">Belum Ada Unduhan</string>
     <string name="select_image">Pilih Gambar</string>
-    <string name="save_png">Simpan PNG</string>
+    <string name="save_png">Simpan Gambar</string>
     <string name="process_now">Proses Sekarang</string>
     <string name="pick_portrait">Pilih foto potret</string>
     <string name="supported_format">Mendukung format PNG, JPG, atau WEBP</string>
