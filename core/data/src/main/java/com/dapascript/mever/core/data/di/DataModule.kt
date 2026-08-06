@@ -104,7 +104,7 @@ class DataModule {
         @ApplicationContext context: Context
     ): WorkManager = WorkManager.getInstance(context)
 
-    @Singleton
+
     @Provides
     fun provideBackgroundRemovalProcessor(): BackgroundRemovalProcessor = BackgroundRemovalProcessor()
 }

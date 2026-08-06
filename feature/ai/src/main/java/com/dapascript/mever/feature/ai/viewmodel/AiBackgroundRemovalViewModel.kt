@@ -25,6 +25,7 @@ import com.dapascript.mever.feature.ai.viewmodel.AiBackgroundRemovalViewModel.Im
 import com.dapascript.mever.feature.ai.viewmodel.AiBackgroundRemovalViewModel.ImageLocation.IN_APP
 import com.ketch.Ketch
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.TimeoutCancellationException
@@ -45,6 +46,7 @@ import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 class AiBackgroundRemovalViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val processor: BackgroundRemovalProcessor,
     private val dataStore: MeverDataStore,
     private val repository: MeverRepository,
@@ -79,7 +81,7 @@ class AiBackgroundRemovalViewModel @Inject constructor(
         _selectedBackground.value = background
     }
 
-    fun loadBackgroundBitmap(context: Context, uri: Uri) {
+    fun loadBackgroundBitmap(uri: Uri) {
         viewModelScope.launch {
             val bitmap = decodeResizedBitmap(context.contentResolver, uri, 1024, 1024)
             if (bitmap != null) {
@@ -88,9 +90,9 @@ class AiBackgroundRemovalViewModel @Inject constructor(
         }
     }
 
-    fun removeBackground(context: Context, imageUri: Uri) {
+    fun removeBackground(imageUri: Uri) {
         _backgroundRemovalState.value = StateLoading
-        viewModelScope.launch {
+        viewModelScope.launch(IO) {
             val result = processor.removeBackground(context.contentResolver, imageUri)
             _backgroundRemovalState.value = if (result != null) {
                 StateSuccess(result)
@@ -101,7 +103,7 @@ class AiBackgroundRemovalViewModel @Inject constructor(
     }
 
     @OptIn(FlowPreview::class, kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-    fun saveImage(context: Context, bitmap: Bitmap) {
+    fun saveImage(bitmap: Bitmap) {
         val timeStamp = changeToCurrentDate(currentTimeMillis())
         val fileName = "MEVER_$timeStamp.png"
         var merged: Bitmap? = null
@@ -134,16 +136,12 @@ class AiBackgroundRemovalViewModel @Inject constructor(
                     )
                     _saveImageState.value = StateSuccess(SaveResult(IN_APP, fileName))
                 } else {
-                    merged?.let { saveImageLocally(context, it, fileName) }
+                    merged?.let { saveImageLocally(it, fileName) }
                 }
             },
             onFailed = {
                 merged?.let {
-                    saveImageLocally(
-                        context,
-                        it,
-                        fileName
-                    )
+                    saveImageLocally(it, fileName)
                 }
             },
             onReset = { _saveImageState.value = StateInitial }
@@ -160,7 +158,7 @@ class AiBackgroundRemovalViewModel @Inject constructor(
         dataStore.incrementClickCount()
     }
 
-    fun saveToCache(context: Context, bitmap: Bitmap, onResult: (String?) -> Unit) {
+    fun saveToCache(bitmap: Bitmap, onResult: (String?) -> Unit) {
         viewModelScope.launch {
             val mergedBitmap = mergeWithBackground(bitmap)
             withContext(IO) {
@@ -193,7 +191,7 @@ class AiBackgroundRemovalViewModel @Inject constructor(
         }
     }
 
-    private suspend fun saveImageLocally(context: Context, bitmap: Bitmap, fileName: String) {
+    private suspend fun saveImageLocally(bitmap: Bitmap, fileName: String) {
         val destFile = File(meverFolder, fileName)
         val isSuccess = withContext(IO) {
             saveBitmapToFile(bitmap, destFile, true)

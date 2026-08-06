@@ -193,7 +193,7 @@ internal fun AiBackgroundRemovalScreen(
     }
     val backgroundPicker = rememberLauncherForActivityResult(PickVisualMedia()) { uri ->
         if (uri != null) {
-            loadBackgroundBitmap( uri)
+            loadBackgroundBitmap(uri)
         }
     }
 
@@ -286,7 +286,11 @@ internal fun AiBackgroundRemovalScreen(
                         onClick = {
                             val hex = String.format("#%06X", (0xFFFFFF and color.toArgb()))
                             copyToClipboard(context, hex)
-                            Toast.makeText(context, resources.getString(R.string.copied), LENGTH_SHORT).show()
+                            Toast.makeText(
+                                context,
+                                resources.getString(R.string.copied),
+                                LENGTH_SHORT
+                            ).show()
                         },
                         shape = RoundedCornerShape(Dp12),
                         color = colors.blackWhite.copy(alpha = 0.05f)
@@ -533,7 +537,7 @@ internal fun AiBackgroundRemovalScreen(
                                     onOpenColorPicker = { showColorPicker = true },
                                     onPreviewImage = {
                                         resultBitmap?.let { bitmap ->
-                                            saveToCache(context, bitmap) { path ->
+                                            saveToCache(bitmap) { path ->
                                                 path?.let {
                                                     navigator.navigate(
                                                         GalleryContentDetailRoute(
@@ -600,7 +604,7 @@ internal fun AiBackgroundRemovalScreen(
                                             },
                                             onPreviewImage = {
                                                 resultBitmap?.let { bitmap ->
-                                                    saveToCache(context, bitmap) { path ->
+                                                    saveToCache(bitmap) { path ->
                                                         path?.let {
                                                             navigator.navigate(
                                                                 GalleryContentDetailRoute(

@@ -9,10 +9,7 @@ data class ImageSearchResponse(
     val data: List<ImageSearchData>? = null
 ) {
     @JsonClass(generateAdapter = true)
-    data class ImageSearchData(
-        val title: String? = null,
-        val content: List<ContentData>? = null
-    ) {
+    data class ImageSearchData(val content: List<ContentData>? = null) {
         @JsonClass(generateAdapter = true)
         data class ContentData(val url: String? = null)
     }
@@ -23,8 +20,7 @@ data class ImageSearchResponse(
             id = index.toString(),
             status = status ?: true,
             url = url,
-            thumbnail = url.replace("/original/", "/236x/"),
-            fileName = content.title.orEmpty()
+            thumbnail = url.replace("/original/", "/236x/")
         )
     }
 }
