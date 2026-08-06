@@ -27,22 +27,27 @@ import okhttp3.logging.HttpLoggingInterceptor.Level.NONE
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.util.concurrent.TimeUnit.SECONDS
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 class DataModule {
 
+    @Singleton
     @Provides
     fun provideMoshi(): Moshi = Moshi.Builder()
         .add(KotlinJsonAdapterFactory())
         .build()
 
+    @Singleton
     @Provides
     fun provideMoshiHelper(moshi: Moshi) = MoshiHelper(moshi)
 
+    @Singleton
     @Provides
     fun provideApiKeyInterceptor(): ApiKeyInterceptor = ApiKeyInterceptor()
 
+    @Singleton
     @Provides
     fun provideChuckerInterceptor(
         @ApplicationContext context: Context
@@ -50,6 +55,7 @@ class DataModule {
         .collector(ChuckerCollector(context))
         .build()
 
+    @Singleton
     @Provides
     fun provideOkHttpClient(
         apiKeyInterceptor: ApiKeyInterceptor,
@@ -66,6 +72,7 @@ class DataModule {
         .retryOnConnectionFailure(true)
         .build()
 
+    @Singleton
     @Provides
     fun provideRetrofit(
         okHttpClient: OkHttpClient,
@@ -76,10 +83,12 @@ class DataModule {
         .client(okHttpClient)
         .build()
 
+    @Singleton
     @Provides
     fun provideRetrofitService(retrofit: Retrofit): ApiService =
         retrofit.create(ApiService::class.java)
 
+    @Singleton
     @Provides
     fun provideMeverRepository(
         apiService: ApiService,
@@ -89,11 +98,13 @@ class DataModule {
         args = args
     )
 
+    @Singleton
     @Provides
     fun provideWorkManager(
         @ApplicationContext context: Context
     ): WorkManager = WorkManager.getInstance(context)
 
+    @Singleton
     @Provides
     fun provideBackgroundRemovalProcessor(): BackgroundRemovalProcessor = BackgroundRemovalProcessor()
 }
