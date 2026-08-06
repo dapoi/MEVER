@@ -25,12 +25,12 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -120,10 +120,12 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
+import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.LocalDeviceType
+import com.dapascript.mever.core.common.util.copyToClipboard
 import com.dapascript.mever.core.common.util.navigateToSystemGallery
 import com.dapascript.mever.core.common.util.onClickWithAds
 import com.dapascript.mever.core.common.util.onCustomClick
@@ -164,9 +166,9 @@ internal fun AiBackgroundRemovalScreen(
     val listState = rememberLazyListState()
     var titleHeight by rememberSaveable { mutableIntStateOf(0) }
     var showColorPicker by remember { mutableStateOf(false) }
-    var hue by remember { mutableFloatStateOf(0f) }
-    var saturation by remember { mutableFloatStateOf(1f) }
-    var value by remember { mutableFloatStateOf(1f) }
+    var hue by rememberSaveable { mutableFloatStateOf(0f) }
+    var saturation by rememberSaveable { mutableFloatStateOf(1f) }
+    var value by rememberSaveable { mutableFloatStateOf(1f) }
     val color = remember(hue, saturation, value) { Color.hsv(hue, saturation, value) }
 
     val isExpanded by remember(titleHeight) {
@@ -177,10 +179,7 @@ internal fun AiBackgroundRemovalScreen(
     }
     val interstitialAd = rememberInterstitialAd {
         resultBitmap?.let {
-            saveImage(
-                context = context,
-                bitmap = it
-            )
+            saveImage(bitmap = it)
         }
     }
     val imagePicker = rememberLauncherForActivityResult(PickVisualMedia()) { uri ->
@@ -194,7 +193,7 @@ internal fun AiBackgroundRemovalScreen(
     }
     val backgroundPicker = rememberLauncherForActivityResult(PickVisualMedia()) { uri ->
         if (uri != null) {
-            loadBackgroundBitmap(context, uri)
+            loadBackgroundBitmap( uri)
         }
     }
 
@@ -253,6 +252,198 @@ internal fun AiBackgroundRemovalScreen(
             }
         )
     }
+
+    MeverDialog(
+        showDialog = showColorPicker,
+        title = stringResource(R.string.choose_color),
+        description = null,
+        image = null,
+        primaryActionLabel = stringResource(R.string.apply),
+        secondaryActionLabel = stringResource(R.string.cancel),
+        onClickSecondaryAction = { showColorPicker = false },
+        onClickPrimaryAction = {
+            selectBackground(BgRemovalBackground.Color(color.toArgb()))
+            showColorPicker = false
+        },
+        content = {
+            Column(
+                modifier = Modifier.padding(vertical = Dp16),
+                verticalArrangement = spacedBy(Dp20),
+                horizontalAlignment = CenterHorizontally
+            ) {
+                Column(
+                    horizontalAlignment = CenterHorizontally,
+                    verticalArrangement = spacedBy(Dp8)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(Dp64)
+                            .clip(CircleShape)
+                            .background(color)
+                            .border(Dp1, colors.blackWhite.copy(alpha = 0.1f), CircleShape)
+                    )
+                    Surface(
+                        onClick = {
+                            val hex = String.format("#%06X", (0xFFFFFF and color.toArgb()))
+                            copyToClipboard(context, hex)
+                            Toast.makeText(context, resources.getString(R.string.copied), LENGTH_SHORT).show()
+                        },
+                        shape = RoundedCornerShape(Dp12),
+                        color = colors.blackWhite.copy(alpha = 0.05f)
+                    ) {
+                        Text(
+                            modifier = Modifier.padding(horizontal = Dp12, vertical = Dp4),
+                            text = String.format("#%06X", (0xFFFFFF and color.toArgb())),
+                            style = typography.bodyBold3.copy(
+                                fontFamily = FontFamily.Monospace,
+                                fontWeight = FontWeight.Medium
+                            ),
+                            color = colors.blackWhite
+                        )
+                    }
+                }
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = Dp16),
+                    verticalArrangement = spacedBy(Dp16)
+                ) {
+                    Column(verticalArrangement = spacedBy(Dp4)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = SpaceBetween
+                        ) {
+                            Text(
+                                text = stringResource(R.string.hue),
+                                style = typography.bodyBold3,
+                                color = colors.blackWhite
+                            )
+                            Text(
+                                text = "${hue.toInt()}°",
+                                style = typography.body3,
+                                color = colors.grayLightGray
+                            )
+                        }
+                        Slider(
+                            modifier = Modifier.height(24.dp),
+                            value = hue,
+                            onValueChange = { hue = it },
+                            valueRange = 0f..360f,
+                            colors = SliderDefaults.colors(
+                                thumbColor = colors.alwaysPurple,
+                                activeTrackColor = MeverTransparent,
+                                inactiveTrackColor = MeverTransparent
+                            ),
+                            track = {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(10.dp)
+                                        .clip(CircleShape)
+                                        .background(
+                                            brush = Brush.horizontalGradient(
+                                                colors = listOf(
+                                                    Red, Yellow, Green,
+                                                    Cyan, Blue, Magenta, Red
+                                                )
+                                            )
+                                        )
+                                )
+                            }
+                        )
+                    }
+                    Column(verticalArrangement = spacedBy(Dp4)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = SpaceBetween
+                        ) {
+                            Text(
+                                text = stringResource(R.string.saturation),
+                                style = typography.bodyBold3,
+                                color = colors.blackWhite
+                            )
+                            Text(
+                                text = "${(saturation * 100).toInt()}%",
+                                style = typography.body3,
+                                color = colors.grayLightGray
+                            )
+                        }
+                        Slider(
+                            modifier = Modifier.height(24.dp),
+                            value = saturation,
+                            onValueChange = { saturation = it },
+                            valueRange = 0f..1f,
+                            colors = SliderDefaults.colors(
+                                thumbColor = colors.alwaysPurple,
+                                activeTrackColor = MeverTransparent,
+                                inactiveTrackColor = MeverTransparent
+                            ),
+                            track = {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(10.dp)
+                                        .clip(CircleShape)
+                                        .background(
+                                            brush = Brush.horizontalGradient(
+                                                colors = listOf(
+                                                    Color.White,
+                                                    Color.hsv(hue, 1f, 1f)
+                                                )
+                                            )
+                                        )
+                                )
+                            }
+                        )
+                    }
+                    Column(verticalArrangement = spacedBy(Dp4)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = SpaceBetween
+                        ) {
+                            Text(
+                                text = stringResource(R.string.value),
+                                style = typography.bodyBold3,
+                                color = colors.blackWhite
+                            )
+                            Text(
+                                text = "${(value * 100).toInt()}%",
+                                style = typography.body3,
+                                color = colors.grayLightGray
+                            )
+                        }
+                        Slider(
+                            modifier = Modifier.height(24.dp),
+                            value = value,
+                            onValueChange = { value = it },
+                            valueRange = 0f..1f,
+                            colors = SliderDefaults.colors(
+                                thumbColor = colors.alwaysPurple,
+                                activeTrackColor = MeverTransparent,
+                                inactiveTrackColor = MeverTransparent
+                            ),
+                            track = {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(10.dp)
+                                        .clip(CircleShape)
+                                        .background(
+                                            brush = Brush.horizontalGradient(
+                                                colors = listOf(
+                                                    Color.Black,
+                                                    Color.hsv(hue, saturation, 1f)
+                                                )
+                                            )
+                                        )
+                                )
+                            }
+                        )
+                    }
+                }
+            }
+        }
+    )
 
     BaseScreen(
         topBarArgs = TopBarArgs(title = if (isExpanded.not()) stringResource(R.string.remove_bg) else ""),
@@ -365,12 +556,7 @@ internal fun AiBackgroundRemovalScreen(
                                         }
                                     },
                                     onRemoveBackground = {
-                                        imageUri?.let {
-                                            removeBackground(
-                                                context = context,
-                                                imageUri = it
-                                            )
-                                        }
+                                        imageUri?.let { removeBackground(imageUri = it) }
                                     },
                                     onSaveImage = {
                                         onClickWithAds(
@@ -379,12 +565,7 @@ internal fun AiBackgroundRemovalScreen(
                                             onIncrementClickCount = { incrementClickCount() },
                                             onShowAds = { interstitialAd.showAd() },
                                             onClickAction = {
-                                                resultBitmap?.let {
-                                                    saveImage(
-                                                        context = context,
-                                                        bitmap = it
-                                                    )
-                                                }
+                                                resultBitmap?.let { saveImage(bitmap = it) }
                                             }
                                         )
                                     },
@@ -475,12 +656,7 @@ internal fun AiBackgroundRemovalScreen(
                                                 )
                                             },
                                             onRemoveBackground = {
-                                                imageUri?.let {
-                                                    removeBackground(
-                                                        context = context,
-                                                        imageUri = it
-                                                    )
-                                                }
+                                                imageUri?.let { removeBackground(imageUri = it) }
                                             },
                                             onSaveImage = {
                                                 onClickWithAds(
@@ -489,12 +665,7 @@ internal fun AiBackgroundRemovalScreen(
                                                     onIncrementClickCount = { incrementClickCount() },
                                                     onShowAds = { interstitialAd.showAd() },
                                                     onClickAction = {
-                                                        resultBitmap?.let {
-                                                            saveImage(
-                                                                context = context,
-                                                                bitmap = it
-                                                            )
-                                                        }
+                                                        resultBitmap?.let { saveImage(bitmap = it) }
                                                     }
                                                 )
                                             },
@@ -535,143 +706,6 @@ internal fun AiBackgroundRemovalScreen(
             )
         }
     }
-
-    MeverDialog(
-        showDialog = showColorPicker,
-        title = stringResource(R.string.choose_color),
-        description = null,
-        image = null,
-        primaryActionLabel = stringResource(R.string.apply),
-        secondaryActionLabel = stringResource(R.string.cancel),
-        onClickSecondaryAction = { showColorPicker = false },
-        onClickPrimaryAction = {
-            selectBackground(BgRemovalBackground.Color(color.toArgb()))
-            showColorPicker = false
-        },
-        content = {
-            Column(
-                modifier = Modifier.padding(vertical = Dp16),
-                verticalArrangement = spacedBy(Dp12),
-                horizontalAlignment = CenterHorizontally
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(Dp64)
-                        .clip(CircleShape)
-                        .background(color)
-                        .border(Dp1, colors.blackWhite.copy(alpha = 0.1f), CircleShape)
-                )
-                Text(
-                    text = String.format("#%06X", (0xFFFFFF and color.toArgb())),
-                    style = typography.bodyBold3.copy(
-                        fontFamily = FontFamily.Monospace,
-                        fontWeight = FontWeight.Medium
-                    ),
-                    color = colors.grayLightGray
-                )
-                Column(verticalArrangement = spacedBy(Dp4)) {
-                    Text(
-                        text = stringResource(R.string.hue),
-                        style = typography.body3,
-                        color = colors.grayLightGray
-                    )
-                    Slider(
-                        modifier = Modifier.height(24.dp),
-                        value = hue,
-                        onValueChange = { hue = it },
-                        valueRange = 0f..360f,
-                        colors = SliderDefaults.colors(
-                            thumbColor = colors.alwaysPurple,
-                            activeTrackColor = Color.Transparent,
-                            inactiveTrackColor = Color.Transparent
-                        ),
-                        track = {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(8.dp)
-                                    .clip(CircleShape)
-                                    .background(
-                                        brush = Brush.horizontalGradient(
-                                            colors = listOf(
-                                                Red, Yellow, Green,
-                                                Cyan, Blue, Magenta, Red
-                                            )
-                                        )
-                                    )
-                            )
-                        }
-                    )
-                    Spacer(modifier = Modifier.height(Dp8))
-                    Text(
-                        text = stringResource(R.string.saturation),
-                        style = typography.body3,
-                        color = colors.grayLightGray
-                    )
-                    Slider(
-                        modifier = Modifier.height(24.dp),
-                        value = saturation,
-                        onValueChange = { saturation = it },
-                        valueRange = 0f..1f,
-                        colors = SliderDefaults.colors(
-                            thumbColor = colors.alwaysPurple,
-                            activeTrackColor = Color.Transparent,
-                            inactiveTrackColor = Color.Transparent
-                        ),
-                        track = {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(8.dp)
-                                    .clip(CircleShape)
-                                    .background(
-                                        brush = Brush.horizontalGradient(
-                                            colors = listOf(
-                                                Color.White,
-                                                Color.hsv(hue, 1f, 1f)
-                                            )
-                                        )
-                                    )
-                            )
-                        }
-                    )
-                    Spacer(modifier = Modifier.height(Dp8))
-                    Text(
-                        text = stringResource(R.string.value),
-                        style = typography.body3,
-                        color = colors.grayLightGray
-                    )
-                    Slider(
-                        modifier = Modifier.height(24.dp),
-                        value = value,
-                        onValueChange = { value = it },
-                        valueRange = 0f..1f,
-                        colors = SliderDefaults.colors(
-                            thumbColor = colors.alwaysPurple,
-                            activeTrackColor = Color.Transparent,
-                            inactiveTrackColor = Color.Transparent
-                        ),
-                        track = {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(8.dp)
-                                    .clip(CircleShape)
-                                    .background(
-                                        brush = Brush.horizontalGradient(
-                                            colors = listOf(
-                                                Color.Black,
-                                                Color.hsv(hue, saturation, 1f)
-                                            )
-                                        )
-                                    )
-                            )
-                        }
-                    )
-                }
-            }
-        }
-    )
 }
 
 @Composable
