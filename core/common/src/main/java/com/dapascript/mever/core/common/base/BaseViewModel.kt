@@ -11,6 +11,7 @@ import com.dapascript.mever.core.common.util.state.UiState.StateFailed
 import com.dapascript.mever.core.common.util.state.UiState.StateInitial
 import com.dapascript.mever.core.common.util.state.UiState.StateLoading
 import com.dapascript.mever.core.common.util.state.UiState.StateSuccess
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,30 +19,28 @@ import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 
 open class BaseViewModel : ViewModel() {
+
+    private val resetJobs = mutableMapOf<Any, Job>()
+
     fun <T> collectApiAsUiState(
         response: Flow<ApiState<T>>,
         state: MutableStateFlow<UiState<T>>
     ) = viewModelScope.launch {
         response.collect { apiState ->
             when (apiState) {
-                is Loading -> state.value = StateLoading
+                is Loading -> {
+                    resetJobs[state]?.cancel()
+                    state.value = StateLoading
+                }
 
                 is Success -> {
-                    apiState.data?.let {
-                        state.value = StateSuccess(it)
-                    }
-
-                    delay(300.milliseconds)
-                    state.value = StateInitial
+                    apiState.data?.let { state.value = StateSuccess(it) }
+                    scheduleReset(state) { state.value = StateInitial }
                 }
 
                 is Error -> {
-                    state.value = StateFailed(
-                        apiState.throwable.message.orEmpty()
-                    )
-
-                    delay(300.milliseconds)
-                    state.value = StateInitial
+                    state.value = StateFailed(apiState.throwable.message.orEmpty())
+                    scheduleReset(state) { state.value = StateInitial }
                 }
             }
         }
@@ -54,15 +53,23 @@ open class BaseViewModel : ViewModel() {
         onFailed: suspend (String) -> Unit = {},
         onReset: (suspend () -> Unit)? = null
     ) = viewModelScope.launch {
+        val key = callerKey()
         response.collect { apiState ->
             when (apiState) {
-                is Loading -> onLoading()
-                is Success -> apiState.data?.let { onSuccess(it) }
-                is Error -> onFailed(apiState.throwable.message.orEmpty())
-            }
-            if (apiState is Success || apiState is Error) {
-                delay(300.milliseconds)
-                onReset?.invoke()
+                is Loading -> {
+                    resetJobs[key]?.cancel()
+                    onLoading()
+                }
+
+                is Success -> {
+                    apiState.data?.let { onSuccess(it) }
+                    scheduleReset(key) { onReset?.invoke() }
+                }
+
+                is Error -> {
+                    onFailed(apiState.throwable.message.orEmpty())
+                    scheduleReset(key) { onReset?.invoke() }
+                }
             }
         }
     }
@@ -76,5 +83,18 @@ open class BaseViewModel : ViewModel() {
         is StateLoading -> onLoading()
         is StateFailed -> onFailed(message)
         is StateInitial -> Unit
+    }
+
+    private fun scheduleReset(key: Any, block: suspend () -> Unit) {
+        resetJobs[key] = viewModelScope.launch {
+            delay(16.milliseconds)
+            block()
+            resetJobs.remove(key)
+        }
+    }
+
+    private fun callerKey(): String {
+        val element = Throwable().stackTrace.getOrNull(2)
+        return element?.let { "${it.className}#${it.methodName}" } ?: "unknown_caller"
     }
 }
