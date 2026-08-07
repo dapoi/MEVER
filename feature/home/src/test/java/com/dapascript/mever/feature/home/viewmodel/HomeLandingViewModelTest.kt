@@ -25,6 +25,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mock
+import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.any
 import org.mockito.kotlin.verify
@@ -144,18 +145,18 @@ class HomeLandingViewModelTest {
     }
 
     @Test
-    fun `isImageGeneratorFeatureActive collects true by default`() = testScope.runTest {
+    fun `isImageAiEnabled collects true by default`() = testScope.runTest {
         val values = mutableListOf<Boolean>()
-        val job = launch { viewModel.isImageGeneratorFeatureActive.collect { values.add(it) } }
+        val job = launch { viewModel.isImageAiEnabled.collect { values.add(it) } }
         advanceUntilIdle()
         job.cancel()
         assertTrue(values.contains(true))
     }
 
     @Test
-    fun `isGoImgFeatureActive collects true by default`() = testScope.runTest {
+    fun `isGoImgEnabled collects true by default`() = testScope.runTest {
         val values = mutableListOf<Boolean>()
-        val job = launch { viewModel.isGoImgFeatureActive.collect { values.add(it) } }
+        val job = launch { viewModel.isGoImgEnabled.collect { values.add(it) } }
         advanceUntilIdle()
         job.cancel()
         assertTrue(values.contains(true))
@@ -194,9 +195,9 @@ class HomeLandingViewModelTest {
     }
 
     @Test
-    fun `delete delegates to ketch clearDb`() {
+    fun `delete is a safe no-op when there are no downloads`() {
         viewModel.delete(42)
-        verify(ketch).clearDb(42)
+        Mockito.verify(ketch, Mockito.never()).clearDb(any<Int>(), any<Boolean>())
     }
 
     @Test

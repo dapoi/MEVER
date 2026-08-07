@@ -2,10 +2,10 @@ package com.dapascript.mever.feature.gallery.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.dapascript.mever.core.data.source.local.MeverDataStore
-import com.ketch.Ketch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -31,9 +31,6 @@ class GalleryContentDetailViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
 
     @Mock
-    lateinit var ketch: Ketch
-
-    @Mock
     lateinit var dataStore: MeverDataStore
 
     private lateinit var viewModel: GalleryContentDetailViewModel
@@ -47,7 +44,7 @@ class GalleryContentDetailViewModelTest {
         whenever(dataStore.clickCount).thenReturn(flowOf(1))
         whenever(dataStore.adsThreshold).thenReturn(flowOf(3))
 
-        viewModel = GalleryContentDetailViewModel(ketch, dataStore)
+        viewModel = GalleryContentDetailViewModel(dataStore)
     }
 
     @After
@@ -62,28 +59,18 @@ class GalleryContentDetailViewModelTest {
     }
 
     @Test
-    fun `getButtonClickCount initial value is 1`() = runTest {
+    fun `getButtonClickCount collects value from dataStore`() = runTest {
+        val values = mutableListOf<Int>()
+        val job = launch { viewModel.getButtonClickCount.collect { values.add(it) } }
         advanceUntilIdle()
-        assertEquals(1, viewModel.getButtonClickCount.value)
+        assertTrue(values.contains(1))
+        job.cancel()
     }
 
     @Test
-    fun `startDownload does nothing when url is blank`() {
-        viewModel.startDownload("", "fileName")
-        org.mockito.kotlin.verifyNoInteractions(ketch)
-    }
-
-    @Test
-    fun `startDownload does nothing when url is whitespace only`() {
-        viewModel.startDownload("   ", "fileName")
-        org.mockito.kotlin.verifyNoInteractions(ketch)
-    }
-
-    @Test
-    fun `deleteContent calls ketch clearDb`() = runTest {
-        viewModel.deleteContent(99)
+    fun `adsThreshold initial value is 3`() = runTest {
         advanceUntilIdle()
-        verify(ketch).clearDb(99)
+        assertEquals(3, viewModel.adsThreshold.value)
     }
 
     @Test

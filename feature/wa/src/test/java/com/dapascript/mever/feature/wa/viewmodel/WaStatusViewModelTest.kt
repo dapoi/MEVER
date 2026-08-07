@@ -1,25 +1,25 @@
-package com.dapascript.mever.feature.startup.viewmodel
+package com.dapascript.mever.feature.wa.viewmodel
 
 import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.dapascript.mever.core.data.source.local.MeverDataStore
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
-import org.mockito.kotlin.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class OnboardViewModelTest {
+class WaStatusViewModelTest {
 
     @get:Rule
     val instantExecutorRule = InstantTaskExecutorRule()
@@ -29,16 +29,13 @@ class OnboardViewModelTest {
     @Mock
     lateinit var context: Context
 
-    @Mock
-    lateinit var dataStore: MeverDataStore
-
-    private lateinit var viewModel: OnboardViewModel
+    private lateinit var viewModel: WaStatusViewModel
 
     @Before
     fun setUp() {
         MockitoAnnotations.openMocks(this)
         Dispatchers.setMain(testDispatcher)
-        viewModel = OnboardViewModel(context, dataStore)
+        viewModel = WaStatusViewModel(context)
     }
 
     @After
@@ -47,16 +44,27 @@ class OnboardViewModelTest {
     }
 
     @Test
-    fun `setIsOnboarded calls dataStore setIsOnboarded with true`() = runTest {
-        viewModel.setIsOnboarded(true)
-        advanceUntilIdle()
-        verify(dataStore).setIsOnboarded(true)
+    fun `waStatuses is null before first fetch`() {
+        assertNull(viewModel.waStatuses.value)
     }
 
     @Test
-    fun `setIsOnboarded calls dataStore setIsOnboarded with false`() = runTest {
-        viewModel.setIsOnboarded(false)
+    fun `onFetchFinished sets empty list when state is null`() = runTest {
+        viewModel.onFetchFinished()
         advanceUntilIdle()
-        verify(dataStore).setIsOnboarded(false)
+        assertTrue(viewModel.waStatuses.value?.isEmpty() == true)
+    }
+
+    @Test
+    fun `onFetchFinished does not clear already fetched statuses`() = runTest {
+        // Simulate an already-non-null state
+        viewModel.onFetchFinished()
+        advanceUntilIdle()
+        val existing = viewModel.waStatuses.value
+
+        // Calling onFetchFinished again must not reset the non-null state
+        viewModel.onFetchFinished()
+        advanceUntilIdle()
+        assertTrue(viewModel.waStatuses.value == existing)
     }
 }

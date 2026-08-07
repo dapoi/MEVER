@@ -5,8 +5,10 @@ import com.dapascript.mever.core.common.util.state.ApiState
 import com.dapascript.mever.core.common.util.state.UiState
 import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.dapascript.mever.core.data.repository.MeverRepository
+import com.ketch.Ketch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -35,6 +37,9 @@ class ExploreLandingViewModelTest {
     @Mock
     lateinit var repository: MeverRepository
 
+    @Mock
+    lateinit var ketch: Ketch
+
     private val fakeContents = listOf(
         ContentEntity(url = "https://img1.jpg", status = true, id = "1"),
         ContentEntity(url = "https://img2.jpg", status = true, id = "2")
@@ -57,7 +62,7 @@ class ExploreLandingViewModelTest {
 
     @Test
     fun `exploreResponseState is StateInitial before coroutines run`() {
-        val vm = ExploreLandingViewModel(repository)
+        val vm = ExploreLandingViewModel(repository, ketch)
         assertTrue(vm.exploreResponseState.value is UiState.StateInitial)
     }
 
@@ -66,12 +71,17 @@ class ExploreLandingViewModelTest {
         whenever(repository.getImageSearch("nature")).thenReturn(
             flowOf(ApiState.Loading, ApiState.Success(fakeContents))
         )
-        val vm = ExploreLandingViewModel(repository)
+        val vm = ExploreLandingViewModel(repository, ketch)
+        val states = mutableListOf<UiState<List<ContentEntity>>>()
+        val job = launch { vm.exploreResponseState.collect { states.add(it) } }
         vm.getExploreContents("nature")
         advanceUntilIdle()
-        val state = vm.exploreResponseState.value
-        assertTrue(state is UiState.StateSuccess)
-        assertEquals(fakeContents, (state as UiState.StateSuccess).data)
+        job.cancel()
+        assertTrue(states.any { it is UiState.StateSuccess })
+        assertEquals(
+            fakeContents,
+            (states.first { it is UiState.StateSuccess } as UiState.StateSuccess).data
+        )
     }
 
     @Test
@@ -79,12 +89,17 @@ class ExploreLandingViewModelTest {
         whenever(repository.getImageSearch("fail")).thenReturn(
             flowOf(ApiState.Error(Throwable("Network error")))
         )
-        val vm = ExploreLandingViewModel(repository)
+        val vm = ExploreLandingViewModel(repository, ketch)
+        val states = mutableListOf<UiState<List<ContentEntity>>>()
+        val job = launch { vm.exploreResponseState.collect { states.add(it) } }
         vm.getExploreContents("fail")
         advanceUntilIdle()
-        val state = vm.exploreResponseState.value
-        assertTrue(state is UiState.StateFailed)
-        assertEquals("Network error", (state as UiState.StateFailed).message)
+        job.cancel()
+        assertTrue(states.any { it is UiState.StateFailed })
+        assertEquals(
+            "Network error",
+            (states.first { it is UiState.StateFailed } as UiState.StateFailed).message
+        )
     }
 
     @Test
@@ -92,7 +107,7 @@ class ExploreLandingViewModelTest {
         whenever(repository.getImageSearch("tech")).thenReturn(
             flowOf(ApiState.Loading)
         )
-        val vm = ExploreLandingViewModel(repository)
+        val vm = ExploreLandingViewModel(repository, ketch)
         vm.getExploreContents("tech")
         advanceUntilIdle()
         assertTrue(vm.exploreResponseState.value is UiState.StateLoading)
@@ -100,13 +115,13 @@ class ExploreLandingViewModelTest {
 
     @Test
     fun `query default value is empty string`() {
-        val vm = ExploreLandingViewModel(repository)
+        val vm = ExploreLandingViewModel(repository, ketch)
         assertEquals("", vm.query)
     }
 
     @Test
     fun `query can be updated`() {
-        val vm = ExploreLandingViewModel(repository)
+        val vm = ExploreLandingViewModel(repository, ketch)
         vm.query = "wallpaper"
         assertEquals("wallpaper", vm.query)
     }

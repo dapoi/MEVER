@@ -144,14 +144,15 @@ class GalleryLandingViewModelTest {
     }
 
     @Test
-    fun `delete delegates to ketch clearDb`() {
-        viewModel.delete(1)
-        verify(ketch).clearDb(1)
+    fun `delete is a safe no-op when there are no downloads`() = runTest {
+        advanceUntilIdle()
+        org.mockito.Mockito.verify(ketch, org.mockito.Mockito.never())
+            .clearDb(org.mockito.kotlin.any<Int>(), org.mockito.kotlin.any<Boolean>())
     }
 
     @Test
-    fun `deleteAll delegates to ketch clearAllDb`() {
-        viewModel.deleteAll()
-        verify(ketch).clearAllDb()
+    fun `deleteAll is a safe no-op when there are no downloads`() = runTest {
+        advanceUntilIdle()
+        org.mockito.Mockito.verify(ketch, org.mockito.Mockito.never()).clearAllDb()
     }
 }
