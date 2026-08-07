@@ -97,12 +97,18 @@ class AiBackgroundRemovalViewModel @Inject constructor(
 
     fun removeBackground(imageUri: Uri) {
         _backgroundRemovalState.value = StateLoading
-        viewModelScope.launch(IO) {
-            val result = processor.removeBackground(context.contentResolver, imageUri)
-            _backgroundRemovalState.value = if (result != null) {
-                StateSuccess(result)
-            } else {
-                StateFailed(context.getString(R.string.failed_process_ai))
+        viewModelScope.launch {
+            try {
+                val result = withContext(IO) {
+                    processor.removeBackground(context.contentResolver, imageUri)
+                }
+                _backgroundRemovalState.value = if (result != null) {
+                    StateSuccess(result)
+                } else {
+                    StateFailed(context.getString(R.string.failed_process_ai))
+                }
+            } catch (e: Exception) {
+                _backgroundRemovalState.value = StateFailed(e.message)
             }
         }
     }

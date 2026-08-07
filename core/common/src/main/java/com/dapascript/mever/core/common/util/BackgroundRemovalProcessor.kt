@@ -84,7 +84,9 @@ class BackgroundRemovalProcessor @Inject constructor() {
      */
     private suspend fun <T> Task<T>.await(): T =
         suspendCancellableCoroutine { cont ->
-            addOnSuccessListener { cont.resume(it) }
+            addOnSuccessListener {
+                if (cont.isActive) cont.resume(it)
+            }
             addOnFailureListener { e ->
                 if (cont.isActive) cont.resumeWithException(e)
             }
