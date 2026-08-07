@@ -7,7 +7,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 class BaseRepositoryArgs @Inject constructor(
-    @param:ApplicationContext val context: Context,
+    @ApplicationContext val context: Context,
     val workManager: WorkManager,
     val moshiHelper: MoshiHelper
 )

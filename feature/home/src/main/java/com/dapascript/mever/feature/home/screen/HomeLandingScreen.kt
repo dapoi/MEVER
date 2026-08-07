@@ -173,7 +173,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
@@ -218,6 +217,7 @@ internal fun HomeLandingScreen(
         val showBottomFade by remember {
             derivedStateOf { lazyListState.canScrollForward }
         }
+        var isInPreview by remember { mutableStateOf(false) }
 
         LaunchedEffect(Unit) {
             inAppUpdateManager.registerListener { isUpdateReady = true }
@@ -238,8 +238,11 @@ internal fun HomeLandingScreen(
 
         DisposableEffect(lifecycleOwner) {
             val observer = LifecycleEventObserver { _, event ->
-                if (event == ON_RESUME && isUpdateRefused.not()) {
-                    inAppUpdateManager.checkForDownloadedUpdate { isUpdateReady = true }
+                if (event == ON_RESUME) {
+                    isInPreview = false
+                    if (isUpdateRefused.not()) {
+                        inAppUpdateManager.checkForDownloadedUpdate { isUpdateReady = true }
+                    }
                 }
             }
             lifecycleOwner.value.lifecycle.addObserver(observer)
@@ -291,8 +294,10 @@ internal fun HomeLandingScreen(
                 getButtonClickCount = getButtonClickCount,
                 adsThreshold = adsThresholdValue,
                 showBadge = showBadge,
+                isInPreview = isInPreview,
                 lifecycleOwner = lifecycleOwner,
-                lazyListState = lazyListState
+                lazyListState = lazyListState,
+                onIsInPreviewChange = { isInPreview = it }
             )
         }
     }
@@ -308,9 +313,11 @@ private fun HomeLandingContent(
     getButtonClickCount: Int,
     adsThreshold: Int,
     showBadge: Boolean,
+    isInPreview: Boolean,
     lifecycleOwner: State<LifecycleOwner>,
     modifier: Modifier = Modifier,
-    lazyListState: LazyListState = rememberLazyListState()
+    lazyListState: LazyListState = rememberLazyListState(),
+    onIsInPreviewChange: (Boolean) -> Unit
 ) = with(viewModel) {
     val deviceType = LocalDeviceType.current
     val downloadList = downloadList.collectAsStateValue()
@@ -335,7 +342,6 @@ private fun HomeLandingContent(
     var isPlaylistNotSupported by remember { mutableStateOf(false) }
     var loadingItemIndex by remember { mutableStateOf<Int?>(null) }
     var isDownloadProcessing by remember { mutableStateOf(false) }
-    var isInPreview by remember { mutableStateOf(false) }
     val onClickCardAction: (DownloadModel) -> Unit = { download ->
         with(download) {
             when (status) {
@@ -472,11 +478,11 @@ private fun HomeLandingContent(
 
                 try {
                     supervisorScope {
-                        urls.mapIndexed { index, url ->
+                        val preparedTasks = urls.map { url ->
                             async(IO) {
                                 semaphore.withPermit {
                                     runCatching {
-                                        val content = byUrl[url] ?: return@runCatching
+                                        val content = byUrl[url] ?: return@runCatching null
                                         val extension = getExtensionFromUrl(
                                             url = url,
                                             extensionFromResponse = content.type
@@ -492,20 +498,29 @@ private fun HomeLandingContent(
                                                 else -> ".jpg"
                                             }
                                         }
-                                        val timeStamp = changeToCurrentDate(currentTimeMillis())
-                                        val fileName = content.fileName.ifEmpty {
-                                            "MEVER_${timeStamp}_${index}${extension}"
-                                        }
-
-                                        startDownload(
-                                            url = url,
-                                            fileName = fileName,
-                                            thumbnail = content.thumbnail
-                                        )
-                                    }.onFailure { it.printStackTrace() }
+                                        Triple(url, content, extension)
+                                    }.getOrNull()
                                 }
                             }
-                        }.awaitAll()
+                        }
+
+                        preparedTasks.forEachIndexed { index, task ->
+                            val result = task.await()
+                            if (result != null) {
+                                val (url, content, extension) = result
+                                val timeStamp = changeToCurrentDate(currentTimeMillis())
+                                val fileName = content.fileName.ifEmpty {
+                                    "MEVER_${timeStamp}_${index}${extension}"
+                                }
+
+                                startDownload(
+                                    url = url,
+                                    fileName = fileName,
+                                    thumbnail = content.thumbnail
+                                )
+                                delay(100.milliseconds)
+                            }
+                        }
                     }
                 } finally {
                     isDownloadProcessing = false
@@ -535,7 +550,7 @@ private fun HomeLandingContent(
                     }
 
                     if (loadingItemIndex == index) {
-                        isInPreview = true
+                        onIsInPreviewChange(true)
                         delay(150.milliseconds)
                         navigator.navigate(
                             GalleryContentDetailRoute(
@@ -548,11 +563,10 @@ private fun HomeLandingContent(
                     if (loadingItemIndex == index) loadingItemIndex = null
                 }
             }
-            isInPreview = false
         },
         onClickDismiss = {
             loadingItemIndex = null
-            isInPreview = false
+            onIsInPreviewChange(false)
             contents = emptyList()
         }
     )

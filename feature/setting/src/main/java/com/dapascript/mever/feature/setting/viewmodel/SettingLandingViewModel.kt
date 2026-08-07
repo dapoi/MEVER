@@ -24,7 +24,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingLandingViewModel @Inject constructor(
-    @param:ApplicationContext private val context: Context,
+    @ApplicationContext private val context: Context,
     private val dataStore: MeverDataStore
 ) : BaseViewModel() {
     var languageCode by mutableStateOf("en")

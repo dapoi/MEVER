@@ -12,10 +12,10 @@ data class TeraboxDownloaderResponse(
     data class DataContent(
         val thumbs: Thumbs? = null,
         val url: String? = null,
-        @param:Json(name = "server_filename") val serverFileName: String? = null
+        @Json(name = "server_filename") val serverFileName: String? = null
     ) {
         data class Thumbs(
-            @param:Json(name = "url1") val thumbnail: String? = null
+            @Json(name = "url1") val thumbnail: String? = null
         )
     }
 

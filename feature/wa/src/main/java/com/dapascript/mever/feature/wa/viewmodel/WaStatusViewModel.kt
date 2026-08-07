@@ -22,7 +22,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class WaStatusViewModel @Inject constructor(
-    @param:ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context
 ) : BaseViewModel() {
     private val _waStatuses = MutableStateFlow<List<WaMediaModel>?>(null)
     val waStatuses = _waStatuses.asStateFlow()

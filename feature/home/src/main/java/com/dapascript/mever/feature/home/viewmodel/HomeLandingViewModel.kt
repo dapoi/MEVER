@@ -70,7 +70,7 @@ class HomeLandingViewModel @Inject constructor(
             }.sortedWith(
                 compareByDescending<DownloadModel> {
                     it.status in listOf(QUEUED, STARTED, PROGRESS)
-                }.thenByDescending { it.lastModified }
+                }.thenByDescending { it.timeQueued }
             )
         }
         .distinctUntilChanged()

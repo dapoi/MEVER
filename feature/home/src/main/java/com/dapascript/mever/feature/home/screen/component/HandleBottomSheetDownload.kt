@@ -1,5 +1,7 @@
 package com.dapascript.mever.feature.home.screen.component
 
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.ScrollState.Companion.Saver
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
@@ -13,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -25,17 +26,20 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.StrokeCap.Companion.Round
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign.Companion.End
 import androidx.compose.ui.text.style.TextAlign.Companion.Start
 import androidx.compose.ui.text.style.TextOverflow.Companion.Ellipsis
@@ -73,23 +77,33 @@ internal fun HandleBottomSheetDownload(
     onClickPreview: (Int) -> Unit,
     onClickDismiss: () -> Unit
 ) {
-    var selectMultipleItems by remember(listContent) { mutableStateOf(emptySet<Int>()) }
-    var showBottomSheet by remember { mutableStateOf(false) }
-    val isMusic = remember(listContent) {
-        isMusic(listContent.firstOrNull()?.fileName.orEmpty())
+    var stableListContent by remember { mutableStateOf(listContent) }
+    val contentKey by remember {
+        derivedStateOf { stableListContent.firstOrNull()?.url.orEmpty() }
     }
-    val scrollState = rememberScrollState()
+    val scrollState = rememberSaveable(contentKey, saver = Saver) { ScrollState(0) }
+    var selectMultipleItems by rememberSaveable(contentKey) { mutableStateOf(emptySet<Int>()) }
+    var showBottomSheet by remember { mutableStateOf(false) }
+    val isMusic by remember {
+        derivedStateOf { isMusic(stableListContent.firstOrNull()?.fileName.orEmpty()) }
+    }
+    val isSheetScrollable by remember {
+        derivedStateOf {
+            showBottomSheet && (scrollState.canScrollForward || scrollState.canScrollBackward)
+        }
+    }
 
     LaunchedEffect(listContent, isInPreview) {
-        showBottomSheet = listContent.isNotEmpty() && isInPreview.not()
+        val isNotEmpty = listContent.isNotEmpty()
+        showBottomSheet = isNotEmpty && isInPreview.not()
+        if (isNotEmpty) stableListContent = listContent
     }
 
     MeverBottomSheet(
         modifier = modifier,
-        isAlwaysRectangular = scrollState.canScrollForward || scrollState.canScrollBackward,
-        isDisableContentDrag = scrollState.canScrollForward || scrollState.canScrollBackward,
+        isAlwaysRectangular = isSheetScrollable,
+        isDisableContentDrag = isSheetScrollable,
         showBottomSheet = showBottomSheet,
-        shouldDismissOnBackPress = false,
         onDismissBottomSheet = onClickDismiss
     ) {
         Column(modifier = Modifier.wrapContentSize()) {
@@ -106,16 +120,16 @@ internal fun HandleBottomSheetDownload(
                     style = typography.bodyBold1.copy(fontSize = Sp20),
                     color = colors.blackWhite
                 )
-                if (listContent.size > 1) Text(
+                if (stableListContent.size > 1) Text(
                     modifier = Modifier
                         .clip(RoundedCornerShape(Dp8))
                         .clickable {
                             selectMultipleItems =
-                                if (selectMultipleItems.size == listContent.size) emptySet()
-                                else listContent.indices.toSet()
+                                if (selectMultipleItems.size == stableListContent.size) emptySet()
+                                else stableListContent.indices.toSet()
                         },
                     text = stringResource(
-                        if (selectMultipleItems.size == listContent.size) R.string.deselect_all
+                        if (selectMultipleItems.size == stableListContent.size) R.string.deselect_all
                         else R.string.select_all
                     ),
                     style = typography.bodyBold2,
@@ -140,9 +154,9 @@ internal fun HandleBottomSheetDownload(
                         .height(Dp250)
                         .padding(vertical = Dp16, horizontal = Dp24)
                         .clip(RoundedCornerShape(Dp12)),
-                    source = listContent.first().thumbnail.ifEmpty { R.drawable.ic_music }
+                    source = stableListContent.first().thumbnail.ifEmpty { R.drawable.ic_music }
                 )
-                listContent.forEachIndexed { index, content ->
+                stableListContent.forEachIndexed { index, content ->
                     CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
                         MeverCheckBoxButton(
                             value = getValueSelector(index, content),
@@ -206,7 +220,7 @@ internal fun HandleBottomSheetDownload(
                     modifier = Modifier
                         .clip(RoundedCornerShape(Dp14))
                         .onCustomClick(enabled = isDownloadProcessing.not()) {
-                            onClickDownload(selectMultipleItems.map { listContent[it].url })
+                            onClickDownload(selectMultipleItems.map { stableListContent[it].url })
                         }
                         .weight(1f)
                         .padding(vertical = Dp16),
@@ -233,26 +247,23 @@ private fun MeverCheckBoxButton(
     isChecked: Boolean,
     isPreviewLoading: Boolean,
     showPreviewButton: Boolean,
-    modifier: Modifier = Modifier,
     onClickPreview: () -> Unit,
     onChooseValue: () -> Unit
 ) = Row(
-    modifier = modifier
+    modifier = Modifier
         .fillMaxWidth()
         .clip(RoundedCornerShape(Dp8))
-        .onCustomClick(onClick = { onChooseValue() })
+        .clickable { onChooseValue() }
         .padding(vertical = Dp16, horizontal = Dp24),
     verticalAlignment = CenterVertically,
     horizontalArrangement = spacedBy(Dp16)
 ) {
     Box(
-        modifier = modifier
-            .clip(CircleShape)
-            .onCustomClick { onChooseValue() },
+        modifier = Modifier.clip(CircleShape),
         contentAlignment = Center
     ) {
         Icon(
-            painter = painterResource(
+            imageVector = ImageVector.vectorResource(
                 if (isChecked) R.drawable.ic_round_checked
                 else R.drawable.ic_round_unchecked
             ),

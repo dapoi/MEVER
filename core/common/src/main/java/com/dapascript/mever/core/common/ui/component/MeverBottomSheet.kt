@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetDefaults.ExpandedShape
-import androidx.compose.material3.BottomSheetDefaults.HiddenShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ModalBottomSheet
@@ -74,7 +73,9 @@ fun MeverBottomSheet(
                 consumed: Offset,
                 available: Offset,
                 source: NestedScrollSource
-            ): Offset = if (isDisableContentDrag) available else Offset.Zero
+            ): Offset = if (isDisableContentDrag && source == NestedScrollSource.UserInput && available.y != 0f) {
+                available
+            } else Offset.Zero
 
             override suspend fun onPostFling(
                 consumed: Velocity,
@@ -101,7 +102,7 @@ fun MeverBottomSheet(
                 topEnd = corner
             )
 
-            isAlwaysRectangular -> HiddenShape
+            isAlwaysRectangular -> RoundedCornerShape(Dp0)
             else -> ExpandedShape
         },
         containerColor = colors.whiteDark,

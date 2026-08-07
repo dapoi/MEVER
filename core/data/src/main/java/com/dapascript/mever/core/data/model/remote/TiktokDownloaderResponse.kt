@@ -11,12 +11,12 @@ data class TiktokDownloaderResponse(
 ) {
     @JsonClass(generateAdapter = true)
     data class DataContent(
-        @param:Json(name = "photo") val rawPhoto: Any?,
-        @param:Json(name = "video") val rawVideo: Any?
+        @Json(name = "photo") val rawPhoto: Any?,
+        @Json(name = "video") val rawVideo: Any?
     ) {
         val photos: List<String>?
             get() = if (rawPhoto is List<*>) {
-                rawPhoto.mapNotNull { it as? String }
+                rawPhoto.filterIsInstance<String>()
             } else null
 
         val video: String?
