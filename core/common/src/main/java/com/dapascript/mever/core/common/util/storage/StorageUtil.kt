@@ -71,8 +71,4 @@ object StorageUtil {
             ?.toList()
             ?: emptyList()
     }
-
-    suspend fun getFilePath(dir: File, fileName: String): File? = withContext(IO) {
-        File(dir, fileName).takeIf { it.exists() && it.isFile }
-    }
 }
