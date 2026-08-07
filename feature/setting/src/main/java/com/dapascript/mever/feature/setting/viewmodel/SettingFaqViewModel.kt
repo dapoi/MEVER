@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 @HiltViewModel
-class SettingFaqViewModel @Inject constructor() : BaseViewModel() {
+internal class SettingFaqViewModel @Inject constructor() : BaseViewModel() {
 
     private val _faqList = MutableStateFlow(SettingFaqAttr.faqList)
     val faqList = _faqList.asStateFlow()

@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SettingLanguageViewModel @Inject constructor(
+internal class SettingLanguageViewModel @Inject constructor(
     private val dataStore: MeverDataStore
 ) : BaseViewModel() {
     val languages by lazy { appLanguages() }

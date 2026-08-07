@@ -20,7 +20,7 @@ import com.dapascript.mever.feature.startup.screen.OnboardScreen
 import com.dapascript.mever.feature.startup.screen.SplashScreen
 import javax.inject.Inject
 
-class StartupNavGraphImpl @Inject constructor() : BaseNavGraph {
+internal class StartupNavGraphImpl @Inject constructor() : BaseNavGraph {
     override fun EntryProviderScope<NavKey>.createGraph(navigator: Navigator) {
         entry<SplashRoute> { SplashScreen(navigator) }
         entry<OnboardRoute>(

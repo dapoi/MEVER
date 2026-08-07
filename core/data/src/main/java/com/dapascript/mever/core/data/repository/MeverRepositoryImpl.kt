@@ -25,7 +25,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 import javax.inject.Inject
 
-class MeverRepositoryImpl @Inject constructor(
+internal class MeverRepositoryImpl @Inject constructor(
     private val apiService: ApiService,
     args: BaseRepositoryArgs
 ) : MeverRepository, BaseRepository(args) {

@@ -10,7 +10,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class GalleryContentDetailViewModel @Inject constructor(
+internal class GalleryContentDetailViewModel @Inject constructor(
     private val dataStore: MeverDataStore
 ) : BaseViewModel() {
 

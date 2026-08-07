@@ -22,7 +22,7 @@ import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
-class SplashScreenViewModel @Inject constructor(
+internal class SplashScreenViewModel @Inject constructor(
     private val dataStore: MeverDataStore,
     private val meverRepository: MeverRepository
 ) : BaseViewModel() {

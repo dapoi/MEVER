@@ -10,7 +10,7 @@ import dagger.multibindings.IntoSet
 
 @Module
 @InstallIn(ActivityRetainedComponent::class)
-abstract class AiNavGraphModule {
+internal abstract class AiNavGraphModule {
 
     @Binds
     @IntoSet

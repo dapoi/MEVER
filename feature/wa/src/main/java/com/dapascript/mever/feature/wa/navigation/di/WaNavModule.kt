@@ -10,7 +10,7 @@ import dagger.multibindings.IntoSet
 
 @Module
 @InstallIn(ActivityRetainedComponent::class)
-abstract class WaNavModule {
+internal abstract class WaNavModule {
 
     @Binds
     @IntoSet

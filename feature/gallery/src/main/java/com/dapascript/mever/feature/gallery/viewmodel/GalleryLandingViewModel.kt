@@ -31,7 +31,7 @@ import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
-class GalleryLandingViewModel @Inject constructor(
+internal class GalleryLandingViewModel @Inject constructor(
     private val ketch: Ketch
 ) : BaseViewModel() {
 

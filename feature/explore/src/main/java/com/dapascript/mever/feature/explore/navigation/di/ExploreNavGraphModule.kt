@@ -10,7 +10,7 @@ import dagger.multibindings.IntoSet
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class ExploreNavGraphModule {
+internal abstract class ExploreNavGraphModule {
 
     @Binds
     @IntoSet

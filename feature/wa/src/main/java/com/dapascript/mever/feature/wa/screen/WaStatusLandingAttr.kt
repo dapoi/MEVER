@@ -4,8 +4,8 @@ import android.net.Uri
 import androidx.annotation.StringRes
 import com.dapascript.mever.core.common.R
 
-object WaStatusLandingAttr {
-    data class WaMediaModel(
+internal object WaStatusLandingAttr {
+    internal data class WaMediaModel(
         val uri: Uri,
         val name: String,
         val lastModified: Long,

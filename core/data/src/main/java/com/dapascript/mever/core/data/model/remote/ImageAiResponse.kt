@@ -4,9 +4,9 @@ import com.dapascript.mever.core.data.model.local.ImageAiEntity
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class ImageAiResponse(val data: ImageAiData) {
+internal data class ImageAiResponse(val data: ImageAiData) {
     @JsonClass(generateAdapter = true)
-    data class ImageAiData(
+    internal data class ImageAiData(
         val url: String? = null,
         val filename: String? = null
     )

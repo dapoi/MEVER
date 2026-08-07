@@ -4,17 +4,17 @@ import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class AppleMusicDownloaderResponse(
+internal data class AppleMusicDownloaderResponse(
     val status: Boolean? = null,
     val data: DataContent? = null
 ) {
     @JsonClass(generateAdapter = true)
-    data class DataContent(
+    internal data class DataContent(
         val thumbnail: String? = null,
         val audio: Audio? = null
     ) {
         @JsonClass(generateAdapter = true)
-        data class Audio(
+        internal data class Audio(
             val filename: String? = null,
             val url: String? = null
         )

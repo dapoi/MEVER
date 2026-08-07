@@ -13,7 +13,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-class AppModule {
+internal class AppModule {
     @Provides
     @Singleton
     fun provideKetch(application: Application) = Ketch.builder()

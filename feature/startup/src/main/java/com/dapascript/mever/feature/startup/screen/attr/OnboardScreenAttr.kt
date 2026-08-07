@@ -1,7 +1,7 @@
 package com.dapascript.mever.feature.startup.screen.attr
 
-object OnboardScreenAttr {
-    data class OnboardPage(
+internal object OnboardScreenAttr {
+    internal data class OnboardPage(
         val image: Int,
         val title: String,
         val highlightedText: String,

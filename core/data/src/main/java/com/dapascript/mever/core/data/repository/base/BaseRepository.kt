@@ -31,7 +31,7 @@ import java.io.IOException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
-open class BaseRepository(
+internal open class BaseRepository(
     private val args: BaseRepositoryArgs
 ) {
 

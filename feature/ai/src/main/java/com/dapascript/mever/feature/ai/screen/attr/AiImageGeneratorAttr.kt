@@ -3,8 +3,8 @@ package com.dapascript.mever.feature.ai.screen.attr
 import android.content.Context
 import com.dapascript.mever.core.common.R
 
-object AiImageGeneratorAttr {
-    data class StyleOption(
+internal object AiImageGeneratorAttr {
+    internal data class StyleOption(
         val styleName: String,
         val promptKeywords: String,
         val image: Int

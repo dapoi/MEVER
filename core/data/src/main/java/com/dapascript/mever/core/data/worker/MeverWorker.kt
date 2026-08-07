@@ -50,7 +50,7 @@ import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
 @HiltWorker
-class MeverWorker @AssistedInject constructor(
+internal class MeverWorker @AssistedInject constructor(
     @Assisted private val context: Context,
     @Assisted workerParameters: WorkerParameters,
     private val apiService: ApiService,

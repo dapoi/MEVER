@@ -16,7 +16,7 @@ import com.dapascript.mever.feature.setting.screen.SettingLanguageScreen
 import com.dapascript.mever.feature.setting.screen.SettingThemeScreen
 import javax.inject.Inject
 
-class SettingNavGraphImpl @Inject constructor() : BaseNavGraph {
+internal class SettingNavGraphImpl @Inject constructor() : BaseNavGraph {
     override fun EntryProviderScope<NavKey>.createGraph(navigator: Navigator) {
         entry<SettingLandingRoute> { args -> SettingLandingScreen(navigator, args) }
         entry<SettingLanguageRoute> { args -> SettingLanguageScreen(navigator, args) }

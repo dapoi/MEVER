@@ -10,12 +10,12 @@ import com.dapascript.mever.core.common.ui.theme.MeverPink
 import com.dapascript.mever.core.common.ui.theme.MeverViolet
 import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.SettingMenus.SubMenu
 
-object SettingLandingAttr {
-    data class SettingMenus(
+internal object SettingLandingAttr {
+    internal data class SettingMenus(
         val header: Int,
         val menus: List<SubMenu>
     ) {
-        data class SubMenu(
+        internal data class SubMenu(
             val leadingTitle: String,
             val icon: Int,
             val iconBackgroundColor: Color,

@@ -4,14 +4,14 @@ import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class ImageSearchResponse(
+internal data class ImageSearchResponse(
     val status: Boolean? = null,
     val data: List<ImageSearchData>? = null
 ) {
     @JsonClass(generateAdapter = true)
-    data class ImageSearchData(val content: List<ContentData>? = null) {
+    internal data class ImageSearchData(val content: List<ContentData>? = null) {
         @JsonClass(generateAdapter = true)
-        data class ContentData(val url: String? = null)
+        internal data class ContentData(val url: String? = null)
     }
 
     fun mapToEntity() = data?.mapIndexed { index, content ->

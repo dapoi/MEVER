@@ -12,7 +12,7 @@ import com.dapascript.mever.feature.ai.screen.AiImageGeneratorResultScreen
 import com.dapascript.mever.feature.ai.screen.AiImageGeneratorScreen
 import javax.inject.Inject
 
-class AiNavGraphImpl @Inject constructor() : BaseNavGraph {
+internal class AiNavGraphImpl @Inject constructor() : BaseNavGraph {
     override fun EntryProviderScope<NavKey>.createGraph(navigator: Navigator) {
         entry<AiImageGeneratorRoute> { AiImageGeneratorScreen(navigator) }
         entry<AiImageGeneratorResultRoute> { args ->

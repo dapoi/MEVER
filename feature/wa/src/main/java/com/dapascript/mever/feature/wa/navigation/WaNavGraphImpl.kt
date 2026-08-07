@@ -8,7 +8,7 @@ import com.dapascript.mever.core.navigation.route.WaScreenRoute.WaStatusLandingR
 import com.dapascript.mever.feature.wa.screen.WaStatusLandingScreen
 import javax.inject.Inject
 
-class WaNavGraphImpl @Inject constructor() : BaseNavGraph {
+internal class WaNavGraphImpl @Inject constructor() : BaseNavGraph {
     override fun EntryProviderScope<NavKey>.createGraph(navigator: Navigator) {
         entry<WaStatusLandingRoute> { WaStatusLandingScreen(navigator) }
     }

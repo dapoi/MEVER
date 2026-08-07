@@ -5,16 +5,16 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class TeraboxDownloaderResponse(
+internal data class TeraboxDownloaderResponse(
     val status: Boolean? = null,
     val data: List<DataContent>? = null
 ) {
-    data class DataContent(
+    internal data class DataContent(
         val thumbs: Thumbs? = null,
         val url: String? = null,
         @Json(name = "server_filename") val serverFileName: String? = null
     ) {
-        data class Thumbs(
+        internal data class Thumbs(
             @Json(name = "url1") val thumbnail: String? = null
         )
     }

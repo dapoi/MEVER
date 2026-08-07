@@ -10,7 +10,7 @@ import dagger.multibindings.IntoSet
 
 @Module
 @InstallIn(ActivityRetainedComponent::class)
-abstract class StartupNavModule {
+internal abstract class StartupNavModule {
 
     @Binds
     @IntoSet

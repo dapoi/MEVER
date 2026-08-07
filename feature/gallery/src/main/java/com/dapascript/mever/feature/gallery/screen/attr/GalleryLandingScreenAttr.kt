@@ -3,7 +3,7 @@ package com.dapascript.mever.feature.gallery.screen.attr
 import android.content.Context
 import com.dapascript.mever.core.common.R
 
-object GalleryLandingScreenAttr {
+internal object GalleryLandingScreenAttr {
 
     enum class GalleryActionMenu(val resId: Int) {
         SELECT_ALL(R.string.select_all),

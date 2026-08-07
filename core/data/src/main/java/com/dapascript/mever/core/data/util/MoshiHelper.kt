@@ -6,7 +6,7 @@ import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 import javax.inject.Inject
 
-class MoshiHelper @Inject constructor(val moshi: Moshi) {
+internal class MoshiHelper @Inject constructor(val moshi: Moshi) {
 
     fun <T> toJson(type: Type, data: T): String? {
         return try {

@@ -2,8 +2,8 @@ package com.dapascript.mever.feature.setting.screen.attr
 
 import com.dapascript.mever.core.common.R
 
-object SettingFaqAttr {
-    data class FaqUiModel(
+internal object SettingFaqAttr {
+    internal data class FaqUiModel(
         val id: Int,
         val question: Int,
         val answer: Int,

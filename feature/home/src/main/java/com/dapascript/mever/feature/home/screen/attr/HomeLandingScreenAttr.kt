@@ -12,7 +12,7 @@ import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeQuickTools
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeQuickToolsRoute.FeatureCard.QuickToolsType.WA
 import com.dapascript.mever.core.navigation.route.WaScreenRoute.WaStatusLandingRoute
 
-object HomeLandingScreenAttr {
+internal object HomeLandingScreenAttr {
     @Composable
     internal fun QuickToolsType.getCardColor() = when (this) {
         WA -> colors.lightGreenDarkGray

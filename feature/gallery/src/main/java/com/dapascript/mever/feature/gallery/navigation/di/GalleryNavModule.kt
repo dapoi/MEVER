@@ -10,7 +10,7 @@ import dagger.multibindings.IntoSet
 
 @Module
 @InstallIn(ActivityRetainedComponent::class)
-abstract class GalleryNavModule {
+internal abstract class GalleryNavModule {
 
     @Binds
     @IntoSet

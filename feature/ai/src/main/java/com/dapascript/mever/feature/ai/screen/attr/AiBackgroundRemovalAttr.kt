@@ -3,8 +3,8 @@ package com.dapascript.mever.feature.ai.screen.attr
 import android.graphics.Bitmap
 import android.net.Uri
 
-object AiBackgroundRemovalAttr {
-    data class SaveResult(
+internal object AiBackgroundRemovalAttr {
+    internal data class SaveResult(
         val location: ImageLocation,
         val fileName: String
     ) {
@@ -14,9 +14,9 @@ object AiBackgroundRemovalAttr {
     }
 
     sealed class BgRemovalType {
-        object TransparentImage : BgRemovalType()
-        object CustomColor : BgRemovalType()
-        data class QuickColor(val color: Int) : BgRemovalType()
-        data class CustomImage(val uri: Uri, val bitmap: Bitmap? = null) : BgRemovalType()
+        internal object TransparentImage : BgRemovalType()
+        internal object CustomColor : BgRemovalType()
+        internal data class QuickColor(val color: Int) : BgRemovalType()
+        internal data class CustomImage(val uri: Uri, val bitmap: Bitmap? = null) : BgRemovalType()
     }
 }

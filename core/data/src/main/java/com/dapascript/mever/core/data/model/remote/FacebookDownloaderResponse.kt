@@ -4,12 +4,12 @@ import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class FacebookDownloaderResponse(
+internal data class FacebookDownloaderResponse(
     val status: Boolean? = null,
     val data: List<DataContent>? = null
 ) {
     @JsonClass(generateAdapter = true)
-    data class DataContent(
+    internal data class DataContent(
         val url: String? = null,
         val quality: String? = null,
         val response: Int? = null

@@ -4,7 +4,7 @@ import com.dapascript.mever.core.data.model.local.AppConfigEntity
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class AppConfigResponse(
+internal data class AppConfigResponse(
     val isForceUpdateRequired: Boolean,
     val isImageGeneratorFeatureActive: Boolean,
     val isGoImgFeatureActive: Boolean,

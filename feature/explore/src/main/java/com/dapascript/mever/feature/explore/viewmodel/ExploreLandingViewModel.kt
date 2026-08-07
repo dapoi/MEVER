@@ -21,7 +21,7 @@ import java.lang.System.currentTimeMillis
 import javax.inject.Inject
 
 @HiltViewModel
-class ExploreLandingViewModel @Inject constructor(
+internal class ExploreLandingViewModel @Inject constructor(
     private val repository: MeverRepository,
     private val ketch: Ketch
 ) : BaseViewModel() {

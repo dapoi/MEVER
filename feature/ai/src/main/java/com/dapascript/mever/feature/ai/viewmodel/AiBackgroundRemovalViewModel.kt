@@ -51,7 +51,7 @@ import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
-class AiBackgroundRemovalViewModel @Inject constructor(
+internal class AiBackgroundRemovalViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val processor: BackgroundRemovalProcessor,
     private val dataStore: MeverDataStore,

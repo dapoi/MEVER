@@ -5,12 +5,12 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class TiktokDownloaderResponse(
+internal data class TiktokDownloaderResponse(
     val status: Boolean? = null,
     val data: DataContent? = null
 ) {
     @JsonClass(generateAdapter = true)
-    data class DataContent(
+    internal data class DataContent(
         @Json(name = "photo") val rawPhoto: Any?,
         @Json(name = "video") val rawVideo: Any?
     ) {

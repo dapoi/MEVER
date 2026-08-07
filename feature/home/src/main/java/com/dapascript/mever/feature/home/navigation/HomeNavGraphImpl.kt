@@ -16,7 +16,7 @@ import com.dapascript.mever.feature.home.screen.HomeLandingScreen
 import com.dapascript.mever.feature.home.screen.HomeQuickToolsScreen
 import javax.inject.Inject
 
-class HomeNavGraphImpl @Inject constructor() : BaseNavGraph {
+internal class HomeNavGraphImpl @Inject constructor() : BaseNavGraph {
     override fun EntryProviderScope<NavKey>.createGraph(navigator: Navigator) {
         entry<HomeLandingRoute>(
             metadata = metadata {

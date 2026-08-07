@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class OnboardViewModel @Inject constructor(
+internal class OnboardViewModel @Inject constructor(
     @ApplicationContext context: Context,
     private val meverDataStore: MeverDataStore
 ) : BaseViewModel() {

@@ -45,7 +45,7 @@ import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
-class HomeLandingViewModel @Inject constructor(
+internal class HomeLandingViewModel @Inject constructor(
     private val dataStore: MeverDataStore,
     private val ketch: Ketch,
     private val repository: MeverRepository

@@ -23,7 +23,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SettingLandingViewModel @Inject constructor(
+internal class SettingLandingViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val dataStore: MeverDataStore
 ) : BaseViewModel() {

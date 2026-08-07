@@ -3,8 +3,8 @@ package com.dapascript.mever.feature.ai.screen.attr
 import android.content.Context
 import com.dapascript.mever.core.common.R
 
-object AiImageGeneratorResultAttr {
-    data class MenuAction(
+internal object AiImageGeneratorResultAttr {
+    internal data class MenuAction(
         val title: String,
         val icon: Int
     )

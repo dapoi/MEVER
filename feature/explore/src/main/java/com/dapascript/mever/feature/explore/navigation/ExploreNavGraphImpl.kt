@@ -8,7 +8,7 @@ import com.dapascript.mever.core.navigation.route.ExploreScreenRoute.ExploreLand
 import com.dapascript.mever.feature.explore.screen.ExploreLandingScreen
 import javax.inject.Inject
 
-class ExploreNavGraphImpl @Inject constructor() : BaseNavGraph {
+internal class ExploreNavGraphImpl @Inject constructor() : BaseNavGraph {
     override fun EntryProviderScope<NavKey>.createGraph(navigator: Navigator) {
         entry<ExploreLandingRoute> { ExploreLandingScreen(navigator) }
     }

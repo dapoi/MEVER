@@ -21,7 +21,7 @@ import com.dapascript.mever.feature.gallery.screen.GalleryContentDetailScreen
 import com.dapascript.mever.feature.gallery.screen.GalleryLandingScreen
 import javax.inject.Inject
 
-class GalleryNavGraphImpl @Inject constructor() : BaseNavGraph {
+internal class GalleryNavGraphImpl @Inject constructor() : BaseNavGraph {
     override fun EntryProviderScope<NavKey>.createGraph(navigator: Navigator) {
         entry<GalleryLandingRoute> { GalleryLandingScreen(navigator) }
         entry<GalleryContentDetailRoute>(
