@@ -26,7 +26,7 @@ import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
-internal class AiImageResultViewModel @Inject constructor(
+internal class AiImageGeneratorResultViewModel @Inject constructor(
     private val ketch: Ketch,
     private val repository: MeverRepository,
     private val dataStore: MeverDataStore

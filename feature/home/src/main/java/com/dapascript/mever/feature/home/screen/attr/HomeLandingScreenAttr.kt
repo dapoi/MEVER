@@ -3,7 +3,7 @@ package com.dapascript.mever.feature.home.screen.attr
 import androidx.compose.runtime.Composable
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.navigation.route.AiScreenRoute.AiBackgroundRemovalRoute
-import com.dapascript.mever.core.navigation.route.AiScreenRoute.AiImageGeneratorRoute
+import com.dapascript.mever.core.navigation.route.AiScreenRoute.AiImageGeneratorLandingRoute
 import com.dapascript.mever.core.navigation.route.ExploreScreenRoute.ExploreLandingRoute
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeQuickToolsRoute.FeatureCard.QuickToolsType
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeQuickToolsRoute.FeatureCard.QuickToolsType.AI_IMAGE
@@ -25,6 +25,6 @@ internal object HomeLandingScreenAttr {
         WA -> WaStatusLandingRoute
         REMOVE_BG -> AiBackgroundRemovalRoute
         FIND_IMAGE -> ExploreLandingRoute
-        AI_IMAGE -> AiImageGeneratorRoute
+        AI_IMAGE -> AiImageGeneratorLandingRoute
     }
 }

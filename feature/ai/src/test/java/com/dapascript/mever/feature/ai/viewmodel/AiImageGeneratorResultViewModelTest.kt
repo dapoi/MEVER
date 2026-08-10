@@ -27,7 +27,7 @@ import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.verifyNoInteractions
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class AiImageResultViewModelTest {
+class AiImageGeneratorResultViewModelTest {
     @get:Rule
     val instantExecutorRule = InstantTaskExecutorRule()
 
@@ -41,7 +41,7 @@ class AiImageResultViewModelTest {
     @Mock
     lateinit var dataStore: MeverDataStore
 
-    private lateinit var viewModel: AiImageResultViewModel
+    private lateinit var viewModel: AiImageGeneratorResultViewModel
 
     private val fakeImageAi = ImageAiEntity(
         imagesUrl = "https://example.com/fake_image.png",
@@ -51,7 +51,7 @@ class AiImageResultViewModelTest {
     /** Helper to reflectively get the backing _aiResponseState flow */
     @Suppress("UNCHECKED_CAST")
     private fun backingFlow(): MutableStateFlow<UiState<ImageAiEntity>> {
-        val field = AiImageResultViewModel::class.java.getDeclaredField("_aiResponseState")
+        val field = AiImageGeneratorResultViewModel::class.java.getDeclaredField("_aiResponseState")
         field.isAccessible = true
         return field.get(viewModel) as MutableStateFlow<UiState<ImageAiEntity>>
     }
@@ -62,7 +62,7 @@ class AiImageResultViewModelTest {
         Dispatchers.setMain(testDispatcher)
         // Empty SavedStateHandle - args is lazy and only accessed when getImageAiGenerator() is called.
         // We test state directly via the backing flow, avoiding the toRoute() navigation internals.
-        viewModel = AiImageResultViewModel(
+        viewModel = AiImageGeneratorResultViewModel(
             ketch,
             repository,
             dataStore

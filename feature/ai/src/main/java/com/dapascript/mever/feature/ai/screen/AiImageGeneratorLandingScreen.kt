@@ -42,11 +42,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale.Companion.Crop
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Filled
@@ -78,12 +78,14 @@ import com.dapascript.mever.core.common.util.fadingEdge
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.AiScreenRoute.AiImageGeneratorResultRoute
-import com.dapascript.mever.feature.ai.screen.attr.AiImageGeneratorAttr.StyleOption
-import com.dapascript.mever.feature.ai.screen.attr.AiImageGeneratorAttr.getArtStyles
+import com.dapascript.mever.feature.ai.screen.attr.AiImageGeneratorLandingAttr.StyleOption
+import com.dapascript.mever.feature.ai.viewmodel.AiImageGeneratorLandingViewModel
 
 @Composable
-internal fun AiImageGeneratorScreen(navigator: Navigator) {
-    val context = LocalContext.current
+internal fun AiImageGeneratorLandingScreen(
+    navigator: Navigator,
+    viewModel: AiImageGeneratorLandingViewModel = hiltViewModel()
+) = with(viewModel) {
     val density = LocalDensity.current
     val deviceType = LocalDeviceType.current
     val listState = rememberLazyListState()
@@ -98,13 +100,9 @@ internal fun AiImageGeneratorScreen(navigator: Navigator) {
             listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset < (titleHeight / 2)
         }
     }
-    var prompt by rememberSaveable { mutableStateOf("") }
-    val artStyles = remember(context) { getArtStyles(context) }
-    var artStyleSelected by remember { mutableStateOf<StyleOption?>(null) }
-
     val onGenerate = {
         navigator.navigate(
-            AiImageGeneratorResultRoute(
+            route = AiImageGeneratorResultRoute(
                 prompt = prompt,
                 artStyle = artStyleSelected?.promptKeywords.orEmpty()
             )
@@ -234,7 +232,9 @@ internal fun AiImageGeneratorScreen(navigator: Navigator) {
                                         fontSize = Sp18,
                                         minFontSize = Sp14,
                                         maxLines = 4,
-                                        onClickInspire = { prompt = getInspirePrompt().lowercase() },
+                                        onClickInspire = {
+                                            prompt = getInspirePrompt().lowercase()
+                                        },
                                         onValueChange = { prompt = it }
                                     )
                                     MeverButton(

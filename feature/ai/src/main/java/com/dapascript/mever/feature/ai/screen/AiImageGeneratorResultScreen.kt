@@ -88,8 +88,8 @@ import com.dapascript.mever.core.common.util.LocalDeviceType
 import com.dapascript.mever.core.common.util.copyToClipboard
 import com.dapascript.mever.core.common.util.fetchPhotoFromUrl
 import com.dapascript.mever.core.common.util.getStoragePermission
-import com.dapascript.mever.core.common.util.onClickWithAds
 import com.dapascript.mever.core.common.util.navigateToAppSettings
+import com.dapascript.mever.core.common.util.onClickWithAds
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
@@ -97,11 +97,11 @@ import com.dapascript.mever.core.common.util.storage.StorageUtil.getStorageInfo
 import com.dapascript.mever.core.common.util.storage.StorageUtil.isStorageFull
 import com.dapascript.mever.core.data.model.local.ImageAiEntity
 import com.dapascript.mever.core.navigation.helper.Navigator
+import com.dapascript.mever.core.navigation.route.AiScreenRoute.AiImageGeneratorLandingRoute
 import com.dapascript.mever.core.navigation.route.AiScreenRoute.AiImageGeneratorResultRoute
-import com.dapascript.mever.core.navigation.route.AiScreenRoute.AiImageGeneratorRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute
 import com.dapascript.mever.feature.ai.screen.attr.AiImageGeneratorResultAttr.getMenuActions
-import com.dapascript.mever.feature.ai.viewmodel.AiImageResultViewModel
+import com.dapascript.mever.feature.ai.viewmodel.AiImageGeneratorResultViewModel
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
@@ -110,7 +110,7 @@ import java.io.FileOutputStream
 internal fun AiImageGeneratorResultScreen(
     navigator: Navigator,
     args: AiImageGeneratorResultRoute,
-    viewModel: AiImageResultViewModel = hiltViewModel()
+    viewModel: AiImageGeneratorResultViewModel = hiltViewModel()
 ) = with(viewModel) {
     val activity = LocalActivity.current
     val context = LocalContext.current
@@ -139,7 +139,9 @@ internal fun AiImageGeneratorResultScreen(
     BaseScreen(
         topBarArgs = TopBarArgs(title = stringResource(R.string.ai_image_generator)),
         useNavigationBarsPadding = true,
-        onBackHandler = { showCancelExitConfirmation = true }
+        onBackHandler = {
+            if (showShimmer) showCancelExitConfirmation = true else navigator.navigateBack()
+        }
     ) {
         LaunchedEffect(Unit) { getImageAiGenerator(args.prompt, args.artStyle) }
 
@@ -194,7 +196,11 @@ internal fun AiImageGeneratorResultScreen(
                             url = imageResult?.imagesUrl.orEmpty(),
                             fileName = imageResult?.fileName.orEmpty()
                         )
-                        navigator.navigateToGallery()
+                        navigator.navigate(
+                            route = GalleryLandingRoute,
+                            popUpTo = AiImageGeneratorLandingRoute,
+                            isInclusive = true
+                        )
                     }
                 },
                 onDenied = { isPermanentlyDeclined, retry ->
@@ -216,6 +222,8 @@ internal fun AiImageGeneratorResultScreen(
             description = errorMessage,
             onClickPrimaryAction = {
                 errorMessage = ""
+                imageResult = null
+                showShimmer = true
                 getImageAiGenerator(args.prompt, args.artStyle)
             },
             onClickSecondaryAction = { navigator.navigateBack() }
@@ -647,13 +655,5 @@ private fun HandleDialogExitConfirmation(
         primaryActionLabel = stringResource(R.string.yes),
         onClickPrimaryAction = onClickPrimary,
         onClickSecondaryAction = onClickSecondary
-    )
-}
-
-private fun Navigator.navigateToGallery() {
-    navigate(
-        route = GalleryLandingRoute,
-        popUpTo = AiImageGeneratorRoute::class,
-        isInclusive = true
     )
 }

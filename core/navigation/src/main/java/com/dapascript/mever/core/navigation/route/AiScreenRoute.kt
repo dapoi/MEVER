@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 sealed interface AiScreenRoute : NavKey {
     @Serializable
-    data object AiImageGeneratorRoute : AiScreenRoute
+    data object AiImageGeneratorLandingRoute : AiScreenRoute
 
     @Serializable
     data class AiImageGeneratorResultRoute(
