@@ -503,7 +503,7 @@ fun isAppInstalled(context: Context, packageName: String) = try {
     false
 }
 
-suspend fun cleanCache(context: Context) = withContext(IO) {
+suspend fun cleanCache(context: Context, activity: Activity) = withContext(IO) {
     try {
         val cacheDir = context.cacheDir
         if (cacheDir.isDirectory) {
@@ -511,6 +511,8 @@ suspend fun cleanCache(context: Context) = withContext(IO) {
         }
     } catch (e: Exception) {
         e.printStackTrace()
+    } finally {
+        recreateActivity(context, activity)
     }
 }
 

@@ -57,7 +57,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.util.LanguageManager
 import com.dapascript.mever.core.common.util.LocalActivity
-import com.dapascript.mever.core.common.util.recreateActivity
+import com.dapascript.mever.core.common.util.cleanCache
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLanguageRoute
@@ -190,7 +190,7 @@ internal fun SettingLanguageScreen(
                                     languageCode = code
                                     if (isFirstTimeChangeLanguage) {
                                         setIsFirstTimeChangeLanguage(false)
-                                        recreateActivity(context, activity)
+                                        scope.launch { cleanCache(context, activity) }
                                     }
                                 }
                             )

@@ -97,7 +97,6 @@ import com.dapascript.mever.core.common.util.fadingEdge
 import com.dapascript.mever.core.common.util.getNotificationPermission
 import com.dapascript.mever.core.common.util.navigateToGmail
 import com.dapascript.mever.core.common.util.navigateToNotificationSettings
-import com.dapascript.mever.core.common.util.recreateActivity
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.common.util.storage.StorageUtil.StorageInfo
 import com.dapascript.mever.core.navigation.helper.Navigator
@@ -255,10 +254,7 @@ internal fun SettingLandingScreen(
             },
             onClickChangeTheme = { navigator.navigate(SettingScreenRoute.SettingThemeRoute(it)) },
             onClickCleanCache = {
-                scope.launch {
-                    cleanCache(context)
-                    recreateActivity(context, activity)
-                }
+                scope.launch { cleanCache(context, activity) }
             },
             onClickPip = { savePipState(isPipEnabled.not()) },
             onClickPaypal = { showPaypalDialog = true },
