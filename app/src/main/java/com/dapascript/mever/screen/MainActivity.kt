@@ -22,6 +22,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
+import androidx.lifecycle.lifecycleScope
 import com.dapascript.mever.BuildConfig.ADMOB_ID
 import com.dapascript.mever.core.common.ui.theme.MeverDark
 import com.dapascript.mever.core.common.ui.theme.MeverTheme
@@ -42,9 +43,8 @@ import com.dapascript.mever.viewmodel.MainViewModel
 import com.google.android.libraries.ads.mobile.sdk.MobileAds
 import com.google.android.libraries.ads.mobile.sdk.initialization.InitializationConfig
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
@@ -101,12 +101,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupAdmob() {
-        val scope = CoroutineScope(IO)
-        scope.launch {
+        lifecycleScope.launch {
             MobileAds.initialize(
                 this@MainActivity,
                 InitializationConfig.Builder(ADMOB_ID).build()
             )
+            Timber.d("AdMob initialized")
         }
     }
 
