@@ -69,6 +69,7 @@ import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
+import androidx.compose.ui.Alignment.Companion.TopEnd
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
@@ -271,7 +272,7 @@ internal fun AiBackgroundRemovalScreen(
         secondaryActionLabel = stringResource(R.string.cancel),
         onClickSecondaryAction = { showColorPicker = false },
         onClickPrimaryAction = {
-            selectBackground(QuickColor(color.toArgb()))
+            selectBackground(CustomColor(color.toArgb()))
             showColorPicker = false
         },
         content = {
@@ -879,8 +880,11 @@ private fun ImagePreviewCard(
             .aspectRatio(1f)
             .clip(RoundedCornerShape(Dp28))
             .background(
-                if (selectedBackground is QuickColor) Color(selectedBackground.color)
-                else colors.whiteDark
+                when (selectedBackground) {
+                    is QuickColor -> Color(selectedBackground.color)
+                    is CustomColor -> Color(selectedBackground.color)
+                    else -> colors.whiteDark
+                }
             )
             .drawBehind {
                 if (selectedBackground is TransparentImage) {
@@ -930,6 +934,29 @@ private fun ImagePreviewCard(
                         .clip(RoundedCornerShape(Dp28)),
                     contentScale = ContentScale.Crop
                 )
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(Dp16),
+                    contentAlignment = TopEnd
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(Dp32)
+                            .background(
+                                color = colors.blackWhite.copy(alpha = 0.4f),
+                                shape = CircleShape
+                            ),
+                        contentAlignment = Center
+                    ) {
+                        Icon(
+                            modifier = Modifier.size(Dp20),
+                            imageVector = ImageVector.vectorResource(R.drawable.ic_fullscreen),
+                            tint = colors.alwaysWhite,
+                            contentDescription = null
+                        )
+                    }
+                }
             } else {
                 MeverImage(
                     source = imageUri,
@@ -1148,10 +1175,7 @@ private fun BackgroundSelection(
                     isSelected = selectedBackground is CustomColor
                             || (selectedBackground is QuickColor
                             && selectedBackground.color !in backgroundColors),
-                    onClick = {
-                        onSelectBackground(CustomColor)
-                        onOpenColorPicker()
-                    }
+                    onClick = { onOpenColorPicker() }
                 ) {
                     Box(
                         modifier = Modifier
@@ -1168,7 +1192,10 @@ private fun BackgroundSelection(
                     }
                 }
             }
-            items(backgroundColors) { color ->
+            items(
+                items = backgroundColors,
+                key = { color -> color }
+            ) { color ->
                 BackgroundOption(
                     isSelected = selectedBackground is QuickColor && selectedBackground.color == color,
                     onClick = { onSelectBackground(QuickColor(color)) }

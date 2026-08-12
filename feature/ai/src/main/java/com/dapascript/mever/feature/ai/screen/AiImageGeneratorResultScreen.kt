@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
@@ -35,9 +36,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.BottomCenter
+import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterVertically
+import androidx.compose.ui.Alignment.Companion.TopEnd
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
@@ -72,6 +76,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp20
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp52
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
@@ -95,10 +100,11 @@ import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getStorageInfo
 import com.dapascript.mever.core.common.util.storage.StorageUtil.isStorageFull
-import com.dapascript.mever.core.data.model.local.ImageAiEntity
 import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.AiScreenRoute.AiImageGeneratorLandingRoute
 import com.dapascript.mever.core.navigation.route.AiScreenRoute.AiImageGeneratorResultRoute
+import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
+import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute.Content
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute
 import com.dapascript.mever.feature.ai.screen.attr.AiImageGeneratorResultAttr.getMenuActions
 import com.dapascript.mever.feature.ai.viewmodel.AiImageGeneratorResultViewModel
@@ -123,13 +129,12 @@ internal fun AiImageGeneratorResultScreen(
     val getButtonClickCount = getButtonClickCount.collectAsStateValue()
     val adsThreshold = adsThreshold.collectAsStateValue()
     var hasCopied by remember { mutableStateOf(false) }
-    var imageResult by remember { mutableStateOf<ImageAiEntity?>(null) }
-    var showShimmer by remember { mutableStateOf(true) }
+    var showShimmer by rememberSaveable { mutableStateOf(true) }
     var showLoadingReport by remember { mutableStateOf(false) }
     var showCancelExitConfirmation by remember { mutableStateOf(false) }
     var showReportDialog by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
-    var setStoragePermission by remember { mutableStateOf<List<String>>(emptyList()) }
+    var checkStoragePermission by remember { mutableStateOf<List<String>>(emptyList()) }
     val interstitialAd = rememberInterstitialAd {
         imageResult = null
         showShimmer = true
@@ -143,7 +148,9 @@ internal fun AiImageGeneratorResultScreen(
             if (showShimmer) showCancelExitConfirmation = true else navigator.navigateBack()
         }
     ) {
-        LaunchedEffect(Unit) { getImageAiGenerator(args.prompt, args.artStyle) }
+        LaunchedEffect(imageResult) {
+            if (imageResult == null) getImageAiGenerator(args.prompt, args.artStyle)
+        }
 
         LaunchedEffect(aiResponseState) {
             aiResponseState.handleUiState(
@@ -175,6 +182,20 @@ internal fun AiImageGeneratorResultScreen(
             )
         }
 
+        LaunchedEffect(navigator) {
+            navigator.navResult.collect {
+                startDownload(
+                    url = imageResult?.imagesUrl.orEmpty(),
+                    fileName = imageResult?.fileName.orEmpty()
+                )
+                navigator.navigate(
+                    route = GalleryLandingRoute,
+                    popUpTo = AiImageGeneratorLandingRoute,
+                    isInclusive = true
+                )
+            }
+        }
+
         BackHandler { showCancelExitConfirmation = true }
 
         HandleDialogExitConfirmation(
@@ -183,12 +204,12 @@ internal fun AiImageGeneratorResultScreen(
             onClickSecondary = { showCancelExitConfirmation = false }
         )
 
-        if (setStoragePermission.isNotEmpty()) {
+        if (checkStoragePermission.isNotEmpty()) {
             val storageInfo = remember { getStorageInfo(context) }
             MeverPermissionHandler(
-                permissions = setStoragePermission,
+                permissions = checkStoragePermission,
                 onGranted = {
-                    setStoragePermission = emptyList()
+                    checkStoragePermission = emptyList()
                     if (isStorageFull(storageInfo)) {
                         errorMessage = resources.getString(R.string.storage_full)
                     } else {
@@ -207,11 +228,11 @@ internal fun AiImageGeneratorResultScreen(
                     MeverDeclinedPermissionDialog(
                         isPermissionsDeclined = isPermanentlyDeclined,
                         onGoToSetting = {
-                            setStoragePermission = emptyList()
+                            checkStoragePermission = emptyList()
                             navigateToAppSettings(activity)
                         },
                         onRetry = { retry() },
-                        onDismiss = { setStoragePermission = emptyList() }
+                        onDismiss = { checkStoragePermission = emptyList() }
                     )
                 }
             )
@@ -341,7 +362,25 @@ internal fun AiImageGeneratorResultScreen(
                         }
                     )
                 },
-                onClickDownload = { setStoragePermission = getStoragePermission() }
+                onClickDownload = { checkStoragePermission = getStoragePermission() },
+                onClickImage = {
+                    navigator.navigate(
+                        GalleryContentDetailRoute(
+                            contents = listOf(
+                                Content(
+                                    id = 0,
+                                    isVideo = false,
+                                    fileName = imageResult?.fileName.orEmpty(),
+                                    media = imageResult?.imagesUrl.orEmpty(),
+                                    isDownloadable = true,
+                                    isPreview = true,
+                                    isDeletable = false
+                                )
+                            ),
+                            initialIndex = 0
+                        )
+                    )
+                }
             )
         }
     }
@@ -360,7 +399,8 @@ private fun ImageGeneratorResultContent(
     onClickCopy: () -> Unit,
     onClickShare: () -> Unit,
     onClickRegenerate: () -> Unit,
-    onClickDownload: () -> Unit
+    onClickDownload: () -> Unit,
+    onClickImage: () -> Unit
 ) = Box(modifier = modifier) {
     if (deviceType == PHONE) Column(
         modifier = Modifier
@@ -370,14 +410,42 @@ private fun ImageGeneratorResultContent(
             .verticalScroll(scrollState),
         verticalArrangement = spacedBy(Dp16)
     ) {
-        MeverImage(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(1f)
-                .clip(RoundedCornerShape(Dp12)),
-            source = urlImage,
-            contentScale = FillBounds
-        )
+                .clip(RoundedCornerShape(Dp12))
+                .onCustomClick(onClick = onClickImage)
+        ) {
+            MeverImage(
+                modifier = Modifier.fillMaxSize(),
+                source = urlImage,
+                contentScale = FillBounds
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(Dp16),
+                contentAlignment = TopEnd
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(Dp32)
+                        .background(
+                            color = colors.blackWhite.copy(alpha = 0.4f),
+                            shape = CircleShape
+                        ),
+                    contentAlignment = Center
+                ) {
+                    Icon(
+                        modifier = Modifier.size(Dp20),
+                        imageVector = ImageVector.vectorResource(R.drawable.ic_fullscreen),
+                        tint = colors.alwaysWhite,
+                        contentDescription = null
+                    )
+                }
+            }
+        }
         Text(
             text = stringResource(R.string.prompt),
             style = typography.bodyBold1,
@@ -435,7 +503,7 @@ private fun ImageGeneratorResultContent(
             .verticalScroll(scrollState),
         horizontalArrangement = spacedBy(Dp16)
     ) {
-        MeverImage(
+        Box(
             modifier = Modifier
                 .weight(1f)
                 .aspectRatio(1f)
@@ -444,9 +512,37 @@ private fun ImageGeneratorResultContent(
                     scaleY = 1.1f
                     scaleX = 1.1f
                     clip = true
-                },
-            source = urlImage
-        )
+                }
+                .onCustomClick(onClick = onClickImage)
+        ) {
+            MeverImage(
+                modifier = Modifier.fillMaxSize(),
+                source = urlImage
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(Dp16),
+                contentAlignment = TopEnd
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(Dp32)
+                        .background(
+                            color = colors.blackWhite.copy(alpha = 0.4f),
+                            shape = CircleShape
+                        ),
+                    contentAlignment = Center
+                ) {
+                    Icon(
+                        modifier = Modifier.size(Dp20),
+                        imageVector = ImageVector.vectorResource(R.drawable.ic_fullscreen),
+                        tint = colors.alwaysWhite,
+                        contentDescription = null
+                    )
+                }
+            }
+        }
         Column(
             modifier = Modifier.weight(1f),
             verticalArrangement = spacedBy(Dp16)

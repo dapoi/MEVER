@@ -1,5 +1,8 @@
 package com.dapascript.mever.feature.ai.viewmodel
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.util.PlatformType.AI
@@ -32,6 +35,8 @@ internal class AiImageGeneratorResultViewModel @Inject constructor(
     private val dataStore: MeverDataStore
 ) : BaseViewModel() {
     private val meverFolder by lazy { getMeverFolder() }
+
+    var imageResult by mutableStateOf<ImageAiEntity?>(null)
 
     val getButtonClickCount = dataStore.clickCount.stateIn(
         scope = viewModelScope,

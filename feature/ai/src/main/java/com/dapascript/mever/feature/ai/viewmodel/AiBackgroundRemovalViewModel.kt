@@ -22,6 +22,7 @@ import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFolder
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.source.local.MeverDataStore
 import com.dapascript.mever.feature.ai.screen.attr.AiBackgroundRemovalAttr.BgRemovalType
+import com.dapascript.mever.feature.ai.screen.attr.AiBackgroundRemovalAttr.BgRemovalType.CustomColor
 import com.dapascript.mever.feature.ai.screen.attr.AiBackgroundRemovalAttr.BgRemovalType.CustomImage
 import com.dapascript.mever.feature.ai.screen.attr.AiBackgroundRemovalAttr.BgRemovalType.QuickColor
 import com.dapascript.mever.feature.ai.screen.attr.AiBackgroundRemovalAttr.BgRemovalType.TransparentImage
@@ -193,6 +194,7 @@ internal class AiBackgroundRemovalViewModel @Inject constructor(
 
     private suspend fun mergeWithBackground(bitmap: Bitmap) = withContext(IO) {
         when (val bg = _selectedBackground.value) {
+            is CustomColor -> bitmap.addBackground(bg.color)
             is QuickColor -> bitmap.addBackground(bg.color)
             is CustomImage -> bg.bitmap?.let {
                 bitmap.addBackground(it)

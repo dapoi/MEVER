@@ -15,7 +15,7 @@ internal object AiBackgroundRemovalAttr {
 
     sealed class BgRemovalType {
         internal object TransparentImage : BgRemovalType()
-        internal object CustomColor : BgRemovalType()
+        internal data class CustomColor(val color: Int) : BgRemovalType()
         internal data class QuickColor(val color: Int) : BgRemovalType()
         internal data class CustomImage(val uri: Uri, val bitmap: Bitmap? = null) : BgRemovalType()
     }
