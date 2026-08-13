@@ -4,13 +4,10 @@ import android.app.Activity.RESULT_CANCELED
 import android.app.Activity.RESULT_OK
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.rememberTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
@@ -26,13 +23,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter.Companion.tint
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -62,6 +59,8 @@ import com.dapascript.mever.feature.startup.viewmodel.SplashScreenViewModel
 import com.google.android.play.core.install.model.AppUpdateType.IMMEDIATE
 import com.google.android.play.core.install.model.UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS
 import com.google.android.play.core.install.model.UpdateAvailability.UPDATE_AVAILABLE
+import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 internal fun SplashScreen(
@@ -79,31 +78,42 @@ internal fun SplashScreen(
         val appVersion = getAppVersion.collectAsStateValue()
         val activity = LocalActivity.current
         val resources = LocalResources.current
-        val lifecycleOwner by rememberUpdatedState(LocalLifecycleOwner.current)
+        val lifecycleOwner = LocalLifecycleOwner.current
         var showMaintenanceModal by remember { mutableStateOf(false) }
         var forceUpdateInProgress by remember { mutableStateOf(false) }
         var errorMessage by remember { mutableStateOf("") }
-        val logoVisibleState = remember { MutableTransitionState(false) }
+        val logoVisibleState = remember {
+            MutableTransitionState(false).apply { targetState = true }
+        }
+        val transition = rememberTransition(logoVisibleState, label = "SplashTransition")
+        val contentAlpha by transition.animateFloat(
+            transitionSpec = { tween(200) },
+            label = "ContentAlpha"
+        ) { state -> if (state) 1f else 0f }
+        val contentOffset by transition.animateFloat(
+            transitionSpec = { tween(200) },
+            label = "ContentOffset"
+        ) { state -> if (state) 0f else 50f }
         val inAppUpdateManager = remember { InAppUpdateManager(activity) }
+        val isCanNavigate = logoVisibleState.isIdle && !logoVisibleState.currentState && isOnboarded != null
         val updateLauncher = rememberLauncherForActivityResult(
             contract = StartIntentSenderForResult()
         ) { result ->
-            when {
-                result.resultCode == RESULT_CANCELED -> activity.finish()
-                result.resultCode != RESULT_OK -> {
+            when (result.resultCode) {
+                RESULT_CANCELED -> activity.finish()
+                RESULT_OK -> Unit
+                else -> {
                     forceUpdateInProgress = false
                     logoVisibleState.targetState = false
                 }
             }
         }
 
-        LaunchedEffect(Unit) {
-            hideSystemBar(activity, true)
-            logoVisibleState.targetState = true
-        }
-
-        LaunchedEffect(logoVisibleState.targetState) {
-            if (logoVisibleState.targetState) getAppConfig()
+        LaunchedEffect(logoVisibleState.currentState) {
+            if (logoVisibleState.currentState) {
+                delay(100.milliseconds)
+                getAppConfig()
+            }
         }
 
         LaunchedEffect(appConfigState) {
@@ -135,8 +145,8 @@ internal fun SplashScreen(
             )
         }
 
-        LaunchedEffect(logoVisibleState.isIdle, logoVisibleState.currentState, isOnboarded) {
-            if (logoVisibleState.isIdle && logoVisibleState.currentState.not() && isOnboarded != null) {
+        LaunchedEffect(isCanNavigate) {
+            if (isCanNavigate) {
                 navigator.navigate(
                     route = if (isOnboarded) HomeLandingRoute else OnboardRoute,
                     popUpTo = SplashRoute,
@@ -164,6 +174,7 @@ internal fun SplashScreen(
         )
 
         DisposableEffect(lifecycleOwner) {
+            hideSystemBar(activity, true)
             val observer = LifecycleEventObserver { _, event ->
                 if (event == ON_RESUME && forceUpdateInProgress) {
                     inAppUpdateManager.startUpdate(
@@ -186,54 +197,37 @@ internal fun SplashScreen(
 
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
-                modifier = Modifier.align(Center),
+                modifier = Modifier
+                    .align(Center)
+                    .graphicsLayer { alpha = contentAlpha },
                 horizontalAlignment = CenterHorizontally,
                 verticalArrangement = spacedBy(Dp8)
             ) {
-                AnimatedVisibility(
-                    visibleState = logoVisibleState,
-                    enter = fadeIn(animationSpec = tween(durationMillis = 300)) +
-                            slideInVertically(animationSpec = tween(300)) { -it / 2 },
-                    exit = slideOutVertically(animationSpec = tween(durationMillis = 300)) { -it / 2 } +
-                            fadeOut(animationSpec = tween(durationMillis = 300))
-                ) {
-                    Image(
-                        modifier = Modifier
-                            .width(Dp189)
-                            .height(Dp72),
-                        painter = painterResource(R.drawable.ic_mever),
-                        colorFilter = tint(MeverWhite),
-                        contentDescription = "Logo Mever"
-                    )
-                }
-                AnimatedVisibility(
-                    visibleState = logoVisibleState,
-                    enter = fadeIn(animationSpec = tween(300)) +
-                            slideInVertically(animationSpec = tween(300)) { it / 2 },
-                    exit = slideOutVertically(animationSpec = tween(durationMillis = 300)) { it / 2 } +
-                            fadeOut(animationSpec = tween(durationMillis = 300))
-                ) {
-                    Text(
-                        text = "Media Saver",
-                        style = typography.bodyBold1,
-                        color = MeverWhite
-                    )
-                }
-            }
-            AnimatedVisibility(
-                modifier = Modifier
-                    .align(BottomCenter)
-                    .padding(bottom = Dp48),
-                visibleState = logoVisibleState,
-                enter = fadeIn(animationSpec = tween(300)),
-                exit = fadeOut(animationSpec = tween(300))
-            ) {
+                Image(
+                    modifier = Modifier
+                        .width(Dp189)
+                        .height(Dp72)
+                        .graphicsLayer { translationY = -contentOffset },
+                    painter = painterResource(R.drawable.ic_mever),
+                    colorFilter = tint(MeverWhite),
+                    contentDescription = "Logo Mever"
+                )
                 Text(
-                    text = "v${appVersion}",
-                    style = typography.body1,
+                    modifier = Modifier.graphicsLayer { translationY = contentOffset },
+                    text = "Media Saver",
+                    style = typography.bodyBold1,
                     color = MeverWhite
                 )
             }
+            Text(
+                modifier = Modifier
+                    .align(BottomCenter)
+                    .padding(bottom = Dp48)
+                    .graphicsLayer { alpha = contentAlpha },
+                text = "v${appVersion}",
+                style = typography.body1,
+                color = MeverWhite
+            )
         }
     }
 }
