@@ -48,6 +48,7 @@ import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.component.MeverBannerAd
 import com.dapascript.mever.core.common.ui.component.MeverBottomSheet
 import com.dapascript.mever.core.common.ui.component.MeverImage
+import com.dapascript.mever.core.common.ui.component.meverShimmer
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp14
@@ -56,6 +57,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp20
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp250
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
@@ -87,11 +89,6 @@ internal fun HandleBottomSheetDownload(
     val isMusic by remember {
         derivedStateOf { isMusic(stableListContent.firstOrNull()?.fileName.orEmpty()) }
     }
-    val isSheetScrollable by remember {
-        derivedStateOf {
-            showBottomSheet && (scrollState.canScrollForward || scrollState.canScrollBackward)
-        }
-    }
 
     LaunchedEffect(listContent, isInPreview) {
         val isNotEmpty = listContent.isNotEmpty()
@@ -101,8 +98,8 @@ internal fun HandleBottomSheetDownload(
 
     MeverBottomSheet(
         modifier = modifier,
-        isAlwaysRectangular = isSheetScrollable,
-        isDisableContentDrag = isSheetScrollable,
+        isAlwaysRectangular = scrollState.canScrollForward || scrollState.canScrollBackward,
+        isDisableContentDrag = scrollState.canScrollForward || scrollState.canScrollBackward,
         showBottomSheet = showBottomSheet,
         onDismissBottomSheet = onClickDismiss
     ) {
@@ -115,12 +112,15 @@ internal fun HandleBottomSheetDownload(
                 horizontalArrangement = SpaceBetween
             ) {
                 Text(
-                    text = stringResource(R.string.choose_file),
+                    text = stringResource(
+                        if (isDownloadProcessing) R.string.please_wait
+                        else R.string.choose_file
+                    ),
                     textAlign = if (isMusic) Start else TextAlignCenter,
                     style = typography.bodyBold1.copy(fontSize = Sp20),
                     color = colors.blackWhite
                 )
-                if (stableListContent.size > 1) Text(
+                if (stableListContent.size > 1 && isDownloadProcessing.not()) Text(
                     modifier = Modifier
                         .clip(RoundedCornerShape(Dp8))
                         .clickable {
@@ -146,7 +146,8 @@ internal fun HandleBottomSheetDownload(
             Column(
                 modifier = Modifier
                     .weight(weight = 1f, fill = false)
-                    .verticalScroll(scrollState)
+                    .verticalScroll(scrollState),
+                verticalArrangement = spacedBy(Dp4)
             ) {
                 if (isMusic) MeverImage(
                     modifier = Modifier
@@ -154,7 +155,7 @@ internal fun HandleBottomSheetDownload(
                         .height(Dp250)
                         .padding(vertical = Dp16, horizontal = Dp24)
                         .clip(RoundedCornerShape(Dp12)),
-                    source = stableListContent.first().thumbnail.ifEmpty { R.drawable.ic_music }
+                    source = if (isDownloadProcessing) null else stableListContent.first().thumbnail.ifEmpty { R.drawable.ic_music }
                 )
                 stableListContent.forEachIndexed { index, content ->
                     CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
@@ -162,6 +163,7 @@ internal fun HandleBottomSheetDownload(
                             value = getValueSelector(index, content),
                             isChecked = selectMultipleItems.contains(index),
                             isPreviewLoading = loadingItemIndex == index,
+                            isDownloadProcessing = isDownloadProcessing,
                             showPreviewButton = isMusic.not(),
                             onClickPreview = { onClickPreview(index) },
                             onChooseValue = {
@@ -206,7 +208,6 @@ internal fun HandleBottomSheetDownload(
                         color = colors.blackWhite
                     )
                 }
-                if (selectMultipleItems.isEmpty()) return@Row
                 Box(
                     modifier = Modifier
                         .width(Dp2)
@@ -219,21 +220,21 @@ internal fun HandleBottomSheetDownload(
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(Dp14))
-                        .onCustomClick(enabled = isDownloadProcessing.not()) {
+                        .onCustomClick(
+                            enabled = isDownloadProcessing.not() && selectMultipleItems.isNotEmpty()
+                        ) {
                             onClickDownload(selectMultipleItems.map { stableListContent[it].url })
                         }
                         .weight(1f)
                         .padding(vertical = Dp16),
                     contentAlignment = Center
                 ) {
-                    if (isDownloadProcessing) CircularProgressIndicator(
-                        modifier = Modifier.size(Dp20),
-                        strokeCap = Round,
-                        color = colors.alwaysPurple
-                    ) else Text(
+                    Text(
                         text = stringResource(R.string.download),
                         style = typography.bodyBold1,
-                        color = colors.alwaysPurple
+                        color = if (isDownloadProcessing || selectMultipleItems.isEmpty()) {
+                            colors.alwaysPurple.copy(alpha = 0.38f)
+                        } else colors.alwaysPurple
                     )
                 }
             }
@@ -246,6 +247,7 @@ private fun MeverCheckBoxButton(
     value: String,
     isChecked: Boolean,
     isPreviewLoading: Boolean,
+    isDownloadProcessing: Boolean,
     showPreviewButton: Boolean,
     onClickPreview: () -> Unit,
     onChooseValue: () -> Unit
@@ -253,48 +255,73 @@ private fun MeverCheckBoxButton(
     modifier = Modifier
         .fillMaxWidth()
         .clip(RoundedCornerShape(Dp8))
-        .clickable { onChooseValue() }
-        .padding(vertical = Dp16, horizontal = Dp24),
+        .clickable(enabled = isDownloadProcessing.not()) { onChooseValue() }
+        .padding(vertical = Dp12, horizontal = Dp24),
     verticalAlignment = CenterVertically,
     horizontalArrangement = spacedBy(Dp16)
 ) {
-    Box(
-        modifier = Modifier.clip(CircleShape),
-        contentAlignment = Center
-    ) {
-        Icon(
-            imageVector = ImageVector.vectorResource(
-                if (isChecked) R.drawable.ic_round_checked
-                else R.drawable.ic_round_unchecked
-            ),
-            contentDescription = "Radio button",
-            tint = colors.alwaysPurple
-        )
-    }
-    Text(
-        modifier = Modifier.weight(1f),
-        text = value,
-        maxLines = 2,
-        overflow = Ellipsis,
-        style = typography.body1,
-        color = colors.blackWhite
-    )
-    if (showPreviewButton) {
-        when {
-            isPreviewLoading.not() -> Text(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(Dp8))
-                    .onCustomClick { if (isPreviewLoading.not()) onClickPreview() },
-                text = stringResource(R.string.preview),
-                textAlign = End,
-                style = typography.bodyBold2,
-                color = colors.alwaysPurple
+    if (isDownloadProcessing.not()) {
+        Box(
+            modifier = Modifier.clip(CircleShape),
+            contentAlignment = Center
+        ) {
+            Icon(
+                imageVector = ImageVector.vectorResource(
+                    if (isChecked) R.drawable.ic_round_checked
+                    else R.drawable.ic_round_unchecked
+                ),
+                contentDescription = "Radio button",
+                tint = colors.alwaysPurple
             )
+        }
+        Text(
+            modifier = Modifier.weight(1f),
+            text = value,
+            maxLines = 2,
+            overflow = Ellipsis,
+            style = typography.body1,
+            color = colors.blackWhite
+        )
+        if (showPreviewButton) {
+            when {
+                isPreviewLoading.not() -> Text(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(Dp8))
+                        .onCustomClick { if (isPreviewLoading.not()) onClickPreview() },
+                    text = stringResource(R.string.preview),
+                    textAlign = End,
+                    style = typography.bodyBold2,
+                    color = colors.alwaysPurple
+                )
 
-            else -> CircularProgressIndicator(
-                modifier = Modifier.size(Dp20),
-                strokeCap = Round,
-                color = MeverPurple
+                else -> CircularProgressIndicator(
+                    modifier = Modifier.size(Dp20),
+                    strokeCap = Round,
+                    color = MeverPurple
+                )
+            }
+        }
+    } else {
+        Box(
+            modifier = Modifier
+                .size(Dp24)
+                .clip(CircleShape)
+                .meverShimmer()
+        )
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .height(Dp20)
+                .clip(RoundedCornerShape(Dp4))
+                .meverShimmer()
+        )
+        if (showPreviewButton) {
+            Box(
+                modifier = Modifier
+                    .width(Dp1 * 48)
+                    .height(Dp20)
+                    .clip(RoundedCornerShape(Dp4))
+                    .meverShimmer()
             )
         }
     }

@@ -523,8 +523,8 @@ private fun HomeLandingContent(
                         }
                     }
                 } finally {
-                    isDownloadProcessing = false
                     contents = emptyList()
+                    isDownloadProcessing = false
                 }
             }
         },
