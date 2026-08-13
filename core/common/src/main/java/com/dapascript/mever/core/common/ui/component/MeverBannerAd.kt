@@ -4,7 +4,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInspectionMode
@@ -32,6 +36,12 @@ fun MeverBannerAd(
     adUnitId: String = AD_BANNER_UNIT_ID
 ) {
     if (LocalInspectionMode.current) return
+
+    var isAdLoaded by remember { mutableStateOf(false) }
+    var isAdFailed by remember { mutableStateOf(false) }
+
+    if (isAdFailed) return
+
     val deviceType = LocalDeviceType.current
     val activity = LocalActivity.current
     val density = LocalDensity.current
@@ -39,7 +49,7 @@ fun MeverBannerAd(
     val screenWidth = with(density) { windowInfo.containerSize.width.toDp().value.toInt() }
     val adHeight = if (deviceType == PHONE) 60 else 90
 
-    Box(modifier = modifier.height(adHeight.dp)) {
+    Box(modifier = modifier.height(if (isAdLoaded) adHeight.dp else 0.dp)) {
         key(adUnitId, deviceType, screenWidth) {
             AndroidView(
                 modifier = Modifier
@@ -57,6 +67,7 @@ fun MeverBannerAd(
                         loadAd(adRequest, object : AdLoadCallback<BannerAd> {
                             override fun onAdLoaded(ad: BannerAd) {
                                 Timber.d("Banner ad loaded successfully")
+                                isAdLoaded = true
                                 ad.bannerAdRefreshCallback = object : BannerAdRefreshCallback {
                                     override fun onAdRefreshed() {
                                         Timber.d("Banner ad refreshed")
@@ -85,6 +96,7 @@ fun MeverBannerAd(
 
                             override fun onAdFailedToLoad(adError: LoadAdError) {
                                 Timber.e("Banner ad failed to load: ${adError.code} - ${adError.message}")
+                                isAdFailed = true
                             }
                         })
                     }
