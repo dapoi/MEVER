@@ -80,8 +80,6 @@ import java.io.File
 import java.io.OutputStream
 import java.net.URL
 import java.text.DateFormatSymbols
-import java.text.Normalizer
-import java.text.Normalizer.Form.NFD
 import java.text.SimpleDateFormat
 import java.util.Calendar.getInstance
 import java.util.Locale.ROOT
@@ -517,10 +515,9 @@ suspend fun cleanCache(context: Context, activity: Activity) = withContext(IO) {
 }
 
 fun sanitizeFilename(filename: String): String {
-    val normalized = Normalizer.normalize(filename, NFD)
-    val asciiOnly = normalized.replace(Regex("\\p{InCombiningDiacriticalMarks}+"), "")
-    val illegalCharsRegex = Regex("[^a-zA-Z0-9._-]")
-    return illegalCharsRegex.replace(asciiOnly, "_")
+    val illegalCharsRegex = Regex("[\\\\/:*?\"<>|\\x00-\\x1F\\x7F]")
+    val sanitized = filename.replace(illegalCharsRegex, "_")
+    return sanitized.replace(Regex("_{2,}"), "_").trim('_', ' ')
 }
 
 fun displayFileName(fileName: String) = try {
