@@ -129,7 +129,7 @@ import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE_MUSIC
 import com.dapascript.mever.core.common.util.changeToCurrentDate
 import com.dapascript.mever.core.common.util.clearFocusOnKeyboardDismiss
 import com.dapascript.mever.core.common.util.fadingEdge
-import com.dapascript.mever.core.common.util.formatHighlightedText
+import com.dapascript.mever.core.common.util.highlightText
 import com.dapascript.mever.core.common.util.getExtensionFromUrl
 import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.getStoragePermission
@@ -839,10 +839,10 @@ private fun HeaderSection(modifier: Modifier = Modifier) {
             verticalArrangement = spacedBy(Dp6)
         ) {
             Text(
-                text = formatHighlightedText(
-                    fullText = stringResource(R.string.downloader_title),
-                    highlightedText = stringResource(R.string.target_title),
-                    highlightedColor = colors.alwaysPurple
+                text = highlightText(
+                    text = stringResource(R.string.downloader_title),
+                    target = stringResource(R.string.target_title),
+                    color = colors.alwaysPurple
                 ),
                 color = colors.blackWhite,
                 style = typography.h2

@@ -172,7 +172,7 @@
     <string name="faq_q2">Is this gonna cost me anything?</string>
     <string name="faq_a2">Nope! MEVER is totally free. No hidden fees, just pure downloading goodness for everyone.</string>
     <string name="faq_q3">Is it safe to use?</string>
-    <string name="faq_a3">For sure! We\'re fully open source on github.com/dapoi/MEVER. You can peek at our code or even join the fun and help us build it!</string>
+    <string name="faq_a3">For sure! We\'re fully open source on https://github.com/dapoi/MEVER. You can peek at our code or even join the fun and help us build it!</string>
     <string name="faq_q4">Help! My download is stuck.</string>
     <string name="faq_a4">If things aren\'t moving, try checking your Wi-Fi or turning off your DNS. That usually fixes the hiccups!</string>
     <string name="faq_q5">Found a bug or got a problem?</string>

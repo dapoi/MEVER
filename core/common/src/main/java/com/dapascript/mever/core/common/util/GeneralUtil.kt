@@ -45,6 +45,7 @@ import android.widget.Toast.LENGTH_SHORT
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextDecoration.Companion.Underline
 import androidx.compose.ui.text.withStyle
 import androidx.core.app.ShareCompat.IntentBuilder
 import androidx.core.content.FileProvider.getUriForFile
@@ -567,20 +568,32 @@ fun recreateActivity(context: Context, activity: Activity) {
     activity.finish()
 }
 
-fun formatHighlightedText(
-    fullText: String,
-    highlightedText: String,
-    highlightedColor: Color
+fun highlightText(
+    text: String,
+    target: String,
+    color: Color,
+    linkTag: String = "",
+    link: String = "",
+    isUnderlined: Boolean = false
 ) = buildAnnotatedString {
-    val startIndex = fullText.indexOf(highlightedText, ignoreCase = true)
+    val startIndex = text.indexOf(target, ignoreCase = true)
     if (startIndex != -1) {
-        append(fullText.substring(0, startIndex))
-        withStyle(style = SpanStyle(color = highlightedColor)) {
-            append(fullText.substring(startIndex, startIndex + highlightedText.length))
+        append(text.substring(0, startIndex))
+        if (linkTag.isNotEmpty() && link.isNotEmpty()) {
+            pushStringAnnotation(tag = linkTag, annotation = link)
         }
-        append(fullText.substring(startIndex + highlightedText.length))
+        withStyle(
+            style = SpanStyle(
+                color = color,
+                textDecoration = if (isUnderlined) Underline else null
+            )
+        ) {
+            append(text.substring(startIndex, startIndex + target.length))
+        }
+        if (linkTag.isNotEmpty() && link.isNotEmpty()) pop()
+        append(text.substring(startIndex + target.length))
     } else {
-        append(fullText)
+        append(text)
     }
 }
 

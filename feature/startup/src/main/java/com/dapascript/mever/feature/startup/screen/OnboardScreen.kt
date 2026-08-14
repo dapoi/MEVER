@@ -77,7 +77,7 @@ import com.dapascript.mever.core.common.util.DeviceType.DESKTOP
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.LocalDeviceType
-import com.dapascript.mever.core.common.util.formatHighlightedText
+import com.dapascript.mever.core.common.util.highlightText
 import com.dapascript.mever.core.common.util.getNotificationPermission
 import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeLandingRoute
@@ -376,10 +376,10 @@ private fun DescriptionOnboardSection(
     )
     Spacer(modifier = Modifier.size(Dp8))
     Text(
-        text = formatHighlightedText(
-            fullText = page.title,
-            highlightedText = page.highlightedText,
-            highlightedColor = colors.alwaysPurple
+        text = highlightText(
+            text = page.title,
+            target = page.highlightedText,
+            color = colors.alwaysPurple
         ),
         color = colors.blackWhite,
         style = typography.h2.copy(fontSize = Sp36, lineHeight = Sp50)

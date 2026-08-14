@@ -339,7 +339,9 @@ fun MeverVideoPlayer(
         primaryActionLabel = stringResource(R.string.close),
         secondaryActionLabel = null,
         titleColor = MeverWhite,
+        descriptionColor = MeverWhite,
         backgroundColor = MeverDark,
+        primaryActionColor = MeverPurple,
         onClickPrimaryAction = { onClickBack() }
     )
 

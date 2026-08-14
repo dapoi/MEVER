@@ -198,12 +198,6 @@ internal fun AiImageGeneratorResultScreen(
 
         BackHandler { showCancelExitConfirmation = true }
 
-        HandleDialogExitConfirmation(
-            showDialog = showCancelExitConfirmation,
-            onClickPrimary = { navigator.navigateBack() },
-            onClickSecondary = { showCancelExitConfirmation = false }
-        )
-
         if (checkStoragePermission.isNotEmpty()) {
             val storageInfo = remember { getStorageInfo(context) }
             MeverPermissionHandler(
@@ -237,6 +231,16 @@ internal fun AiImageGeneratorResultScreen(
                 }
             )
         }
+
+        MeverDialog(
+            showDialog = showCancelExitConfirmation,
+            image = null,
+            title = stringResource(R.string.cancel_fetch_title),
+            description = stringResource(R.string.cancel_fetch_desc),
+            primaryActionLabel = stringResource(R.string.yes),
+            onClickPrimaryAction = { navigator.navigateBack() },
+            onClickSecondaryAction = { showCancelExitConfirmation = false }
+        )
 
         MeverDialog(
             showDialog = errorMessage.isNotEmpty(),
@@ -735,21 +739,4 @@ private fun ImageGeneratorLoading(
             }
         }
     }
-}
-
-@Composable
-private fun HandleDialogExitConfirmation(
-    showDialog: Boolean,
-    onClickPrimary: () -> Unit,
-    onClickSecondary: () -> Unit
-) {
-    MeverDialog(
-        showDialog = showDialog,
-        image = null,
-        title = stringResource(R.string.cancel_fetch_title),
-        description = stringResource(R.string.cancel_fetch_desc),
-        primaryActionLabel = stringResource(R.string.yes),
-        onClickPrimaryAction = onClickPrimary,
-        onClickSecondaryAction = onClickSecondary
-    )
 }

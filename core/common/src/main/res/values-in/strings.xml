@@ -171,7 +171,7 @@
     <string name="faq_q2">Apakah ini berbayar?</string>
     <string name="faq_a2">Nggak kok! MEVER sepenuhnya gratis. Tanpa biaya tersembunyi, murni untuk kenyamanan mengunduh bagi semua orang.</string>
     <string name="faq_q3">Apakah aman digunakan?</string>
-    <string name="faq_a3">Pasti! Kami sepenuhnya open source di github.com/dapoi/MEVER. Kamu bisa intip kodenya atau bahkan ikut berkontribusi membangunnya!</string>
+    <string name="faq_a3">Pasti! Kami sepenuhnya open source di https://github.com/dapoi/MEVER. Kamu bisa intip kodenya atau bahkan ikut berkontribusi membangunnya!</string>
     <string name="faq_q4">Tolong! Unduhan saya macet.</string>
     <string name="faq_a4">Kalau unduhan nggak jalan, coba cek koneksi Wi-Fi atau matikan DNS pribadi.</string>
     <string name="faq_q5">Ketemu bug atau ada masalah?</string>

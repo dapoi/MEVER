@@ -41,12 +41,8 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withStyle
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
@@ -61,6 +57,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
+import com.dapascript.mever.core.common.util.highlightText
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.feature.setting.screen.attr.SettingFaqAttr.FaqUiModel
@@ -194,32 +191,22 @@ private fun SettingFaqItem(
                 enter = expandVertically() + fadeIn(),
                 exit = shrinkVertically() + fadeOut()
             ) {
-                val annotatedString = if (isLink) {
-                    val linkText = "github.com/dapoi/MEVER"
-                    val startIndex = description.indexOf(linkText)
-                    if (startIndex != -1) {
-                        buildAnnotatedString {
-                            append(description.substring(0, startIndex))
-                            pushStringAnnotation(tag = "URL", annotation = "https://$linkText")
-                            withStyle(
-                                style = SpanStyle(
-                                    color = colors.alwaysPurple,
-                                    fontStyle = FontStyle.Italic,
-                                    textDecoration = TextDecoration.Underline
-                                )
-                            ) {
-                                append(linkText)
-                            }
-                            pop()
-                            append(description.substring(startIndex + linkText.length))
-                        }
+                val linkText = "https://github.com/dapoi/MEVER"
+                val purple = colors.alwaysPurple
+                val annotatedString = remember(description, linkText, purple, isLink) {
+                    if (isLink) {
+                        highlightText(
+                            text = description,
+                            target = linkText,
+                            color = purple,
+                            linkTag = "URL",
+                            link = linkText,
+                            isUnderlined = true
+                        )
                     } else {
                         buildAnnotatedString { append(description) }
                     }
-                } else {
-                    buildAnnotatedString { append(description) }
                 }
-
                 var textLayoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
 
                 Text(
@@ -229,7 +216,7 @@ private fun SettingFaqItem(
                     onTextLayout = { textLayoutResult = it },
                     modifier = Modifier
                         .padding(top = Dp3)
-                        .pointerInput(isLink) {
+                        .pointerInput(annotatedString) {
                             detectTapGestures { offset ->
                                 if (isLink) {
                                     textLayoutResult?.let { layout ->
