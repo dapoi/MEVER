@@ -109,7 +109,7 @@
     <string name="onboard_1">Support\nMultiple Sources</string>
     <string name="onboard_2">Lightning\nFast Downloads</string>
     <string name="onboard_3">Keep Everything\nOrganized</string>
-    <string name="onboard_1_subtitle">Easy to use and 100% free!</string>
+    <string name="onboard_1_subtitle">Easy to use and 100%% free!</string>
     <string name="onboard_2_subtitle">Fast &amp; Secure</string>
     <string name="onboard_3_subtitle">Organized &amp; Clean</string>
     <string name="onboard_1_desc">Making it easy to download from multiple platforms with just one tap.</string>
@@ -140,7 +140,6 @@
     <string name="remove_bg">Clear Background</string>
     <string name="remove_bg_desc">Make the image transparent.</string>
     <string name="change_bg">Change Background</string>
-    <string name="custom_color">Custom Color</string>
     <string name="choose_color">Choose Color</string>
     <string name="hue">Hue</string>
     <string name="saturation">Saturation</string>

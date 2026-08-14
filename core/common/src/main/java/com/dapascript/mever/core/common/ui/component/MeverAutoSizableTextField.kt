@@ -85,7 +85,7 @@ fun MeverAutoSizableTextField(
 
     var intrinsics = calculateParagraph()
     with(LocalDensity.current) {
-        val containerHeight = if (heightFreeTextContainer != null) heightFreeTextContainer.toPx() else maxHeight.toPx()
+        val containerHeight = heightFreeTextContainer?.toPx() ?: maxHeight.toPx()
         while ((intrinsics.height > containerHeight || intrinsics.didExceedMaxLines) && nFontSize >= minFontSize) {
             nFontSize *= scaleFactor
             intrinsics = calculateParagraph()
