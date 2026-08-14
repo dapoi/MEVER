@@ -29,7 +29,6 @@ import com.ketch.Status.STARTED
 import com.ketch.Status.SUCCESS
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers.Default
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.asStateFlow
@@ -42,7 +41,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
-import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 internal class HomeLandingViewModel @Inject constructor(
@@ -213,7 +211,6 @@ internal class HomeLandingViewModel @Inject constructor(
     }
 
     fun resetUrlIntent() = viewModelScope.launch {
-        delay(1.seconds)
         dataStore.saveUrlIntent("")
     }
 }

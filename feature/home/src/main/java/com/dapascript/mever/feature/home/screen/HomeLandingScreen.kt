@@ -400,8 +400,8 @@ private fun HomeLandingContent(
     LaunchedEffect(urlIntent) {
         if (urlIntent.isNotEmpty()) {
             urlSocialMediaState = TextFieldValue(urlIntent)
-            resetUrlIntent()
             checkStoragePermissions = getStoragePermission()
+            resetUrlIntent()
         }
     }
 

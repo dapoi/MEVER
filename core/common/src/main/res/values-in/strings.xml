@@ -139,7 +139,6 @@
     <string name="remove_bg">Hapus Belakang</string>
     <string name="remove_bg_desc">Buat gambar jadi transparan.</string>
     <string name="change_bg">Ganti Latar</string>
-    <string name="custom_color">Warna Kustom</string>
     <string name="choose_color">Pilih Warna</string>
     <string name="hue">Warna</string>
     <string name="saturation">Kejenuhan</string>

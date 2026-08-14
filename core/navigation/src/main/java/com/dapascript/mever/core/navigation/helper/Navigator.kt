@@ -45,6 +45,9 @@ class Navigator(
 
         if (route in state.backStacks.keys) {
             state.topLevelRoute = route
+            if (state.backStacks[route]?.isEmpty() == true) {
+                state.backStacks[route]?.add(route)
+            }
         } else {
             state.backStacks[state.topLevelRoute]?.add(route)
         }
