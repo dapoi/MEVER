@@ -2,6 +2,7 @@ package com.dapascript.mever.core.data.source.remote
 
 import com.dapascript.mever.core.data.model.remote.AppConfigResponse
 import com.dapascript.mever.core.data.model.remote.AppleMusicDownloaderResponse
+import com.dapascript.mever.core.data.model.remote.CapCutDownloaderResponse
 import com.dapascript.mever.core.data.model.remote.FacebookDownloaderResponse
 import com.dapascript.mever.core.data.model.remote.ImageAiResponse
 import com.dapascript.mever.core.data.model.remote.ImageSearchResponse
@@ -34,6 +35,11 @@ internal interface ApiService {
     suspend fun getAppleMusicDownloader(
         @Query("url") url: String
     ): AppleMusicDownloaderResponse
+
+    @GET("capcut")
+    suspend fun getCapCutDownloader(
+        @Query("url") url: String
+    ): CapCutDownloaderResponse
 
     @GET("douyin")
     suspend fun getDouyinDownloader(

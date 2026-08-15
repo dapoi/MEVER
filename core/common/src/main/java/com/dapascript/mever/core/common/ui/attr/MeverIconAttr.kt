@@ -3,6 +3,7 @@ package com.dapascript.mever.core.common.ui.attr
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.util.PlatformType.AI
 import com.dapascript.mever.core.common.util.PlatformType.APPLE_MUSIC
+import com.dapascript.mever.core.common.util.PlatformType.CAPCUT
 import com.dapascript.mever.core.common.util.PlatformType.DOUYIN
 import com.dapascript.mever.core.common.util.PlatformType.EXPLORE
 import com.dapascript.mever.core.common.util.PlatformType.FACEBOOK
@@ -14,8 +15,8 @@ import com.dapascript.mever.core.common.util.PlatformType.SPOTIFY
 import com.dapascript.mever.core.common.util.PlatformType.TERABOX
 import com.dapascript.mever.core.common.util.PlatformType.THREADS
 import com.dapascript.mever.core.common.util.PlatformType.TIKTOK
-import com.dapascript.mever.core.common.util.PlatformType.X
 import com.dapascript.mever.core.common.util.PlatformType.VIDEY
+import com.dapascript.mever.core.common.util.PlatformType.X
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE_MUSIC
 
@@ -23,6 +24,7 @@ object MeverIconAttr {
     fun getPlatformIcon(platform: String) = when {
         platform.contains(AI.platformName) -> R.drawable.ic_awesome
         platform.contains(APPLE_MUSIC.platformName) -> R.drawable.ic_apple
+        platform.contains(CAPCUT.platformName) -> R.drawable.ic_capcut
         platform.contains(DOUYIN.platformName) -> R.drawable.ic_tiktok
         platform.contains(EXPLORE.platformName) -> R.drawable.ic_language
         platform.contains(FACEBOOK.platformName) -> R.drawable.ic_facebook

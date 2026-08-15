@@ -6,6 +6,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.dapascript.mever.core.common.util.PlatformType.APPLE_MUSIC
+import com.dapascript.mever.core.common.util.PlatformType.CAPCUT
 import com.dapascript.mever.core.common.util.PlatformType.DOUYIN
 import com.dapascript.mever.core.common.util.PlatformType.FACEBOOK
 import com.dapascript.mever.core.common.util.PlatformType.INSTAGRAM
@@ -16,8 +17,8 @@ import com.dapascript.mever.core.common.util.PlatformType.SPOTIFY
 import com.dapascript.mever.core.common.util.PlatformType.TERABOX
 import com.dapascript.mever.core.common.util.PlatformType.THREADS
 import com.dapascript.mever.core.common.util.PlatformType.TIKTOK
-import com.dapascript.mever.core.common.util.PlatformType.X
 import com.dapascript.mever.core.common.util.PlatformType.VIDEY
+import com.dapascript.mever.core.common.util.PlatformType.X
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE_MUSIC
 import com.dapascript.mever.core.common.util.getPlatformType
@@ -119,6 +120,7 @@ internal class MeverWorker @AssistedInject constructor(
         type: String
     ) = when (getPlatformType(url, type)) {
         APPLE_MUSIC -> apiService.getAppleMusicDownloader(url).mapToEntity()
+        CAPCUT -> apiService.getCapCutDownloader(url).mapToEntity()
         DOUYIN -> apiService.getDouyinDownloader(url).mapToEntity()
         FACEBOOK -> apiService.getFacebookDownloader(url).mapToEntity().orEmpty()
         INSTAGRAM -> apiService.getInstagramDownloader(url).mapToEntity().orEmpty()
