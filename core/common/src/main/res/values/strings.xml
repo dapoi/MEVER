@@ -14,7 +14,7 @@
     <string name="light">Light</string>
     <string name="error_title">Oops! Something went wrong</string>
     <string name="error_desc">An unexpected error occurred. Please try again later!</string>
-    <string name="permission_request_title">Permission Needed</string>
+    <string name="permission_request_title">Permission Required</string>
     <string name="permission_request_media">We need access to your media to save the downloaded file.</string>
     <string name="permission_request_notification">We need notification access to show download progress.</string>
     <string name="go_to_settings">Go to Settings</string>
