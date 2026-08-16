@@ -337,11 +337,21 @@ private fun WaStatusContent(
                                 top = Dp16,
                                 start = Dp24,
                                 end = Dp24,
-                                bottom = if (isWaRegularInstalled && isWaBusinessInstalled) Dp0 else Dp24
+                                bottom = if (isWaRegularInstalled && isWaBusinessInstalled) Dp0 else Dp8
                             )
                             .onGloballyPositioned { onSetTitleHeight(it.size.height) }
                     )
                 }
+                Text(
+                    modifier = Modifier.padding(
+                        start = Dp24,
+                        end = Dp24,
+                        bottom = Dp24
+                    ),
+                    text = stringResource(R.string.wa_status_desc),
+                    style = typography.body2,
+                    color = colors.grayLightGray
+                )
                 if (isWaRegularInstalled && isWaBusinessInstalled) Row(
                     modifier = Modifier
                         .background(colors.whiteDark)

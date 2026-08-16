@@ -64,6 +64,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp90
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
@@ -311,7 +312,7 @@ private fun HeaderSection(
         ) {
             Text(
                 modifier = Modifier
-                    .padding(top = Dp16, bottom = Dp24)
+                    .padding(top = Dp16, bottom = Dp8)
                     .onGloballyPositioned { onSetTitleHeight(it.size.height) },
                 text = stringResource(R.string.ai_image_generator),
                 style = typography.h2.copy(fontSize = Sp32),

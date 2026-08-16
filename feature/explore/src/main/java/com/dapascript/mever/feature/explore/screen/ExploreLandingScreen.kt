@@ -92,7 +92,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import java.lang.System.currentTimeMillis
-import kotlin.text.ifEmpty
 import kotlin.time.Duration.Companion.seconds
 
 @OptIn(FlowPreview::class)
@@ -223,14 +222,21 @@ internal fun ExploreLandingScreen(
                         enter = expandVertically() + fadeIn(),
                         exit = shrinkVertically() + fadeOut()
                     ) {
-                        Column {
+                        Column(
+                            modifier = Modifier.padding(horizontal = Dp24),
+                            verticalArrangement = spacedBy(Dp8)
+                        ) {
                             Text(
                                 text = stringResource(R.string.images_finder),
                                 style = typography.h2.copy(fontSize = Sp32),
-                                color = colors.blackWhite,
-                                modifier = Modifier.padding(horizontal = Dp24)
+                                color = colors.blackWhite
                             )
-                            Spacer(modifier = Modifier.height(Dp16))
+                            Text(
+                                modifier = Modifier.padding(bottom = Dp24),
+                                text = stringResource(R.string.images_finder_desc),
+                                style = typography.body2,
+                                color = colors.grayLightGray
+                            )
                         }
                     }
                     MeverTextField(
