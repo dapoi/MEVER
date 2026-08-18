@@ -401,6 +401,7 @@ private fun HomeLandingContent(
         if (urlIntent.isNotEmpty()) {
             urlSocialMediaState = TextFieldValue(urlIntent)
             checkStoragePermissions = getStoragePermission()
+            delay(1.seconds)
             resetUrlIntent()
         }
     }
