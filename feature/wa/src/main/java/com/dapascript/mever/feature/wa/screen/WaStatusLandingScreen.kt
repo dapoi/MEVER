@@ -71,7 +71,6 @@ import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
 import com.dapascript.mever.core.common.ui.component.MeverImage
 import com.dapascript.mever.core.common.ui.component.meverShimmer
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp0
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp150
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
@@ -86,8 +85,8 @@ import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.LocalDeviceType
-import com.dapascript.mever.core.common.util.navigateToWaStore
 import com.dapascript.mever.core.common.util.isAppInstalled
+import com.dapascript.mever.core.common.util.navigateToWaStore
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.navigation.helper.Navigator
@@ -328,30 +327,25 @@ private fun WaStatusContent(
                     enter = expandVertically() + fadeIn(),
                     exit = shrinkVertically() + fadeOut()
                 ) {
-                    Text(
-                        text = stringResource(R.string.wa_status),
-                        style = typography.h2.copy(fontSize = Sp32),
-                        color = colors.blackWhite,
+                    Column(
                         modifier = Modifier
-                            .padding(
-                                top = Dp16,
-                                start = Dp24,
-                                end = Dp24,
-                                bottom = if (isWaRegularInstalled && isWaBusinessInstalled) Dp0 else Dp8
-                            )
-                            .onGloballyPositioned { onSetTitleHeight(it.size.height) }
-                    )
+                            .padding(top = Dp16, start = Dp24, end = Dp24)
+                            .onGloballyPositioned { onSetTitleHeight(it.size.height) },
+                        verticalArrangement = spacedBy(Dp8)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.wa_status),
+                            style = typography.h2.copy(fontSize = Sp32),
+                            color = colors.blackWhite
+                        )
+                        Text(
+                            modifier = Modifier.padding(bottom = Dp24),
+                            text = stringResource(R.string.wa_status_desc),
+                            style = typography.body2,
+                            color = colors.grayLightGray
+                        )
+                    }
                 }
-                Text(
-                    modifier = Modifier.padding(
-                        start = Dp24,
-                        end = Dp24,
-                        bottom = Dp24
-                    ),
-                    text = stringResource(R.string.wa_status_desc),
-                    style = typography.body2,
-                    color = colors.grayLightGray
-                )
                 if (isWaRegularInstalled && isWaBusinessInstalled) Row(
                     modifier = Modifier
                         .background(colors.whiteDark)
