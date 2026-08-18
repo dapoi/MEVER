@@ -15,11 +15,13 @@ import com.dapascript.mever.core.data.source.local.MeverDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -46,9 +48,18 @@ internal class SettingLandingViewModel @Inject constructor(
     private val _storageInfo = MutableStateFlow<StorageInfo?>(null)
     val storageInfo = _storageInfo.asStateFlow()
 
-    fun fetchStorageInfo() = viewModelScope.launch(IO) {
-        appVersion = getAppVersion(context)
-        _storageInfo.value = getStorageInfo(context)
+    init {
+        viewModelScope.launch(IO) {
+            val version = getAppVersion(context)
+            withContext(Main) {
+                appVersion = version
+            }
+        }
+    }
+
+    fun fetchStorageInfo() = viewModelScope.launch {
+        val storageInfo = withContext(IO) { getStorageInfo(context) }
+        _storageInfo.value = storageInfo
     }
 
     fun savePipState(isPipEnabled: Boolean) = viewModelScope.launch {
