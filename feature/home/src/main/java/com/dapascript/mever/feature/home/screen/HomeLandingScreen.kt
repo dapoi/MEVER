@@ -221,12 +221,15 @@ internal fun HomeLandingScreen(
 
         LaunchedEffect(Unit) {
             inAppUpdateManager.registerListener { isUpdateReady = true }
-            inAppUpdateManager.startUpdate(
-                updateType = FLEXIBLE,
-                updateAvailability = UPDATE_AVAILABLE,
-                launcher = updateLauncher,
-                onUpdateNotAvailable = {}
-            )
+            if (hasCheckedUpdate.not()) {
+                inAppUpdateManager.startUpdate(
+                    updateType = FLEXIBLE,
+                    updateAvailability = UPDATE_AVAILABLE,
+                    launcher = updateLauncher,
+                    onUpdateNotAvailable = {}
+                )
+                hasCheckedUpdate = true
+            }
             withContext(IO) { storageInfo = getStorageInfo(context) }
         }
 

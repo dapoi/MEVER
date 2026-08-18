@@ -56,6 +56,7 @@ internal class HomeLandingViewModel @Inject constructor(
     var contents by mutableStateOf<List<ContentEntity>>(emptyList())
     var errorMessage by mutableStateOf("")
     var storageInfo by mutableStateOf<StorageInfo?>(null)
+    var hasCheckedUpdate by mutableStateOf(false)
 
     private val _refreshTrigger = MutableStateFlow(0)
 
