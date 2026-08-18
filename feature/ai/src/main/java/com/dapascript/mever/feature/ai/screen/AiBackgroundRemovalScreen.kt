@@ -166,12 +166,12 @@ internal fun AiBackgroundRemovalScreen(
     val selectedBackground = selectedBackground.collectAsStateValue()
     val getButtonClickCount = getButtonClickCount.collectAsStateValue()
     val adsThreshold = adsThreshold.collectAsStateValue()
-    var isLoading by remember { mutableStateOf(false) }
+    var isLoading by rememberSaveable { mutableStateOf(false) }
     var isSaved by rememberSaveable { mutableStateOf(false) }
     var imageUri by rememberSaveable { mutableStateOf<Uri?>(null) }
-    var resultBitmap by remember { mutableStateOf<Bitmap?>(null) }
+    var resultBitmap by rememberSaveable { mutableStateOf<Bitmap?>(null) }
     var errorMessage by rememberSaveable { mutableStateOf("") }
-    var isProcessing by remember { mutableStateOf(false) }
+    var isProcessing by rememberSaveable { mutableStateOf(false) }
     val snackbarMessage = remember { mutableStateOf("") }
     val listState = rememberLazyListState()
     var titleHeight by rememberSaveable { mutableIntStateOf(0) }
