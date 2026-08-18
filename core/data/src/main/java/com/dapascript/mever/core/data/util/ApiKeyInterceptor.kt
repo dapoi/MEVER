@@ -12,7 +12,7 @@ internal class ApiKeyInterceptor @Inject constructor() : Interceptor {
         val urlHost = request.url.host
         if (urlHost.contains("catbox.moe")) return@let chain.proceed(request)
 
-        val deviceModel = "${Build.MANUFACTURER} ${Build.MODEL}"
+        val deviceModel = "${Build.MANUFACTURER} - ${Build.MODEL}"
         val builder = request
             .newBuilder()
             .addHeader("X-Package-Name", "com.dapascript.mever")
