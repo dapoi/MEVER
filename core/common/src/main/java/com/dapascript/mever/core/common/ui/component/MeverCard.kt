@@ -28,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -39,12 +40,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter.Companion.tint
 import androidx.compose.ui.graphics.StrokeCap.Companion.Round
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow.Companion.Ellipsis
-import coil3.compose.LocalPlatformContext
-import coil3.compose.rememberAsyncImagePainter
-import coil3.request.ImageRequest.Builder
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Filled
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Outlined
@@ -66,7 +66,6 @@ import com.dapascript.mever.core.common.ui.theme.MeverRed
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
-import com.dapascript.mever.core.common.util.calculateDownloadPercentage
 import com.dapascript.mever.core.common.util.calculateDownloadedMegabytes
 import com.dapascript.mever.core.common.util.displayFileName
 import com.dapascript.mever.core.common.util.fetchPhotoFromUrl
@@ -79,6 +78,7 @@ import com.dapascript.mever.core.common.util.onCustomClick
 import com.ketch.Status
 import com.ketch.Status.FAILED
 import com.ketch.Status.PAUSED
+import com.ketch.Status.QUEUED
 import com.ketch.Status.SUCCESS
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.seconds
@@ -135,11 +135,18 @@ fun MeverCard(
             }
         }
         Box(modifier = Modifier.fillMaxWidth()) {
+            val lastValidProgress = remember(fileName) { mutableIntStateOf(progress) }
             val animatedProgress by animateFloatAsState(
-                targetValue = progress / 100f,
+                targetValue = lastValidProgress.intValue / 100f,
                 animationSpec = ProgressAnimationSpec,
                 label = "Progress Animation"
             )
+
+            LaunchedEffect(progress) {
+                if (progress > 0 || status == SUCCESS) {
+                    lastValidProgress.intValue = progress
+                }
+            }
 
             Row(modifier = Modifier.fillMaxWidth()) {
                 MeverImage(
@@ -220,28 +227,46 @@ fun MeverCard(
                                 horizontalArrangement = SpaceBetween,
                                 verticalAlignment = Bottom
                             ) {
-                                if (status == FAILED) Text(
-                                    text = stringResource(R.string.failed),
-                                    style = typography.label2,
-                                    color = MeverRed
-                                ) else Text(
-                                    text = calculateDownloadPercentage(
-                                        downloadedBytes = (progress / 100.0 * total).toLong(),
-                                        totalBytes = total
-                                    ),
-                                    style = typography.label2,
-                                    color = colors.alwaysPurple
-                                )
-                                if (status != FAILED) Text(
-                                    text = "${
-                                        calculateDownloadedMegabytes(
-                                            progress = progress,
-                                            totalBytes = total
+                                when (status) {
+                                    FAILED -> {
+                                        Text(
+                                            text = stringResource(R.string.failed),
+                                            style = typography.label2,
+                                            color = MeverRed
                                         )
-                                    } MB/${getTwoDecimals(total / (1024.0 * 1024.0))} MB",
-                                    style = typography.label2,
-                                    color = MeverGray
-                                )
+                                    }
+
+                                    QUEUED -> {
+                                        Text(
+                                            text = "${lastValidProgress.intValue}%",
+                                            style = typography.label2,
+                                            color = colors.alwaysPurple
+                                        )
+                                        Text(
+                                            text = stringResource(R.string.please_wait),
+                                            style = typography.label2,
+                                            color = MeverGray
+                                        )
+                                    }
+
+                                    else -> {
+                                        Text(
+                                            text = "${lastValidProgress.intValue}%",
+                                            style = typography.label2,
+                                            color = colors.alwaysPurple
+                                        )
+                                        Text(
+                                            text = "${
+                                                calculateDownloadedMegabytes(
+                                                    progress = lastValidProgress.intValue,
+                                                    totalBytes = total
+                                                )
+                                            } MB/${getTwoDecimals(total / (1024.0 * 1024.0))} MB",
+                                            style = typography.label2,
+                                            color = MeverGray
+                                        )
+                                    }
+                                }
                             }
                             Spacer(modifier = Modifier.height(Dp8))
                             LinearProgressIndicator(
@@ -262,7 +287,7 @@ fun MeverCard(
                                 .padding(start = Dp8)
                                 .size(Dp24)
                                 .align(Bottom),
-                            painter = getImagePainter(status),
+                            imageVector = getImageVector(status),
                             colorFilter = tint(colors.blackWhite),
                             contentDescription = "Play/Pause/Retry"
                         )
@@ -337,12 +362,10 @@ private fun getBitmapFromUrl(url: String, extensionFromResponse: String): Bitmap
 }
 
 @Composable
-private fun getImagePainter(status: Status) = rememberAsyncImagePainter(
-    Builder(LocalPlatformContext.current).data(
-        when (status) {
-            FAILED -> R.drawable.ic_refresh
-            PAUSED -> R.drawable.ic_play
-            else -> R.drawable.ic_pause
-        }
-    ).build()
+private fun getImageVector(status: Status) = ImageVector.vectorResource(
+    id = when (status) {
+        FAILED -> R.drawable.ic_refresh
+        PAUSED -> R.drawable.ic_play
+        else -> R.drawable.ic_pause
+    }
 )

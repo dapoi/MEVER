@@ -129,10 +129,10 @@ import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE_MUSIC
 import com.dapascript.mever.core.common.util.changeToCurrentDate
 import com.dapascript.mever.core.common.util.clearFocusOnKeyboardDismiss
 import com.dapascript.mever.core.common.util.fadingEdge
-import com.dapascript.mever.core.common.util.highlightText
 import com.dapascript.mever.core.common.util.getExtensionFromUrl
 import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.getStoragePermission
+import com.dapascript.mever.core.common.util.highlightText
 import com.dapascript.mever.core.common.util.isMusic
 import com.dapascript.mever.core.common.util.isVideo
 import com.dapascript.mever.core.common.util.navigateToAppSettings
@@ -201,7 +201,7 @@ internal fun HomeLandingScreen(
         var isUpdateRefused by rememberSaveable { mutableStateOf(false) }
         val activity = LocalActivity.current
         val context = LocalContext.current
-        val showBadge = showBadge.collectAsStateValue()
+        val isAnyDownloadActive = isAnyDownloadActive.collectAsStateValue()
         val getButtonClickCount = getButtonClickCount.collectAsStateValue()
         val adsThresholdValue = adsThreshold.collectAsStateValue()
         val scope = rememberCoroutineScope()
@@ -296,7 +296,7 @@ internal fun HomeLandingScreen(
                 navigator = navigator,
                 getButtonClickCount = getButtonClickCount,
                 adsThreshold = adsThresholdValue,
-                showBadge = showBadge,
+                showBadge = isAnyDownloadActive,
                 isInPreview = isInPreview,
                 lifecycleOwner = lifecycleOwner,
                 lazyListState = lazyListState,
@@ -752,13 +752,11 @@ private fun HomeLandingContent(
                             .navigationBarsPadding(),
                         downloadList = downloadList.orEmpty().take(3),
                         onClickViewAll = { navigator.navigateToGalleryScreen() },
-                        onClickDelete = { id -> showDeleteDialog = id },
-                        onClickShare = { path ->
-                            shareContent(
-                                context = context,
-                                contentPath = path
-                            )
+                        onClickDelete = { showDeleteDialog = it.id },
+                        onClickShare = {
+                            shareContent(context = context, contentPath = it.path)
                         },
+                        onClickLong = { showDeleteDialog = it.id },
                         onClickCard = onClickCardAction
                     )
                 }
@@ -816,10 +814,11 @@ private fun HomeLandingContent(
                                 downloadList = downloadList.orEmpty().take(featuresCard.size),
                                 isPhoneDevice = false,
                                 onClickViewAll = { navigator.navigateToGalleryScreen() },
-                                onClickDelete = { id -> showDeleteDialog = id },
-                                onClickShare = { path ->
-                                    shareContent(context = context, contentPath = path)
+                                onClickDelete = { showDeleteDialog = it.id },
+                                onClickShare = {
+                                    shareContent(context = context, contentPath = it.path)
                                 },
+                                onClickLong = { showDeleteDialog = it.id },
                                 onClickCard = onClickCardAction
                             )
                         }
@@ -1132,8 +1131,9 @@ private fun RecentlyDownloadedSection(
     modifier: Modifier = Modifier,
     isPhoneDevice: Boolean = true,
     onClickViewAll: () -> Unit,
-    onClickDelete: (Int) -> Unit,
-    onClickShare: (String) -> Unit,
+    onClickDelete: (DownloadModel) -> Unit,
+    onClickShare: (DownloadModel) -> Unit,
+    onClickLong: (DownloadModel) -> Unit,
     onClickCard: (DownloadModel) -> Unit
 ) {
     Column(
@@ -1188,8 +1188,9 @@ private fun RecentlyDownloadedSection(
                         iconSize = Dp24,
                         iconPadding = Dp5
                     ),
-                    onClickDelete = { onClickDelete(download.id) },
-                    onClickShare = { onClickShare(download.path) },
+                    onClickDelete = { onClickDelete(download) },
+                    onClickShare = { onClickShare(download) },
+                    onClickLong = { onClickLong(download) },
                     onClickCard = { onClickCard(download) }
                 )
             }

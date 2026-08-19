@@ -9,6 +9,10 @@ import com.dapascript.mever.core.common.util.PlatformType
 import com.dapascript.mever.core.common.util.PlatformType.ALL
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.ketch.DownloadModel
+import com.ketch.Status.PAUSED
+import com.ketch.Status.PROGRESS
+import com.ketch.Status.QUEUED
+import com.ketch.Status.STARTED
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,6 +43,19 @@ internal class GalleryLandingViewModel @Inject constructor(
         .distinctUntilChanged()
         .flowOn(Default)
         .stateIn(viewModelScope, WhileSubscribed(5000), null)
+
+    val isAnyDownloadActive = downloadList
+        .map { list ->
+            list?.any { file ->
+                file.status in listOf(QUEUED, STARTED, PAUSED, PROGRESS)
+            } ?: false
+        }
+        .distinctUntilChanged()
+        .stateIn(
+            scope = viewModelScope,
+            started = WhileSubscribed(5000),
+            initialValue = false
+        )
 
     val platformTypes = downloadList
         .map { list ->

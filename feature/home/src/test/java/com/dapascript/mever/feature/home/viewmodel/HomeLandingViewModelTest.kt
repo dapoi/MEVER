@@ -134,7 +134,7 @@ class HomeLandingViewModelTest {
     @Test
     fun `showBadge is false when download list is empty`() = testScope.runTest {
         val values = mutableListOf<Boolean>()
-        val job = launch { viewModel.showBadge.collect { values.add(it) } }
+        val job = launch { viewModel.isAnyDownloadActive.collect { values.add(it) } }
         advanceUntilIdle()
         job.cancel()
         assertTrue(values.contains(false))

@@ -119,6 +119,7 @@ internal fun GalleryLandingScreen(
 ) = with(viewModel) {
     val context = LocalContext.current
     val allDownloads = downloadList.collectAsStateValue()
+    val isAnyDownloadActive = isAnyDownloadActive.collectAsStateValue()
     val platformTypes = platformTypes.collectAsStateValue()
     val selectedItems = selectedItems.collectAsStateValue()
     val listState = rememberLazyListState()
@@ -230,7 +231,7 @@ internal fun GalleryLandingScreen(
             listDropDown = GalleryActionMenu.entries.filter { menu ->
                 when (menu) {
                     SELECT_ALL -> showSelector && selectedItems.size != filteredDownloads?.size
-                    SELECT_FILES -> allDownloads.isNullOrEmpty().not() && showSelector.not()
+                    SELECT_FILES -> allDownloads.isNullOrEmpty().not() && showSelector.not() && isAnyDownloadActive.not()
                     DELETE_ALL -> allDownloads.isNullOrEmpty().not() && showSelector.not()
                     DELETE_SELECTED -> selectedItems.isNotEmpty()
                     SHARE_SELECTED -> selectedItems.isNotEmpty()
@@ -343,10 +344,10 @@ internal fun GalleryLandingScreen(
             },
             onClickDelete = { showDeleteDialog = listOf(it.id) },
             onClickLong = {
-                if (filteredDownloads.orEmpty().size > 1) {
+                if (filteredDownloads.orEmpty().size > 1 && isAnyDownloadActive.not()) {
                     showSelector = showSelector.not()
                     toggleSelection(it)
-                }
+                } else showDeleteDialog = listOf(it.id)
             },
             onClickShare = {
                 shareContent(

@@ -59,7 +59,7 @@ internal class HomeLandingViewModel @Inject constructor(
         .flowOn(Default)
         .stateIn(viewModelScope, WhileSubscribed(5000), null)
 
-    val showBadge = downloadList
+    val isAnyDownloadActive = downloadList
         .map { list ->
             list?.any { file ->
                 file.status in listOf(QUEUED, STARTED, PAUSED, PROGRESS)
