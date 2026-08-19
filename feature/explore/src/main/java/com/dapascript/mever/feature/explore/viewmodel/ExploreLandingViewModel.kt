@@ -5,14 +5,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.util.PlatformType.EXPLORE
-import com.dapascript.mever.core.common.util.sanitizeFilename
 import com.dapascript.mever.core.common.util.state.UiState
 import com.dapascript.mever.core.common.util.state.UiState.StateInitial
-import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFolder
 import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.feature.explore.BuildConfig.DEBUG
-import com.ketch.Ketch
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,11 +17,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 internal class ExploreLandingViewModel @Inject constructor(
-    private val repository: MeverRepository,
-    private val ketch: Ketch
+    private val repository: MeverRepository
 ) : BaseViewModel() {
-
-    private val meverFolder by lazy { getMeverFolder() }
 
     var query by mutableStateOf("")
     var contents by mutableStateOf<List<ContentEntity>?>(null)
@@ -54,11 +48,11 @@ internal class ExploreLandingViewModel @Inject constructor(
         fileName: String
     ) {
         if (url.isBlank()) return
-        ketch.download(
+        repository.download(
             url = url,
-            fileName = sanitizeFilename(fileName),
-            path = meverFolder.path,
-            tag = EXPLORE.platformName
+            fileName = fileName,
+            tag = EXPLORE.platformName,
+            metaData = ""
         )
     }
 }

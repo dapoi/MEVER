@@ -6,7 +6,6 @@ import com.dapascript.mever.core.common.util.state.UiState
 import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.source.local.MeverDataStore
-import com.ketch.Ketch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -19,7 +18,6 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -41,7 +39,6 @@ class HomeLandingViewModelTest {
     private val testScope = TestScope(testDispatcher)
 
     @Mock lateinit var dataStore: MeverDataStore
-    @Mock lateinit var ketch: Ketch
     @Mock lateinit var repository: MeverRepository
 
     private lateinit var viewModel: HomeLandingViewModel
@@ -60,8 +57,8 @@ class HomeLandingViewModelTest {
         whenever(dataStore.clickCount).thenReturn(flowOf(1))
         whenever(dataStore.adsThreshold).thenReturn(flowOf(3))
         whenever(dataStore.getUrlIntent).thenReturn(flowOf(""))
-        whenever(ketch.observeDownloads()).thenReturn(flowOf(emptyList()))
-        viewModel = HomeLandingViewModel(dataStore, ketch, repository)
+        whenever(repository.observeDownloads()).thenReturn(flowOf(emptyList()))
+        viewModel = HomeLandingViewModel(dataStore, repository)
     }
 
     @After
@@ -177,27 +174,27 @@ class HomeLandingViewModelTest {
     }
 
     @Test
-    fun `resumeDownload delegates to ketch`() {
+    fun `resumeDownload delegates to repository`() {
         viewModel.resumeDownload(42)
-        verify(ketch).resume(42)
+        verify(repository).resumeDownload(42)
     }
 
     @Test
-    fun `pauseDownload delegates to ketch`() {
+    fun `pauseDownload delegates to repository`() {
         viewModel.pauseDownload(42)
-        verify(ketch).pause(42)
+        verify(repository).pauseDownload(42)
     }
 
     @Test
-    fun `retryDownload delegates to ketch`() {
+    fun `retryDownload delegates to repository`() {
         viewModel.retryDownload(42)
-        verify(ketch).retry(42)
+        verify(repository).retryDownload(42)
     }
 
     @Test
-    fun `delete is a safe no-op when there are no downloads`() {
+    fun `delete calls repository deleteDownload`() {
         viewModel.delete(42)
-        Mockito.verify(ketch, Mockito.never()).clearDb(any<Int>(), any<Boolean>())
+        verify(repository).deleteDownload(42)
     }
 
     @Test

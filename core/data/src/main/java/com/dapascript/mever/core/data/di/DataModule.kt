@@ -11,6 +11,7 @@ import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.repository.MeverRepositoryImpl
 import com.dapascript.mever.core.data.repository.base.BaseRepositoryArgs
 import com.dapascript.mever.core.data.source.remote.ApiService
+import com.ketch.Ketch
 import com.dapascript.mever.core.data.util.ApiKeyInterceptor
 import com.dapascript.mever.core.data.util.MoshiHelper
 import com.squareup.moshi.Moshi
@@ -92,9 +93,11 @@ internal class DataModule {
     @Provides
     fun provideMeverRepository(
         apiService: ApiService,
+        ketch: Ketch,
         args: BaseRepositoryArgs
     ): MeverRepository = MeverRepositoryImpl(
         apiService = apiService,
+        ketch = ketch,
         args = args
     )
 

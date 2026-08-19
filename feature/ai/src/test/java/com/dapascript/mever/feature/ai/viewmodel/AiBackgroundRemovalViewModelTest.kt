@@ -8,7 +8,6 @@ import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.source.local.MeverDataStore
 import com.dapascript.mever.feature.ai.screen.attr.AiBackgroundRemovalAttr.BgRemovalType.QuickColor
 import com.dapascript.mever.feature.ai.screen.attr.AiBackgroundRemovalAttr.BgRemovalType.TransparentImage
-import com.ketch.Ketch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -48,9 +47,6 @@ class AiBackgroundRemovalViewModelTest {
     @Mock
     lateinit var repository: MeverRepository
 
-    @Mock
-    lateinit var ketch: Ketch
-
     private lateinit var viewModel: AiBackgroundRemovalViewModel
 
     @Before
@@ -61,7 +57,7 @@ class AiBackgroundRemovalViewModelTest {
         whenever(dataStore.clickCount).thenReturn(flowOf(2))
         whenever(dataStore.adsThreshold).thenReturn(flowOf(5))
 
-        viewModel = AiBackgroundRemovalViewModel(context, processor, dataStore, repository, ketch)
+        viewModel = AiBackgroundRemovalViewModel(context, processor, dataStore, repository)
     }
 
     @After

@@ -2,8 +2,8 @@ package com.dapascript.mever.feature.gallery.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.dapascript.mever.core.common.util.PlatformType
+import com.dapascript.mever.core.data.repository.MeverRepository
 import com.ketch.DownloadModel
-import com.ketch.Ketch
 import com.ketch.Status
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -34,7 +34,7 @@ class GalleryLandingViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
 
     @Mock
-    lateinit var ketch: Ketch
+    lateinit var repository: MeverRepository
 
     private lateinit var viewModel: GalleryLandingViewModel
 
@@ -65,8 +65,8 @@ class GalleryLandingViewModelTest {
     fun setUp() {
         MockitoAnnotations.openMocks(this)
         Dispatchers.setMain(testDispatcher)
-        whenever(ketch.observeDownloads()).thenReturn(flowOf(emptyList()))
-        viewModel = GalleryLandingViewModel(ketch)
+        whenever(repository.observeDownloads()).thenReturn(flowOf(emptyList()))
+        viewModel = GalleryLandingViewModel(repository)
     }
 
     @After
@@ -120,39 +120,38 @@ class GalleryLandingViewModelTest {
     }
 
     @Test
-    fun `resumeDownload delegates to ketch`() {
+    fun `resumeDownload delegates to repository`() {
         viewModel.resumeDownload(1)
-        verify(ketch).resume(1)
+        verify(repository).resumeDownload(1)
     }
 
     @Test
-    fun `pauseDownload delegates to ketch`() {
+    fun `pauseDownload delegates to repository`() {
         viewModel.pauseDownload(1)
-        verify(ketch).pause(1)
+        verify(repository).pauseDownload(1)
     }
 
     @Test
-    fun `pauseAllDownloads delegates to ketch`() {
+    fun `pauseAllDownloads delegates to repository`() {
         viewModel.pauseAllDownloads()
-        verify(ketch).pauseAll()
+        verify(repository).pauseAllDownloads()
     }
 
     @Test
-    fun `retryDownload delegates to ketch`() {
+    fun `retryDownload delegates to repository`() {
         viewModel.retryDownload(1)
-        verify(ketch).retry(1)
+        verify(repository).retryDownload(1)
     }
 
     @Test
-    fun `delete is a safe no-op when there are no downloads`() = runTest {
-        advanceUntilIdle()
-        org.mockito.Mockito.verify(ketch, org.mockito.Mockito.never())
-            .clearDb(org.mockito.kotlin.any<Int>(), org.mockito.kotlin.any<Boolean>())
+    fun `delete calls repository deleteDownload`() {
+        viewModel.delete(1)
+        verify(repository).deleteDownload(1)
     }
 
     @Test
-    fun `deleteAll is a safe no-op when there are no downloads`() = runTest {
-        advanceUntilIdle()
-        org.mockito.Mockito.verify(ketch, org.mockito.Mockito.never()).clearAllDb()
+    fun `deleteAll calls repository deleteAllDownloads`() {
+        viewModel.deleteAll()
+        verify(repository).deleteAllDownloads()
     }
 }

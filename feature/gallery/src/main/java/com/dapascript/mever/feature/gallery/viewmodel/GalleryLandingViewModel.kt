@@ -7,14 +7,8 @@ import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.util.PlatformType
 import com.dapascript.mever.core.common.util.PlatformType.ALL
-import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFiles
-import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFolder
+import com.dapascript.mever.core.data.repository.MeverRepository
 import com.ketch.DownloadModel
-import com.ketch.Ketch
-import com.ketch.Status.PROGRESS
-import com.ketch.Status.QUEUED
-import com.ketch.Status.STARTED
-import com.ketch.Status.SUCCESS
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,31 +21,20 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
 internal class GalleryLandingViewModel @Inject constructor(
-    private val ketch: Ketch
+    private val repository: MeverRepository
 ) : BaseViewModel() {
-
-    private val meverFolder by lazy { getMeverFolder() }
 
     var selectedFilter by mutableStateOf(ALL)
 
     private val _refreshTrigger = MutableStateFlow(0)
 
-    val downloadList = ketch.observeDownloads()
+    val downloadList = repository.observeDownloads()
         .combine(_refreshTrigger) { downloads, _ ->
-            downloads.map {
-                it.copy(
-                    path = File(meverFolder, it.fileName).absolutePath
-                )
-            }.sortedWith(
-                compareByDescending<DownloadModel> {
-                    it.status in listOf(QUEUED, STARTED, PROGRESS)
-                }.thenByDescending { it.timeQueued }
-            )
+            downloads
         }
         .distinctUntilChanged()
         .flowOn(Default)
@@ -82,55 +65,31 @@ internal class GalleryLandingViewModel @Inject constructor(
         _selectedItems.value = emptySet()
     }
 
-    fun resumeDownload(id: Int) = ketch.resume(id)
+    fun resumeDownload(id: Int) = repository.resumeDownload(id)
 
-    fun pauseDownload(id: Int) = ketch.pause(id)
+    fun pauseDownload(id: Int) = repository.pauseDownload(id)
 
-    fun pauseAllDownloads() = ketch.pauseAll()
+    fun pauseAllDownloads() = repository.pauseAllDownloads()
 
-    fun retryDownload(id: Int) = ketch.retry(id)
+    fun retryDownload(id: Int) = repository.retryDownload(id)
 
     fun delete(id: Int) {
-        deleteItems(listOf(id))
+        repository.deleteDownload(id)
+        _refreshTrigger.update { it + 1 }
     }
 
     fun deleteItems(ids: List<Int>) {
-        val items = downloadList.value?.filter { it.id in ids } ?: return
-        viewModelScope.launch {
-            items.forEach { item ->
-                val file = File(item.path)
-                if (file.exists()) file.delete()
-                ketch.clearDb(item.id)
-            }
-            _refreshTrigger.update { it + 1 }
-        }
+        repository.deleteDownloads(ids)
+        _refreshTrigger.update { it + 1 }
     }
 
     fun deleteAll() {
-        viewModelScope.launch {
-            val downloads = downloadList.value ?: return@launch
-            downloads.forEach { item ->
-                val file = File(item.path)
-                if (file.exists()) file.delete()
-            }
-            ketch.clearAllDb()
-            _refreshTrigger.update { it + 1 }
-        }
+        repository.deleteAllDownloads()
+        _refreshTrigger.update { it + 1 }
     }
 
     fun refreshDatabase() {
         _refreshTrigger.update { it + 1 }
-        viewModelScope.launch {
-            val existingNames = getMeverFiles(meverFolder)
-                .map { it.name.lowercase() }
-                .toSet()
-            val downloads = downloadList.value ?: return@launch
-
-            downloads
-                .filter {
-                    it.status == SUCCESS && existingNames.contains(it.fileName.lowercase()).not()
-                }
-                .forEach { ketch.clearDb(it.id) }
-        }
+        viewModelScope.launch { repository.refreshDownloadDatabase() }
     }
 }

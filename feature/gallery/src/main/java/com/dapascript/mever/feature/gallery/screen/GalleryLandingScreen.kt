@@ -314,7 +314,7 @@ internal fun GalleryLandingScreen(
                             if (isMusic(model.fileName).not()) navigator.navigate(
                                 GalleryContentDetailRoute(
                                     contents = filteredDownloads
-                                        ?.filterNot { isMusic(it.fileName) }
+                                        ?.filterNot { isMusic(it.fileName) || it.status != SUCCESS }
                                         ?.map {
                                             Content(
                                                 id = it.id,
@@ -323,9 +323,9 @@ internal fun GalleryLandingScreen(
                                                 fileName = it.fileName
                                             )
                                         } ?: emptyList(),
-                                    initialIndex = filteredDownloads?.filterNot {
-                                        isMusic(it.fileName)
-                                    }?.indexOfFirst { it.id == id } ?: 0
+                                    initialIndex = filteredDownloads
+                                        ?.filterNot { isMusic(it.fileName) || it.status != SUCCESS }
+                                        ?.indexOfFirst { it.id == id } ?: 0
                                 )
                             ) else {
                                 navigateToMusic(

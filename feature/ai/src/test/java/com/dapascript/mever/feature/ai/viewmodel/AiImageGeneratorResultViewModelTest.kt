@@ -5,7 +5,6 @@ import com.dapascript.mever.core.common.util.state.UiState
 import com.dapascript.mever.core.data.model.local.ImageAiEntity
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.source.local.MeverDataStore
-import com.ketch.Ketch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,8 +34,6 @@ class AiImageGeneratorResultViewModelTest {
     private val testScope = TestScope(testDispatcher)
 
     @Mock
-    lateinit var ketch: Ketch
-    @Mock
     lateinit var repository: MeverRepository
     @Mock
     lateinit var dataStore: MeverDataStore
@@ -63,7 +60,6 @@ class AiImageGeneratorResultViewModelTest {
         // Empty SavedStateHandle - args is lazy and only accessed when getImageAiGenerator() is called.
         // We test state directly via the backing flow, avoiding the toRoute() navigation internals.
         viewModel = AiImageGeneratorResultViewModel(
-            ketch,
             repository,
             dataStore
         )
@@ -118,13 +114,13 @@ class AiImageGeneratorResultViewModelTest {
     @Test
     fun `startDownload does nothing when url is empty`() {
         viewModel.startDownload("", "fake_image.png")
-        verifyNoInteractions(ketch)
+        verifyNoInteractions(repository)
     }
 
     @Test
     fun `startDownload does nothing when url is blank whitespace`() {
         viewModel.startDownload("   ", "fake_image.png")
-        verifyNoInteractions(ketch)
+        verifyNoInteractions(repository)
     }
 
     @Test

@@ -353,7 +353,7 @@ private fun HomeLandingContent(
                         navigator.navigate(
                             GalleryContentDetailRoute(
                                 contents = downloadList.orEmpty().filterNot {
-                                    isMusic(it.fileName)
+                                    isMusic(it.fileName) || it.status != SUCCESS
                                 }.map {
                                     Content(
                                         id = it.id,
@@ -363,7 +363,7 @@ private fun HomeLandingContent(
                                     )
                                 },
                                 initialIndex = downloadList.orEmpty().filterNot {
-                                    isMusic(it.fileName)
+                                    isMusic(it.fileName) || it.status != SUCCESS
                                 }.indexOfFirst { it.id == id }
                             )
                         )

@@ -11,12 +11,10 @@ import com.dapascript.mever.core.common.util.state.UiState
 import com.dapascript.mever.core.common.util.state.UiState.StateInitial
 import com.dapascript.mever.core.common.util.state.UiState.StateLoading
 import com.dapascript.mever.core.common.util.state.UiState.StateSuccess
-import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFolder
 import com.dapascript.mever.core.data.model.local.ImageAiEntity
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.source.local.MeverDataStore
 import com.dapascript.mever.feature.ai.BuildConfig.DEBUG
-import com.ketch.Ketch
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,11 +28,9 @@ import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 internal class AiImageGeneratorResultViewModel @Inject constructor(
-    private val ketch: Ketch,
     private val repository: MeverRepository,
     private val dataStore: MeverDataStore
 ) : BaseViewModel() {
-    private val meverFolder by lazy { getMeverFolder() }
 
     var imageResult by mutableStateOf<ImageAiEntity?>(null)
 
@@ -81,11 +77,11 @@ internal class AiImageGeneratorResultViewModel @Inject constructor(
 
     fun startDownload(url: String, fileName: String) {
         if (url.isBlank()) return
-        ketch.download(
+        repository.download(
             url = url,
             fileName = fileName.ifEmpty { changeToCurrentDate(currentTimeMillis()) + ".jpg" },
-            path = meverFolder.path,
-            tag = AI.platformName
+            tag = AI.platformName,
+            metaData = ""
         )
     }
 

@@ -5,6 +5,8 @@ import androidx.work.workDataOf
 import com.dapascript.mever.core.common.util.getContentTypeFromFile
 import com.dapascript.mever.core.common.util.sanitizeFilename
 import com.dapascript.mever.core.common.util.saveBitmapToFile
+import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFiles
+import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFolder
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.ACTION_DOWNLOAD
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.ACTION_GENERATE_AI
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_PROMPT
@@ -18,6 +20,16 @@ import com.dapascript.mever.core.data.model.local.ImageAiEntity
 import com.dapascript.mever.core.data.repository.base.BaseRepository
 import com.dapascript.mever.core.data.repository.base.BaseRepositoryArgs
 import com.dapascript.mever.core.data.source.remote.ApiService
+import com.ketch.DownloadModel
+import com.ketch.Ketch
+import com.ketch.Status.CANCELLED
+import com.ketch.Status.PROGRESS
+import com.ketch.Status.QUEUED
+import com.ketch.Status.STARTED
+import com.ketch.Status.SUCCESS
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.take
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody.Part.Companion.createFormData
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -27,8 +39,11 @@ import javax.inject.Inject
 
 internal class MeverRepositoryImpl @Inject constructor(
     private val apiService: ApiService,
+    private val ketch: Ketch,
     args: BaseRepositoryArgs
 ) : MeverRepository, BaseRepository(args) {
+
+    private val meverFolder by lazy { getMeverFolder() }
 
     override fun getAppConfig() = safeApiCall {
         apiService.getAppConfig().mapToEntity()
@@ -79,6 +94,61 @@ internal class MeverRepositoryImpl @Inject constructor(
             ).string()
         } finally {
             if (cacheFile.exists()) cacheFile.delete()
+        }
+    }
+
+    override fun observeDownloads() = ketch.observeDownloads()
+        .onEach { downloads ->
+            downloads.filter { it.status == CANCELLED }.forEach { ketch.clearDb(it.id) }
+        }
+        .map { downloads ->
+            downloads.filter { it.status != CANCELLED }.map {
+                it.copy(
+                    path = File(meverFolder, it.fileName).absolutePath
+                )
+            }.sortedWith(
+                compareByDescending<DownloadModel> {
+                    it.status in listOf(QUEUED, STARTED, PROGRESS)
+                }.thenByDescending { it.timeQueued }
+            )
+        }
+
+    override fun download(url: String, fileName: String, tag: String, metaData: String) {
+        ketch.download(
+            url = url,
+            path = meverFolder.path,
+            fileName = sanitizeFilename(fileName),
+            tag = tag,
+            metaData = metaData
+        )
+    }
+
+    override fun pauseDownload(id: Int) = ketch.pause(id)
+
+    override fun resumeDownload(id: Int) = ketch.resume(id)
+
+    override fun retryDownload(id: Int) = ketch.retry(id)
+
+    override fun pauseAllDownloads() = ketch.pauseAll()
+
+    override fun deleteDownload(id: Int) = ketch.clearDb(id, deleteFile = true)
+
+    override fun deleteDownloads(ids: List<Int>) {
+        ids.forEach { ketch.clearDb(it, deleteFile = true) }
+    }
+
+    override fun deleteAllDownloads() = ketch.clearAllDb(deleteFile = true)
+
+    override suspend fun refreshDownloadDatabase() {
+        val existingNames = getMeverFiles(meverFolder)
+            .map { it.name.lowercase() }
+            .toSet()
+        ketch.observeDownloads().take(1).collect { downloads ->
+            downloads
+                .filter {
+                    it.status == SUCCESS && existingNames.contains(it.fileName.lowercase()).not()
+                }
+                .forEach { ketch.clearDb(it.id) }
         }
     }
 }

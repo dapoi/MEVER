@@ -8,25 +8,19 @@ import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE_MUSIC
 import com.dapascript.mever.core.common.util.getPlatformType
-import com.dapascript.mever.core.common.util.sanitizeFilename
 import com.dapascript.mever.core.common.util.state.UiState
 import com.dapascript.mever.core.common.util.state.UiState.StateFailed
 import com.dapascript.mever.core.common.util.state.UiState.StateInitial
 import com.dapascript.mever.core.common.util.state.UiState.StateLoading
 import com.dapascript.mever.core.common.util.state.UiState.StateSuccess
 import com.dapascript.mever.core.common.util.storage.StorageUtil.StorageInfo
-import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFiles
-import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFolder
 import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.source.local.MeverDataStore
-import com.ketch.DownloadModel
-import com.ketch.Ketch
 import com.ketch.Status.PAUSED
 import com.ketch.Status.PROGRESS
 import com.ketch.Status.QUEUED
 import com.ketch.Status.STARTED
-import com.ketch.Status.SUCCESS
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,16 +33,13 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
 internal class HomeLandingViewModel @Inject constructor(
     private val dataStore: MeverDataStore,
-    private val ketch: Ketch,
     private val repository: MeverRepository
 ) : BaseViewModel() {
-    private val meverFolder by lazy { getMeverFolder() }
 
     var urlSocialMediaState by mutableStateOf(TextFieldValue(""))
     var selectedQuality by mutableStateOf("")
@@ -60,17 +51,9 @@ internal class HomeLandingViewModel @Inject constructor(
 
     private val _refreshTrigger = MutableStateFlow(0)
 
-    val downloadList = ketch.observeDownloads()
+    val downloadList = repository.observeDownloads()
         .combine(_refreshTrigger) { downloads, _ ->
-            downloads.map {
-                it.copy(
-                    path = File(meverFolder, it.fileName).absolutePath
-                )
-            }.sortedWith(
-                compareByDescending<DownloadModel> {
-                    it.status in listOf(QUEUED, STARTED, PROGRESS)
-                }.thenByDescending { it.timeQueued }
-            )
+            downloads
         }
         .distinctUntilChanged()
         .flowOn(Default)
@@ -164,10 +147,9 @@ internal class HomeLandingViewModel @Inject constructor(
             getPlatformType(urlSocialMediaState.text).platformName
         }
 
-        ketch.download(
+        repository.download(
             url = url,
-            path = meverFolder.path,
-            fileName = sanitizeFilename(fileName),
+            fileName = fileName,
             tag = platformTag,
             metaData = thumbnail
         )
@@ -175,36 +157,20 @@ internal class HomeLandingViewModel @Inject constructor(
         if (currentQuality.contains("kbps")) selectedQuality = ""
     }
 
-    fun resumeDownload(id: Int) = ketch.resume(id)
+    fun resumeDownload(id: Int) = repository.resumeDownload(id)
 
-    fun pauseDownload(id: Int) = ketch.pause(id)
+    fun pauseDownload(id: Int) = repository.pauseDownload(id)
 
-    fun retryDownload(id: Int) = ketch.retry(id)
+    fun retryDownload(id: Int) = repository.retryDownload(id)
 
     fun delete(id: Int) {
-        val item = downloadList.value?.find { it.id == id } ?: return
-        viewModelScope.launch {
-            val file = File(item.path)
-            if (file.exists()) file.delete()
-            ketch.clearDb(id)
-            _refreshTrigger.update { it + 1 }
-        }
+        repository.deleteDownload(id)
+        _refreshTrigger.update { it + 1 }
     }
 
     fun refreshDatabase() {
         _refreshTrigger.update { it + 1 }
-        viewModelScope.launch {
-            val existingNames = getMeverFiles(meverFolder)
-                .map { it.name.lowercase() }
-                .toSet()
-            val downloads = downloadList.value ?: return@launch
-
-            downloads
-                .filter {
-                    it.status == SUCCESS && existingNames.contains(it.fileName.lowercase()).not()
-                }
-                .forEach { ketch.clearDb(it.id) }
-        }
+        viewModelScope.launch { repository.refreshDownloadDatabase() }
     }
 
     fun incrementClickCount() = viewModelScope.launch {

@@ -29,7 +29,6 @@ import com.dapascript.mever.feature.ai.screen.attr.AiBackgroundRemovalAttr.BgRem
 import com.dapascript.mever.feature.ai.screen.attr.AiBackgroundRemovalAttr.SaveResult
 import com.dapascript.mever.feature.ai.screen.attr.AiBackgroundRemovalAttr.SaveResult.ImageLocation.GALLERY
 import com.dapascript.mever.feature.ai.screen.attr.AiBackgroundRemovalAttr.SaveResult.ImageLocation.IN_APP
-import com.ketch.Ketch
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers.IO
@@ -56,11 +55,8 @@ internal class AiBackgroundRemovalViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val processor: BackgroundRemovalProcessor,
     private val dataStore: MeverDataStore,
-    private val repository: MeverRepository,
-    private val ketch: Ketch
+    private val repository: MeverRepository
 ) : BaseViewModel() {
-
-    private val meverFolder by lazy { getMeverFolder() }
 
     val getButtonClickCount = dataStore.clickCount.stateIn(
         scope = viewModelScope,
@@ -139,9 +135,8 @@ internal class AiBackgroundRemovalViewModel @Inject constructor(
             onLoading = { _saveImageState.value = StateLoading },
             onSuccess = { url: String? ->
                 if (url != null) {
-                    ketch.download(
+                    repository.download(
                         url = url,
-                        path = meverFolder.absolutePath,
                         fileName = fileName,
                         tag = AI.platformName,
                         metaData = url
@@ -205,7 +200,7 @@ internal class AiBackgroundRemovalViewModel @Inject constructor(
     }
 
     private suspend fun saveImageLocally(bitmap: Bitmap, fileName: String) {
-        val destFile = File(meverFolder, fileName)
+        val destFile = File(getMeverFolder(), fileName)
         val isSuccess = withContext(IO) {
             saveBitmapToFile(bitmap, destFile, true)
         }

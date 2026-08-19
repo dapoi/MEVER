@@ -40,6 +40,7 @@ object CollectionLibs {
         dependencies {
             implementation(project(coreModules[1]))
             implementation(libs.dataStorePreferences.get())
+            implementation(libs.ketch.get())
             implementation(libs.moshi.kotlin.get())
             implementation(libs.okhttp.interceptor.get())
             implementation(libs.retrofit.lib.get())

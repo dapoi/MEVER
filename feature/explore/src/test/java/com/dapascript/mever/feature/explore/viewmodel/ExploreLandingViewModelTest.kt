@@ -5,7 +5,6 @@ import com.dapascript.mever.core.common.util.state.ApiState
 import com.dapascript.mever.core.common.util.state.UiState
 import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.dapascript.mever.core.data.repository.MeverRepository
-import com.ketch.Ketch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -37,9 +36,6 @@ class ExploreLandingViewModelTest {
     @Mock
     lateinit var repository: MeverRepository
 
-    @Mock
-    lateinit var ketch: Ketch
-
     private val fakeContents = listOf(
         ContentEntity(url = "https://img1.jpg", status = true, id = "1"),
         ContentEntity(url = "https://img2.jpg", status = true, id = "2")
@@ -62,7 +58,7 @@ class ExploreLandingViewModelTest {
 
     @Test
     fun `exploreResponseState is StateInitial before coroutines run`() {
-        val vm = ExploreLandingViewModel(repository, ketch)
+        val vm = ExploreLandingViewModel(repository)
         assertTrue(vm.exploreResponseState.value is UiState.StateInitial)
     }
 
@@ -71,7 +67,7 @@ class ExploreLandingViewModelTest {
         whenever(repository.getImageSearch("nature")).thenReturn(
             flowOf(ApiState.Loading, ApiState.Success(fakeContents))
         )
-        val vm = ExploreLandingViewModel(repository, ketch)
+        val vm = ExploreLandingViewModel(repository)
         val states = mutableListOf<UiState<List<ContentEntity>>>()
         val job = launch { vm.exploreResponseState.collect { states.add(it) } }
         vm.getExploreContents("nature")
@@ -89,7 +85,7 @@ class ExploreLandingViewModelTest {
         whenever(repository.getImageSearch("fail")).thenReturn(
             flowOf(ApiState.Error(Throwable("Network error")))
         )
-        val vm = ExploreLandingViewModel(repository, ketch)
+        val vm = ExploreLandingViewModel(repository)
         val states = mutableListOf<UiState<List<ContentEntity>>>()
         val job = launch { vm.exploreResponseState.collect { states.add(it) } }
         vm.getExploreContents("fail")
@@ -107,7 +103,7 @@ class ExploreLandingViewModelTest {
         whenever(repository.getImageSearch("tech")).thenReturn(
             flowOf(ApiState.Loading)
         )
-        val vm = ExploreLandingViewModel(repository, ketch)
+        val vm = ExploreLandingViewModel(repository)
         vm.getExploreContents("tech")
         advanceUntilIdle()
         assertTrue(vm.exploreResponseState.value is UiState.StateLoading)
@@ -115,13 +111,13 @@ class ExploreLandingViewModelTest {
 
     @Test
     fun `query default value is empty string`() {
-        val vm = ExploreLandingViewModel(repository, ketch)
+        val vm = ExploreLandingViewModel(repository)
         assertEquals("", vm.query)
     }
 
     @Test
     fun `query can be updated`() {
-        val vm = ExploreLandingViewModel(repository, ketch)
+        val vm = ExploreLandingViewModel(repository)
         vm.query = "wallpaper"
         assertEquals("wallpaper", vm.query)
     }
