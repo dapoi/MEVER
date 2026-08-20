@@ -116,7 +116,7 @@ fun MeverAutoSizableTextField(
             value = value,
             readOnly = isReadOnly,
             maxLines = maxLines,
-            onValueChange = onValueChange,
+            onValueChange = { if (it.length <= 1000) onValueChange(it) },
             decorationBox = { innerTextField ->
                 if (value.isEmpty()) Text(
                     text = stringResource(R.string.type_anything),

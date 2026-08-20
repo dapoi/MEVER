@@ -537,7 +537,7 @@ private fun HomeLandingContent(
             scope.launch {
                 try {
                     val processedContents = withContext(Default) {
-                        contents[index].let { content ->
+                        contents.getOrNull(index)?.let { content ->
                             val extension = getExtensionFromUrl(
                                 url = content.url,
                                 extensionFromResponse = content.type
@@ -553,7 +553,7 @@ private fun HomeLandingContent(
                         }
                     }
 
-                    if (loadingItemIndex == index) {
+                    if (loadingItemIndex == index && processedContents != null) {
                         onIsInPreviewChange(true)
                         delay(150.milliseconds)
                         navigator.navigate(

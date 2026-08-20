@@ -223,7 +223,7 @@ internal fun HandleBottomSheetDownload(
                         .onCustomClick(
                             enabled = isDownloadProcessing.not() && selectMultipleItems.isNotEmpty()
                         ) {
-                            onClickDownload(selectMultipleItems.map { stableListContent[it].url })
+                            onClickDownload(selectMultipleItems.mapNotNull { stableListContent.getOrNull(it)?.url })
                         }
                         .weight(1f)
                         .padding(vertical = Dp16),

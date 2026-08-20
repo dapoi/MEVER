@@ -68,7 +68,7 @@ internal class MeverRepositoryImpl @Inject constructor(
     override fun getImageAiGenerator(prompt: String) = safeWorkerCall<ImageAiEntity>(
         serviceType = ACTION_GENERATE_AI,
         requestParam = workDataOf(
-            KEY_PROMPT to prompt
+            KEY_PROMPT to prompt.take(1000)
         )
     )
 

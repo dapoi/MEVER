@@ -27,7 +27,7 @@ object WorkerConstant {
     /**
      * Size Limit (WorkManager Data limit is 10KB, we use 900 bytes to be safe for metadata)
      */
-    const val SIZE_LIMIT = 900
+    const val SIZE_LIMIT = 8000
     const val KEY_OUTPUT_IS_FILE = "KEY_OUTPUT_IS_FILE"
     const val KEY_OUTPUT_FILE_PATH = "KEY_OUTPUT_FILE_PATH"
 }

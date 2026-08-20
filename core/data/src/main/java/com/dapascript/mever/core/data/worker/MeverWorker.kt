@@ -95,7 +95,7 @@ internal class MeverWorker @AssistedInject constructor(
 
         if (size > SIZE_LIMIT) {
             val path = context.cacheDir
-                .resolve("$KEY_RESULT.json")
+                .resolve("${KEY_RESULT}_${System.currentTimeMillis()}.json")
                 .apply { writeText(jsonOutput!!) }.absolutePath
             Result.success(workDataOf(KEY_OUTPUT_IS_FILE to true, KEY_OUTPUT_FILE_PATH to path))
         } else {
