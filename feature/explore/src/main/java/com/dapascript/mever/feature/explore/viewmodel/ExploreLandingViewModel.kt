@@ -51,8 +51,7 @@ internal class ExploreLandingViewModel @Inject constructor(
         repository.download(
             url = url,
             fileName = fileName,
-            tag = EXPLORE.platformName,
-            metaData = ""
+            tag = EXPLORE.platformName
         )
     }
 }

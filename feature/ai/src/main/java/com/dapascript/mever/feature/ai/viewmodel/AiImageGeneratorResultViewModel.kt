@@ -80,8 +80,7 @@ internal class AiImageGeneratorResultViewModel @Inject constructor(
         repository.download(
             url = url,
             fileName = fileName.ifEmpty { changeToCurrentDate(currentTimeMillis()) + ".jpg" },
-            tag = AI.platformName,
-            metaData = ""
+            tag = AI.platformName
         )
     }
 

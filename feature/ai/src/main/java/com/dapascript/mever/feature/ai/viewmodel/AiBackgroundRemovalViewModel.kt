@@ -138,8 +138,7 @@ internal class AiBackgroundRemovalViewModel @Inject constructor(
                     repository.download(
                         url = url,
                         fileName = fileName,
-                        tag = AI.platformName,
-                        metaData = url
+                        tag = AI.platformName
                     )
                     _saveImageState.value = StateSuccess(SaveResult(IN_APP, fileName))
                 } else {

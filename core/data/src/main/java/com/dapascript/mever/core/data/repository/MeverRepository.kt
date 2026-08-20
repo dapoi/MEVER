@@ -23,7 +23,7 @@ interface MeverRepository {
         url: String,
         fileName: String,
         tag: String,
-        metaData: String
+        thumbnail: String = ""
     )
     fun pauseDownload(id: Int)
     fun resumeDownload(id: Int)

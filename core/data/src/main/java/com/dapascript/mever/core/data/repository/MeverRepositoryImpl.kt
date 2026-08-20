@@ -113,13 +113,18 @@ internal class MeverRepositoryImpl @Inject constructor(
             )
         }
 
-    override fun download(url: String, fileName: String, tag: String, metaData: String) {
+    override fun download(
+        url: String,
+        fileName: String,
+        tag: String,
+        thumbnail: String
+    ) {
         ketch.download(
             url = url,
             path = meverFolder.path,
             fileName = sanitizeFilename(fileName),
             tag = tag,
-            metaData = metaData
+            metaData = thumbnail
         )
     }
 

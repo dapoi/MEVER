@@ -151,7 +151,7 @@ internal class HomeLandingViewModel @Inject constructor(
             url = url,
             fileName = fileName,
             tag = platformTag,
-            metaData = thumbnail
+            thumbnail = thumbnail
         )
 
         if (currentQuality.contains("kbps")) selectedQuality = ""
