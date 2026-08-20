@@ -195,12 +195,6 @@ fun calculateDownloadedMegabytes(progress: Int, totalBytes: Long): String {
 
 fun getTwoDecimals(value: Double) = String.format(ROOT, "%.2f", value)
 
-fun calculateDownloadPercentage(downloadedBytes: Long, totalBytes: Long): String {
-    if (totalBytes == 0L) return "0%" // Prevent division by zero
-    val percentage = downloadedBytes / totalBytes.toDouble() * 100
-    return percentage.toInt().toString() + "%"
-}
-
 fun getContentType(path: String): String {
     if (path.isEmpty()) return "..."
     val extension = path.substringAfterLast(".", "").lowercase()
