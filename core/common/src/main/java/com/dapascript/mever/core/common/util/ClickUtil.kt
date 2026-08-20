@@ -12,7 +12,7 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.semantics.Role
 
 @Composable
-fun rememberDebounceHandler(interval: Long = 500L) = remember { DebounceHandler(interval) }
+fun rememberDebounceHandler(interval: Long) = remember { DebounceHandler(interval) }
 
 @Stable
 class DebounceHandler(private val interval: Long = 500L) {
@@ -27,12 +27,13 @@ class DebounceHandler(private val interval: Long = 500L) {
 
 fun Modifier.onCustomClick(
     enabled: Boolean = true,
+    interval: Long = 500L,
     onClickLabel: String? = null,
     role: Role? = null,
     onLongClick: (() -> Unit)? = null,
     onClick: (() -> Unit)?
 ) = composed {
-    val handler = rememberDebounceHandler()
+    val handler = rememberDebounceHandler(interval)
     Modifier.combinedClickable(
         enabled = enabled,
         indication = LocalIndication.current,
@@ -48,12 +49,13 @@ fun Modifier.onCustomClick(
     interactionSource: MutableInteractionSource,
     indication: Indication?,
     enabled: Boolean = true,
+    interval: Long = 500L,
     onClickLabel: String? = null,
     role: Role? = null,
     onLongClick: (() -> Unit)? = null,
     onClick: (() -> Unit)?
 ) = composed {
-    val handler = rememberDebounceHandler()
+    val handler = rememberDebounceHandler(interval)
     Modifier.combinedClickable(
         enabled = enabled,
         interactionSource = interactionSource,

@@ -184,7 +184,7 @@ private fun OnboardPhoneContent(
             ) {
                 Image(
                     modifier = Modifier
-                        .aspectRatio(0.9f)
+                        .aspectRatio(0.95f)
                         .padding(top = Dp64),
                     painter = painterResource(pages[page].image),
                     contentScale = FillHeight,
@@ -408,6 +408,7 @@ private fun ButtonOnboardSection(
         contentColor = MeverWhite
     ),
     shape = RoundedCornerShape(Dp48),
+    interval = 100L,
     textSize = Sp19,
     trailingIcon = painterResource(R.drawable.ic_arrow_started),
     trailingIconTint = MeverYellow,

@@ -44,6 +44,7 @@ fun MeverButton(
     modifier: Modifier = Modifier,
     isEnabled: Boolean = true,
     isLoading: Boolean = false,
+    interval: Long = 500L,
     shape: RoundedCornerShape = RoundedCornerShape(Dp30),
     textSize: TextUnit? = null,
     trailingIcon: Painter? = null,
@@ -63,7 +64,7 @@ fun MeverButton(
                 shape = shape
             )
             .clip(shape)
-            .onCustomClick(enabled = isEnabled) {
+            .onCustomClick(enabled = isEnabled, interval = interval) {
                 onClick()
                 keyboardController?.hide()
             },
