@@ -10,6 +10,9 @@ import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE
 
+import android.content.Context
+import android.content.pm.PackageManager.PERMISSION_GRANTED
+
 fun getStoragePermission() = when {
     SDK_INT >= UPSIDE_DOWN_CAKE -> listOf(
         READ_MEDIA_VIDEO,
@@ -31,3 +34,9 @@ fun getStoragePermission() = when {
 fun getNotificationPermission() = if (SDK_INT >= TIRAMISU) {
     listOf(POST_NOTIFICATIONS)
 } else emptyList()
+
+fun Context.checkGrantStatus(
+    permissions: List<String>
+) = if (permissions.all { checkSelfPermission(it) == PERMISSION_GRANTED }) {
+    PERMISSION_GRANTED
+} else -1

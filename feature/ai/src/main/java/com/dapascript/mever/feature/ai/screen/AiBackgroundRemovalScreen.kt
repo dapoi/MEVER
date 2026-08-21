@@ -104,8 +104,10 @@ import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Outlined
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverButton
+import com.dapascript.mever.core.common.ui.component.MeverDeclinedPermissionDialog
 import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverImage
+import com.dapascript.mever.core.common.ui.component.MeverPermissionHandler
 import com.dapascript.mever.core.common.ui.component.MeverSnackbar
 import com.dapascript.mever.core.common.ui.component.rememberInterstitialAd
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
@@ -129,8 +131,11 @@ import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
+import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.LocalDeviceType
 import com.dapascript.mever.core.common.util.copyToClipboard
+import com.dapascript.mever.core.common.util.getStoragePermission
+import com.dapascript.mever.core.common.util.navigateToAppSettings
 import com.dapascript.mever.core.common.util.navigateToSystemGallery
 import com.dapascript.mever.core.common.util.onClickWithAds
 import com.dapascript.mever.core.common.util.onCustomClick
@@ -157,6 +162,7 @@ internal fun AiBackgroundRemovalScreen(
     viewModel: AiBackgroundRemovalViewModel = hiltViewModel()
 ) = with(viewModel) {
     val context = LocalContext.current
+    val activity = LocalActivity.current
     val deviceType = LocalDeviceType.current
     val resources = LocalResources.current
     val backgroundRemovalState = backgroundRemovalState.collectAsStateValue()
@@ -164,6 +170,7 @@ internal fun AiBackgroundRemovalScreen(
     val selectedBackground = selectedBackground.collectAsStateValue()
     val getButtonClickCount = getButtonClickCount.collectAsStateValue()
     val adsThreshold = adsThreshold.collectAsStateValue()
+    var checkStoragePermissions by remember { mutableStateOf<List<String>>(emptyList()) }
     var isLoading by rememberSaveable { mutableStateOf(false) }
     var isSaved by rememberSaveable { mutableStateOf(false) }
     var imageUri by rememberSaveable { mutableStateOf<Uri?>(null) }
@@ -203,6 +210,35 @@ internal fun AiBackgroundRemovalScreen(
         if (uri != null) {
             loadBackgroundBitmap(uri)
         }
+    }
+
+    if (checkStoragePermissions.isNotEmpty()) {
+        MeverPermissionHandler(
+            permissions = checkStoragePermissions,
+            onGranted = {
+                checkStoragePermissions = emptyList()
+                onClickWithAds(
+                    buttonClickCount = getButtonClickCount,
+                    adsThreshold = adsThreshold,
+                    onIncrementClickCount = { incrementClickCount() },
+                    onShowAds = { interstitialAd.showAd() },
+                    onClickAction = {
+                        resultBitmap?.let { saveImage(bitmap = it) }
+                    }
+                )
+            },
+            onDenied = { isPermanentlyDeclined, retry ->
+                MeverDeclinedPermissionDialog(
+                    isPermissionsDeclined = isPermanentlyDeclined,
+                    onGoToSetting = {
+                        checkStoragePermissions = emptyList()
+                        navigateToAppSettings(activity)
+                    },
+                    onRetry = { retry() },
+                    onDismiss = { checkStoragePermissions = emptyList() }
+                )
+            }
+        )
     }
 
     LaunchedEffect(backgroundRemovalState) {
@@ -571,15 +607,7 @@ internal fun AiBackgroundRemovalScreen(
                                         imageUri?.let { removeBackground(imageUri = it) }
                                     },
                                     onSaveImage = {
-                                        onClickWithAds(
-                                            buttonClickCount = getButtonClickCount,
-                                            adsThreshold = adsThreshold,
-                                            onIncrementClickCount = { incrementClickCount() },
-                                            onShowAds = { interstitialAd.showAd() },
-                                            onClickAction = {
-                                                resultBitmap?.let { saveImage(bitmap = it) }
-                                            }
-                                        )
+                                        checkStoragePermissions = getStoragePermission()
                                     },
                                     onOpenGallery = { navigateToSystemGallery(context) },
                                     onClearImage = {
@@ -674,15 +702,7 @@ internal fun AiBackgroundRemovalScreen(
                                                 imageUri?.let { removeBackground(imageUri = it) }
                                             },
                                             onSaveImage = {
-                                                onClickWithAds(
-                                                    buttonClickCount = getButtonClickCount,
-                                                    adsThreshold = adsThreshold,
-                                                    onIncrementClickCount = { incrementClickCount() },
-                                                    onShowAds = { interstitialAd.showAd() },
-                                                    onClickAction = {
-                                                        resultBitmap?.let { saveImage(bitmap = it) }
-                                                    }
-                                                )
+                                                checkStoragePermissions = getStoragePermission()
                                             },
                                             onOpenGallery = { navigateToSystemGallery(context) },
                                             onClearImage = {

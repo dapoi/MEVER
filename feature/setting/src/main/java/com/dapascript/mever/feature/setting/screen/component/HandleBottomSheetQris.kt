@@ -69,7 +69,7 @@ internal fun HandleBottomSheetQris(
     val scope = rememberCoroutineScope()
     val bitmap = remember { decodeResource(resources, R.drawable.qris) }
     var isSaveSuccess by remember { mutableStateOf(false) }
-    var setStoragePermission by remember { mutableStateOf<List<String>>(emptyList()) }
+    var checkStoragePermissions by remember { mutableStateOf<List<String>>(emptyList()) }
 
     LaunchedEffect(isSaveSuccess) {
         if (isSaveSuccess) {
@@ -83,11 +83,11 @@ internal fun HandleBottomSheetQris(
         }
     }
 
-    if (setStoragePermission.isNotEmpty()) {
+    if (checkStoragePermissions.isNotEmpty()) {
         MeverPermissionHandler(
-            permissions = setStoragePermission,
+            permissions = checkStoragePermissions,
             onGranted = {
-                setStoragePermission = emptyList()
+                checkStoragePermissions = emptyList()
                 scope.launch {
                     saveBitmapToStorage(
                         context = context,
@@ -100,11 +100,11 @@ internal fun HandleBottomSheetQris(
                 MeverDeclinedPermissionDialog(
                     isPermissionsDeclined = isPermanentlyDeclined,
                     onGoToSetting = {
-                        setStoragePermission = emptyList()
+                        checkStoragePermissions = emptyList()
                         navigateToAppSettings(activity)
                     },
                     onRetry = { onRetry() },
-                    onDismiss = { setStoragePermission = emptyList() }
+                    onDismiss = { checkStoragePermissions = emptyList() }
                 )
             }
         )
@@ -171,7 +171,7 @@ internal fun HandleBottomSheetQris(
                     modifier = Modifier
                         .clip(RoundedCornerShape(Dp14))
                         .onCustomClick {
-                            setStoragePermission = getStoragePermission()
+                            checkStoragePermissions = getStoragePermission()
                             onDismiss(false)
                         }
                         .weight(1f)

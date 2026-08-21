@@ -91,6 +91,7 @@ import com.dapascript.mever.core.common.util.FadeSide.Bottom
 import com.dapascript.mever.core.common.util.LanguageManager.getLanguageCode
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.LocalDeviceType
+import com.dapascript.mever.core.common.util.checkGrantStatus
 import com.dapascript.mever.core.common.util.cleanCache
 import com.dapascript.mever.core.common.util.copyToClipboard
 import com.dapascript.mever.core.common.util.fadingEdge
@@ -140,7 +141,7 @@ internal fun SettingLandingScreen(
         }
     }
     var showBottomSheetQris by rememberSaveable { mutableStateOf<Boolean?>(null) }
-    var setRequestPermission by remember { mutableStateOf<List<String>>(emptyList()) }
+    var checkPermissions by remember { mutableStateOf<List<String>>(emptyList()) }
 
     BaseScreen(
         topBarArgs = TopBarArgs(
@@ -188,10 +189,10 @@ internal fun SettingLandingScreen(
             }
         }
 
-        if (setRequestPermission.isNotEmpty()) {
+        if (checkPermissions.isNotEmpty()) {
             MeverPermissionHandler(
-                permissions = setRequestPermission,
-                onGranted = { setRequestPermission = emptyList() },
+                permissions = checkPermissions,
+                onGranted = { checkPermissions = emptyList() },
                 onDenied = { isPermanentlyDeclined, onRetry ->
                     MeverDialog(
                         showDialog = true,
@@ -203,11 +204,11 @@ internal fun SettingLandingScreen(
                         ),
                         onClickPrimaryAction = {
                             if (isPermanentlyDeclined) {
-                                setRequestPermission = emptyList()
+                                checkPermissions = emptyList()
                                 navigateToNotificationSettings(context)
                             } else onRetry()
                         },
-                        onClickSecondaryAction = { setRequestPermission = emptyList() }
+                        onClickSecondaryAction = { checkPermissions = emptyList() }
                     )
                 }
             )
@@ -247,9 +248,9 @@ internal fun SettingLandingScreen(
                 navigator.navigate(SettingLanguageRoute(languageCode))
             },
             onClickNotificationPermission = {
-                val perm = getNotificationPermission().firstOrNull()
-                if (perm != null && context.checkSelfPermission(perm) != PERMISSION_GRANTED) {
-                    setRequestPermission = listOf(perm)
+                val notifPermission = getNotificationPermission()
+                if (context.checkGrantStatus(notifPermission) != PERMISSION_GRANTED) {
+                    checkPermissions = notifPermission
                 } else navigateToNotificationSettings(context)
             },
             onClickChangeTheme = { navigator.navigate(SettingScreenRoute.SettingThemeRoute(it)) },

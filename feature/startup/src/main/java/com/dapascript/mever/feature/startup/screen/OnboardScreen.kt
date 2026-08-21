@@ -77,8 +77,10 @@ import com.dapascript.mever.core.common.util.DeviceType.DESKTOP
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.LocalDeviceType
-import com.dapascript.mever.core.common.util.highlightText
+import com.dapascript.mever.core.common.util.checkGrantStatus
 import com.dapascript.mever.core.common.util.getNotificationPermission
+import com.dapascript.mever.core.common.util.getStoragePermission
+import com.dapascript.mever.core.common.util.highlightText
 import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeLandingRoute
 import com.dapascript.mever.core.navigation.route.StartupScreenRoute.OnboardRoute
@@ -97,22 +99,29 @@ internal fun OnboardScreen(
         useStatusBarsPadding = false,
         onBackHandler = { navigator.navigateBack() }
     ) {
-        var setRequestPermission by remember { mutableStateOf<List<String>>(emptyList()) }
+        var checkPermissions by remember { mutableStateOf<List<String>>(emptyList()) }
         val activity = LocalActivity.current
         val context = LocalContext.current
         val deviceType = LocalDeviceType.current
         val pagerState = rememberPagerState(pageCount = { pages.size })
         val scope = rememberCoroutineScope()
+        val onClickLaunch = {
+            setIsOnboarded(true)
+            val permissions = getStoragePermission() + getNotificationPermission()
+            if (context.checkGrantStatus(permissions) != PERMISSION_GRANTED) {
+                checkPermissions = permissions
+            } else navigator.navigateToHome()
+        }
 
-        if (setRequestPermission.isNotEmpty()) {
+        if (checkPermissions.isNotEmpty()) {
             MeverPermissionHandler(
-                permissions = setRequestPermission,
+                permissions = checkPermissions,
                 onGranted = {
-                    setRequestPermission = emptyList()
+                    checkPermissions = emptyList()
                     navigator.navigateToHome()
                 },
                 onDenied = { _, _ ->
-                    setRequestPermission = emptyList()
+                    checkPermissions = emptyList()
                     navigator.navigateToHome()
                 }
             )
@@ -132,13 +141,7 @@ internal fun OnboardScreen(
                     pages = pages,
                     pagerState = pagerState,
                     scope = scope,
-                    onClickLaunch = {
-                        setIsOnboarded(true)
-                        val perm = getNotificationPermission().firstOrNull()
-                        if (perm != null && context.checkSelfPermission(perm) != PERMISSION_GRANTED) {
-                            setRequestPermission = listOf(perm)
-                        } else navigator.navigateToHome()
-                    }
+                    onClickLaunch = onClickLaunch
                 )
             } else {
                 OnboardTabletContent(
@@ -146,13 +149,7 @@ internal fun OnboardScreen(
                     pagerState = pagerState,
                     scope = scope,
                     deviceType = deviceType,
-                    onClickLaunch = {
-                        setIsOnboarded(true)
-                        val perm = getNotificationPermission().firstOrNull()
-                        if (perm != null && context.checkSelfPermission(perm) != PERMISSION_GRANTED) {
-                            setRequestPermission = listOf(perm)
-                        } else navigator.navigateToHome()
-                    }
+                    onClickLaunch = onClickLaunch
                 )
             }
         }
