@@ -1,6 +1,5 @@
 package com.dapascript.mever.feature.ai.screen
 
-import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.Color.BLACK
 import android.graphics.Color.BLUE
@@ -152,7 +151,6 @@ import com.dapascript.mever.feature.ai.screen.attr.AiBackgroundRemovalAttr.SaveR
 import com.dapascript.mever.feature.ai.viewmodel.AiBackgroundRemovalViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
-@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 internal fun AiBackgroundRemovalScreen(
     navigator: Navigator,
@@ -169,7 +167,7 @@ internal fun AiBackgroundRemovalScreen(
     var isLoading by rememberSaveable { mutableStateOf(false) }
     var isSaved by rememberSaveable { mutableStateOf(false) }
     var imageUri by rememberSaveable { mutableStateOf<Uri?>(null) }
-    var resultBitmap by rememberSaveable { mutableStateOf<Bitmap?>(null) }
+    var resultBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var errorMessage by rememberSaveable { mutableStateOf("") }
     var isProcessing by rememberSaveable { mutableStateOf(false) }
     val snackbarMessage = remember { mutableStateOf("") }
@@ -604,6 +602,7 @@ internal fun AiBackgroundRemovalScreen(
                                         ImagePreviewCard(
                                             modifier = Modifier.fillMaxWidth(),
                                             isProcessing = isProcessing,
+                                            isLoading = isLoading,
                                             imageUri = imageUri,
                                             resultBitmap = resultBitmap,
                                             selectedBackground = selectedBackground,
@@ -644,7 +643,7 @@ internal fun AiBackgroundRemovalScreen(
                                         modifier = Modifier.weight(1f),
                                         verticalArrangement = spacedBy(Dp20)
                                     ) {
-                                        if (resultBitmap != null) {
+                                        if (resultBitmap != null && isLoading.not() && isSaved.not()) {
                                             BackgroundSelection(
                                                 modifier = Modifier.fillMaxWidth(),
                                                 selectedBackground = selectedBackground,
@@ -762,13 +761,14 @@ private fun ActionPanel(
                 .fillMaxWidth()
                 .padding(horizontal = Dp16),
             isProcessing = isProcessing,
+            isLoading = isLoading,
             imageUri = imageUri,
             resultBitmap = resultBitmap,
             selectedBackground = selectedBackground,
             onPickImage = onPickImage,
             onPreviewImage = onPreviewImage
         )
-        if (resultBitmap != null) {
+        if (resultBitmap != null && isLoading.not() && isSaved.not()) {
             BackgroundSelection(
                 modifier = Modifier.fillMaxWidth(),
                 selectedBackground = selectedBackground,
@@ -868,6 +868,7 @@ private fun ActionButtons(
 @Composable
 private fun ImagePreviewCard(
     isProcessing: Boolean,
+    isLoading: Boolean,
     imageUri: Uri?,
     resultBitmap: Bitmap?,
     selectedBackground: BgRemovalType,
@@ -909,7 +910,7 @@ private fun ImagePreviewCard(
                 color = colors.blackWhite.copy(alpha = 0.08f),
                 shape = RoundedCornerShape(Dp28)
             )
-            .onCustomClick(enabled = isProcessing.not()) {
+            .onCustomClick(enabled = isProcessing.not() && isLoading.not()) {
                 if (resultBitmap != null) onPreviewImage()
                 else onPickImage()
             },
@@ -934,27 +935,29 @@ private fun ImagePreviewCard(
                         .clip(RoundedCornerShape(Dp28)),
                     contentScale = ContentScale.Crop
                 )
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(Dp16),
-                    contentAlignment = TopEnd
-                ) {
+                if (isProcessing.not() && isLoading.not()) {
                     Box(
                         modifier = Modifier
-                            .size(Dp32)
-                            .background(
-                                color = colors.blackWhite.copy(alpha = 0.4f),
-                                shape = CircleShape
-                            ),
-                        contentAlignment = Center
+                            .fillMaxSize()
+                            .padding(Dp16),
+                        contentAlignment = TopEnd
                     ) {
-                        Icon(
-                            modifier = Modifier.size(Dp20),
-                            imageVector = ImageVector.vectorResource(R.drawable.ic_fullscreen),
-                            tint = colors.alwaysWhite,
-                            contentDescription = null
-                        )
+                        Box(
+                            modifier = Modifier
+                                .size(Dp32)
+                                .background(
+                                    color = colors.blackWhite.copy(alpha = 0.4f),
+                                    shape = CircleShape
+                                ),
+                            contentAlignment = Center
+                        ) {
+                            Icon(
+                                modifier = Modifier.size(Dp20),
+                                imageVector = ImageVector.vectorResource(R.drawable.ic_fullscreen),
+                                tint = colors.alwaysWhite,
+                                contentDescription = null
+                            )
+                        }
                     }
                 }
             } else {

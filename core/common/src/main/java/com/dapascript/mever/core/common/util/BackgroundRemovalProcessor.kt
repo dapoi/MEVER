@@ -8,16 +8,21 @@ import androidx.core.graphics.scale
 import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.common.InputImage.fromBitmap
 import com.google.mlkit.vision.segmentation.subject.SubjectSegmentation
+import com.google.mlkit.vision.segmentation.subject.SubjectSegmenter
 import com.google.mlkit.vision.segmentation.subject.SubjectSegmenterOptions
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.math.max
 
+@Singleton
 class BackgroundRemovalProcessor @Inject constructor() {
+
+    private var segmenter: SubjectSegmenter? = null
 
     /**
      * Removes the background from the image at [imageUri] using ML Kit Subject Segmentation.
@@ -27,8 +32,6 @@ class BackgroundRemovalProcessor @Inject constructor() {
         contentResolver: ContentResolver,
         imageUri: Uri
     ): Bitmap? = withContext(IO) {
-        // decodeResizedBitmap uses inSampleSize (power-of-2 rough downscale),
-        // toProcessingBitmap then does the precise final scale + ensures ARGB_8888
         val source = decodeResizedBitmap(
             contentResolver = contentResolver,
             uri = imageUri,
@@ -36,19 +39,29 @@ class BackgroundRemovalProcessor @Inject constructor() {
             reqHeight = MAX_SIZE
         )?.toProcessingBitmap() ?: return@withContext null
 
-        val options = SubjectSegmenterOptions.Builder()
-            .enableForegroundBitmap()
-            .build()
-        val segmenter = SubjectSegmentation.getClient(options)
+        val client = getSegmenter()
 
         try {
-            val result = segmenter.process(fromBitmap(source, 0)).await()
+            // Ensure segmenter is initialized. This can help identify issues early.
+            client.initTask.await()
+            val result = client.process(fromBitmap(source, 0)).await()
             result.foregroundBitmap
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            e.printStackTrace()
             null
         } finally {
             source.recycle()
-            segmenter.close()
+            // We don't close the segmenter here to allow reuse and avoid 
+            // expensive re-initialization which can trigger GPU issues.
+        }
+    }
+
+    private fun getSegmenter(): SubjectSegmenter {
+        return segmenter ?: synchronized(this) {
+            val options = SubjectSegmenterOptions.Builder()
+                .enableForegroundBitmap()
+                .build()
+            segmenter ?: SubjectSegmentation.getClient(options).also { segmenter = it }
         }
     }
 
@@ -96,6 +109,6 @@ class BackgroundRemovalProcessor @Inject constructor() {
         }
 
     private companion object {
-        const val MAX_SIZE = 1024
+        const val MAX_SIZE = 512
     }
 }
