@@ -1077,7 +1077,7 @@ private fun QuickToolsSection(
             )
             if (isPhoneDevice || downloadSize < 4) Text(
                 modifier = Modifier.onCustomClick {
-                    onClick(HomeQuickToolsRoute(featureCards = featuresCard.toSet()))
+                    onClick(HomeQuickToolsRoute(featureCards = featuresCard))
                 },
                 text = stringResource(R.string.all_tools),
                 style = typography.bodyBold2,

@@ -9,7 +9,7 @@ sealed interface HomeScreenRoute : NavKey {
     data object HomeLandingRoute : HomeScreenRoute
 
     @Serializable
-    data class HomeQuickToolsRoute(val featureCards: Set<FeatureCard>) : HomeScreenRoute {
+    data class HomeQuickToolsRoute(val featureCards: List<FeatureCard>) : HomeScreenRoute {
         @Serializable
         data class FeatureCard(
             val featureName: String,

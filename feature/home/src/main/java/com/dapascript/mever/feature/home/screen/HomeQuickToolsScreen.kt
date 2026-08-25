@@ -107,7 +107,7 @@ internal fun HomeQuickToolsScreen(
                             )
                         }
                     }
-                    items(args.featureCards.toList()) { data ->
+                    items(items = args.featureCards) { data ->
                         MeverFeatureCard(
                             modifier = Modifier.padding(
                                 start = Dp24,
