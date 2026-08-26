@@ -109,6 +109,6 @@ class BackgroundRemovalProcessor @Inject constructor() {
         }
 
     private companion object {
-        const val MAX_SIZE = 512
+        const val MAX_SIZE = 1024
     }
 }
