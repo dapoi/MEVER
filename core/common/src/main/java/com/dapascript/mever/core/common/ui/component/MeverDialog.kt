@@ -72,18 +72,24 @@ fun MeverDialog(
     backgroundColor: Color? = null,
     primaryActionColor: Color? = null,
     secondaryActionColor: Color? = null,
+    onDismiss: (() -> Unit)? = null,
     onClickPrimaryAction: (() -> Unit)? = null,
     onClickSecondaryAction: (() -> Unit)? = null,
     content: @Composable (() -> Unit)? = null
 ) {
+    val currentDismiss = rememberUpdatedState(onDismiss)
     val currentPrimary = rememberUpdatedState(onClickPrimaryAction)
     val currentSecondary = rememberUpdatedState(onClickSecondaryAction)
     var showAnimatedDialog by remember { mutableStateOf(false) }
-    val onDismiss = {
-        if (currentSecondary.value != null) {
-            currentSecondary.value?.invoke()
+    val onDismissRequest = {
+        if (currentDismiss.value != null) {
+            currentDismiss.value?.invoke()
         } else {
-            currentPrimary.value?.invoke()
+            if (currentSecondary.value != null) {
+                currentSecondary.value?.invoke()
+            } else {
+                currentPrimary.value?.invoke()
+            }
         }
         showAnimatedDialog = false
     }
@@ -93,13 +99,13 @@ fun MeverDialog(
     if (showAnimatedDialog) {
         Dialog(
             properties = DialogProperties(),
-            onDismissRequest = { onDismiss() }
+            onDismissRequest = { onDismissRequest() }
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .pointerInput(Unit) {
-                        detectTapGestures { onDismiss() }
+                        detectTapGestures { onDismissRequest() }
                     },
                 contentAlignment = Center
             ) {

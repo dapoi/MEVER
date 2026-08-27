@@ -11,12 +11,15 @@ import android.graphics.Matrix
 import android.graphics.Shader
 import android.graphics.SweepGradient
 import android.net.Uri
+import android.Manifest.permission.CAMERA
+import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly
+import androidx.activity.result.contract.ActivityResultContracts.TakePicture
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -134,6 +137,7 @@ import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.LocalDeviceType
 import com.dapascript.mever.core.common.util.copyToClipboard
+import com.dapascript.mever.core.common.util.getCameraPermission
 import com.dapascript.mever.core.common.util.getStoragePermission
 import com.dapascript.mever.core.common.util.navigateToAppSettings
 import com.dapascript.mever.core.common.util.navigateToSystemGallery
@@ -154,6 +158,8 @@ import com.dapascript.mever.feature.ai.screen.attr.AiBackgroundRemovalAttr.BgRem
 import com.dapascript.mever.feature.ai.screen.attr.AiBackgroundRemovalAttr.SaveResult.ImageLocation.GALLERY
 import com.dapascript.mever.feature.ai.screen.attr.AiBackgroundRemovalAttr.SaveResult.ImageLocation.IN_APP
 import com.dapascript.mever.feature.ai.viewmodel.AiBackgroundRemovalViewModel
+import java.io.File
+import androidx.core.content.FileProvider.getUriForFile
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -170,13 +176,15 @@ internal fun AiBackgroundRemovalScreen(
     val selectedBackground = selectedBackground.collectAsStateValue()
     val getButtonClickCount = getButtonClickCount.collectAsStateValue()
     val adsThreshold = adsThreshold.collectAsStateValue()
-    var checkStoragePermissions by remember { mutableStateOf<List<String>>(emptyList()) }
+    var permissionsToRequest by remember { mutableStateOf<List<String>>(emptyList()) }
     var isLoading by rememberSaveable { mutableStateOf(false) }
     var isSaved by rememberSaveable { mutableStateOf(false) }
     var imageUri by rememberSaveable { mutableStateOf<Uri?>(null) }
+    var cameraUri by rememberSaveable { mutableStateOf<Uri?>(null) }
     var resultBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var errorMessage by rememberSaveable { mutableStateOf("") }
     var isProcessing by rememberSaveable { mutableStateOf(false) }
+    var showSourceDialog by remember { mutableStateOf(false) }
     val snackbarMessage = remember { mutableStateOf("") }
     val listState = rememberLazyListState()
     var titleHeight by rememberSaveable { mutableIntStateOf(0) }
@@ -211,31 +219,84 @@ internal fun AiBackgroundRemovalScreen(
             loadBackgroundBitmap(uri)
         }
     }
+    val cameraLauncher = rememberLauncherForActivityResult(TakePicture()) { success ->
+        if (success) {
+            imageUri = cameraUri
+            resultBitmap = null
+            errorMessage = ""
+            isSaved = false
+            reset()
+        }
+    }
+    val launchCamera = {
+        val imageDir = File(context.cacheDir, "images")
+        if (!imageDir.exists()) imageDir.mkdirs()
+        val tempFile = File.createTempFile("camera_image", ".jpg", imageDir)
+        val uri = getUriForFile(context, "${context.packageName}.fileprovider", tempFile)
+        cameraUri = uri
+        cameraLauncher.launch(uri)
+    }
 
-    if (checkStoragePermissions.isNotEmpty()) {
+    MeverDialog(
+        showDialog = showSourceDialog,
+        title = stringResource(R.string.choose_source),
+        description = stringResource(R.string.choose_source_desc),
+        image = null,
+        primaryActionLabel = stringResource(R.string.camera),
+        secondaryActionLabel = stringResource(R.string.gallery),
+        onDismiss = { showSourceDialog = false },
+        onClickPrimaryAction = {
+            showSourceDialog = false
+            if (getCameraPermission().all { context.checkSelfPermission(it) == PERMISSION_GRANTED }) {
+                launchCamera()
+            } else {
+                permissionsToRequest = getCameraPermission()
+            }
+        },
+        onClickSecondaryAction = {
+            showSourceDialog = false
+            imagePicker.launch(PickVisualMediaRequest(ImageOnly))
+        }
+    )
+
+    if (permissionsToRequest.isNotEmpty()) {
         MeverPermissionHandler(
-            permissions = checkStoragePermissions,
+            permissions = permissionsToRequest,
             onGranted = {
-                checkStoragePermissions = emptyList()
-                onClickWithAds(
-                    buttonClickCount = getButtonClickCount,
-                    adsThreshold = adsThreshold,
-                    onIncrementClickCount = { incrementClickCount() },
-                    onShowAds = { interstitialAd.showAd() },
-                    onClickAction = {
-                        resultBitmap?.let { saveImage(bitmap = it) }
+                val current = permissionsToRequest
+                permissionsToRequest = emptyList()
+                when (current) {
+                    getCameraPermission() -> launchCamera()
+                    getStoragePermission() -> {
+                        onClickWithAds(
+                            buttonClickCount = getButtonClickCount,
+                            adsThreshold = adsThreshold,
+                            onIncrementClickCount = { incrementClickCount() },
+                            onShowAds = { interstitialAd.showAd() },
+                            onClickAction = {
+                                resultBitmap?.let { saveImage(bitmap = it) }
+                            }
+                        )
                     }
-                )
+                }
             },
             onDenied = { isPermanentlyDeclined, retry ->
+                val current = permissionsToRequest
+                val cameraDenied = context.checkSelfPermission(CAMERA) != PERMISSION_GRANTED
+                        && current.contains(CAMERA)
+
                 MeverDeclinedPermissionDialog(
                     isPermissionsDeclined = isPermanentlyDeclined,
+                    description = stringResource(
+                        if (cameraDenied) R.string.permission_request_camera
+                        else R.string.permission_request_media
+                    ),
                     onGoToSetting = {
-                        checkStoragePermissions = emptyList()
+                        permissionsToRequest = emptyList()
                         navigateToAppSettings(activity)
                     },
                     onRetry = { retry() },
-                    onDismiss = { checkStoragePermissions = emptyList() }
+                    onDismiss = { permissionsToRequest = emptyList() }
                 )
             }
         )
@@ -570,9 +631,9 @@ internal fun AiBackgroundRemovalScreen(
                                     isSaved = isSaved,
                                     errorMessage = errorMessage,
                                     onPickImage = {
-                                        if (imageUri == null) imagePicker.launch(
-                                            PickVisualMediaRequest(ImageOnly)
-                                        )
+                                        if (imageUri == null) {
+                                            showSourceDialog = true
+                                        }
                                     },
                                     onPickBackground = {
                                         backgroundPicker.launch(PickVisualMediaRequest(ImageOnly))
@@ -607,7 +668,7 @@ internal fun AiBackgroundRemovalScreen(
                                         imageUri?.let { removeBackground(imageUri = it) }
                                     },
                                     onSaveImage = {
-                                        checkStoragePermissions = getStoragePermission()
+                                        permissionsToRequest = getStoragePermission()
                                     },
                                     onOpenGallery = { navigateToSystemGallery(context) },
                                     onClearImage = {
@@ -635,9 +696,9 @@ internal fun AiBackgroundRemovalScreen(
                                             resultBitmap = resultBitmap,
                                             selectedBackground = selectedBackground,
                                             onPickImage = {
-                                                if (imageUri == null) imagePicker.launch(
-                                                    PickVisualMediaRequest(ImageOnly)
-                                                )
+                                                if (imageUri == null) {
+                                                    showSourceDialog = true
+                                                }
                                             },
                                             onPreviewImage = {
                                                 resultBitmap?.let { bitmap ->
@@ -694,15 +755,15 @@ internal fun AiBackgroundRemovalScreen(
                                             imageUri = imageUri,
                                             resultBitmap = resultBitmap,
                                             onPickImage = {
-                                                if (imageUri == null) imagePicker.launch(
-                                                    PickVisualMediaRequest(ImageOnly)
-                                                )
+                                                if (imageUri == null) {
+                                                    showSourceDialog = true
+                                                }
                                             },
                                             onRemoveBackground = {
                                                 imageUri?.let { removeBackground(imageUri = it) }
                                             },
                                             onSaveImage = {
-                                                checkStoragePermissions = getStoragePermission()
+                                                permissionsToRequest = getStoragePermission()
                                             },
                                             onOpenGallery = { navigateToSystemGallery(context) },
                                             onClearImage = {

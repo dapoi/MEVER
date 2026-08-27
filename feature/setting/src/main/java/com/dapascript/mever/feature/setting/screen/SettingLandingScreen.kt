@@ -91,7 +91,6 @@ import com.dapascript.mever.core.common.util.FadeSide.Bottom
 import com.dapascript.mever.core.common.util.LanguageManager.getLanguageCode
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.LocalDeviceType
-import com.dapascript.mever.core.common.util.checkGrantStatus
 import com.dapascript.mever.core.common.util.cleanCache
 import com.dapascript.mever.core.common.util.copyToClipboard
 import com.dapascript.mever.core.common.util.fadingEdge
@@ -249,7 +248,7 @@ internal fun SettingLandingScreen(
             },
             onClickNotificationPermission = {
                 val notifPermission = getNotificationPermission()
-                if (context.checkGrantStatus(notifPermission) != PERMISSION_GRANTED) {
+                if (notifPermission.any { context.checkSelfPermission(it) != PERMISSION_GRANTED }) {
                     checkPermissions = notifPermission
                 } else navigateToNotificationSettings(context)
             },

@@ -77,7 +77,6 @@ import com.dapascript.mever.core.common.util.DeviceType.DESKTOP
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.LocalDeviceType
-import com.dapascript.mever.core.common.util.checkGrantStatus
 import com.dapascript.mever.core.common.util.getNotificationPermission
 import com.dapascript.mever.core.common.util.getStoragePermission
 import com.dapascript.mever.core.common.util.highlightText
@@ -108,7 +107,7 @@ internal fun OnboardScreen(
         val onClickLaunch = {
             setIsOnboarded(true)
             val permissions = getStoragePermission() + getNotificationPermission()
-            if (context.checkGrantStatus(permissions) != PERMISSION_GRANTED) {
+            if (permissions.any { context.checkSelfPermission(it) != PERMISSION_GRANTED }) {
                 checkPermissions = permissions
             } else navigator.navigateToHome()
         }

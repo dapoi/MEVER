@@ -7,6 +7,7 @@ import com.dapascript.mever.core.common.R
 @Composable
 fun MeverDeclinedPermissionDialog(
     isPermissionsDeclined: Boolean,
+    description: String = stringResource(R.string.permission_request_media),
     onGoToSetting: () -> Unit,
     onRetry: () -> Unit,
     onDismiss: () -> Unit
@@ -14,7 +15,7 @@ fun MeverDeclinedPermissionDialog(
     MeverDialog(
         showDialog = true,
         title = stringResource(R.string.permission_request_title),
-        description = stringResource(R.string.permission_request_media),
+        description = description,
         primaryActionLabel = stringResource(
             if (isPermissionsDeclined) R.string.go_to_settings else R.string.allow
         ),

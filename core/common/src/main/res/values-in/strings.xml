@@ -17,6 +17,7 @@
     <string name="permission_request_title">Perlu Izin Nih</string>
     <string name="permission_request_media">Kita butuh akses media kamu buat nyimpen file unduhan.</string>
     <string name="permission_request_notification">Kita butuh izin notifikasi biar bisa nunjukin progres unduhan.</string>
+    <string name="permission_request_camera">Kami butuh akses kamera untuk mengambil foto.</string>
     <string name="go_to_settings">Buka Pengaturan</string>
     <string name="allow">Izinkan</string>
     <string name="failed">Gagal</string>
@@ -31,6 +32,9 @@
     <string name="retry">Coba Lagi</string>
     <string name="cancel">Batal</string>
     <string name="empty_list_desc">Tidak ada file yang ditemukan. Coba unduh dulu, ya!</string>
+    <string name="camera">Kamera</string>
+    <string name="choose_source">Pilih Sumber</string>
+    <string name="choose_source_desc">Pilih foto untuk menghapus atau mengubah latar belakang.</string>
     <string name="gallery">Galeri</string>
     <string name="settings">Pengaturan</string>
     <string name="application">Aplikasi</string>
