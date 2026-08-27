@@ -663,6 +663,7 @@ private fun HomeLandingContent(
             description = stringResource(R.string.download_failed_desc),
             primaryActionLabel = stringResource(R.string.delete_button),
             secondaryActionLabel = stringResource(R.string.retry),
+            onDismiss = { showFailedDialog = null },
             onClickPrimaryAction = {
                 delete(id)
                 showFailedDialog = null
