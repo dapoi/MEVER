@@ -344,10 +344,19 @@ internal fun GalleryLandingScreen(
             },
             onClickDelete = { showDeleteDialog = listOf(it.id) },
             onClickLong = {
-                if (filteredDownloads.orEmpty().size > 1 && isAnyDownloadActive.not()) {
-                    showSelector = showSelector.not()
-                    toggleSelection(it)
-                } else showDeleteDialog = listOf(it.id)
+                when {
+                    showSelector -> {
+                        showSelector = false
+                        clearSelection()
+                    }
+
+                    filteredDownloads.orEmpty().size > 1 && isAnyDownloadActive.not() -> {
+                        showSelector = showSelector.not()
+                        toggleSelection(it)
+                    }
+
+                    else -> showDeleteDialog = listOf(it.id)
+                }
             },
             onClickShare = {
                 shareContent(
