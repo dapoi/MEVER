@@ -209,6 +209,7 @@ internal fun HomeLandingScreen(
         val inAppUpdateManager = remember { InAppUpdateManager(activity) }
         val updateLauncher = rememberLauncherForActivityResult(StartIntentSenderForResult()) { }
         val lazyListState = rememberLazyListState()
+        val syncedItems = remember { mutableSetOf<Int>() }
         val showTopFade by remember {
             derivedStateOf {
                 lazyListState.firstVisibleItemIndex > 0 || lazyListState.firstVisibleItemScrollOffset > 0
@@ -300,6 +301,7 @@ internal fun HomeLandingScreen(
                 isInPreview = isInPreview,
                 lifecycleOwner = lifecycleOwner,
                 lazyListState = lazyListState,
+                syncedItems = syncedItems,
                 onIsInPreviewChange = { isInPreview = it }
             )
         }
@@ -318,6 +320,7 @@ private fun HomeLandingContent(
     showBadge: Boolean,
     isInPreview: Boolean,
     lifecycleOwner: State<LifecycleOwner>,
+    syncedItems: MutableSet<Int>,
     modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState(),
     onIsInPreviewChange: (Boolean) -> Unit
@@ -391,12 +394,13 @@ private fun HomeLandingContent(
 
     LaunchedEffect(downloadList) {
         downloadList
-            ?.filter { it.status == SUCCESS }
+            ?.filter { it.status == SUCCESS && it.id !in syncedItems }
             ?.forEach {
                 syncToGallery(
                     context,
                     it.fileName
                 )
+                syncedItems.add(it.id)
             }
     }
 

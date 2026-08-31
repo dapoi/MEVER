@@ -134,6 +134,7 @@ internal fun GalleryLandingScreen(
     var isSelectedAll by remember { mutableStateOf(false) }
     var showFilter by rememberSaveable { mutableStateOf(true) }
     var titleHeight by rememberSaveable { mutableIntStateOf(0) }
+    val syncedItems = remember { mutableSetOf<Int>() }
     val isExpanded = remember(listState, titleHeight, showSelector) {
         derivedStateOf {
             listState.firstVisibleItemIndex < 1 &&
@@ -205,8 +206,11 @@ internal fun GalleryLandingScreen(
 
         LaunchedEffect(allDownloads) {
             allDownloads
-                ?.filter { it.status == SUCCESS }
-                ?.forEach { syncToGallery(context, it.fileName) }
+                ?.filter { it.status == SUCCESS && it.id !in syncedItems }
+                ?.forEach {
+                    syncToGallery(context, it.fileName)
+                    syncedItems.add(it.id)
+                }
         }
 
         LaunchedEffect(lifecycleOwner.value) {
@@ -439,6 +443,10 @@ private fun GalleryContentSection(
     onSetTitleHeight: (Int) -> Unit
 ) {
     val deviceType = LocalDeviceType.current
+    val chunkedDownloads = remember(filteredDownloads) {
+        filteredDownloads?.chunked(2)
+    }
+
     CompositionLocalProvider(LocalOverscrollFactory provides null) {
         val headerScroll = rememberScrollState()
 
@@ -568,7 +576,7 @@ private fun GalleryContentSection(
                         }
                         if (filteredDownloads.size > 1) {
                             items(
-                                items = filteredDownloads.chunked(2),
+                                items = chunkedDownloads.orEmpty(),
                                 key = { it.first().id }
                             ) { rowItems ->
                                 Row(

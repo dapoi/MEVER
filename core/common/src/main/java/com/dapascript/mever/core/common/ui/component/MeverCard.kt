@@ -1,6 +1,5 @@
 package com.dapascript.mever.core.common.ui.component
 
-import android.graphics.Bitmap
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandHorizontally
@@ -29,9 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.Bottom
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterVertically
@@ -39,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter.Companion.tint
 import androidx.compose.ui.graphics.StrokeCap.Companion.Round
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -68,10 +64,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.calculateDownloadedMegabytes
 import com.dapascript.mever.core.common.util.displayFileName
-import com.dapascript.mever.core.common.util.fetchPhotoFromUrl
-import com.dapascript.mever.core.common.util.fetchVideoThumbnail
 import com.dapascript.mever.core.common.util.getContentType
-import com.dapascript.mever.core.common.util.getExtensionFromUrl
 import com.dapascript.mever.core.common.util.getTwoDecimals
 import com.dapascript.mever.core.common.util.isMusic
 import com.dapascript.mever.core.common.util.onCustomClick
@@ -80,8 +73,6 @@ import com.ketch.Status.FAILED
 import com.ketch.Status.PAUSED
 import com.ketch.Status.QUEUED
 import com.ketch.Status.SUCCESS
-import kotlinx.coroutines.delay
-import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun MeverCard(
@@ -153,13 +144,7 @@ fun MeverCard(
                     modifier = Modifier
                         .size(width = Dp88, height = Dp86)
                         .clip(RoundedCornerShape(Dp8))
-                        .align(CenterVertically)
-                        .graphicsLayer {
-                            scaleX = 1.5f
-                            scaleY = 1.5f
-                            translationX = 1.5f
-                            translationY = 1.5f
-                        },
+                        .align(CenterVertically),
                     source = getImageSource(
                         status = status,
                         url = source,
@@ -327,38 +312,8 @@ private fun getImageSource(
     urlThumbnail: String?
 ) = when {
     isMusic(fileName) -> if (urlThumbnail.isNullOrEmpty()) R.drawable.ic_music else urlThumbnail
-    status != SUCCESS -> {
-        urlThumbnail?.takeIf { it.isNotEmpty() } ?: getBitmapFromUrl(
-            url = url,
-            extensionFromResponse = fileName.substringAfterLast(".")
-        )
-    }
-
+    status != SUCCESS -> urlThumbnail?.takeIf { it.isNotEmpty() } ?: url
     else -> path
-}
-
-@Composable
-private fun getBitmapFromUrl(url: String, extensionFromResponse: String): Bitmap? {
-    var resultExtracted by remember(url) { mutableStateOf<Bitmap?>(null) }
-
-    LaunchedEffect(url, resultExtracted) {
-        while (resultExtracted == null) {
-            try {
-                resultExtracted = if (
-                    getExtensionFromUrl(
-                        url = url,
-                        extensionFromResponse = extensionFromResponse
-                    ).orEmpty().contains("jpg")
-                ) {
-                    fetchPhotoFromUrl(url)
-                } else fetchVideoThumbnail(url)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-            if (resultExtracted == null) delay(2.seconds)
-        }
-    }
-    return resultExtracted
 }
 
 @Composable
