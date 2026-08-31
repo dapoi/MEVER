@@ -82,20 +82,19 @@ internal fun SplashScreen(
         var showMaintenanceModal by remember { mutableStateOf(false) }
         var forceUpdateInProgress by remember { mutableStateOf(false) }
         var errorMessage by remember { mutableStateOf("") }
-        val logoVisibleState = remember {
-            MutableTransitionState(false).apply { targetState = true }
-        }
+        var isAnimationStarted by remember { mutableStateOf(false) }
+        val logoVisibleState = remember { MutableTransitionState(false) }
         val transition = rememberTransition(logoVisibleState, label = "SplashTransition")
-        val contentAlpha by transition.animateFloat(
-            transitionSpec = { tween(200) },
+        val contentAlpha = transition.animateFloat(
+            transitionSpec = { tween(250) },
             label = "ContentAlpha"
         ) { state -> if (state) 1f else 0f }
-        val contentOffset by transition.animateFloat(
-            transitionSpec = { tween(200) },
+        val contentOffset = transition.animateFloat(
+            transitionSpec = { tween(250) },
             label = "ContentOffset"
         ) { state -> if (state) 0f else 50f }
         val inAppUpdateManager = remember { InAppUpdateManager(activity) }
-        val isCanNavigate = logoVisibleState.isIdle && !logoVisibleState.currentState && isOnboarded != null
+        val isCanNavigate = isAnimationStarted && logoVisibleState.isIdle && !logoVisibleState.currentState && isOnboarded != null
         val updateLauncher = rememberLauncherForActivityResult(
             contract = StartIntentSenderForResult()
         ) { result ->
@@ -109,11 +108,11 @@ internal fun SplashScreen(
             }
         }
 
-        LaunchedEffect(logoVisibleState.currentState) {
-            if (logoVisibleState.currentState) {
-                delay(100.milliseconds)
-                getAppConfig()
-            }
+        LaunchedEffect(Unit) {
+            delay(200.milliseconds)
+            isAnimationStarted = true
+            logoVisibleState.targetState = true
+            getAppConfig()
         }
 
         LaunchedEffect(appConfigState) {
@@ -199,7 +198,7 @@ internal fun SplashScreen(
             Column(
                 modifier = Modifier
                     .align(Center)
-                    .graphicsLayer { alpha = contentAlpha },
+                    .graphicsLayer { alpha = contentAlpha.value },
                 horizontalAlignment = CenterHorizontally,
                 verticalArrangement = spacedBy(Dp8)
             ) {
@@ -207,13 +206,13 @@ internal fun SplashScreen(
                     modifier = Modifier
                         .width(Dp189)
                         .height(Dp72)
-                        .graphicsLayer { translationY = -contentOffset },
+                        .graphicsLayer { translationY = -contentOffset.value },
                     painter = painterResource(R.drawable.ic_mever),
                     colorFilter = tint(MeverWhite),
                     contentDescription = "Logo Mever"
                 )
                 Text(
-                    modifier = Modifier.graphicsLayer { translationY = contentOffset },
+                    modifier = Modifier.graphicsLayer { translationY = contentOffset.value },
                     text = "Media Saver",
                     style = typography.bodyBold1,
                     color = MeverWhite
@@ -223,7 +222,7 @@ internal fun SplashScreen(
                 modifier = Modifier
                     .align(BottomCenter)
                     .padding(bottom = Dp48)
-                    .graphicsLayer { alpha = contentAlpha },
+                    .graphicsLayer { alpha = contentAlpha.value },
                 text = "v${appVersion}",
                 style = typography.body1,
                 color = MeverWhite
