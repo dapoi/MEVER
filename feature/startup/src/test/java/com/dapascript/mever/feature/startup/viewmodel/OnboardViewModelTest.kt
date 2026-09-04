@@ -2,6 +2,7 @@ package com.dapascript.mever.feature.startup.viewmodel
 
 import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.source.local.MeverDataStore
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -30,7 +31,7 @@ class OnboardViewModelTest {
     lateinit var context: Context
 
     @Mock
-    lateinit var dataStore: MeverDataStore
+    lateinit var repository: MeverRepository
 
     private lateinit var viewModel: OnboardViewModel
 
@@ -38,7 +39,7 @@ class OnboardViewModelTest {
     fun setUp() {
         MockitoAnnotations.openMocks(this)
         Dispatchers.setMain(testDispatcher)
-        viewModel = OnboardViewModel(context, dataStore)
+        viewModel = OnboardViewModel(context, repository)
     }
 
     @After
@@ -47,16 +48,16 @@ class OnboardViewModelTest {
     }
 
     @Test
-    fun `setIsOnboarded calls dataStore setIsOnboarded with true`() = runTest {
+    fun `setIsOnboarded calls repository savePreference with true`() = runTest {
         viewModel.setIsOnboarded(true)
         advanceUntilIdle()
-        verify(dataStore).setIsOnboarded(true)
+        verify(repository).savePreference(MeverDataStore.KEY_IS_ONBOARDED, true)
     }
 
     @Test
-    fun `setIsOnboarded calls dataStore setIsOnboarded with false`() = runTest {
+    fun `setIsOnboarded calls repository savePreference with false`() = runTest {
         viewModel.setIsOnboarded(false)
         advanceUntilIdle()
-        verify(dataStore).setIsOnboarded(false)
+        verify(repository).savePreference(MeverDataStore.KEY_IS_ONBOARDED, false)
     }
 }

@@ -10,7 +10,12 @@ import com.dapascript.mever.core.common.util.state.UiState.StateSuccess
 import com.dapascript.mever.core.data.BuildConfig.DEBUG
 import com.dapascript.mever.core.data.model.local.AppConfigEntity
 import com.dapascript.mever.core.data.repository.MeverRepository
-import com.dapascript.mever.core.data.source.local.MeverDataStore
+import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_IS_GO_IMG_ENABLED
+import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_IS_IMAGE_AI_ENABLED
+import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_IS_ONBOARDED
+import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_RESOLUTIONS
+import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_SHOW_SUPPORTED_PLATFORM
+import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_VERSION
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,16 +28,15 @@ import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 internal class SplashScreenViewModel @Inject constructor(
-    private val dataStore: MeverDataStore,
     private val meverRepository: MeverRepository
 ) : BaseViewModel() {
-    val isOnboarded = dataStore.isOnboarded.stateIn(
+    val isOnboarded = meverRepository.getPreference(KEY_IS_ONBOARDED, false).stateIn(
         scope = viewModelScope,
         started = WhileSubscribed(),
         initialValue = null
     )
 
-    val getAppVersion = dataStore.getAppVersion.stateIn(
+    val getAppVersion = meverRepository.getPreference(KEY_VERSION, "1.0.0").stateIn(
         scope = viewModelScope,
         started = WhileSubscribed(),
         initialValue = "1.0.0"
@@ -57,11 +61,26 @@ internal class SplashScreenViewModel @Inject constructor(
                     maintenanceDay = null
                 )
                 _appConfigState.value = StateSuccess(mockAppConfig)
-                with(dataStore) {
-                    setIsImageAiEnabled(mockAppConfig.isImageGeneratorFeatureActive)
-                    setIsGoImgEnabled(mockAppConfig.isGoImgFeatureActive)
-                    setShowSupportedPlatform(mockAppConfig.showSupportedPlatform)
-                    saveYoutubeVideoAndAudioQuality(mockAppConfig.videoResolutionsAndAudioQualities)
+                with(meverRepository) {
+                    savePreference(
+                        KEY_IS_IMAGE_AI_ENABLED,
+                        mockAppConfig.isImageGeneratorFeatureActive
+                    )
+                    savePreference(
+                        KEY_IS_GO_IMG_ENABLED,
+                        mockAppConfig.isGoImgFeatureActive
+                    )
+                    savePreference(
+                        KEY_SHOW_SUPPORTED_PLATFORM,
+                        mockAppConfig.showSupportedPlatform
+                    )
+                    savePreference(
+                        KEY_RESOLUTIONS,
+                        if (mockAppConfig.videoResolutionsAndAudioQualities.isNotEmpty()) {
+                            mockAppConfig.videoResolutionsAndAudioQualities.values.flatten()
+                                .joinToString(",")
+                        } else ""
+                    )
                 }
             }
         } else {
@@ -71,11 +90,28 @@ internal class SplashScreenViewModel @Inject constructor(
                 onSuccess = { response ->
                     _appConfigState.value = StateSuccess(response)
                     response?.let {
-                        with(dataStore) {
-                            setIsImageAiEnabled(it.isImageGeneratorFeatureActive)
-                            setIsGoImgEnabled(it.isGoImgFeatureActive)
-                            setShowSupportedPlatform(it.showSupportedPlatform)
-                            saveYoutubeVideoAndAudioQuality(it.videoResolutionsAndAudioQualities)
+                        viewModelScope.launch {
+                            with(meverRepository) {
+                                savePreference(
+                                    KEY_IS_IMAGE_AI_ENABLED,
+                                    it.isImageGeneratorFeatureActive
+                                )
+                                savePreference(
+                                    KEY_IS_GO_IMG_ENABLED,
+                                    it.isGoImgFeatureActive
+                                )
+                                savePreference(
+                                    KEY_SHOW_SUPPORTED_PLATFORM,
+                                    it.showSupportedPlatform
+                                )
+                                savePreference(
+                                    KEY_RESOLUTIONS,
+                                    if (it.videoResolutionsAndAudioQualities.isNotEmpty()) {
+                                        it.videoResolutionsAndAudioQualities.values.flatten()
+                                            .joinToString(",")
+                                    } else ""
+                                )
+                            }
                         }
                     }
                 },

@@ -19,6 +19,11 @@ import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.dapascript.mever.core.data.model.local.ImageAiEntity
 import com.dapascript.mever.core.data.repository.base.BaseRepository
 import com.dapascript.mever.core.data.repository.base.BaseRepositoryArgs
+import com.dapascript.mever.core.data.source.local.MeverDataStore
+import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_ADS_THRESHOLD
+import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_CLICK_COUNT
+import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.MAX_ADS_THRESHOLD
+import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.MIN_ADS_THRESHOLD
 import com.dapascript.mever.core.data.source.remote.ApiService
 import com.ketch.DownloadModel
 import com.ketch.Ketch
@@ -27,6 +32,8 @@ import com.ketch.Status.PROGRESS
 import com.ketch.Status.QUEUED
 import com.ketch.Status.STARTED
 import com.ketch.Status.SUCCESS
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.take
@@ -40,10 +47,52 @@ import javax.inject.Inject
 internal class MeverRepositoryImpl @Inject constructor(
     private val apiService: ApiService,
     private val ketch: Ketch,
+    private val dataStore: MeverDataStore,
     args: BaseRepositoryArgs
 ) : MeverRepository, BaseRepository(args) {
 
     private val meverFolder by lazy { getMeverFolder() }
+
+    override fun <T : Any> getPreference(
+        key: String,
+        defaultValue: T
+    ) = dataStore.getValue(keyName = key, defaultValue = defaultValue)
+
+    override suspend fun <T : Any> savePreference(key: String, value: T) {
+        dataStore.saveValue(keyName = key, value = value)
+    }
+
+    override fun getClickCount(): Flow<Int> = dataStore.getValue(
+        keyName = KEY_CLICK_COUNT,
+        defaultValue = 0
+    )
+
+    override fun getAdsThreshold(): Flow<Int> = dataStore.getValue(
+        keyName = KEY_ADS_THRESHOLD,
+        defaultValue = (MIN_ADS_THRESHOLD..MAX_ADS_THRESHOLD).random()
+    )
+
+    override suspend fun incrementClickCount() {
+        val currentCount = getClickCount().first()
+        val threshold = getAdsThreshold().first()
+        val newCount = currentCount + 1
+
+        if (newCount >= threshold) {
+            savePreference(
+                key = KEY_CLICK_COUNT,
+                value = 0
+            )
+            savePreference(
+                key = KEY_ADS_THRESHOLD,
+                value = (MIN_ADS_THRESHOLD..MAX_ADS_THRESHOLD).random()
+            )
+        } else {
+            savePreference(
+                key = KEY_CLICK_COUNT,
+                value = newCount
+            )
+        }
+    }
 
     override fun getAppConfig() = safeApiCall {
         apiService.getAppConfig().mapToEntity()

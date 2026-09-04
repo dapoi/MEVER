@@ -3,6 +3,7 @@ package com.dapascript.mever.feature.setting.viewmodel
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.SavedStateHandle
 import com.dapascript.mever.core.common.ui.theme.ThemeType
+import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.source.local.MeverDataStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -30,7 +31,7 @@ class SettingThemeViewModelTest {
     private val testScope = TestScope(testDispatcher)
 
     @Mock
-    lateinit var dataStore: MeverDataStore
+    lateinit var repository: MeverRepository
 
     // Provide savedStateHandle with the SettingThemeRoute args
     private val savedStateHandle = SavedStateHandle(
@@ -43,7 +44,7 @@ class SettingThemeViewModelTest {
     fun setUp() {
         MockitoAnnotations.openMocks(this)
         Dispatchers.setMain(testDispatcher)
-        viewModel = SettingThemeViewModel(dataStore)
+        viewModel = SettingThemeViewModel(repository)
     }
 
     @After
@@ -52,23 +53,24 @@ class SettingThemeViewModelTest {
     }
 
     @Test
-    fun `setThemeType Light calls dataStore saveTheme with Light`() = testScope.runTest {
+    fun `setThemeType Light calls repository savePreference with Light`() = testScope.runTest {
         viewModel.setThemeType(ThemeType.Light)
         advanceUntilIdle()
-        verify(dataStore).saveTheme(ThemeType.Light)
+        verify(repository).savePreference(MeverDataStore.KEY_THEME, ThemeType.Light.name)
     }
 
     @Test
-    fun `setThemeType Dark calls dataStore saveTheme with Dark`() = testScope.runTest {
+    fun `setThemeType Dark calls repository savePreference with Dark`() = testScope.runTest {
         viewModel.setThemeType(ThemeType.Dark)
         advanceUntilIdle()
-        verify(dataStore).saveTheme(ThemeType.Dark)
+        verify(repository).savePreference(MeverDataStore.KEY_THEME, ThemeType.Dark.name)
     }
 
     @Test
-    fun `setThemeType System calls dataStore saveTheme with System`() = testScope.runTest {
+    fun `setThemeType System calls repository savePreference with System`() = testScope.runTest {
         viewModel.setThemeType(ThemeType.System)
         advanceUntilIdle()
-        verify(dataStore).saveTheme(ThemeType.System)
+        verify(repository).savePreference(MeverDataStore.KEY_THEME, ThemeType.System.name)
     }
+
 }

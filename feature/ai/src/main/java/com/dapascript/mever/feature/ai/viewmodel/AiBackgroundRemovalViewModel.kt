@@ -20,7 +20,6 @@ import com.dapascript.mever.core.common.util.state.UiState.StateLoading
 import com.dapascript.mever.core.common.util.state.UiState.StateSuccess
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFolder
 import com.dapascript.mever.core.data.repository.MeverRepository
-import com.dapascript.mever.core.data.source.local.MeverDataStore
 import com.dapascript.mever.feature.ai.screen.attr.AiBackgroundRemovalAttr.BgRemovalType
 import com.dapascript.mever.feature.ai.screen.attr.AiBackgroundRemovalAttr.BgRemovalType.CustomColor
 import com.dapascript.mever.feature.ai.screen.attr.AiBackgroundRemovalAttr.BgRemovalType.CustomImage
@@ -54,17 +53,16 @@ import kotlin.time.Duration.Companion.seconds
 internal class AiBackgroundRemovalViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val processor: BackgroundRemovalProcessor,
-    private val dataStore: MeverDataStore,
     private val repository: MeverRepository
 ) : BaseViewModel() {
 
-    val getButtonClickCount = dataStore.clickCount.stateIn(
+    val getButtonClickCount = repository.getClickCount().stateIn(
         scope = viewModelScope,
         started = WhileSubscribed(),
         initialValue = 0
     )
 
-    val adsThreshold = dataStore.adsThreshold.stateIn(
+    val adsThreshold = repository.getAdsThreshold().stateIn(
         scope = viewModelScope,
         started = WhileSubscribed(),
         initialValue = 3
@@ -161,7 +159,7 @@ internal class AiBackgroundRemovalViewModel @Inject constructor(
     }
 
     fun incrementClickCount() = viewModelScope.launch {
-        dataStore.incrementClickCount()
+        repository.incrementClickCount()
     }
 
     fun saveToCache(bitmap: Bitmap, onResult: (String?) -> Unit) {

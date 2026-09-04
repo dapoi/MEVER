@@ -1,6 +1,7 @@
 package com.dapascript.mever.feature.gallery.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.source.local.MeverDataStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -31,7 +32,7 @@ class GalleryContentDetailViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
 
     @Mock
-    lateinit var dataStore: MeverDataStore
+    lateinit var repository: MeverRepository
 
     private lateinit var viewModel: GalleryContentDetailViewModel
 
@@ -40,11 +41,11 @@ class GalleryContentDetailViewModelTest {
         MockitoAnnotations.openMocks(this)
         Dispatchers.setMain(testDispatcher)
 
-        whenever(dataStore.isPipEnabled).thenReturn(flowOf(true))
-        whenever(dataStore.clickCount).thenReturn(flowOf(1))
-        whenever(dataStore.adsThreshold).thenReturn(flowOf(3))
+        whenever(repository.getPreference(MeverDataStore.KEY_PIP, true)).thenReturn(flowOf(true))
+        whenever(repository.getClickCount()).thenReturn(flowOf(1))
+        whenever(repository.getAdsThreshold()).thenReturn(flowOf(3))
 
-        viewModel = GalleryContentDetailViewModel(dataStore)
+        viewModel = GalleryContentDetailViewModel(repository)
     }
 
     @After
@@ -74,9 +75,9 @@ class GalleryContentDetailViewModelTest {
     }
 
     @Test
-    fun `incrementClickCount calls dataStore incrementClickCount`() = runTest {
+    fun `incrementClickCount calls repository incrementClickCount`() = runTest {
         viewModel.incrementClickCount()
         advanceUntilIdle()
-        verify(dataStore).incrementClickCount()
+        verify(repository).incrementClickCount()
     }
 }

@@ -2,22 +2,72 @@ package com.dapascript.mever.feature.setting.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.dapascript.mever.core.common.util.LanguageManager
+import com.dapascript.mever.core.data.repository.MeverRepository
+import com.dapascript.mever.core.data.source.local.MeverDataStore
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.junit.After
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.mockito.Mock
+import org.mockito.MockitoAnnotations
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 
-/**
- * Unit tests for SettingLanguageViewModel logic.
- *
- * NOTE: The ViewModel cannot be directly instantiated in JVM unit tests because
- * it calls SavedStateHandle.toRoute<SettingLanguageRoute>(typeMap) at construction time,
- * which requires the Navigation backstack (Android-only). Language-related logic
- * that is pure (no Android dependencies) is tested here.
- */
+@OptIn(ExperimentalCoroutinesApi::class)
 class SettingLanguageViewModelTest {
 
     @get:Rule
     val instantExecutorRule = InstantTaskExecutorRule()
+
+    private val testDispatcher = StandardTestDispatcher()
+
+    @Mock
+    lateinit var repository: MeverRepository
+
+    private lateinit var viewModel: SettingLanguageViewModel
+
+    @Before
+    fun setUp() {
+        MockitoAnnotations.openMocks(this)
+        Dispatchers.setMain(testDispatcher)
+
+        whenever(
+            repository.getPreference(
+                MeverDataStore.KEY_IS_FIRST_CHANGE,
+                true
+            )
+        ).thenReturn(flowOf(true))
+
+        viewModel = SettingLanguageViewModel(repository)
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
+
+    @Test
+    fun `isFirstTimeChangeLanguage initial value is true`() = runTest {
+        advanceUntilIdle()
+        assertTrue(viewModel.isFirstTimeChangeLanguage.value)
+    }
+
+    @Test
+    fun `setIsFirstTimeChangeLanguage calls repository savePreference`() = runTest {
+        viewModel.setIsFirstTimeChangeLanguage(false)
+        advanceUntilIdle()
+        verify(repository).savePreference(MeverDataStore.KEY_IS_FIRST_CHANGE, false)
+    }
 
     @Test
     fun `LanguageManager appLanguages returns non-empty list`() {

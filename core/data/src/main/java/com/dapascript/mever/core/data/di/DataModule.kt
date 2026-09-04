@@ -10,6 +10,7 @@ import com.dapascript.mever.core.data.BuildConfig.DEBUG
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.repository.MeverRepositoryImpl
 import com.dapascript.mever.core.data.repository.base.BaseRepositoryArgs
+import com.dapascript.mever.core.data.source.local.MeverDataStore
 import com.dapascript.mever.core.data.source.remote.ApiService
 import com.ketch.Ketch
 import com.dapascript.mever.core.data.util.ApiKeyInterceptor
@@ -94,10 +95,12 @@ internal class DataModule {
     fun provideMeverRepository(
         apiService: ApiService,
         ketch: Ketch,
+        dataStore: MeverDataStore,
         args: BaseRepositoryArgs
     ): MeverRepository = MeverRepositoryImpl(
         apiService = apiService,
         ketch = ketch,
+        dataStore = dataStore,
         args = args
     )
 

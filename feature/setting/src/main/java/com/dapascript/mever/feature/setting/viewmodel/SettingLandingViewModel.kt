@@ -7,11 +7,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
+import com.dapascript.mever.core.common.ui.theme.ThemeType
 import com.dapascript.mever.core.common.ui.theme.ThemeType.System
 import com.dapascript.mever.core.common.util.getAppVersion
 import com.dapascript.mever.core.common.util.storage.StorageUtil.StorageInfo
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getStorageInfo
-import com.dapascript.mever.core.data.source.local.MeverDataStore
+import com.dapascript.mever.core.data.repository.MeverRepository
+import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_PIP
+import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_THEME
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers.IO
@@ -19,6 +22,7 @@ import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -27,19 +31,25 @@ import javax.inject.Inject
 @HiltViewModel
 internal class SettingLandingViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val dataStore: MeverDataStore
+    private val repository: MeverRepository
 ) : BaseViewModel() {
     var languageCode by mutableStateOf("en")
     var animatedPercent by mutableFloatStateOf(0f)
     var appVersion by mutableStateOf("")
 
-    val themeType = dataStore.getTheme.stateIn(
+    val themeType = repository.getPreference(KEY_THEME, System.name).map { name ->
+        try {
+            ThemeType.valueOf(name)
+        } catch (_: IllegalArgumentException) {
+            System
+        }
+    }.stateIn(
         scope = viewModelScope,
         started = WhileSubscribed(),
         initialValue = System
     )
 
-    val isPipEnabled = dataStore.isPipEnabled.stateIn(
+    val isPipEnabled = repository.getPreference(KEY_PIP, true).stateIn(
         scope = viewModelScope,
         started = WhileSubscribed(),
         initialValue = true
@@ -63,6 +73,6 @@ internal class SettingLandingViewModel @Inject constructor(
     }
 
     fun savePipState(isPipEnabled: Boolean) = viewModelScope.launch {
-        dataStore.setPipEnabled(isPipEnabled)
+        repository.savePreference(KEY_PIP, isPipEnabled)
     }
 }

@@ -4,10 +4,10 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.dapascript.mever.core.common.util.state.UiState
 import com.dapascript.mever.core.data.model.local.ImageAiEntity
 import com.dapascript.mever.core.data.repository.MeverRepository
-import com.dapascript.mever.core.data.source.local.MeverDataStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
@@ -23,6 +23,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
+import org.mockito.kotlin.whenever
 import org.mockito.kotlin.verifyNoInteractions
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -35,8 +36,6 @@ class AiImageGeneratorResultViewModelTest {
 
     @Mock
     lateinit var repository: MeverRepository
-    @Mock
-    lateinit var dataStore: MeverDataStore
 
     private lateinit var viewModel: AiImageGeneratorResultViewModel
 
@@ -57,12 +56,13 @@ class AiImageGeneratorResultViewModelTest {
     fun setUp() {
         MockitoAnnotations.openMocks(this)
         Dispatchers.setMain(testDispatcher)
+
+        whenever(repository.getClickCount()).thenReturn(flowOf(0))
+        whenever(repository.getAdsThreshold()).thenReturn(flowOf(3))
+
         // Empty SavedStateHandle - args is lazy and only accessed when getImageAiGenerator() is called.
         // We test state directly via the backing flow, avoiding the toRoute() navigation internals.
-        viewModel = AiImageGeneratorResultViewModel(
-            repository,
-            dataStore
-        )
+        viewModel = AiImageGeneratorResultViewModel(repository)
     }
 
     @After

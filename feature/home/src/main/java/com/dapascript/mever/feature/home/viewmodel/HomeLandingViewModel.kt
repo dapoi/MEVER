@@ -17,6 +17,10 @@ import com.dapascript.mever.core.common.util.storage.StorageUtil.StorageInfo
 import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.source.local.MeverDataStore
+import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_IS_GO_IMG_ENABLED
+import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_IS_IMAGE_AI_ENABLED
+import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_RESOLUTIONS
+import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_URL_INTENT
 import com.ketch.Status.PAUSED
 import com.ketch.Status.PROGRESS
 import com.ketch.Status.QUEUED
@@ -37,7 +41,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 internal class HomeLandingViewModel @Inject constructor(
-    private val dataStore: MeverDataStore,
     private val repository: MeverRepository
 ) : BaseViewModel() {
 
@@ -72,43 +75,48 @@ internal class HomeLandingViewModel @Inject constructor(
             initialValue = false
         )
 
-    val youtubeResolutions = dataStore.getYoutubeVideoAndAudioQuality.stateIn(
+    val youtubeResolutions = repository.getPreference(KEY_RESOLUTIONS, "").map {
+        it.split(",").filter { res -> res.isNotEmpty() }
+    }.stateIn(
         scope = viewModelScope,
         started = WhileSubscribed(),
         initialValue = emptyList()
     )
 
-    val getButtonClickCount = dataStore.clickCount.stateIn(
+    val getButtonClickCount = repository.getClickCount().stateIn(
         scope = viewModelScope,
         started = WhileSubscribed(),
         initialValue = 0
     )
 
-    val adsThreshold = dataStore.adsThreshold.stateIn(
+    val adsThreshold = repository.getAdsThreshold().stateIn(
         scope = viewModelScope,
         started = WhileSubscribed(),
         initialValue = 3
     )
 
-    val getUrlIntent = dataStore.getUrlIntent.stateIn(
+    val getUrlIntent = repository.getPreference(KEY_URL_INTENT, "").stateIn(
         scope = viewModelScope,
         started = WhileSubscribed(),
         initialValue = ""
     )
 
-    val showSupportedPlatform = dataStore.showSupportedPlatform.stateIn(
+    val showSupportedPlatform = repository.getPreference(
+        MeverDataStore.KEY_SHOW_SUPPORTED_PLATFORM,
+        true
+    ).stateIn(
         scope = viewModelScope,
         started = WhileSubscribed(),
         initialValue = true
     )
 
-    val isImageAiEnabled = dataStore.isImageAiEnabled.stateIn(
+    val isImageAiEnabled = repository.getPreference(KEY_IS_IMAGE_AI_ENABLED, true).stateIn(
         scope = viewModelScope,
         started = WhileSubscribed(),
         initialValue = true
     )
 
-    val isGoImgEnabled = dataStore.isGoImgEnabled.stateIn(
+    val isGoImgEnabled = repository.getPreference(KEY_IS_GO_IMG_ENABLED, true).stateIn(
         scope = viewModelScope,
         started = WhileSubscribed(),
         initialValue = true
@@ -174,10 +182,10 @@ internal class HomeLandingViewModel @Inject constructor(
     }
 
     fun incrementClickCount() = viewModelScope.launch {
-        dataStore.incrementClickCount()
+        repository.incrementClickCount()
     }
 
     fun resetUrlIntent() = viewModelScope.launch {
-        dataStore.saveUrlIntent("")
+        repository.savePreference(KEY_URL_INTENT, "")
     }
 }

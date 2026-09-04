@@ -1,15 +1,21 @@
 package com.dapascript.mever.core.data.source.local
 
 import android.content.Context
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.dapascript.mever.core.common.ui.theme.ThemeType
-import com.dapascript.mever.core.common.ui.theme.ThemeType.System
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
+import java.io.IOException
 import javax.inject.Inject
 
 private val Context.dataStore by preferencesDataStore(name = "mever_data_store")
@@ -17,152 +23,58 @@ private val Context.dataStore by preferencesDataStore(name = "mever_data_store")
 class MeverDataStore @Inject constructor(
     @ApplicationContext context: Context
 ) {
-
     private val dataStore = context.dataStore
 
-    suspend fun saveVersion(version: String) {
+    suspend fun <T : Any> saveValue(keyName: String, value: T) {
+        val key = getPrefKey(keyName, value)
         dataStore.edit { preferences ->
-            preferences[KEY_VERSION] = version
+            preferences[key] = value
         }
     }
 
-    val getAppVersion = dataStore.data.map { preferences ->
-        preferences[KEY_VERSION] ?: "1.0.0"
-    }
-
-    suspend fun setIsImageAiEnabled(isEnabled: Boolean) {
-        dataStore.edit { preferences ->
-            preferences[KEY_IS_IMAGE_AI_ENABLED] = isEnabled
-        }
-    }
-
-    val isImageAiEnabled = dataStore.data.map { preferences ->
-        preferences[KEY_IS_IMAGE_AI_ENABLED] ?: true
-    }
-
-    suspend fun setIsGoImgEnabled(isEnabled: Boolean) {
-        dataStore.edit { preferences ->
-            preferences[KEY_IS_GO_IMG_ENABLED] = isEnabled
-        }
-    }
-
-    val isGoImgEnabled = dataStore.data.map { preferences ->
-        preferences[KEY_IS_GO_IMG_ENABLED] ?: true
-    }
-
-    suspend fun saveYoutubeVideoAndAudioQuality(qualities: Map<String, List<String>>) {
-        dataStore.edit { preferences ->
-            preferences[KEY_RESOLUTIONS] = if (qualities.isNotEmpty()) {
-                qualities.values.flatten().joinToString(",")
-            } else ""
-        }
-    }
-
-    val getYoutubeVideoAndAudioQuality = dataStore.data.map { preferences ->
-        preferences[KEY_RESOLUTIONS]?.split(",")?.filter { it.isNotEmpty() } ?: emptyList()
-    }
-
-    suspend fun setIsOnboarded(isOnboarded: Boolean) {
-        dataStore.edit { preferences ->
-            preferences[KEY_IS_ONBOARDED] = isOnboarded
-        }
-    }
-
-    val isOnboarded = dataStore.data.map { preferences ->
-        preferences[KEY_IS_ONBOARDED] ?: false
-    }
-
-    suspend fun setShowSupportedPlatform(isShow: Boolean) {
-        dataStore.edit { preferences ->
-            preferences[KEY_SHOW_SUPPORTED_PLATFORM] = isShow
-        }
-    }
-
-    val showSupportedPlatform = dataStore.data.map { preferences ->
-        preferences[KEY_SHOW_SUPPORTED_PLATFORM] ?: true
-    }
-
-    suspend fun saveTheme(mode: ThemeType) {
-        dataStore.edit { preferences ->
-            preferences[KEY_THEME] = mode.name
-        }
-    }
-
-    val getTheme = dataStore.data.map { preferences ->
-        try {
-            ThemeType.valueOf(preferences[KEY_THEME] ?: System.name)
-        } catch (_: IllegalArgumentException) {
-            System
-        }
-    }
-
-    suspend fun incrementClickCount() {
-        dataStore.edit { preferences ->
-            val threshold = preferences[KEY_ADS_THRESHOLD] ?: DEFAULT_ADS_THRESHOLD
-            val newCount = (preferences[KEY_CLICK_COUNT] ?: 0) + 1
-
-            if (newCount >= threshold) {
-                preferences[KEY_CLICK_COUNT] = 0
-                preferences[KEY_ADS_THRESHOLD] = (MIN_ADS_THRESHOLD..MAX_ADS_THRESHOLD).random()
-            } else {
-                preferences[KEY_CLICK_COUNT] = newCount
+    fun <T : Any> getValue(keyName: String, defaultValue: T): Flow<T> {
+        val key = getPrefKey(keyName, defaultValue)
+        return dataStore.data
+            .catch { exception ->
+                if (exception is IOException) {
+                    emit(emptyPreferences())
+                } else {
+                    throw exception
+                }
             }
-        }
+            .map { preferences ->
+                preferences[key] ?: defaultValue
+            }
     }
 
-    val clickCount = dataStore.data.map { preferences ->
-        preferences[KEY_CLICK_COUNT] ?: 0
-    }
-
-    val adsThreshold = dataStore.data.map { preferences ->
-        preferences[KEY_ADS_THRESHOLD] ?: DEFAULT_ADS_THRESHOLD
-    }
-
-    suspend fun saveUrlIntent(url: String) {
-        dataStore.edit { preferences ->
-            preferences[KEY_URL_INTENT] = url
-        }
-    }
-
-    val getUrlIntent = dataStore.data.map { preferences ->
-        preferences[KEY_URL_INTENT] ?: ""
-    }
-
-    suspend fun setPipEnabled(isEnabled: Boolean) {
-        dataStore.edit { preferences ->
-            preferences[KEY_PIP] = isEnabled
-        }
-    }
-
-    val isPipEnabled = dataStore.data.map { preferences ->
-        preferences[KEY_PIP] ?: true
-    }
-
-    suspend fun setIsFirstTimeChangeLanguage(isFirst: Boolean) {
-        dataStore.edit { preferences ->
-            preferences[KEY_IS_FIRST_CHANGE_LANGUAGE] = isFirst
-        }
-    }
-
-    val isFirstTimeChangeLanguage = dataStore.data.map { preferences ->
-        preferences[KEY_IS_FIRST_CHANGE_LANGUAGE] ?: true
+    @Suppress("UNCHECKED_CAST")
+    private fun <T : Any> getPrefKey(key: String, value: T): Preferences.Key<T> {
+        return when (value) {
+            is String -> stringPreferencesKey(key)
+            is Boolean -> booleanPreferencesKey(key)
+            is Int -> intPreferencesKey(key)
+            is Long -> longPreferencesKey(key)
+            is Float -> floatPreferencesKey(key)
+            is Double -> doublePreferencesKey(key)
+            else -> throw IllegalArgumentException("Type ${value::class.java.simpleName} is not supported in DataStore")
+        } as Preferences.Key<T>
     }
 
     companion object {
-        private val KEY_VERSION = stringPreferencesKey("version")
-        private val KEY_IS_IMAGE_AI_ENABLED = booleanPreferencesKey("is_image_ai_enabled")
-        private val KEY_IS_GO_IMG_ENABLED = booleanPreferencesKey("is_go_img_enabled")
-        private val KEY_IS_ONBOARDED = booleanPreferencesKey("is_onboarded")
-        private val KEY_SHOW_SUPPORTED_PLATFORM = booleanPreferencesKey("show_supported_platform")
-        private val KEY_RESOLUTIONS = stringPreferencesKey("youtube_resolutions")
-        private val KEY_THEME = stringPreferencesKey("theme")
-        private val KEY_CLICK_COUNT = intPreferencesKey("click_count")
-        private val KEY_ADS_THRESHOLD = intPreferencesKey("ads_threshold")
-        private const val MIN_ADS_THRESHOLD = 2
-        private const val MAX_ADS_THRESHOLD = 4
-        private const val DEFAULT_ADS_THRESHOLD = 3
-        private val KEY_URL_INTENT = stringPreferencesKey("url_intent")
-        private val KEY_PIP = booleanPreferencesKey("pip_enabled")
-        private val KEY_IS_FIRST_CHANGE_LANGUAGE = booleanPreferencesKey("is_first_change_language")
+        const val KEY_VERSION = "version"
+        const val KEY_IS_IMAGE_AI_ENABLED = "is_image_ai_enabled"
+        const val KEY_IS_GO_IMG_ENABLED = "is_go_img_enabled"
+        const val KEY_IS_ONBOARDED = "is_onboarded"
+        const val KEY_SHOW_SUPPORTED_PLATFORM = "show_supported_platform"
+        const val KEY_RESOLUTIONS = "youtube_resolutions"
+        const val KEY_THEME = "theme"
+        const val KEY_CLICK_COUNT = "click_count"
+        const val KEY_ADS_THRESHOLD = "ads_threshold"
+        const val KEY_URL_INTENT = "url_intent"
+        const val KEY_PIP = "pip_enabled"
+        const val KEY_IS_FIRST_CHANGE = "is_first_change_language"
+
+        const val MIN_ADS_THRESHOLD = 2
+        const val MAX_ADS_THRESHOLD = 3
     }
 }

@@ -13,7 +13,6 @@ import com.dapascript.mever.core.common.util.state.UiState.StateLoading
 import com.dapascript.mever.core.common.util.state.UiState.StateSuccess
 import com.dapascript.mever.core.data.model.local.ImageAiEntity
 import com.dapascript.mever.core.data.repository.MeverRepository
-import com.dapascript.mever.core.data.source.local.MeverDataStore
 import com.dapascript.mever.feature.ai.BuildConfig.DEBUG
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -28,19 +27,18 @@ import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 internal class AiImageGeneratorResultViewModel @Inject constructor(
-    private val repository: MeverRepository,
-    private val dataStore: MeverDataStore
+    private val repository: MeverRepository
 ) : BaseViewModel() {
 
     var imageResult by mutableStateOf<ImageAiEntity?>(null)
 
-    val getButtonClickCount = dataStore.clickCount.stateIn(
+    val getButtonClickCount = repository.getClickCount().stateIn(
         scope = viewModelScope,
         started = WhileSubscribed(),
         initialValue = 0
     )
 
-    val adsThreshold = dataStore.adsThreshold.stateIn(
+    val adsThreshold = repository.getAdsThreshold().stateIn(
         scope = viewModelScope,
         started = WhileSubscribed(),
         initialValue = 3
@@ -85,6 +83,6 @@ internal class AiImageGeneratorResultViewModel @Inject constructor(
     }
 
     fun incrementClickCount() = viewModelScope.launch {
-        dataStore.incrementClickCount()
+        repository.incrementClickCount()
     }
 }

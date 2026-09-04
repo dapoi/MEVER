@@ -37,7 +37,6 @@ class HomeLandingViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
     private val testScope = TestScope(testDispatcher)
 
-    @Mock lateinit var dataStore: MeverDataStore
     @Mock lateinit var repository: MeverRepository
 
     private lateinit var viewModel: HomeLandingViewModel
@@ -50,14 +49,14 @@ class HomeLandingViewModelTest {
     fun setUp() {
         MockitoAnnotations.openMocks(this)
         Dispatchers.setMain(testDispatcher)
-        whenever(dataStore.isImageAiEnabled).thenReturn(flowOf(true))
-        whenever(dataStore.isGoImgEnabled).thenReturn(flowOf(true))
-        whenever(dataStore.getYoutubeVideoAndAudioQuality).thenReturn(flowOf(emptyList()))
-        whenever(dataStore.clickCount).thenReturn(flowOf(1))
-        whenever(dataStore.adsThreshold).thenReturn(flowOf(3))
-        whenever(dataStore.getUrlIntent).thenReturn(flowOf(""))
+        whenever(repository.getPreference(MeverDataStore.KEY_IS_IMAGE_AI_ENABLED, true)).thenReturn(flowOf(true))
+        whenever(repository.getPreference(MeverDataStore.KEY_IS_GO_IMG_ENABLED, true)).thenReturn(flowOf(true))
+        whenever(repository.getPreference(MeverDataStore.KEY_RESOLUTIONS, "")).thenReturn(flowOf(""))
+        whenever(repository.getClickCount()).thenReturn(flowOf(1))
+        whenever(repository.getAdsThreshold()).thenReturn(flowOf(3))
+        whenever(repository.getPreference(MeverDataStore.KEY_URL_INTENT, "")).thenReturn(flowOf(""))
         whenever(repository.observeDownloads()).thenReturn(flowOf(emptyList()))
-        viewModel = HomeLandingViewModel(dataStore, repository)
+        viewModel = HomeLandingViewModel(repository)
     }
 
     @After
@@ -159,17 +158,17 @@ class HomeLandingViewModelTest {
     }
 
     @Test
-    fun `incrementClickCount calls dataStore incrementClickCount`() = testScope.runTest {
+    fun `incrementClickCount calls repository incrementClickCount`() = testScope.runTest {
         viewModel.incrementClickCount()
         advanceUntilIdle()
-        verify(dataStore).incrementClickCount()
+        verify(repository).incrementClickCount()
     }
 
     @Test
-    fun `resetUrlIntent calls dataStore saveUrlIntent with empty string`() = testScope.runTest {
+    fun `resetUrlIntent calls repository savePreference with empty string`() = testScope.runTest {
         viewModel.resetUrlIntent()
         advanceUntilIdle()
-        verify(dataStore).saveUrlIntent("")
+        verify(repository).savePreference(MeverDataStore.KEY_URL_INTENT, "")
     }
 
     @Test

@@ -36,9 +36,6 @@ class SplashScreenViewModelTest {
     private val testScope = TestScope(testDispatcher)
 
     @Mock
-    lateinit var dataStore: MeverDataStore
-
-    @Mock
     lateinit var repository: MeverRepository
 
     @Mock
@@ -57,8 +54,8 @@ class SplashScreenViewModelTest {
         MockitoAnnotations.openMocks(this)
         Dispatchers.setMain(testDispatcher)
 
-        whenever(dataStore.isOnboarded).thenReturn(flowOf(false))
-        whenever(dataStore.getAppVersion).thenReturn(flowOf("1.0.0"))
+        whenever(repository.getPreference(MeverDataStore.KEY_IS_ONBOARDED, false)).thenReturn(flowOf(false))
+        whenever(repository.getPreference(MeverDataStore.KEY_VERSION, "1.0.0")).thenReturn(flowOf("1.0.0"))
         // Stub repository so init{} getAppConfig() resolves (release path)
         whenever(repository.getAppConfig()).thenReturn(flowOf())
 
@@ -68,7 +65,7 @@ class SplashScreenViewModelTest {
         whenever(context.packageManager).thenReturn(packageManager)
         whenever(packageManager.getPackageInfo("com.dapascript.mever", 0)).thenReturn(packageInfo)
 
-        viewModel = SplashScreenViewModel(dataStore, repository)
+        viewModel = SplashScreenViewModel(repository)
     }
 
     @After
@@ -77,7 +74,7 @@ class SplashScreenViewModelTest {
     }
 
     @Test
-    fun `isOnboarded collects false from dataStore`() = testScope.runTest {
+    fun `isOnboarded collects false from repository`() = testScope.runTest {
         val values = mutableListOf<Boolean>()
         val job = launch { viewModel.isOnboarded.collect { values.add(it == true) } }
         advanceUntilIdle()
@@ -86,9 +83,9 @@ class SplashScreenViewModelTest {
     }
 
     @Test
-    fun `isOnboarded collects true when dataStore returns true`() = testScope.runTest {
-        whenever(dataStore.isOnboarded).thenReturn(flowOf(true))
-        val vm = SplashScreenViewModel(dataStore, repository)
+    fun `isOnboarded collects true when repository returns true`() = testScope.runTest {
+        whenever(repository.getPreference(MeverDataStore.KEY_IS_ONBOARDED, false)).thenReturn(flowOf(true))
+        val vm = SplashScreenViewModel(repository)
         val values = mutableListOf<Boolean>()
         val job = launch { vm.isOnboarded.collect { values.add(it == true) } }
         advanceUntilIdle()
@@ -97,9 +94,9 @@ class SplashScreenViewModelTest {
     }
 
     @Test
-    fun `getAppVersion collects value from dataStore`() = testScope.runTest {
-        whenever(dataStore.getAppVersion).thenReturn(flowOf("2.5.0"))
-        val vm = SplashScreenViewModel(dataStore, repository)
+    fun `getAppVersion collects value from repository`() = testScope.runTest {
+        whenever(repository.getPreference(MeverDataStore.KEY_VERSION, "1.0.0")).thenReturn(flowOf("2.5.0"))
+        val vm = SplashScreenViewModel(repository)
         val values = mutableListOf<String>()
         val job = launch { vm.getAppVersion.collect { values.add(it) } }
         advanceUntilIdle()

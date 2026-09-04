@@ -5,7 +5,6 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.dapascript.mever.core.common.util.BackgroundRemovalProcessor
 import com.dapascript.mever.core.common.util.state.UiState
 import com.dapascript.mever.core.data.repository.MeverRepository
-import com.dapascript.mever.core.data.source.local.MeverDataStore
 import com.dapascript.mever.feature.ai.screen.attr.AiBackgroundRemovalAttr.BgRemovalType.QuickColor
 import com.dapascript.mever.feature.ai.screen.attr.AiBackgroundRemovalAttr.BgRemovalType.TransparentImage
 import kotlinx.coroutines.Dispatchers
@@ -42,9 +41,6 @@ class AiBackgroundRemovalViewModelTest {
     lateinit var processor: BackgroundRemovalProcessor
 
     @Mock
-    lateinit var dataStore: MeverDataStore
-
-    @Mock
     lateinit var repository: MeverRepository
 
     private lateinit var viewModel: AiBackgroundRemovalViewModel
@@ -54,10 +50,10 @@ class AiBackgroundRemovalViewModelTest {
         MockitoAnnotations.openMocks(this)
         Dispatchers.setMain(testDispatcher)
 
-        whenever(dataStore.clickCount).thenReturn(flowOf(2))
-        whenever(dataStore.adsThreshold).thenReturn(flowOf(5))
+        whenever(repository.getClickCount()).thenReturn(flowOf(2))
+        whenever(repository.getAdsThreshold()).thenReturn(flowOf(5))
 
-        viewModel = AiBackgroundRemovalViewModel(context, processor, dataStore, repository)
+        viewModel = AiBackgroundRemovalViewModel(context, processor, repository)
     }
 
     @After
@@ -111,9 +107,9 @@ class AiBackgroundRemovalViewModelTest {
     }
 
     @Test
-    fun `incrementClickCount calls dataStore incrementClickCount`() = runTest {
+    fun `incrementClickCount calls repository incrementClickCount`() = runTest {
         viewModel.incrementClickCount()
         advanceUntilIdle()
-        verify(dataStore).incrementClickCount()
+        verify(repository).incrementClickCount()
     }
 }

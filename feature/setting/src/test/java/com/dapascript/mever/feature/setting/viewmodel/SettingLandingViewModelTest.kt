@@ -2,6 +2,7 @@ package com.dapascript.mever.feature.setting.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.dapascript.mever.core.common.ui.theme.ThemeType
+import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.source.local.MeverDataStore
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
@@ -27,18 +28,18 @@ class SettingLandingViewModelTest {
     val instantExecutorRule = InstantTaskExecutorRule()
 
     @Test
-    fun `dataStore isPipEnabled emits true`() = runBlocking {
-        val dataStore = mock(MeverDataStore::class.java)
-        whenever(dataStore.isPipEnabled).thenReturn(flowOf(true))
-        val pip = dataStore.isPipEnabled.first()
+    fun `repository isPipEnabled emits true`() = runBlocking {
+        val repository = mock(MeverRepository::class.java)
+        whenever(repository.getPreference(MeverDataStore.KEY_PIP, true)).thenReturn(flowOf(true))
+        val pip = repository.getPreference(MeverDataStore.KEY_PIP, true).first()
         assertTrue(pip)
     }
 
     @Test
-    fun `dataStore isPipEnabled emits false`() = runBlocking {
-        val dataStore = mock(MeverDataStore::class.java)
-        whenever(dataStore.isPipEnabled).thenReturn(flowOf(false))
-        val pip = dataStore.isPipEnabled.first()
+    fun `repository isPipEnabled emits false`() = runBlocking {
+        val repository = mock(MeverRepository::class.java)
+        whenever(repository.getPreference(MeverDataStore.KEY_PIP, true)).thenReturn(flowOf(false))
+        val pip = repository.getPreference(MeverDataStore.KEY_PIP, true).first()
         assertEquals(false, pip)
     }
 

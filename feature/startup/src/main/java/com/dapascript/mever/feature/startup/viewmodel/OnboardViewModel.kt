@@ -4,7 +4,8 @@ import android.content.Context
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseViewModel
-import com.dapascript.mever.core.data.source.local.MeverDataStore
+import com.dapascript.mever.core.data.repository.MeverRepository
+import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_IS_ONBOARDED
 import com.dapascript.mever.feature.startup.screen.attr.OnboardScreenAttr.OnboardPage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -15,7 +16,7 @@ import javax.inject.Inject
 @HiltViewModel
 internal class OnboardViewModel @Inject constructor(
     @ApplicationContext context: Context,
-    private val meverDataStore: MeverDataStore
+    private val repository: MeverRepository
 ) : BaseViewModel() {
 
     val pages by lazy {
@@ -45,6 +46,6 @@ internal class OnboardViewModel @Inject constructor(
     }
 
     fun setIsOnboarded(isOnboarded: Boolean) = viewModelScope.launch(IO) {
-        meverDataStore.setIsOnboarded(isOnboarded)
+        repository.savePreference(KEY_IS_ONBOARDED, isOnboarded)
     }
 }

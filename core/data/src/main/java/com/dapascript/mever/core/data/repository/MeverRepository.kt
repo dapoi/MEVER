@@ -1,6 +1,7 @@
 package com.dapascript.mever.core.data.repository
 
 import android.graphics.Bitmap
+import androidx.datastore.preferences.core.Preferences
 import com.dapascript.mever.core.common.util.state.ApiState
 import com.dapascript.mever.core.data.model.local.AppConfigEntity
 import com.dapascript.mever.core.data.model.local.ContentEntity
@@ -9,6 +10,7 @@ import com.ketch.DownloadModel
 import kotlinx.coroutines.flow.Flow
 
 interface MeverRepository {
+    // App Config & Search
     fun getAppConfig(): Flow<ApiState<AppConfigEntity?>>
     fun getDownloader(
         url: String,
@@ -18,6 +20,8 @@ interface MeverRepository {
     fun getImageAiGenerator(prompt: String): Flow<ApiState<ImageAiEntity?>>
     fun postReportAiImage(message: String): Flow<ApiState<Unit>>
     fun uploadImage(bitmap: Bitmap, fileName: String): Flow<ApiState<String?>>
+
+    // Downloads
     fun observeDownloads(): Flow<List<DownloadModel>>
     fun download(
         url: String,
@@ -33,4 +37,12 @@ interface MeverRepository {
     fun deleteDownloads(ids: List<Int>)
     fun deleteAllDownloads()
     suspend fun refreshDownloadDatabase()
+
+    // Preferences (DataStore)
+    fun <T : Any> getPreference(key: String, defaultValue: T): Flow<T>
+    suspend fun <T : Any> savePreference(key: String, value: T)
+    // Click Count & Ads Threshold
+    fun getClickCount(): Flow<Int>
+    fun getAdsThreshold(): Flow<Int>
+    suspend fun incrementClickCount()
 }
