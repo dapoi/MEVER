@@ -146,7 +146,10 @@ internal fun HandleBottomSheetDownload(
             Column(
                 modifier = Modifier
                     .weight(weight = 1f, fill = false)
-                    .verticalScroll(scrollState),
+                    .then(
+                        if (isDownloadProcessing.not()) Modifier.verticalScroll(scrollState)
+                        else Modifier
+                    ),
                 verticalArrangement = spacedBy(Dp4)
             ) {
                 if (isMusic) MeverImage(
@@ -223,7 +226,11 @@ internal fun HandleBottomSheetDownload(
                         .onCustomClick(
                             enabled = isDownloadProcessing.not() && selectMultipleItems.isNotEmpty()
                         ) {
-                            onClickDownload(selectMultipleItems.mapNotNull { stableListContent.getOrNull(it)?.url })
+                            onClickDownload(selectMultipleItems.mapNotNull {
+                                stableListContent.getOrNull(
+                                    it
+                                )?.url
+                            })
                         }
                         .weight(1f)
                         .padding(vertical = Dp16),
@@ -305,7 +312,7 @@ private fun MeverCheckBoxButton(
         Box(
             modifier = Modifier
                 .size(Dp24)
-                .clip(CircleShape)
+                .clip(RoundedCornerShape(Dp4))
                 .meverShimmer()
         )
         Box(
