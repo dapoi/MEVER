@@ -1,8 +1,5 @@
 package com.dapascript.mever.feature.gallery.viewmodel
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.util.PlatformType
@@ -32,7 +29,12 @@ internal class GalleryLandingViewModel @Inject constructor(
     private val repository: MeverRepository
 ) : BaseViewModel() {
 
-    var selectedFilter by mutableStateOf(ALL)
+    private val _selectedFilter = MutableStateFlow(ALL)
+    val selectedFilter = _selectedFilter.asStateFlow()
+
+    fun updateFilter(filter: PlatformType) {
+        _selectedFilter.value = filter
+    }
 
     private val _refreshTrigger = MutableStateFlow(0)
 
@@ -41,6 +43,14 @@ internal class GalleryLandingViewModel @Inject constructor(
             downloads
         }
         .distinctUntilChanged()
+        .flowOn(Default)
+        .stateIn(viewModelScope, WhileSubscribed(5000), null)
+
+    val filteredDownloads = combine(downloadList, _selectedFilter) { downloads, filter ->
+        downloads?.filter {
+            filter == ALL || it.tag == filter.platformName
+        }
+    }.distinctUntilChanged()
         .flowOn(Default)
         .stateIn(viewModelScope, WhileSubscribed(5000), null)
 

@@ -14,11 +14,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
@@ -62,14 +65,19 @@ import com.dapascript.mever.core.common.ui.component.MeverPopupDropDownMenu
 import com.dapascript.mever.core.common.ui.component.meverShimmer
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp150
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp28
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp3
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp30
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp5
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp86
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp88
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
@@ -118,6 +126,8 @@ internal fun GalleryLandingScreen(
     viewModel: GalleryLandingViewModel = hiltViewModel()
 ) = with(viewModel) {
     val context = LocalContext.current
+    val selectedFilter = selectedFilter.collectAsStateValue()
+    val filteredDownloads = filteredDownloads.collectAsStateValue()
     val allDownloads = downloadList.collectAsStateValue()
     val isAnyDownloadActive = isAnyDownloadActive.collectAsStateValue()
     val platformTypes = platformTypes.collectAsStateValue()
@@ -125,6 +135,7 @@ internal fun GalleryLandingScreen(
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
     val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
+    var isTransitionFinished by rememberSaveable { mutableStateOf(false) }
     var skipRefreshDatabase by remember(lifecycleOwner.value) { mutableStateOf(true) }
     var showSelector by remember { mutableStateOf(false) }
     var showFailedDialog by remember { mutableStateOf<Int?>(null) }
@@ -135,24 +146,18 @@ internal fun GalleryLandingScreen(
     var showFilter by rememberSaveable { mutableStateOf(true) }
     var titleHeight by rememberSaveable { mutableIntStateOf(0) }
     val syncedItems = remember { mutableSetOf<Int>() }
-    val isExpanded = remember(listState, titleHeight, showSelector) {
+    val isExpanded = remember(listState, titleHeight, showSelector, isTransitionFinished) {
         derivedStateOf {
+            if (!isTransitionFinished || titleHeight == 0) return@derivedStateOf true
             listState.firstVisibleItemIndex < 1 &&
                     listState.firstVisibleItemScrollOffset < titleHeight / 2 &&
                     showSelector.not()
         }
     }
-    val filteredDownloads by remember(allDownloads, selectedFilter) {
-        derivedStateOf {
-            allDownloads?.filter {
-                selectedFilter == ALL || it.tag == selectedFilter.platformName
-            }
-        }
-    }
 
     BaseScreen(
         topBarArgs = TopBarArgs(
-            actionMenus = if (filteredDownloads.orEmpty().size > 1) {
+            actionMenus = if (isTransitionFinished && filteredDownloads.orEmpty().size > 1) {
                 listOf(
                     ActionMenu(
                         icon = R.drawable.ic_more,
@@ -180,6 +185,11 @@ internal fun GalleryLandingScreen(
             } else navigator.navigateBack()
         }
     ) {
+        LaunchedEffect(Unit) {
+            delay(600.milliseconds)
+            isTransitionFinished = true
+        }
+
         LaunchedEffect(listState, titleHeight) {
             delay(500.milliseconds)
             snapshotFlow { listState.isScrollInProgress }
@@ -221,7 +231,7 @@ internal fun GalleryLandingScreen(
         }
 
         LaunchedEffect(selectedFilter, filteredDownloads) {
-            if (selectedFilter != ALL && filteredDownloads?.isEmpty() == true) selectedFilter = ALL
+            if (selectedFilter != ALL && filteredDownloads?.isEmpty() == true) updateFilter(ALL)
         }
 
         BackHandler(showSelector) {
@@ -235,7 +245,9 @@ internal fun GalleryLandingScreen(
             listDropDown = GalleryActionMenu.entries.filter { menu ->
                 when (menu) {
                     SELECT_ALL -> showSelector && selectedItems.size != filteredDownloads?.size
-                    SELECT_FILES -> allDownloads.isNullOrEmpty().not() && showSelector.not() && isAnyDownloadActive.not()
+                    SELECT_FILES -> allDownloads.isNullOrEmpty()
+                        .not() && showSelector.not() && isAnyDownloadActive.not()
+
                     DELETE_ALL -> allDownloads.isNullOrEmpty().not() && showSelector.not()
                     DELETE_SELECTED -> selectedItems.isNotEmpty()
                     SHARE_SELECTED -> selectedItems.isNotEmpty()
@@ -302,6 +314,7 @@ internal fun GalleryLandingScreen(
             selectedItems = selectedItems,
             platformTypes = if (showFilter) platformTypes else emptyList(),
             filteredDownloads = filteredDownloads,
+            isTransitionFinished = isTransitionFinished,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = Dp64),
@@ -309,7 +322,7 @@ internal fun GalleryLandingScreen(
             onClickFilter = {
                 scope.launch {
                     listState.scrollToItem(0)
-                    if (listState.firstVisibleItemIndex == 0) selectedFilter = it
+                    if (listState.firstVisibleItemIndex == 0) updateFilter(it)
                 }
             },
             onClickCard = { model ->
@@ -432,6 +445,7 @@ private fun GalleryContentSection(
     selectedItems: Set<DownloadModel>,
     platformTypes: List<PlatformType>,
     filteredDownloads: List<DownloadModel>?,
+    isTransitionFinished: Boolean,
     modifier: Modifier = Modifier,
     isExpanded: () -> Boolean,
     onClickFilter: (PlatformType) -> Unit,
@@ -452,174 +466,52 @@ private fun GalleryContentSection(
 
         filteredDownloads?.let {
             if (filteredDownloads.isNotEmpty()) {
-                if (deviceType == PHONE) {
-                    LazyColumn(
-                        modifier = modifier,
-                        state = listState,
-                        contentPadding = PaddingValues(bottom = Dp80)
-                    ) {
-                        if (showSelector.not()) {
-                            item {
-                                Text(
-                                    text = stringResource(R.string.gallery),
-                                    style = typography.h2.copy(fontSize = Sp32),
-                                    color = colors.blackWhite,
-                                    modifier = Modifier
-                                        .padding(top = Dp16, start = Dp24, end = Dp24)
-                                        .onGloballyPositioned { onSetTitleHeight(it.size.height) }
-                                )
-                            }
-                        }
-                        stickyHeader {
-                            if (platformTypes.size > 1 && showSelector.not()) {
-                                FilterContent(
-                                    modifier = Modifier
-                                        .background(colors.whiteDark)
-                                        .fillMaxWidth()
-                                        .horizontalScroll(headerScroll)
-                                        .padding(
-                                            start = Dp24,
-                                            end = Dp24,
-                                            top = Dp16,
-                                            bottom = Dp24
-                                        ),
-                                    platformTypes = platformTypes,
-                                    selectedFilter = selectedFilter
-                                ) { filter -> onClickFilter(filter) }
-                            }
-                            if (isExpanded().not()) {
-                                HorizontalDivider(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .shadow(Dp3),
-                                    thickness = Dp1,
-                                    color = colors.blackWhite.copy(alpha = 0.12f)
-                                )
-                            }
-                        }
-                        items(
-                            items = filteredDownloads,
-                            key = { it.id },
-                            contentType = { it.status.name }
+                if (isTransitionFinished) {
+                    if (deviceType == PHONE) {
+                        LazyColumn(
+                            modifier = modifier,
+                            state = listState,
+                            contentPadding = PaddingValues(bottom = Dp80)
                         ) {
-                            MeverCard(
-                                modifier = Modifier.animateItem(),
-                                showSelector = showSelector,
-                                isSelected = it in selectedItems,
-                                cardArgs = MeverCardArgs(
-                                    source = it.url,
-                                    tag = it.tag,
-                                    fileName = it.fileName,
-                                    status = it.status,
-                                    progress = it.progress,
-                                    total = it.total,
-                                    path = it.path,
-                                    urlThumbnail = it.metaData,
-                                    icon = getPlatformIcon(it.tag),
-                                    iconShadowColor = colors.purpleTransparent,
-                                    iconBackgroundColor = colors.whiteDark,
-                                    iconSize = Dp24,
-                                    iconPadding = Dp5
-                                ),
-                                onClickCard = { onClickCard(it) },
-                                onClickDelete = { onClickDelete(it) },
-                                onClickLong = { onClickLong(it) },
-                                onClickShare = { onClickShare(it) },
-                                onClickSelectedItem = { onClickSelectedItem(it) }
-                            )
-                        }
-                    }
-                } else {
-                    LazyColumn(
-                        modifier = modifier,
-                        state = listState,
-                        contentPadding = PaddingValues(bottom = Dp80)
-                    ) {
-                        if (showSelector.not()) {
-                            item {
-                                Text(
-                                    text = stringResource(R.string.gallery),
-                                    style = typography.h2.copy(fontSize = Sp32),
-                                    color = colors.blackWhite,
-                                    modifier = Modifier
-                                        .padding(top = Dp16, start = Dp24, end = Dp24)
-                                        .onGloballyPositioned { onSetTitleHeight(it.size.height) }
-                                )
-                            }
-                        }
-                        stickyHeader {
-                            if (platformTypes.size > 1 && showSelector.not()) {
-                                FilterContent(
-                                    modifier = Modifier
-                                        .background(colors.whiteDark)
-                                        .fillMaxWidth()
-                                        .horizontalScroll(headerScroll)
-                                        .padding(
-                                            start = Dp24,
-                                            end = Dp24,
-                                            top = Dp16,
-                                            bottom = Dp24
-                                        ),
-                                    platformTypes = platformTypes,
-                                    selectedFilter = selectedFilter
-                                ) { filter -> onClickFilter(filter) }
-                            }
-                            if (isExpanded().not()) {
-                                HorizontalDivider(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .shadow(Dp3),
-                                    thickness = Dp1,
-                                    color = colors.blackWhite.copy(alpha = 0.12f)
-                                )
-                            }
-                        }
-                        if (filteredDownloads.size > 1) {
-                            items(
-                                items = chunkedDownloads.orEmpty(),
-                                key = { it.first().id }
-                            ) { rowItems ->
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = Dp24)
-                                        .animateItem(),
-                                    horizontalArrangement = spacedBy(Dp16)
-                                ) {
-                                    rowItems.forEach { model ->
-                                        MeverCard(
-                                            modifier = Modifier.weight(1f),
-                                            showSelector = showSelector,
-                                            isSelected = model in selectedItems,
-                                            paddingValues = PaddingValues(vertical = Dp12),
-                                            cardArgs = MeverCardArgs(
-                                                source = model.url,
-                                                tag = model.tag,
-                                                fileName = model.fileName,
-                                                status = model.status,
-                                                progress = model.progress,
-                                                total = model.total,
-                                                path = model.path,
-                                                urlThumbnail = model.metaData,
-                                                icon = getPlatformIcon(model.tag),
-                                                iconShadowColor = colors.purpleTransparent,
-                                                iconBackgroundColor = colors.whiteDark,
-                                                iconSize = Dp24,
-                                                iconPadding = Dp5
-                                            ),
-                                            onClickCard = { onClickCard(model) },
-                                            onClickDelete = { onClickDelete(model) },
-                                            onClickLong = { onClickLong(model) },
-                                            onClickShare = { onClickShare(model) },
-                                            onClickSelectedItem = { onClickSelectedItem(model) }
-                                        )
-                                    }
-                                    if (rowItems.size < 2) {
-                                        Spacer(modifier = Modifier.weight(1f))
-                                    }
+                            if (showSelector.not()) {
+                                item {
+                                    Text(
+                                        text = stringResource(R.string.gallery),
+                                        style = typography.h2.copy(fontSize = Sp32),
+                                        color = colors.blackWhite,
+                                        modifier = Modifier
+                                            .padding(top = Dp16, start = Dp24, end = Dp24)
+                                            .onGloballyPositioned { onSetTitleHeight(it.size.height) }
+                                    )
                                 }
                             }
-                        } else {
+                            stickyHeader {
+                                if (platformTypes.size > 1 && showSelector.not()) {
+                                    FilterContent(
+                                        modifier = Modifier
+                                            .background(colors.whiteDark)
+                                            .fillMaxWidth()
+                                            .horizontalScroll(headerScroll)
+                                            .padding(
+                                                start = Dp24,
+                                                end = Dp24,
+                                                top = Dp16,
+                                                bottom = Dp24
+                                            ),
+                                        platformTypes = platformTypes,
+                                        selectedFilter = selectedFilter
+                                    ) { filter -> onClickFilter(filter) }
+                                }
+                                if (isExpanded().not()) {
+                                    HorizontalDivider(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .shadow(Dp3),
+                                        thickness = Dp1,
+                                        color = colors.blackWhite.copy(alpha = 0.12f)
+                                    )
+                                }
+                            }
                             items(
                                 items = filteredDownloads,
                                 key = { it.id },
@@ -652,7 +544,136 @@ private fun GalleryContentSection(
                                 )
                             }
                         }
+                    } else {
+                        LazyColumn(
+                            modifier = modifier,
+                            state = listState,
+                            contentPadding = PaddingValues(bottom = Dp80)
+                        ) {
+                            if (showSelector.not()) {
+                                item {
+                                    Text(
+                                        text = stringResource(R.string.gallery),
+                                        style = typography.h2.copy(fontSize = Sp32),
+                                        color = colors.blackWhite,
+                                        modifier = Modifier
+                                            .padding(top = Dp16, start = Dp24, end = Dp24)
+                                            .onGloballyPositioned { onSetTitleHeight(it.size.height) }
+                                    )
+                                }
+                            }
+                            stickyHeader {
+                                if (platformTypes.size > 1 && showSelector.not()) {
+                                    FilterContent(
+                                        modifier = Modifier
+                                            .background(colors.whiteDark)
+                                            .fillMaxWidth()
+                                            .horizontalScroll(headerScroll)
+                                            .padding(
+                                                start = Dp24,
+                                                end = Dp24,
+                                                top = Dp16,
+                                                bottom = Dp24
+                                            ),
+                                        platformTypes = platformTypes,
+                                        selectedFilter = selectedFilter
+                                    ) { filter -> onClickFilter(filter) }
+                                }
+                                if (isExpanded().not()) {
+                                    HorizontalDivider(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .shadow(Dp3),
+                                        thickness = Dp1,
+                                        color = colors.blackWhite.copy(alpha = 0.12f)
+                                    )
+                                }
+                            }
+                            if (filteredDownloads.size > 1) {
+                                items(
+                                    items = chunkedDownloads.orEmpty(),
+                                    key = { it.first().id }
+                                ) { rowItems ->
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = Dp24)
+                                            .animateItem(),
+                                        horizontalArrangement = spacedBy(Dp16)
+                                    ) {
+                                        rowItems.forEach { model ->
+                                            MeverCard(
+                                                modifier = Modifier.weight(1f),
+                                                showSelector = showSelector,
+                                                isSelected = model in selectedItems,
+                                                paddingValues = PaddingValues(vertical = Dp12),
+                                                cardArgs = MeverCardArgs(
+                                                    source = model.url,
+                                                    tag = model.tag,
+                                                    fileName = model.fileName,
+                                                    status = model.status,
+                                                    progress = model.progress,
+                                                    total = model.total,
+                                                    path = model.path,
+                                                    urlThumbnail = model.metaData,
+                                                    icon = getPlatformIcon(model.tag),
+                                                    iconShadowColor = colors.purpleTransparent,
+                                                    iconBackgroundColor = colors.whiteDark,
+                                                    iconSize = Dp24,
+                                                    iconPadding = Dp5
+                                                ),
+                                                onClickCard = { onClickCard(model) },
+                                                onClickDelete = { onClickDelete(model) },
+                                                onClickLong = { onClickLong(model) },
+                                                onClickShare = { onClickShare(model) },
+                                                onClickSelectedItem = { onClickSelectedItem(model) }
+                                            )
+                                        }
+                                        if (rowItems.size < 2) {
+                                            Spacer(modifier = Modifier.weight(1f))
+                                        }
+                                    }
+                                }
+                            } else {
+                                items(
+                                    items = filteredDownloads,
+                                    key = { it.id },
+                                    contentType = { it.status.name }
+                                ) {
+                                    MeverCard(
+                                        modifier = Modifier.animateItem(),
+                                        showSelector = showSelector,
+                                        isSelected = it in selectedItems,
+                                        cardArgs = MeverCardArgs(
+                                            source = it.url,
+                                            tag = it.tag,
+                                            fileName = it.fileName,
+                                            status = it.status,
+                                            progress = it.progress,
+                                            total = it.total,
+                                            path = it.path,
+                                            urlThumbnail = it.metaData,
+                                            icon = getPlatformIcon(it.tag),
+                                            iconShadowColor = colors.purpleTransparent,
+                                            iconBackgroundColor = colors.whiteDark,
+                                            iconSize = Dp24,
+                                            iconPadding = Dp5
+                                        ),
+                                        onClickCard = { onClickCard(it) },
+                                        onClickDelete = { onClickDelete(it) },
+                                        onClickLong = { onClickLong(it) },
+                                        onClickShare = { onClickShare(it) },
+                                        onClickSelectedItem = { onClickSelectedItem(it) }
+                                    )
+                                }
+                            }
+                        }
                     }
+                } else {
+                    GalleryShimmer(
+                        itemCount = filteredDownloads.size,
+                        filterCount = platformTypes.size
+                    )
                 }
             } else {
                 Column(modifier = Modifier.fillMaxSize()) {
@@ -672,30 +693,114 @@ private fun GalleryContentSection(
                     )
                 }
             }
-        } ?: Column(
+        } ?: GalleryShimmer(
+            itemCount = 5,
+            filterCount = platformTypes.size
+        )
+    }
+}
+
+@Composable
+private fun GalleryShimmer(itemCount: Int, filterCount: Int) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = Dp64)
+    ) {
+        Box(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(top = Dp64)
+                .padding(top = Dp16, start = Dp24, end = Dp24)
+                .clip(RoundedCornerShape(Dp8))
+                .meverShimmer(true)
         ) {
             Text(
                 text = stringResource(R.string.gallery),
                 style = typography.h2.copy(fontSize = Sp32),
-                color = colors.blackWhite,
-                modifier = Modifier.padding(
-                    top = Dp16,
-                    start = Dp24,
-                    end = Dp24
-                )
+                color = colors.blackWhite.copy(alpha = 0f)
             )
-            repeat(10) {
+        }
+        if (filterCount > 1) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = Dp24, end = Dp24, top = Dp16, bottom = Dp24),
+                horizontalArrangement = spacedBy(Dp8)
+            ) {
+                repeat(filterCount) {
+                    Box(
+                        modifier = Modifier
+                            .width(Dp80)
+                            .height(Dp32)
+                            .clip(RoundedCornerShape(Dp64))
+                            .meverShimmer(true)
+                    )
+                }
+            }
+        }
+        repeat(itemCount) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(Dp24),
+                verticalAlignment = CenterVertically
+            ) {
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(Dp150)
-                        .padding(Dp24)
+                        .size(width = Dp88, height = Dp86)
                         .clip(RoundedCornerShape(Dp8))
                         .meverShimmer(true)
                 )
+                Column(
+                    modifier = Modifier
+                        .padding(start = Dp16)
+                        .weight(1f)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = Dp4),
+                        verticalAlignment = CenterVertically,
+                        horizontalArrangement = spacedBy(Dp12)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(Dp24)
+                                .clip(CircleShape)
+                                .meverShimmer(true)
+                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth(0.8f)
+                                .height(Dp16)
+                                .clip(RoundedCornerShape(Dp4))
+                                .meverShimmer(true)
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .padding(top = Dp5)
+                            .width(Dp80)
+                            .height(Dp12)
+                            .clip(RoundedCornerShape(Dp4))
+                            .meverShimmer(true)
+                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = Dp16),
+                        horizontalArrangement = spacedBy(Dp8)
+                    ) {
+                        repeat(2) {
+                            Box(
+                                modifier = Modifier
+                                    .width(Dp80)
+                                    .height(Dp28)
+                                    .clip(RoundedCornerShape(Dp30))
+                                    .meverShimmer(true)
+                            )
+                        }
+                    }
+                }
             }
         }
     }
