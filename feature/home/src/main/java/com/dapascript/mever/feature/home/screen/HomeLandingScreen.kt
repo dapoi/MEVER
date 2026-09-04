@@ -5,6 +5,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.background
@@ -42,7 +45,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -68,7 +70,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle.Event.ON_RESUME
 import androidx.lifecycle.Lifecycle.State.RESUMED
 import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation3.runtime.NavKey
@@ -81,6 +82,7 @@ import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.ActionMenu
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverButton
 import com.dapascript.mever.core.common.ui.component.MeverCard
+import com.dapascript.mever.core.common.ui.component.MeverCardShimmer
 import com.dapascript.mever.core.common.ui.component.MeverDeclinedPermissionDialog
 import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
@@ -90,7 +92,6 @@ import com.dapascript.mever.core.common.ui.component.MeverPermissionHandler
 import com.dapascript.mever.core.common.ui.component.MeverTopBar
 import com.dapascript.mever.core.common.ui.component.rememberInterstitialAd
 import com.dapascript.mever.core.common.ui.component.showShadow
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp0
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp150
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
@@ -179,6 +180,7 @@ import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.yield
 import java.io.File
 import java.lang.System.currentTimeMillis
 import kotlin.random.Random
@@ -219,6 +221,17 @@ internal fun HomeLandingScreen(
             derivedStateOf { lazyListState.canScrollForward }
         }
         var isInPreview by remember { mutableStateOf(false) }
+        var isScreenReady by rememberSaveable { mutableStateOf(false) }
+
+        LaunchedEffect(lifecycleOwner.value) {
+            lifecycleOwner.value.lifecycle.repeatOnLifecycle(RESUMED) {
+                launch {
+                    yield()
+                    isScreenReady = true
+                }
+                launch { refreshDatabase() }
+            }
+        }
 
         LaunchedEffect(Unit) {
             inAppUpdateManager.registerListener { isUpdateReady = true }
@@ -299,7 +312,7 @@ internal fun HomeLandingScreen(
                 adsThreshold = adsThresholdValue,
                 showBadge = isAnyDownloadActive,
                 isInPreview = isInPreview,
-                lifecycleOwner = lifecycleOwner,
+                isScreenReady = isScreenReady,
                 lazyListState = lazyListState,
                 syncedItems = syncedItems,
                 onIsInPreviewChange = { isInPreview = it }
@@ -319,7 +332,7 @@ private fun HomeLandingContent(
     adsThreshold: Int,
     showBadge: Boolean,
     isInPreview: Boolean,
-    lifecycleOwner: State<LifecycleOwner>,
+    isScreenReady: Boolean,
     syncedItems: MutableSet<Int>,
     modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState(),
@@ -413,9 +426,6 @@ private fun HomeLandingContent(
         }
     }
 
-    LaunchedEffect(lifecycleOwner.value) {
-        lifecycleOwner.value.lifecycle.repeatOnLifecycle(RESUMED) { refreshDatabase() }
-    }
 
     LaunchedEffect(downloaderResponseState) {
         downloaderResponseState.handleUiState(
@@ -756,6 +766,7 @@ private fun HomeLandingContent(
                             .padding(vertical = Dp32)
                             .navigationBarsPadding(),
                         downloadList = downloadList.orEmpty().take(3),
+                        isScreenReady = isScreenReady,
                         onClickViewAll = { navigator.navigateToGalleryScreen() },
                         onClickDelete = { showDeleteDialog = it.id },
                         onClickShare = {
@@ -818,6 +829,7 @@ private fun HomeLandingContent(
                                 modifier = Modifier.weight(1f),
                                 downloadList = downloadList.orEmpty().take(featuresCard.size),
                                 isPhoneDevice = false,
+                                isScreenReady = isScreenReady,
                                 onClickViewAll = { navigator.navigateToGalleryScreen() },
                                 onClickDelete = { showDeleteDialog = it.id },
                                 onClickShare = {
@@ -1133,6 +1145,7 @@ private fun QuickToolsSection(
 @Composable
 private fun RecentlyDownloadedSection(
     downloadList: List<DownloadModel>,
+    isScreenReady: Boolean,
     modifier: Modifier = Modifier,
     isPhoneDevice: Boolean = true,
     onClickViewAll: () -> Unit,
@@ -1155,49 +1168,72 @@ private fun RecentlyDownloadedSection(
                 style = typography.h3,
                 color = colors.blackWhite
             )
-            if (downloadList.isNotEmpty()) Text(
+            if (isScreenReady && downloadList.isNotEmpty()) Text(
                 modifier = Modifier.onCustomClick { onClickViewAll() },
                 text = stringResource(R.string.view_all),
                 style = typography.bodyBold2,
                 color = colors.alwaysPurple
             )
         }
-        if (downloadList.isEmpty()) {
-            MeverEmptyItem(
-                modifier = Modifier.fillMaxWidth(),
-                image = R.drawable.ic_empty_state,
-                imageSize = Dp160,
-                title = stringResource(R.string.no_downloads),
-                description = stringResource(R.string.empty_list_desc),
-                isHorizontal = isPhoneDevice
-            )
-        } else {
-            downloadList.forEach { download ->
-                MeverCard(
-                    modifier = Modifier
-                        .padding(top = Dp16)
-                        .clip(RoundedCornerShape(Dp12)),
-                    paddingValues = PaddingValues(vertical = Dp0),
-                    cardArgs = MeverCardArgs(
-                        source = download.url,
-                        tag = download.tag,
-                        fileName = download.fileName,
-                        status = download.status,
-                        progress = download.progress,
-                        total = download.total,
-                        path = download.path,
-                        urlThumbnail = download.metaData,
-                        icon = getPlatformIcon(download.tag),
-                        iconShadowColor = colors.purpleTransparent,
-                        iconBackgroundColor = colors.whiteDark,
-                        iconSize = Dp24,
-                        iconPadding = Dp5
-                    ),
-                    onClickDelete = { onClickDelete(download) },
-                    onClickShare = { onClickShare(download) },
-                    onClickLong = { onClickLong(download) },
-                    onClickCard = { onClickCard(download) }
+
+        AnimatedVisibility(
+            visible = isScreenReady,
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
+            if (downloadList.isEmpty()) {
+                MeverEmptyItem(
+                    modifier = Modifier.fillMaxWidth(),
+                    image = R.drawable.ic_empty_state,
+                    imageSize = Dp160,
+                    title = stringResource(R.string.no_downloads),
+                    description = stringResource(R.string.empty_list_desc),
+                    isHorizontal = isPhoneDevice
                 )
+            } else {
+                Column {
+                    downloadList.forEach { download ->
+                        MeverCard(
+                            modifier = Modifier
+                                .padding(top = Dp16)
+                                .clip(RoundedCornerShape(Dp12)),
+                            paddingValues = PaddingValues(vertical = Dp12),
+                            cardArgs = MeverCardArgs(
+                                source = download.url,
+                                tag = download.tag,
+                                fileName = download.fileName,
+                                status = download.status,
+                                progress = download.progress,
+                                total = download.total,
+                                path = download.path,
+                                urlThumbnail = download.metaData,
+                                icon = getPlatformIcon(download.tag),
+                                iconShadowColor = colors.purpleTransparent,
+                                iconBackgroundColor = colors.whiteDark,
+                                iconSize = Dp24,
+                                iconPadding = Dp5
+                            ),
+                            onClickDelete = { onClickDelete(download) },
+                            onClickShare = { onClickShare(download) },
+                            onClickLong = { onClickLong(download) },
+                            onClickCard = { onClickCard(download) }
+                        )
+                    }
+                }
+            }
+        }
+
+        if (isScreenReady.not()) {
+            Column {
+                repeat(downloadList.size) {
+                    MeverCardShimmer(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = Dp16)
+                            .clip(RoundedCornerShape(Dp12)),
+                        paddingValues = PaddingValues(vertical = Dp12)
+                    )
+                }
             }
         }
     }
