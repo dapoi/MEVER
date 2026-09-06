@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.Bitmap.Config.ARGB_8888
 import android.net.Uri
 import androidx.core.graphics.scale
+import com.dapascript.mever.core.common.util.BackgroundRemovalProcessor.Companion.MAX_SIZE
 import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.common.InputImage.fromBitmap
 import com.google.mlkit.vision.segmentation.subject.SubjectSegmentation
@@ -14,12 +15,10 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.math.max
 
-@Singleton
 class BackgroundRemovalProcessor @Inject constructor() {
 
     private var segmenter: SubjectSegmenter? = null

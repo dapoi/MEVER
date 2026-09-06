@@ -7,7 +7,7 @@ import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.ui.theme.ThemeType
 import com.dapascript.mever.core.common.ui.theme.ThemeType.System
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.PATH_HOME
-import com.dapascript.mever.core.data.deeplink.MeverDeeplinkManager
+import com.dapascript.mever.core.data.deeplink.DeeplinkManager
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_LINK_CONTENT
 import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_THEME
@@ -24,7 +24,7 @@ import javax.inject.Inject
 @HiltViewModel
 internal class MainViewModel @Inject constructor(
     private val repository: MeverRepository,
-    private val deeplinkManager: MeverDeeplinkManager
+    private val deeplinkManager: DeeplinkManager
 ) : BaseViewModel() {
 
     val themeType = repository.getPreference(KEY_THEME, System.name).map { name ->
@@ -48,17 +48,17 @@ internal class MainViewModel @Inject constructor(
         }
     }
 
-    fun saveLinkContent(link: String) {
+    fun saveLinkContent(link: String, isTriggerNavigation: Boolean = true) {
         viewModelScope.launch {
             repository.savePreference(KEY_LINK_CONTENT, link)
-            _navigationEvent.send(PATH_HOME)
+            if (isTriggerNavigation) _navigationEvent.send(PATH_HOME)
         }
     }
 
-    fun handleDeeplink(uri: Uri) {
+    fun handleDeeplink(uri: Uri, isTriggerNavigation: Boolean = true) {
         viewModelScope.launch {
             deeplinkManager.handleDeeplink(uri)
-            _navigationEvent.send(uri.path.orEmpty())
+            if (isTriggerNavigation) _navigationEvent.send(uri.path.orEmpty())
         }
     }
 

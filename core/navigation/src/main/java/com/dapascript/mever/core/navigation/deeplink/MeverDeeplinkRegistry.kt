@@ -9,5 +9,5 @@ object MeverDeeplinkRegistry {
         PATH_HOME to HomeLandingRoute
     )
 
-    operator fun get(path: String?): NavKey = registry[path] ?: HomeLandingRoute
+    operator fun get(path: String?): NavKey? = registry[path]
 }

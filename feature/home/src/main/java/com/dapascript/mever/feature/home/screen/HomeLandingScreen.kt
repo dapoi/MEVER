@@ -147,8 +147,8 @@ import com.dapascript.mever.core.common.util.storage.StorageUtil.StorageInfo
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getStorageInfo
 import com.dapascript.mever.core.common.util.storage.StorageUtil.isStorageFull
 import com.dapascript.mever.core.common.util.syncToGallery
-import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_LINK_CONTENT
 import com.dapascript.mever.core.data.deeplink.event.DeeplinkEvent
+import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_LINK_CONTENT
 import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute.Content
@@ -433,6 +433,7 @@ private fun HomeLandingContent(
         if (deeplinkEvent is DeeplinkEvent.DownloadResult) {
             urlSocialMediaState = TextFieldValue(deeplinkEvent.url)
             contents = deeplinkEvent.contents
+            errorMessage = deeplinkEvent.errorMessage
             consumeDeeplinkEvent()
         }
     }

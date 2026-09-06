@@ -4,20 +4,21 @@ import android.net.Uri
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.DEEPLINK_HOST
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.DEEPLINK_SCHEME
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.PATH_HOME
+import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.QUERY_ERROR
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.QUERY_RESPONSES
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.QUERY_URL
+import com.dapascript.mever.core.data.deeplink.event.DeeplinkEvent
 import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.dapascript.mever.core.data.util.MoshiHelper
-import com.dapascript.mever.core.data.deeplink.event.DeeplinkEvent
 import com.squareup.moshi.Types
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
-internal class MeverDeeplinkManagerImpl @Inject constructor(
+internal class DeeplinkManagerImpl @Inject constructor(
     private val moshiHelper: MoshiHelper
-) : MeverDeeplinkManager {
+) : DeeplinkManager {
 
     private val _deeplinkEvent = MutableStateFlow<DeeplinkEvent?>(null)
     override val deeplinkEvent: Flow<DeeplinkEvent?> = _deeplinkEvent.asStateFlow()
@@ -31,17 +32,26 @@ internal class MeverDeeplinkManagerImpl @Inject constructor(
         val event = when (uri.path) {
             PATH_HOME -> {
                 val url = uri.getQueryParameter(QUERY_URL).orEmpty()
+                val errorMsg = uri.getQueryParameter(QUERY_ERROR).orEmpty()
                 val responses = uri.getQueryParameter(QUERY_RESPONSES)
-                if (!responses.isNullOrEmpty()) {
-                    val type =
-                        Types.newParameterizedType(List::class.java, ContentEntity::class.java)
-                    val contents = moshiHelper.fromJson<List<ContentEntity>>(type, responses)
-                    DeeplinkEvent.DownloadResult(
-                        url = url,
-                        contents = contents.orEmpty()
-                    )
-                } else {
-                    DeeplinkEvent.Default
+                when {
+                    responses.isNullOrEmpty().not() -> {
+                        val type = Types.newParameterizedType(List::class.java, ContentEntity::class.java)
+                        val contents = moshiHelper.fromJson<List<ContentEntity>>(type, responses)
+                        DeeplinkEvent.DownloadResult(
+                            url = url,
+                            contents = contents.orEmpty()
+                        )
+                    }
+
+                    url.isNotEmpty() -> {
+                        DeeplinkEvent.DownloadResult(
+                            url = url,
+                            errorMessage = errorMsg
+                        )
+                    }
+
+                    else -> DeeplinkEvent.Default
                 }
             }
 

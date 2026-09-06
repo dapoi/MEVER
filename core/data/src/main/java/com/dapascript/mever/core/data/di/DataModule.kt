@@ -7,8 +7,8 @@ import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.dapascript.mever.core.common.util.BackgroundRemovalProcessor
 import com.dapascript.mever.core.data.BuildConfig.BASE_URL
 import com.dapascript.mever.core.data.BuildConfig.DEBUG
-import com.dapascript.mever.core.data.deeplink.MeverDeeplinkManager
-import com.dapascript.mever.core.data.deeplink.MeverDeeplinkManagerImpl
+import com.dapascript.mever.core.data.deeplink.DeeplinkManager
+import com.dapascript.mever.core.data.deeplink.DeeplinkManagerImpl
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.repository.MeverRepositoryImpl
 import com.dapascript.mever.core.data.repository.base.BaseRepositoryArgs
@@ -110,9 +110,7 @@ internal class DataModule {
     @Provides
     fun provideMeverDeeplinkManager(
         moshiHelper: MoshiHelper
-    ): MeverDeeplinkManager = MeverDeeplinkManagerImpl(
-        moshiHelper = moshiHelper
-    )
+    ): DeeplinkManager = DeeplinkManagerImpl(moshiHelper = moshiHelper)
 
     @Singleton
     @Provides

@@ -8,6 +8,7 @@ sealed interface DeeplinkEvent {
 
     data class DownloadResult(
         val url: String,
-        val contents: List<ContentEntity>
+        val contents: List<ContentEntity> = emptyList(),
+        val errorMessage: String = ""
     ) : DeeplinkEvent
 }

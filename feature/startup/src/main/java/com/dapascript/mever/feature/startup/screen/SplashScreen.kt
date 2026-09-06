@@ -54,7 +54,6 @@ import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeLandingRoute
 import com.dapascript.mever.core.navigation.route.StartupScreenRoute.OnboardRoute
-import com.dapascript.mever.core.navigation.route.StartupScreenRoute.SplashRoute
 import com.dapascript.mever.feature.startup.viewmodel.SplashScreenViewModel
 import com.google.android.play.core.install.model.AppUpdateType.IMMEDIATE
 import com.google.android.play.core.install.model.UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS
@@ -148,8 +147,7 @@ internal fun SplashScreen(
             if (isCanNavigate) {
                 navigator.navigate(
                     route = if (isOnboarded) HomeLandingRoute else OnboardRoute,
-                    popUpTo = SplashRoute,
-                    isInclusive = true
+                    isClearBackStacks = true
                 )
             }
         }

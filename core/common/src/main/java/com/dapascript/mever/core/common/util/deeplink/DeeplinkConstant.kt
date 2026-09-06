@@ -7,5 +7,6 @@ object DeeplinkConstant {
     const val PATH_HOME = "/home"
 
     const val QUERY_URL = "url"
+    const val QUERY_ERROR = "error_msg"
     const val QUERY_RESPONSES = "responses"
 }

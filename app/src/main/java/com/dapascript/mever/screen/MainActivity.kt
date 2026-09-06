@@ -36,6 +36,7 @@ import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.DeviceType.TABLET
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.LocalDeviceType
+import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.PATH_HOME
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.navigation.MainNavigation
 import com.dapascript.mever.core.navigation.base.BaseNavGraph
@@ -60,7 +61,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setupAdmob()
-        handleShareIntent(intent)
+        handleShareIntent(intent = intent, isTriggerNavigation = true)
         setContent {
             val themeType = viewModel.themeType.collectAsStateValue()
             val windowSizeClass = calculateWindowSizeClass(this)
@@ -107,9 +108,15 @@ class MainActivity : AppCompatActivity() {
                         LocalActivity provides this,
                         LocalDeviceType provides deviceType
                     ) {
+                        val initialPath = when (intent.action) {
+                            ACTION_VIEW -> intent.data?.path
+                            ACTION_SEND if intent.type == "text/plain" -> PATH_HOME
+                            else -> null
+                        }
                         MainNavigation(
                             navGraphs = navGraphs,
-                            navigationEvent = viewModel.navigationEvent
+                            navigationEvent = viewModel.navigationEvent,
+                            initialPath = initialPath
                         )
                     }
                 }
@@ -120,7 +127,7 @@ class MainActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        handleShareIntent(intent)
+        handleShareIntent(intent = intent, isTriggerNavigation = false)
     }
 
     private fun setupAdmob() {
@@ -133,18 +140,18 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun handleShareIntent(intent: Intent?) {
+    private fun handleShareIntent(intent: Intent?, isTriggerNavigation: Boolean) {
         when (intent?.action) {
             ACTION_SEND if intent.type == "text/plain" -> {
-                intent.getStringExtra(EXTRA_TEXT)?.let { url ->
-                    viewModel.saveLinkContent(url)
+                intent.getStringExtra(EXTRA_TEXT)?.let { link ->
+                    viewModel.saveLinkContent(link, isTriggerNavigation)
                     this.intent.action = ""
                 }
             }
 
             ACTION_VIEW -> {
                 intent.data?.let { uri ->
-                    viewModel.handleDeeplink(uri)
+                    viewModel.handleDeeplink(uri, isTriggerNavigation)
                     this.intent.action = ""
                 }
             }

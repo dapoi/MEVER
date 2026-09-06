@@ -10,9 +10,8 @@ import android.content.Context
 import android.content.Context.NOTIFICATION_SERVICE
 import android.content.Intent
 import android.content.Intent.ACTION_VIEW
-import android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
-import android.net.Uri
+import android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.PRIORITY_HIGH
 import androidx.core.net.toUri
@@ -36,11 +35,11 @@ import com.dapascript.mever.core.common.util.PlatformType.VIDEY
 import com.dapascript.mever.core.common.util.PlatformType.X
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE_MUSIC
-import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.DEEPLINK_HOST
-import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.DEEPLINK_SCHEME
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.PATH_HOME
+import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.QUERY_ERROR
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.QUERY_RESPONSES
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.QUERY_URL
+import com.dapascript.mever.core.common.util.deeplink.buildMeverDeeplink
 import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.ACTION_DOWNLOAD
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.ACTION_GENERATE_AI
@@ -79,82 +78,95 @@ internal class MeverWorker @AssistedInject constructor(
     private val moshiHelper: MoshiHelper
 ) : CoroutineWorker(context, workerParameters) {
 
-    override suspend fun doWork(): Result = try {
+    override suspend fun doWork(): Result {
         val action = inputData.getString(KEY_ACTION)
         val url = inputData.getString(KEY_URL).orEmpty()
         val quality = inputData.getString(KEY_QUALITY).orEmpty()
         val type = inputData.getString(KEY_TYPE) ?: "video"
         val prompt = inputData.getString(KEY_PROMPT).orEmpty()
 
-        val (resultData, resultType) = when (action) {
-            ACTION_DOWNLOAD -> {
-                currentCoroutineContext().ensureActive()
-                val res = getApiDownloader(
-                    url = url,
-                    quality = quality,
-                    type = type
-                )
+        return try {
+            val (resultData, resultType) = when (action) {
+                ACTION_DOWNLOAD -> {
+                    currentCoroutineContext().ensureActive()
+                    val res = getApiDownloader(
+                        url = url,
+                        quality = quality,
+                        type = type
+                    )
 
-                if (res.firstOrNull()?.status != true) {
-                    throw Exception(context.getString(R.string.url_error))
+                    if (res.firstOrNull()?.status != true) {
+                        throw Exception(context.getString(R.string.url_error))
+                    }
+
+                    res to Types.newParameterizedType(List::class.java, ContentEntity::class.java)
                 }
 
-                res to Types.newParameterizedType(List::class.java, ContentEntity::class.java)
+                ACTION_GENERATE_AI -> {
+                    currentCoroutineContext().ensureActive()
+                    apiService.getImageAiGenerator(prompt).mapToEntity() to ImageAiEntity::class.java
+                }
+
+                else -> throw IllegalArgumentException("Unknown action: $action")
             }
 
-            ACTION_GENERATE_AI -> {
-                currentCoroutineContext().ensureActive()
-                apiService.getImageAiGenerator(prompt).mapToEntity() to ImageAiEntity::class.java
+            val jsonOutput = moshiHelper.toJson(resultType, resultData)
+            val size = jsonOutput?.toByteArray()?.size ?: 0
+            val outputData = if (size > SIZE_LIMIT) {
+                val path = context.cacheDir
+                    .resolve("${KEY_RESULT}_${System.currentTimeMillis()}.json")
+                    .apply { writeText(jsonOutput!!) }.absolutePath
+                workDataOf(
+                    KEY_OUTPUT_IS_FILE to true,
+                    KEY_OUTPUT_FILE_PATH to path
+                )
+            } else {
+                workDataOf(
+                    KEY_OUTPUT_IS_FILE to false,
+                    KEY_RESULT to jsonOutput
+                )
             }
-
-            else -> throw IllegalArgumentException("Unknown action: $action")
-        }
-
-        val jsonOutput = moshiHelper.toJson(resultType, resultData)
-        val size = jsonOutput?.toByteArray()?.size ?: 0
-        val outputData = if (size > SIZE_LIMIT) {
-            val path = context.cacheDir
-                .resolve("${KEY_RESULT}_${System.currentTimeMillis()}.json")
-                .apply { writeText(jsonOutput!!) }.absolutePath
-            workDataOf(
-                KEY_OUTPUT_IS_FILE to true,
-                KEY_OUTPUT_FILE_PATH to path
+            val deeplink = buildMeverDeeplink(
+                path = PATH_HOME,
+                params = mapOf(
+                    QUERY_URL to url,
+                    QUERY_RESPONSES to jsonOutput
+                )
             )
-        } else {
-            workDataOf(
-                KEY_OUTPUT_IS_FILE to false,
-                KEY_RESULT to jsonOutput
-            )
-        }
-        val encodedJson = jsonOutput?.let { Uri.encode(it) }.orEmpty()
-        val deeplink =
-            "$DEEPLINK_SCHEME://$DEEPLINK_HOST$PATH_HOME?$QUERY_URL=${Uri.encode(url)}&$QUERY_RESPONSES=$encodedJson"
 
-        showNotification(
-            title = context.getString(
-                R.string.notif_link_found_title,
-                getPlatformType(url, type).platformName
-            ),
-            desc = context.getString(R.string.notif_link_found_description),
-            deeplink = deeplink
-        )
-        Result.success(outputData)
-    } catch (e: CancellationException) {
-        throw e
-    } catch (e: Exception) {
-        val errorMessage = when (e) {
-            is SocketTimeoutException -> context.getString(R.string.error_timeout)
-            is UnknownHostException -> context.getString(R.string.error_no_host)
-            is IOException -> context.getString(R.string.error_io)
-            is HttpException -> context.getString(R.string.error_http, e.code())
-            else -> e.message ?: context.getString(R.string.error_unknown)
+            showNotification(
+                title = context.getString(
+                    R.string.notif_link_found_title,
+                    getPlatformType(url, type).platformName
+                ),
+                desc = context.getString(R.string.notif_link_found_description),
+                deeplink = deeplink
+            )
+            Result.success(outputData)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            val errorMessage = when (e) {
+                is SocketTimeoutException -> context.getString(R.string.error_timeout)
+                is UnknownHostException -> context.getString(R.string.error_no_host)
+                is IOException -> context.getString(R.string.error_io)
+                is HttpException -> context.getString(R.string.error_http, e.code())
+                else -> e.message ?: context.getString(R.string.error_unknown)
+            }
+            val deeplink = buildMeverDeeplink(
+                path = PATH_HOME,
+                params = mapOf(
+                    QUERY_URL to url,
+                    QUERY_ERROR to errorMessage
+                )
+            )
+            showNotification(
+                title = context.getString(UiR.string.error_title),
+                desc = errorMessage,
+                deeplink = deeplink
+            )
+            Result.failure(workDataOf(KEY_ERROR to errorMessage))
         }
-        showNotification(
-            title = context.getString(UiR.string.error_title),
-            desc = errorMessage,
-            deeplink = "$DEEPLINK_SCHEME://$DEEPLINK_HOST$PATH_HOME"
-        )
-        Result.failure(workDataOf(KEY_ERROR to errorMessage))
     }
 
     private suspend fun getApiDownloader(
@@ -198,7 +210,7 @@ internal class MeverWorker @AssistedInject constructor(
             deeplink.toUri(),
             context,
             Class.forName(TARGET_ACTIVITY_CLASS_NAME)
-        ).apply { flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TASK }
+        ).apply { flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_SINGLE_TOP }
         val pendingIntent = PendingIntent.getActivity(
             context,
             NOTIFICATION_ID,

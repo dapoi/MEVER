@@ -36,7 +36,6 @@ import com.dapascript.mever.core.common.ui.theme.MeverDark
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.util.LocalActivity
-import com.dapascript.mever.core.common.util.displayFileName
 import com.dapascript.mever.core.common.util.getStoragePermission
 import com.dapascript.mever.core.common.util.navigateToAppSettings
 import com.dapascript.mever.core.common.util.onClickWithAds
@@ -169,7 +168,7 @@ internal fun GalleryContentDetailScreen(
             with(content) {
                 if (isVideo) MeverVideoPlayer(
                     modifier = itemModifier,
-                    fileName = displayFileName(fileName),
+                    fileName = fileName,
                     video = media,
                     isPreview = isPreview,
                     isPageVisible = pagerState.currentPage == page,
@@ -189,7 +188,7 @@ internal fun GalleryContentDetailScreen(
                     onClickBack = { navigator.navigateBack() }
                 ) else MeverPhotoViewer(
                     modifier = itemModifier,
-                    fileName = displayFileName(fileName),
+                    fileName = fileName,
                     image = media,
                     isDownloadable = isDownloadable,
                     isPreview = isPreview,

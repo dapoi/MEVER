@@ -35,14 +35,17 @@ import kotlinx.coroutines.flow.Flow
 @Composable
 fun MainNavigation(
     navGraphs: Set<@JvmSuppressWildcards BaseNavGraph>,
-    navigationEvent: Flow<String>? = null
+    navigationEvent: Flow<String>? = null,
+    initialPath: String? = null
 ) {
     val activity = LocalActivity.current
+    val topLevelRoutes = remember { setOf(SplashRoute, HomeLandingRoute) }
+    val startRoute = remember(initialPath) { MeverDeeplinkRegistry[initialPath] ?: SplashRoute }
     val navigationState = rememberNavigationState(
-        startRoute = SplashRoute,
-        topLevelRoutes = setOf(SplashRoute, HomeLandingRoute)
+        startRoute = startRoute,
+        topLevelRoutes = topLevelRoutes
     )
-    val navigator = remember(activity) { Navigator(navigationState, activity) }
+    val navigator = remember(activity, navigationState) { Navigator(navigationState, activity) }
     val entryProvider = remember(navGraphs, navigator) {
         entryProvider {
             navGraphs.forEach { navGraph ->
@@ -51,13 +54,14 @@ fun MainNavigation(
         }
     }
 
-    LaunchedEffect(navigationEvent) {
+    LaunchedEffect(navigationEvent, navigator) {
         navigationEvent?.collect { path ->
-            val route = MeverDeeplinkRegistry[path]
-            navigator.navigate(
-                route = route,
-                isClearBackStacks = true
-            )
+            MeverDeeplinkRegistry[path]?.let { route ->
+                navigator.navigate(
+                    route = route,
+                    isClearBackStacks = true
+                )
+            }
         }
     }
 

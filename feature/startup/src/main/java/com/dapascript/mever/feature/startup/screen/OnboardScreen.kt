@@ -82,7 +82,6 @@ import com.dapascript.mever.core.common.util.getStoragePermission
 import com.dapascript.mever.core.common.util.highlightText
 import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeLandingRoute
-import com.dapascript.mever.core.navigation.route.StartupScreenRoute.OnboardRoute
 import com.dapascript.mever.feature.startup.screen.attr.OnboardScreenAttr.OnboardPage
 import com.dapascript.mever.feature.startup.viewmodel.OnboardViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -414,7 +413,6 @@ private fun ButtonOnboardSection(
 private fun Navigator.navigateToHome() {
     navigate(
         route = HomeLandingRoute,
-        popUpTo = OnboardRoute,
-        isInclusive = true
+        isClearBackStacks = true
     )
 }

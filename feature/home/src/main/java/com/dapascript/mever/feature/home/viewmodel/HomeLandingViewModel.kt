@@ -14,7 +14,7 @@ import com.dapascript.mever.core.common.util.state.UiState.StateInitial
 import com.dapascript.mever.core.common.util.state.UiState.StateLoading
 import com.dapascript.mever.core.common.util.state.UiState.StateSuccess
 import com.dapascript.mever.core.common.util.storage.StorageUtil.StorageInfo
-import com.dapascript.mever.core.data.deeplink.MeverDeeplinkManager
+import com.dapascript.mever.core.data.deeplink.DeeplinkManager
 import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.source.local.MeverDataStore
@@ -43,7 +43,7 @@ import javax.inject.Inject
 @HiltViewModel
 internal class HomeLandingViewModel @Inject constructor(
     private val repository: MeverRepository,
-    private val deeplinkManager: MeverDeeplinkManager
+    private val deeplinkManager: DeeplinkManager
 ) : BaseViewModel() {
 
     var urlSocialMediaState by mutableStateOf(TextFieldValue(""))
