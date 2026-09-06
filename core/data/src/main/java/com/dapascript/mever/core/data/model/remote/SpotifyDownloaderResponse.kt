@@ -18,7 +18,7 @@ internal data class SpotifyDownloaderResponse(
     fun mapToEntity() = listOf(
         ContentEntity(
             fileName = data?.title?.let { "$it.mp3" }.orEmpty(),
-            url = data?.url.orEmpty(),
+            downloadUrl = data?.url.orEmpty(),
             status = status ?: true,
             thumbnail = data?.thumbnail.orEmpty(),
             type = "mp3"

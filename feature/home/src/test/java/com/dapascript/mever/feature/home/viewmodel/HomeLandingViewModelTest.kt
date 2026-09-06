@@ -42,7 +42,7 @@ class HomeLandingViewModelTest {
     private lateinit var viewModel: HomeLandingViewModel
 
     private val fakeContents = listOf(
-        ContentEntity(url = "https://video.mp4", status = true, fileName = "video.mp4")
+        ContentEntity(downloadUrl = "https://video.mp4", status = true, fileName = "video.mp4")
     )
 
     @Before

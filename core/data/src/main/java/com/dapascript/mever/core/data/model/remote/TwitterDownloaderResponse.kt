@@ -16,7 +16,7 @@ internal data class TwitterDownloaderResponse(
 
     fun mapToEntity() = data?.map {
         ContentEntity(
-            url = it.url.orEmpty(),
+            downloadUrl = it.url.orEmpty(),
             status = status ?: true,
             type = if (it.type.orEmpty().contains("mp4")) "mp4" else "jpg"
         )

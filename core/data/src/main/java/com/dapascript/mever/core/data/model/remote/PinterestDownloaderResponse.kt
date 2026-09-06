@@ -17,7 +17,7 @@ internal data class PinterestDownloaderResponse(
     fun mapToEntity() = data?.mapIndexed { index, content ->
         ContentEntity(
             id = index.toString(),
-            url = content.url.orEmpty(),
+            downloadUrl = content.url.orEmpty(),
             status = status ?: true,
             thumbnail = content.thumbnail.orEmpty(),
             type = content.url?.substringAfterLast(".") ?: "jpg"

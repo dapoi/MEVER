@@ -16,7 +16,7 @@ internal data class ThreadsDownloaderResponse(
 
     fun mapToEntity() = data?.map {
         ContentEntity(
-            url = it.url.orEmpty(),
+            downloadUrl = it.url.orEmpty(),
             status = status ?: true,
             type = it.type.orEmpty()
         )

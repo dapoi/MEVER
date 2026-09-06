@@ -28,7 +28,7 @@ internal data class TiktokDownloaderResponse(
         data?.photos?.forEach { photoUrl ->
             contentList.add(
                 ContentEntity(
-                    url = photoUrl,
+                    downloadUrl = photoUrl,
                     status = status ?: true,
                     type = "jpg"
                 )
@@ -37,7 +37,7 @@ internal data class TiktokDownloaderResponse(
         data?.video?.let { videoUrl ->
             contentList.add(
                 ContentEntity(
-                    url = videoUrl,
+                    downloadUrl = videoUrl,
                     status = status ?: true,
                     type = "mp4"
                 )

@@ -17,7 +17,7 @@ internal data class FacebookDownloaderResponse(
 
     fun mapToEntity() = data?.filter { it.response == 200 }?.map {
         ContentEntity(
-            url = it.url.orEmpty(),
+            downloadUrl = it.url.orEmpty(),
             status = status ?: true,
             quality = it.quality.orEmpty()
         )

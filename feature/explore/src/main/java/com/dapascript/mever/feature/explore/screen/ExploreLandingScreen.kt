@@ -279,7 +279,7 @@ internal fun ExploreLandingScreen(
                         itemsIndexed(
                             items = result,
                             key = { _, item -> item.id },
-                            contentType = { _, item -> item.url }
+                            contentType = { _, item -> item.downloadUrl }
                         ) { index, item ->
                             MeverImage(
                                 modifier = Modifier
@@ -295,7 +295,7 @@ internal fun ExploreLandingScreen(
                                                         isDownloadable = true,
                                                         isPreview = true,
                                                         isVideo = false,
-                                                        media = contentEntity.url,
+                                                        media = contentEntity.downloadUrl,
                                                         fileName = contentEntity.fileName
                                                     )
                                                 },

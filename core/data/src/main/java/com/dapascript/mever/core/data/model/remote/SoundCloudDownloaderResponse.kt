@@ -18,7 +18,7 @@ internal data class SoundCloudDownloaderResponse(
     fun mapToEntity() = listOf(
         ContentEntity(
             status = status ?: true,
-            url = data?.url.orEmpty(),
+            downloadUrl = data?.url.orEmpty(),
             fileName = data?.title?.let { "$it.mp3" }.orEmpty(),
             thumbnail = data?.thumbnail.orEmpty()
         )

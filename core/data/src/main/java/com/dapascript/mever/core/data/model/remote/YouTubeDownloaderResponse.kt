@@ -21,7 +21,7 @@ internal data class YouTubeDownloaderResponse(
     fun mapToEntity() = data?.let {
         listOf(
             ContentEntity(
-                url = data.url.orEmpty(),
+                downloadUrl = data.url.orEmpty(),
                 status = status ?: true,
                 fileName = data.filename.orEmpty(),
                 quality = data.quality.orEmpty(),
@@ -31,7 +31,7 @@ internal data class YouTubeDownloaderResponse(
         )
     } ?: listOf(
         ContentEntity(
-            url = "",
+            downloadUrl = "",
             status = false,
             message = msg.orEmpty()
         )

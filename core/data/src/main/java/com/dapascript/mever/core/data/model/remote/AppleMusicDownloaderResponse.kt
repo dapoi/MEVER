@@ -22,7 +22,7 @@ internal data class AppleMusicDownloaderResponse(
 
     fun mapToEntity() = listOf(
         ContentEntity(
-            url = data?.audio?.url.orEmpty(),
+            downloadUrl = data?.audio?.url.orEmpty(),
             status = status ?: true,
             thumbnail = data?.thumbnail.orEmpty(),
             fileName = data?.audio?.filename.orEmpty()

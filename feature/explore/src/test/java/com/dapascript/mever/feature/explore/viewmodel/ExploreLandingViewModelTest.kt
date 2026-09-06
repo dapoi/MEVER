@@ -37,8 +37,8 @@ class ExploreLandingViewModelTest {
     lateinit var repository: MeverRepository
 
     private val fakeContents = listOf(
-        ContentEntity(url = "https://img1.jpg", status = true, id = "1"),
-        ContentEntity(url = "https://img2.jpg", status = true, id = "2")
+        ContentEntity(downloadUrl = "https://img1.jpg", status = true, id = "1"),
+        ContentEntity(downloadUrl = "https://img2.jpg", status = true, id = "2")
     )
 
     @Before

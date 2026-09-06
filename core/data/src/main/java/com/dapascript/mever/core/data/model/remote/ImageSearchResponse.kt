@@ -19,7 +19,7 @@ internal data class ImageSearchResponse(
         ContentEntity(
             id = index.toString(),
             status = status ?: true,
-            url = url,
+            downloadUrl = url,
             thumbnail = url.replace("/original/", "/236x/")
         )
     }

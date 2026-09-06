@@ -1,7 +1,7 @@
 package com.dapascript.mever.core.data.model.local
 
 data class ContentEntity(
-    val url: String,
+    val downloadUrl: String,
     val status: Boolean,
     val id: String = "",
     val fileName: String = "",

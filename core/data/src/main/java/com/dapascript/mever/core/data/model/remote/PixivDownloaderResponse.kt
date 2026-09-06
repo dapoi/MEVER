@@ -13,7 +13,7 @@ internal data class PixivDownloaderResponse(
 
     fun mapToEntity() = data?.images?.map { url ->
         ContentEntity(
-            url = url,
+            downloadUrl = url,
             status = status ?: true,
             type = "jpg"
         )

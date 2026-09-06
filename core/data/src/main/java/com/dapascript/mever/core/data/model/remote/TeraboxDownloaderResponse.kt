@@ -21,7 +21,7 @@ internal data class TeraboxDownloaderResponse(
 
     fun mapToEntity() = data?.map {
         ContentEntity(
-            url = it.url.orEmpty(),
+            downloadUrl = it.url.orEmpty(),
             status = status ?: true,
             fileName = it.serverFileName.orEmpty(),
             thumbnail = it.thumbs?.thumbnail.orEmpty()

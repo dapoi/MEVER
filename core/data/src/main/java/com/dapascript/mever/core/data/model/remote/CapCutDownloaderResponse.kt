@@ -16,7 +16,7 @@ data class CapCutDownloaderResponse(
         data?.url?.let { videoUrl ->
             contentList.add(
                 ContentEntity(
-                    url = videoUrl,
+                    downloadUrl = videoUrl,
                     status = status ?: true,
                     type = "mp4"
                 )

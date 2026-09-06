@@ -501,7 +501,7 @@ private fun HomeLandingContent(
         onClickDownload = { urls ->
             isDownloadProcessing = true
             scope.launch {
-                val byUrl = contents.associateBy { it.url }
+                val byUrl = contents.associateBy { it.downloadUrl }
                 val semaphore = Semaphore(3)
 
                 try {
@@ -563,7 +563,7 @@ private fun HomeLandingContent(
                     val processedContents = withContext(Default) {
                         contents.getOrNull(index)?.let { content ->
                             val extension = getExtensionFromUrl(
-                                url = content.url,
+                                url = content.downloadUrl,
                                 extensionFromResponse = content.type
                             ).orEmpty()
 
@@ -571,7 +571,7 @@ private fun HomeLandingContent(
                                 id = index,
                                 isPreview = true,
                                 isVideo = isVideo(extension),
-                                media = content.url,
+                                media = content.downloadUrl,
                                 fileName = content.fileName
                             )
                         }

@@ -81,7 +81,7 @@ internal fun HandleBottomSheetDownload(
 ) {
     var stableListContent by remember { mutableStateOf(listContent) }
     val contentKey by remember {
-        derivedStateOf { stableListContent.firstOrNull()?.url.orEmpty() }
+        derivedStateOf { stableListContent.firstOrNull()?.downloadUrl.orEmpty() }
     }
     val scrollState = rememberSaveable(contentKey, saver = Saver) { ScrollState(0) }
     var selectMultipleItems by rememberSaveable(contentKey) { mutableStateOf(emptySet<Int>()) }
@@ -229,7 +229,7 @@ internal fun HandleBottomSheetDownload(
                             onClickDownload(selectMultipleItems.mapNotNull {
                                 stableListContent.getOrNull(
                                     it
-                                )?.url
+                                )?.downloadUrl
                             })
                         }
                         .weight(1f)

@@ -15,7 +15,7 @@ internal data class VideyDownloaderResponse(
 
     fun mapToEntity() = listOf(
         ContentEntity(
-            url = data?.url.orEmpty(),
+            downloadUrl = data?.url.orEmpty(),
             status = status ?: true,
             type = if (data?.url.orEmpty().endsWith("mp4")) "mp4" else "mp4"
         )
