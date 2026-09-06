@@ -22,7 +22,6 @@ import android.graphics.BitmapFactory
 import android.graphics.BitmapFactory.decodeStream
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.media.MediaMetadataRetriever
 import android.media.MediaScannerConnection
 import android.net.Uri
 import android.net.Uri.fromParts
@@ -38,7 +37,6 @@ import android.provider.MediaStore.MediaColumns.RELATIVE_PATH
 import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS
 import android.provider.Settings.EXTRA_APP_PACKAGE
-import android.util.Patterns.WEB_URL
 import android.webkit.MimeTypeMap.getSingleton
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
@@ -93,21 +91,6 @@ suspend fun fetchPhotoFromUrl(url: String) = withContext(IO) {
     } catch (e: Exception) {
         e.printStackTrace()
         null
-    }
-}
-
-suspend fun fetchVideoThumbnail(url: String): Bitmap? = withContext(IO) {
-    val retriever = MediaMetadataRetriever()
-    try {
-        with(retriever) {
-            if (isValidUrl(url)) setDataSource(url, HashMap()) else setDataSource(url)
-            getFrameAtTime(100000)
-        }
-    } catch (e: Exception) {
-        e.printStackTrace()
-        null
-    } finally {
-        retriever.release()
     }
 }
 
@@ -458,8 +441,6 @@ fun getPlatformType(url: String, type: String = "video"): PlatformType {
     }
 }
 
-fun isValidUrl(url: String) = WEB_URL.matcher(url).matches()
-
 fun isVideo(source: String) = source.endsWith(".mp4")
 
 fun isMusic(source: String) = source.endsWith(".mp3")
@@ -561,8 +542,8 @@ fun recreateActivity(context: Context, activity: Activity) {
     )?.apply {
         addFlags(FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TASK)
     }
-    context.startActivity(intent)
     activity.finish()
+    context.startActivity(intent)
 }
 
 fun highlightText(

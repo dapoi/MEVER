@@ -18,9 +18,9 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass.Companion.Compact
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass.Companion.Medium
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.lifecycleScope
@@ -31,7 +31,6 @@ import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.ThemeType.Dark
 import com.dapascript.mever.core.common.ui.theme.ThemeType.Light
-import com.dapascript.mever.core.common.util.DeviceType
 import com.dapascript.mever.core.common.util.DeviceType.DESKTOP
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.DeviceType.TABLET
@@ -59,27 +58,50 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setupAdmob()
         enableEdgeToEdge()
+        setupAdmob()
         handleShareIntent(intent)
         setContent {
             val themeType = viewModel.themeType.collectAsStateValue()
             val windowSizeClass = calculateWindowSizeClass(this)
-            val deviceType = when (windowSizeClass.widthSizeClass) {
-                Compact -> PHONE
-                Medium -> TABLET
-                else -> DESKTOP
+            val deviceType = remember(windowSizeClass) {
+                when (windowSizeClass.widthSizeClass) {
+                    Compact -> PHONE
+                    Medium -> TABLET
+                    else -> DESKTOP
+                }
             }
             val isDarkMode = when (themeType) {
                 Light -> false
                 Dark -> true
                 else -> isSystemInDarkTheme()
             }
+
+            SideEffect {
+                enableEdgeToEdge(
+                    statusBarStyle = if (isDarkMode) {
+                        dark(scrim = MeverTransparent.toArgb())
+                    } else {
+                        light(
+                            scrim = MeverTransparent.toArgb(),
+                            darkScrim = MeverDark.toArgb()
+                        )
+                    },
+                    navigationBarStyle = if (isDarkMode) {
+                        dark(scrim = MeverTransparent.toArgb())
+                    } else {
+                        light(
+                            scrim = MeverTransparent.toArgb(),
+                            darkScrim = MeverDark.toArgb()
+                        )
+                    }
+                )
+            }
+
             MeverTheme(
                 deviceType = deviceType,
                 isDarkMode = isDarkMode
             ) {
-                ApplyEdgeToEdgeSystemBars(isDarkMode, deviceType)
                 Surface(modifier = Modifier.fillMaxSize(), color = colors.whiteDark) {
                     CompositionLocalProvider(
                         LocalActivity provides this,
@@ -108,30 +130,6 @@ class MainActivity : AppCompatActivity() {
                 InitializationConfig.Builder(ADMOB_ID).build()
             )
             Timber.d("AdMob initialized")
-        }
-    }
-
-    @Composable
-    private fun ApplyEdgeToEdgeSystemBars(isDarkMode: Boolean, deviceType: DeviceType) {
-        LaunchedEffect(isDarkMode, deviceType) {
-            enableEdgeToEdge(
-                statusBarStyle = if (isDarkMode) {
-                    dark(scrim = MeverTransparent.toArgb())
-                } else {
-                    light(
-                        scrim = MeverTransparent.toArgb(),
-                        darkScrim = MeverDark.toArgb()
-                    )
-                },
-                navigationBarStyle = if (isDarkMode) {
-                    dark(scrim = MeverTransparent.toArgb())
-                } else {
-                    light(
-                        scrim = MeverTransparent.toArgb(),
-                        darkScrim = MeverDark.toArgb()
-                    )
-                }
-            )
         }
     }
 
