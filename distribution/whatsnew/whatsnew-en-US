@@ -1,2 +1,3 @@
-- Fixing known bugs and improving performance.
-- Enhancing user interface for better accessibility.
+- Added a notification when content is found, making it easier to download.
+- Fixed several minor issues.
+- Reduced CPU usage when displaying the gallery.
