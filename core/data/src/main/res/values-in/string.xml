@@ -6,4 +6,6 @@
     <string name="error_http">Terjadi kesalahan server (%1$d).</string>
     <string name="error_unknown">Terjadi kesalahan yang tidak diketahui.</string>
     <string name="url_error">URL tidak valid. Periksa URL dan coba lagi.</string>
+    <string name="notif_link_found_title">Tautan %s Ditemukan!</string>
+    <string name="notif_link_found_description">File siap diunduh. Ketuk untuk mulai mengunduh.</string>
 </resources>

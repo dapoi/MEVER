@@ -14,13 +14,14 @@ import com.dapascript.mever.core.common.util.state.UiState.StateInitial
 import com.dapascript.mever.core.common.util.state.UiState.StateLoading
 import com.dapascript.mever.core.common.util.state.UiState.StateSuccess
 import com.dapascript.mever.core.common.util.storage.StorageUtil.StorageInfo
+import com.dapascript.mever.core.data.deeplink.MeverDeeplinkManager
 import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.source.local.MeverDataStore
 import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_IS_GO_IMG_ENABLED
 import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_IS_IMAGE_AI_ENABLED
+import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_LINK_CONTENT
 import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_RESOLUTIONS
-import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_URL_INTENT
 import com.ketch.Status.PAUSED
 import com.ketch.Status.PROGRESS
 import com.ketch.Status.QUEUED
@@ -41,7 +42,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 internal class HomeLandingViewModel @Inject constructor(
-    private val repository: MeverRepository
+    private val repository: MeverRepository,
+    private val deeplinkManager: MeverDeeplinkManager
 ) : BaseViewModel() {
 
     var urlSocialMediaState by mutableStateOf(TextFieldValue(""))
@@ -95,7 +97,7 @@ internal class HomeLandingViewModel @Inject constructor(
         initialValue = 3
     )
 
-    val getUrlIntent = repository.getPreference(KEY_URL_INTENT, "").stateIn(
+    val linkContent = repository.getPreference(KEY_LINK_CONTENT, "").stateIn(
         scope = viewModelScope,
         started = WhileSubscribed(),
         initialValue = ""
@@ -120,6 +122,12 @@ internal class HomeLandingViewModel @Inject constructor(
         scope = viewModelScope,
         started = WhileSubscribed(),
         initialValue = true
+    )
+
+    val deeplinkEvent = deeplinkManager.deeplinkEvent.stateIn(
+        scope = viewModelScope,
+        started = WhileSubscribed(),
+        initialValue = null
     )
 
     private val _downloaderResponseState =
@@ -185,7 +193,9 @@ internal class HomeLandingViewModel @Inject constructor(
         repository.incrementClickCount()
     }
 
-    fun resetUrlIntent() = viewModelScope.launch {
-        repository.savePreference(KEY_URL_INTENT, "")
+    fun consumeDeeplinkEvent() = deeplinkManager.clearDeeplink()
+
+    fun clearValue(key: String) = viewModelScope.launch {
+        repository.clearPreference(key)
     }
 }

@@ -1,13 +1,16 @@
 package com.dapascript.mever.viewmodel
 
+import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.BuildConfig.VERSION_NAME
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.ui.theme.ThemeType
 import com.dapascript.mever.core.common.ui.theme.ThemeType.System
+import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.PATH_HOME
+import com.dapascript.mever.core.data.deeplink.MeverDeeplinkManager
 import com.dapascript.mever.core.data.repository.MeverRepository
+import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_LINK_CONTENT
 import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_THEME
-import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_URL_INTENT
 import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_VERSION
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -20,7 +23,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 internal class MainViewModel @Inject constructor(
-    private val repository: MeverRepository
+    private val repository: MeverRepository,
+    private val deeplinkManager: MeverDeeplinkManager
 ) : BaseViewModel() {
 
     val themeType = repository.getPreference(KEY_THEME, System.name).map { name ->
@@ -35,8 +39,8 @@ internal class MainViewModel @Inject constructor(
         initialValue = System
     )
 
-    private val _navigationToHomeEvent = Channel<Unit>()
-    val navigationToHomeEvent = _navigationToHomeEvent.receiveAsFlow()
+    private val _navigationEvent = Channel<String>()
+    val navigationEvent = _navigationEvent.receiveAsFlow()
 
     init {
         viewModelScope.launch {
@@ -44,10 +48,21 @@ internal class MainViewModel @Inject constructor(
         }
     }
 
-    fun saveUrlIntent(url: String) {
+    fun saveLinkContent(link: String) {
         viewModelScope.launch {
-            repository.savePreference(KEY_URL_INTENT, url)
-            _navigationToHomeEvent.send(Unit)
+            repository.savePreference(KEY_LINK_CONTENT, link)
+            _navigationEvent.send(PATH_HOME)
         }
+    }
+
+    fun handleDeeplink(uri: Uri) {
+        viewModelScope.launch {
+            deeplinkManager.handleDeeplink(uri)
+            _navigationEvent.send(uri.path.orEmpty())
+        }
+    }
+
+    fun clearDeeplink() {
+        deeplinkManager.clearDeeplink()
     }
 }

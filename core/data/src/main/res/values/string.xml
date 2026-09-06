@@ -6,4 +6,6 @@
     <string name="error_http">Server error occurred (%1$d).</string>
     <string name="error_unknown">An unknown error occurred.</string>
     <string name="url_error">Invalid URL. Please check the URL and try again.</string>
+    <string name="notif_link_found_title">%s Link Found!</string>
+    <string name="notif_link_found_description">The file is ready to download. Tap to start downloading.</string>
 </resources>

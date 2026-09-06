@@ -2,6 +2,7 @@ package com.dapascript.mever.screen
 
 import android.content.Intent
 import android.content.Intent.ACTION_SEND
+import android.content.Intent.ACTION_VIEW
 import android.content.Intent.EXTRA_TEXT
 import android.os.Bundle
 import androidx.activity.SystemBarStyle.Companion.dark
@@ -86,7 +87,7 @@ class MainActivity : AppCompatActivity() {
                     ) {
                         MainNavigation(
                             navGraphs = navGraphs,
-                            navigationToHomeEvent = viewModel.navigationToHomeEvent
+                            navigationEvent = viewModel.navigationEvent
                         )
                     }
                 }
@@ -135,10 +136,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun handleShareIntent(intent: Intent?) {
-        if (intent?.action == ACTION_SEND && intent.type == "text/plain") {
-            intent.getStringExtra(EXTRA_TEXT)?.let { url ->
-                viewModel.saveUrlIntent(url)
-                this.intent.action = ""
+        when (intent?.action) {
+            ACTION_SEND if intent.type == "text/plain" -> {
+                intent.getStringExtra(EXTRA_TEXT)?.let { url ->
+                    viewModel.saveLinkContent(url)
+                    this.intent.action = ""
+                }
+            }
+
+            ACTION_VIEW -> {
+                intent.data?.let { uri ->
+                    viewModel.handleDeeplink(uri)
+                    this.intent.action = ""
+                }
             }
         }
     }

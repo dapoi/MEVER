@@ -77,9 +77,9 @@ class MainViewModelTest {
     @Test
     fun `saveUrlIntent calls repository savePreference`() = testScope.runTest {
         val url = "https://example.com"
-        viewModel.saveUrlIntent(url)
+        viewModel.saveLinkContent(url)
         advanceUntilIdle()
-        verify(repository).savePreference(MeverDataStore.KEY_URL_INTENT, url)
+        verify(repository).savePreference(MeverDataStore.KEY_LINK_CONTENT, url)
     }
 
 
@@ -87,7 +87,7 @@ class MainViewModelTest {
     fun `navigationToHomeEvent emits after saveUrlIntent`() = testScope.runTest {
         val events = mutableListOf<Unit>()
         val job = launch { viewModel.navigationToHomeEvent.collect { events.add(it) } }
-        viewModel.saveUrlIntent("https://example.com")
+        viewModel.saveLinkContent("https://example.com")
         advanceUntilIdle()
         assertTrue(events.isNotEmpty())
         job.cancel()

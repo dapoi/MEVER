@@ -53,47 +53,6 @@ internal class MeverRepositoryImpl @Inject constructor(
 
     private val meverFolder by lazy { getMeverFolder() }
 
-    override fun <T : Any> getPreference(
-        key: String,
-        defaultValue: T
-    ) = dataStore.getValue(keyName = key, defaultValue = defaultValue)
-
-    override suspend fun <T : Any> savePreference(key: String, value: T) {
-        dataStore.saveValue(keyName = key, value = value)
-    }
-
-    override fun getClickCount(): Flow<Int> = dataStore.getValue(
-        keyName = KEY_CLICK_COUNT,
-        defaultValue = 0
-    )
-
-    override fun getAdsThreshold(): Flow<Int> = dataStore.getValue(
-        keyName = KEY_ADS_THRESHOLD,
-        defaultValue = (MIN_ADS_THRESHOLD..MAX_ADS_THRESHOLD).random()
-    )
-
-    override suspend fun incrementClickCount() {
-        val currentCount = getClickCount().first()
-        val threshold = getAdsThreshold().first()
-        val newCount = currentCount + 1
-
-        if (newCount >= threshold) {
-            savePreference(
-                key = KEY_CLICK_COUNT,
-                value = 0
-            )
-            savePreference(
-                key = KEY_ADS_THRESHOLD,
-                value = (MIN_ADS_THRESHOLD..MAX_ADS_THRESHOLD).random()
-            )
-        } else {
-            savePreference(
-                key = KEY_CLICK_COUNT,
-                value = newCount
-            )
-        }
-    }
-
     override fun getAppConfig() = safeApiCall {
         apiService.getAppConfig().mapToEntity()
     }
@@ -203,6 +162,51 @@ internal class MeverRepositoryImpl @Inject constructor(
                     it.status == SUCCESS && existingNames.contains(it.fileName.lowercase()).not()
                 }
                 .forEach { ketch.clearDb(it.id) }
+        }
+    }
+
+    override fun <T : Any> getPreference(
+        keyName: String,
+        defaultValue: T
+    ) = dataStore.getValue(keyName, defaultValue)
+
+    override suspend fun <T : Any> savePreference(keyName: String, value: T) {
+        dataStore.saveValue(keyName, value)
+    }
+
+    override suspend fun clearPreference(keyName: String) {
+        dataStore.clearValue(keyName)
+    }
+
+    override fun getClickCount(): Flow<Int> = dataStore.getValue(
+        keyName = KEY_CLICK_COUNT,
+        defaultValue = 0
+    )
+
+    override fun getAdsThreshold(): Flow<Int> = dataStore.getValue(
+        keyName = KEY_ADS_THRESHOLD,
+        defaultValue = (MIN_ADS_THRESHOLD..MAX_ADS_THRESHOLD).random()
+    )
+
+    override suspend fun incrementClickCount() {
+        val currentCount = getClickCount().first()
+        val threshold = getAdsThreshold().first()
+        val newCount = currentCount + 1
+
+        if (newCount >= threshold) {
+            savePreference(
+                keyName = KEY_CLICK_COUNT,
+                value = 0
+            )
+            savePreference(
+                keyName = KEY_ADS_THRESHOLD,
+                value = (MIN_ADS_THRESHOLD..MAX_ADS_THRESHOLD).random()
+            )
+        } else {
+            savePreference(
+                keyName = KEY_CLICK_COUNT,
+                value = newCount
+            )
         }
     }
 }

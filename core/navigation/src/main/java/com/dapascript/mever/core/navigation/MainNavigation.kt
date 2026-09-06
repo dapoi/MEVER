@@ -11,7 +11,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSerializable
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavEntry
@@ -25,8 +24,8 @@ import androidx.navigation3.runtime.serialization.NavKeySerializer
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.compose.serialization.serializers.MutableStateSerializer
 import com.dapascript.mever.core.common.util.LocalActivity
-import com.dapascript.mever.core.common.util.recreateActivity
 import com.dapascript.mever.core.navigation.base.BaseNavGraph
+import com.dapascript.mever.core.navigation.deeplink.MeverDeeplinkRegistry
 import com.dapascript.mever.core.navigation.helper.NavigationState
 import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeLandingRoute
@@ -36,9 +35,8 @@ import kotlinx.coroutines.flow.Flow
 @Composable
 fun MainNavigation(
     navGraphs: Set<@JvmSuppressWildcards BaseNavGraph>,
-    navigationToHomeEvent: Flow<Unit>? = null
+    navigationEvent: Flow<String>? = null
 ) {
-    val context = LocalContext.current
     val activity = LocalActivity.current
     val navigationState = rememberNavigationState(
         startRoute = SplashRoute,
@@ -53,9 +51,13 @@ fun MainNavigation(
         }
     }
 
-    LaunchedEffect(navigationToHomeEvent) {
-        navigationToHomeEvent?.collect {
-            if (navigationState.currentRoute != SplashRoute) recreateActivity(context, activity)
+    LaunchedEffect(navigationEvent) {
+        navigationEvent?.collect { path ->
+            val route = MeverDeeplinkRegistry[path]
+            navigator.navigate(
+                route = route,
+                isClearBackStacks = true
+            )
         }
     }
 
@@ -110,9 +112,6 @@ private fun rememberNavigationState(
         )
     }
 }
-
-private val NavigationState.currentRoute: NavKey?
-    get() = backStacks[topLevelRoute]?.lastOrNull()
 
 @Composable
 private fun NavigationState.toEntries(

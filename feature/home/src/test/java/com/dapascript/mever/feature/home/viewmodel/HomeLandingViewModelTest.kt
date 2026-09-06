@@ -54,7 +54,7 @@ class HomeLandingViewModelTest {
         whenever(repository.getPreference(MeverDataStore.KEY_RESOLUTIONS, "")).thenReturn(flowOf(""))
         whenever(repository.getClickCount()).thenReturn(flowOf(1))
         whenever(repository.getAdsThreshold()).thenReturn(flowOf(3))
-        whenever(repository.getPreference(MeverDataStore.KEY_URL_INTENT, "")).thenReturn(flowOf(""))
+        whenever(repository.getPreference(MeverDataStore.KEY_LINK_CONTENT, "")).thenReturn(flowOf(""))
         whenever(repository.observeDownloads()).thenReturn(flowOf(emptyList()))
         viewModel = HomeLandingViewModel(repository)
     }
@@ -162,13 +162,6 @@ class HomeLandingViewModelTest {
         viewModel.incrementClickCount()
         advanceUntilIdle()
         verify(repository).incrementClickCount()
-    }
-
-    @Test
-    fun `resetUrlIntent calls repository savePreference with empty string`() = testScope.runTest {
-        viewModel.resetUrlIntent()
-        advanceUntilIdle()
-        verify(repository).savePreference(MeverDataStore.KEY_URL_INTENT, "")
     }
 
     @Test

@@ -147,6 +147,8 @@ import com.dapascript.mever.core.common.util.storage.StorageUtil.StorageInfo
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getStorageInfo
 import com.dapascript.mever.core.common.util.storage.StorageUtil.isStorageFull
 import com.dapascript.mever.core.common.util.syncToGallery
+import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_LINK_CONTENT
+import com.dapascript.mever.core.data.deeplink.event.DeeplinkEvent
 import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute.Content
@@ -342,10 +344,11 @@ private fun HomeLandingContent(
     val downloadList = downloadList.collectAsStateValue()
     val downloaderResponseState = downloaderResponseState.collectAsStateValue()
     val youtubeResolutions = youtubeResolutions.collectAsStateValue()
-    val urlIntent = getUrlIntent.collectAsStateValue()
+    val linkContent = linkContent.collectAsStateValue()
     val showSupportedPlatform = showSupportedPlatform.collectAsStateValue()
     val isImageAiEnabled = isImageAiEnabled.collectAsStateValue()
     val isGoImgEnabled = isGoImgEnabled.collectAsStateValue()
+    val deeplinkEvent = deeplinkEvent.collectAsStateValue()
     val featuresCard = remember(context, isImageAiEnabled, isGoImgEnabled) {
         getFeatureCards(context, isImageAiEnabled, isGoImgEnabled)
     }
@@ -417,15 +420,22 @@ private fun HomeLandingContent(
             }
     }
 
-    LaunchedEffect(urlIntent) {
-        if (urlIntent.isNotEmpty()) {
-            urlSocialMediaState = TextFieldValue(urlIntent)
+    LaunchedEffect(linkContent) {
+        if (linkContent.isNotEmpty()) {
+            urlSocialMediaState = TextFieldValue(linkContent)
             checkStoragePermissions = getStoragePermission()
             delay(1.seconds)
-            resetUrlIntent()
+            viewModel.clearValue(KEY_LINK_CONTENT)
         }
     }
 
+    LaunchedEffect(deeplinkEvent) {
+        if (deeplinkEvent is DeeplinkEvent.DownloadResult) {
+            urlSocialMediaState = TextFieldValue(deeplinkEvent.url)
+            contents = deeplinkEvent.contents
+            consumeDeeplinkEvent()
+        }
+    }
 
     LaunchedEffect(downloaderResponseState) {
         downloaderResponseState.handleUiState(
