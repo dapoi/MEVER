@@ -1,20 +1,6 @@
 package com.dapascript.mever.core.data.worker
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.NotificationManager.IMPORTANCE_HIGH
-import android.app.PendingIntent
-import android.app.PendingIntent.FLAG_IMMUTABLE
-import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.content.Context
-import android.content.Context.NOTIFICATION_SERVICE
-import android.content.Intent
-import android.content.Intent.ACTION_VIEW
-import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
-import android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationCompat.PRIORITY_HIGH
-import androidx.core.net.toUri
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
@@ -39,6 +25,7 @@ import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.PATH_HOME
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.QUERY_ERROR
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.QUERY_RESPONSES
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.QUERY_URL
+import com.dapascript.mever.core.common.util.deeplink.DeeplinkNotificationManager.showNotification
 import com.dapascript.mever.core.common.util.deeplink.buildMeverDeeplink
 import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.ACTION_DOWNLOAD
@@ -135,6 +122,7 @@ internal class MeverWorker @AssistedInject constructor(
             )
 
             showNotification(
+                context = context,
                 title = context.getString(
                     R.string.notif_link_found_title,
                     getPlatformType(url, type).platformName
@@ -161,6 +149,7 @@ internal class MeverWorker @AssistedInject constructor(
                 )
             )
             showNotification(
+                context = context,
                 title = context.getString(UiR.string.error_title),
                 desc = errorMessage,
                 deeplink = deeplink
@@ -190,50 +179,5 @@ internal class MeverWorker @AssistedInject constructor(
         VIDEY -> apiService.getVideyDownloader(url).mapToEntity()
         YOUTUBE, YOUTUBE_MUSIC -> apiService.getYoutubeDownloader(url, quality, type).mapToEntity()
         else -> emptyList()
-    }
-
-    private fun showNotification(
-        title: String,
-        desc: String,
-        deeplink: String
-    ) {
-        val notificationManager = context.getSystemService(
-            NOTIFICATION_SERVICE
-        ) as NotificationManager
-        val channel = NotificationChannel(
-            NOTIFICATION_CHANNEL_ID,
-            NOTIFICATION_CHANNEL_NAME,
-            IMPORTANCE_HIGH
-        )
-        val intent = Intent(
-            ACTION_VIEW,
-            deeplink.toUri(),
-            context,
-            Class.forName(TARGET_ACTIVITY_CLASS_NAME)
-        ).apply { flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_SINGLE_TOP }
-        val pendingIntent = PendingIntent.getActivity(
-            context,
-            NOTIFICATION_ID,
-            intent,
-            FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
-        )
-        val notification = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
-            .setSmallIcon(UiR.drawable.ic_mever)
-            .setContentTitle(title)
-            .setContentText(desc)
-            .setPriority(PRIORITY_HIGH)
-            .setContentIntent(pendingIntent)
-            .setAutoCancel(true)
-            .build()
-
-        notificationManager.createNotificationChannel(channel)
-        notificationManager.notify(NOTIFICATION_ID, notification)
-    }
-
-    companion object {
-        private const val TARGET_ACTIVITY_CLASS_NAME = "com.dapascript.mever.screen.MainActivity"
-        private const val NOTIFICATION_CHANNEL_NAME = "MEVER Fetch Result"
-        private const val NOTIFICATION_CHANNEL_ID = "mever_result_channel"
-        private const val NOTIFICATION_ID = 1001
     }
 }

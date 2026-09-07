@@ -66,6 +66,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.core.app.NotificationManagerCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle.Event.ON_RESUME
 import androidx.lifecycle.Lifecycle.State.RESUMED
@@ -129,6 +130,7 @@ import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE_MUSIC
 import com.dapascript.mever.core.common.util.changeToCurrentDate
 import com.dapascript.mever.core.common.util.clearFocusOnKeyboardDismiss
+import com.dapascript.mever.core.common.util.deeplink.DeeplinkNotificationManager.NOTIFICATION_ID
 import com.dapascript.mever.core.common.util.fadingEdge
 import com.dapascript.mever.core.common.util.getExtensionFromUrl
 import com.dapascript.mever.core.common.util.getPlatformType
@@ -403,6 +405,9 @@ private fun HomeLandingContent(
     val interstitialController = rememberInterstitialAd {
         checkStoragePermissions = getStoragePermission()
     }
+    val notificationManager = remember(context) {
+        NotificationManagerCompat.from(context)
+    }
 
     BackHandler {
         if (showBadge || showLoading) activity.moveTaskToBack(true) else activity.finish()
@@ -552,6 +557,7 @@ private fun HomeLandingContent(
                         }
                     }
                 } finally {
+                    notificationManager.cancel(NOTIFICATION_ID)
                     isDownloadProcessing = false
                     contents = emptyList()
                 }
@@ -594,6 +600,7 @@ private fun HomeLandingContent(
             }
         },
         onClickDismiss = {
+            notificationManager.cancel(NOTIFICATION_ID)
             loadingItemIndex = null
             onIsInPreviewChange(false)
             contents = emptyList()
@@ -659,10 +666,12 @@ private fun HomeLandingContent(
                 else -> getApiDownloader()
             }
             errorMessage = ""
+            notificationManager.cancel(NOTIFICATION_ID)
         },
         onClickSecondaryAction = {
             isStorageFull = false
             errorMessage = ""
+            notificationManager.cancel(NOTIFICATION_ID)
         }
     )
 
