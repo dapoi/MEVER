@@ -61,8 +61,4 @@ internal class MainViewModel @Inject constructor(
             if (isTriggerNavigation) _navigationEvent.send(uri.path.orEmpty())
         }
     }
-
-    fun clearDeeplink() {
-        deeplinkManager.clearDeeplink()
-    }
 }
