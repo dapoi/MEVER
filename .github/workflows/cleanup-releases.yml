@@ -1,0 +1,44 @@
+name: Cleanup Old Releases
+
+on:
+  workflow_dispatch: # Memungkinkan lu buat jalanin ini manual kapan aja
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Delete Old Releases and Tags
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "🔍 Mencari release terbaru..."
+          
+          # Ambil tag stable terbaru (misal v2.1.0)
+          STABLE=$(gh release list --exclude-pre-releases --limit 1 | awk '{print $1}')
+          
+          # Ambil tag pre-release terbaru (misal v2.1.0-beta01)
+          PRE=$(gh release list --only-pre-releases --limit 1 | awk '{print $1}')
+          
+          echo "✅ Stable terbaru: $STABLE"
+          echo "✅ Pre-release terbaru: $PRE"
+          echo "---------------------------------------"
+
+          # Ambil semua list release
+          RELEASES=$(gh release list --limit 100 | awk '{print $1}')
+
+          for tag in $RELEASES; do
+            if [ "$tag" != "$STABLE" ] && [ "$tag" != "$PRE" ]; then
+              echo "🗑️ Menghapus release dan tag: $tag"
+              gh release delete "$tag" --yes --cleanup-tag
+            else
+              echo "✨ Menjaga: $tag"
+            fi
+          done
+          
+          echo "---------------------------------------"
+          echo "🎉 Selesai! Hanya menyisakan $STABLE dan $PRE."
