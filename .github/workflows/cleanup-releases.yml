@@ -1,7 +1,7 @@
 name: Cleanup Old Releases
 
 on:
-  workflow_dispatch: # Memungkinkan lu buat jalanin ini manual kapan aja
+  workflow_dispatch: # Allows manual triggering of the workflow
 
 jobs:
   cleanup:
@@ -16,29 +16,29 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          echo "🔍 Mencari release terbaru..."
+          echo "🔍 Searching for latest releases..."
           
-          # Ambil tag stable terbaru (misal v2.1.0)
+          # Get latest stable tag
           STABLE=$(gh release list --exclude-pre-releases --limit 1 | awk '{print $1}')
           
-          # Ambil tag pre-release terbaru (misal v2.1.0-beta01)
-          PRE=$(gh release list --only-pre-releases --limit 1 | awk '{print $1}')
+          # Get latest pre-release tag using jq
+          PRE=$(gh release list --json tagName,isPrerelease --jq '.[] | select(.isPrerelease == true) | .tagName' | head -n 1)
           
-          echo "✅ Stable terbaru: $STABLE"
-          echo "✅ Pre-release terbaru: $PRE"
+          echo "✅ Latest Stable: $STABLE"
+          echo "✅ Latest Pre-release: $PRE"
           echo "---------------------------------------"
 
-          # Ambil semua list release
-          RELEASES=$(gh release list --limit 100 | awk '{print $1}')
+          # Get all releases (limit 100)
+          RELEASES=$(gh release list --limit 100 --json tagName --jq '.[] | .tagName')
 
           for tag in $RELEASES; do
             if [ "$tag" != "$STABLE" ] && [ "$tag" != "$PRE" ]; then
-              echo "🗑️ Menghapus release dan tag: $tag"
+              echo "🗑️ Deleting release and tag: $tag"
               gh release delete "$tag" --yes --cleanup-tag
             else
-              echo "✨ Menjaga: $tag"
+              echo "✨ Keeping: $tag"
             fi
           done
           
           echo "---------------------------------------"
-          echo "🎉 Selesai! Hanya menyisakan $STABLE dan $PRE."
+          echo "🎉 Finished! Kept $STABLE and $PRE."
