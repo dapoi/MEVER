@@ -1,5 +1,7 @@
 package com.dapascript.mever.core.common.util
 
+import android.R.anim.fade_in
+import android.R.anim.fade_out
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.ContentResolver
@@ -54,6 +56,7 @@ import androidx.core.view.WindowCompat.getInsetsController
 import androidx.core.view.WindowInsetsCompat.Type.systemBars
 import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
 import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+import coil3.imageLoader
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.util.PlatformType.ALL
 import com.dapascript.mever.core.common.util.PlatformType.APPLE_MUSIC
@@ -483,8 +486,10 @@ fun isAppInstalled(context: Context, packageName: String) = try {
 suspend fun cleanCache(context: Context, activity: Activity) = withContext(IO) {
     try {
         val cacheDir = context.cacheDir
-        if (cacheDir.isDirectory) {
-            cacheDir.listFiles()?.forEach { it.deleteRecursively() }
+        cacheDir.deleteRecursively()
+        context.imageLoader.apply {
+            diskCache?.clear()
+            memoryCache?.clear()
         }
     } catch (e: Exception) {
         e.printStackTrace()
@@ -537,13 +542,13 @@ fun displayFileName(fileName: String) = try {
 }
 
 fun recreateActivity(context: Context, activity: Activity) {
-    val intent = context.packageManager.getLaunchIntentForPackage(
-        context.packageName
-    )?.apply {
+    val intent = activity.intent.apply {
         addFlags(FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TASK)
     }
-    activity.finish()
     context.startActivity(intent)
+    activity.finish()
+    @Suppress("DEPRECATION")
+    activity.overridePendingTransition(fade_in, fade_out)
 }
 
 fun highlightText(
