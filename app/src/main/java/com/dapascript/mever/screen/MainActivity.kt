@@ -61,7 +61,16 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setupAdmob()
-        handleShareIntent(intent = intent, isTriggerNavigation = true)
+        handleShareIntent(intent = intent, isTriggerNavigation = false)
+
+        val action = intent.action
+        val type = intent.type
+        val initialPath = when (action) {
+            ACTION_VIEW -> intent.data?.path
+            ACTION_SEND if type == "text/plain" -> PATH_HOME
+            else -> null
+        }
+
         setContent {
             val themeType = viewModel.themeType.collectAsStateValue()
             val windowSizeClass = calculateWindowSizeClass(this)
@@ -108,11 +117,6 @@ class MainActivity : AppCompatActivity() {
                         LocalActivity provides this,
                         LocalDeviceType provides deviceType
                     ) {
-                        val initialPath = when (intent.action) {
-                            ACTION_VIEW -> intent.data?.path
-                            ACTION_SEND if intent.type == "text/plain" -> PATH_HOME
-                            else -> null
-                        }
                         MainNavigation(
                             navGraphs = navGraphs,
                             navigationEvent = viewModel.navigationEvent,
@@ -127,7 +131,7 @@ class MainActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        handleShareIntent(intent = intent, isTriggerNavigation = false)
+        handleShareIntent(intent = intent, isTriggerNavigation = true)
     }
 
     private fun setupAdmob() {

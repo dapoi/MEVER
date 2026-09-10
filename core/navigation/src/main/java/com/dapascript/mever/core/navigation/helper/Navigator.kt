@@ -25,29 +25,46 @@ class Navigator(
         isClearBackStacks: Boolean = false,
         popUpTo: Any? = null
     ) {
+        val targetClassName = route.javaClass.name
+        val matchingTopLevel = state.backStacks.keys.firstOrNull {
+            it.javaClass.name == targetClassName
+        }
+
         if (isClearBackStacks) {
             state.backStacks.values.forEach { it.clear() }
-        } else {
-            popUpTo?.let { key ->
-                state.backStacks.values.forEach { stack ->
-                    val index = when (key) {
-                        is NavKey -> stack.indexOf(key)
-                        is KClass<*> -> stack.indexOfFirst { key.isInstance(it) }
-                        else -> -1
-                    }
-                    if (index != -1) {
-                        val removeCount = if (isInclusive) stack.size - index
-                        else stack.size - index - 1
-                        repeat(removeCount) { stack.removeLastOrNull() }
-                    }
+            if (matchingTopLevel != null) {
+                state.topLevelRoute = matchingTopLevel
+                state.backStacks[matchingTopLevel]?.add(matchingTopLevel)
+            } else {
+                state.backStacks[state.topLevelRoute]?.add(route)
+            }
+            return
+        }
+
+        popUpTo?.let { key ->
+            state.backStacks.values.forEach { stack ->
+                val index = when (key) {
+                    is NavKey -> stack.indexOf(key)
+                    is KClass<*> -> stack.indexOfFirst { key.isInstance(it) }
+                    else -> -1
+                }
+                if (index != -1) {
+                    val removeCount = if (isInclusive) stack.size - index
+                    else stack.size - index - 1
+                    repeat(removeCount) { stack.removeLastOrNull() }
                 }
             }
         }
 
-        if (route in state.backStacks.keys) {
-            state.topLevelRoute = route
-            if (state.backStacks[route]?.isEmpty() == true) {
-                state.backStacks[route]?.add(route)
+        val currentVisibleRoute = state.backStacks[state.topLevelRoute]?.lastOrNull()
+        if (currentVisibleRoute?.javaClass?.name == targetClassName &&
+            (matchingTopLevel == null || state.topLevelRoute.javaClass.name == targetClassName)
+        ) return
+
+        if (matchingTopLevel != null) {
+            state.topLevelRoute = matchingTopLevel
+            if (state.backStacks[matchingTopLevel]?.isEmpty() == true) {
+                state.backStacks[matchingTopLevel]?.add(matchingTopLevel)
             }
         } else {
             state.backStacks[state.topLevelRoute]?.add(route)
@@ -68,7 +85,8 @@ class Navigator(
                     else -> -1
                 }
                 if (index != -1) {
-                    val removeCount = if (isInclusive) stack.size - index else stack.size - index - 1
+                    val removeCount =
+                        if (isInclusive) stack.size - index else stack.size - index - 1
                     repeat(removeCount) { stack.removeLastOrNull() }
                 }
             }
@@ -86,12 +104,15 @@ class Navigator(
 
         when {
             currentRoute is SplashRoute -> activity?.finish()
+
             currentRoute.javaClass.name == HomeLandingRoute::class.java.name -> {
                 activity?.finish()
             }
+
             currentRoute.javaClass.name == state.topLevelRoute.javaClass.name -> {
                 navigate(HomeLandingRoute, isClearBackStacks = true)
             }
+
             else -> currentBackStack.removeLastOrNull()
         }
     }

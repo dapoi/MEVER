@@ -1,6 +1,7 @@
 package com.dapascript.mever.viewmodel
 
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.BuildConfig.VERSION_NAME
 import com.dapascript.mever.core.common.base.BaseViewModel
@@ -39,7 +40,7 @@ internal class MainViewModel @Inject constructor(
         initialValue = System
     )
 
-    private val _navigationEvent = Channel<String>()
+    private val _navigationEvent = Channel<String>(capacity = Channel.CONFLATED)
     val navigationEvent = _navigationEvent.receiveAsFlow()
 
     init {
@@ -50,15 +51,24 @@ internal class MainViewModel @Inject constructor(
 
     fun saveLinkContent(link: String, isTriggerNavigation: Boolean = true) {
         viewModelScope.launch {
+            Log.d("MainViewModel", "Saving link content: $link, triggerNav: $isTriggerNavigation")
             repository.savePreference(KEY_LINK_CONTENT, link)
-            if (isTriggerNavigation) _navigationEvent.send(PATH_HOME)
+            if (isTriggerNavigation) {
+                Log.d("MainViewModel", "Sending navigation event: $PATH_HOME")
+                _navigationEvent.send(PATH_HOME)
+            }
         }
     }
 
     fun handleDeeplink(uri: Uri, isTriggerNavigation: Boolean = true) {
         viewModelScope.launch {
+            Log.d("MainViewModel", "Handling deeplink: $uri, triggerNav: $isTriggerNavigation")
             deeplinkManager.handleDeeplink(uri)
-            if (isTriggerNavigation) _navigationEvent.send(uri.path.orEmpty())
+            if (isTriggerNavigation) {
+                val path = uri.path.orEmpty()
+                Log.d("MainViewModel", "Sending navigation event: $path")
+                _navigationEvent.send(path)
+            }
         }
     }
 }
