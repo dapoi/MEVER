@@ -1,6 +1,5 @@
 package com.dapascript.mever.core.navigation
 
-import android.util.Log
 import androidx.compose.animation.core.Spring.StiffnessMedium
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
