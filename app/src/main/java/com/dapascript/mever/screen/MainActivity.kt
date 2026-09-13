@@ -61,7 +61,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setupAdmob()
-        handleShareIntent(intent = intent, isTriggerNavigation = false)
+        setupIntent(intent = intent, isTriggerNavigation = false)
 
         val action = intent.action
         val type = intent.type
@@ -131,7 +131,7 @@ class MainActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        handleShareIntent(intent = intent, isTriggerNavigation = true)
+        setupIntent(intent = intent, isTriggerNavigation = true)
     }
 
     private fun setupAdmob() {
@@ -144,7 +144,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun handleShareIntent(intent: Intent?, isTriggerNavigation: Boolean) {
+    private fun setupIntent(intent: Intent?, isTriggerNavigation: Boolean) {
         when (intent?.action) {
             ACTION_SEND if intent.type == "text/plain" -> {
                 intent.getStringExtra(EXTRA_TEXT)?.let { link ->
