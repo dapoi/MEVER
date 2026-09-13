@@ -182,7 +182,6 @@ internal fun SettingLandingScreen(
 
         LaunchedEffect(args.showQrisDialog) {
             if (showBottomSheetQris == null && args.showQrisDialog) {
-                delay(200.milliseconds)
                 listState.scrollToItem(listState.layoutInfo.totalItemsCount - 1)
                 showBottomSheetQris = true
             }
