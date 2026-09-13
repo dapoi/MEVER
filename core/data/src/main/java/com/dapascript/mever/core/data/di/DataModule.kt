@@ -119,6 +119,7 @@ internal class DataModule {
     ): WorkManager = WorkManager.getInstance(context)
 
 
+    @Singleton
     @Provides
     fun provideBackgroundRemovalProcessor(): BackgroundRemovalProcessor = BackgroundRemovalProcessor()
 }
