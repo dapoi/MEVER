@@ -121,7 +121,7 @@ internal class MeverWorker @AssistedInject constructor(
                 )
             )
 
-            showNotification(
+            if (action == ACTION_DOWNLOAD) showNotification(
                 context = context,
                 title = context.getString(
                     R.string.notif_link_found_title,
@@ -148,7 +148,7 @@ internal class MeverWorker @AssistedInject constructor(
                     QUERY_ERROR to errorMessage
                 )
             )
-            showNotification(
+            if (action == ACTION_DOWNLOAD) showNotification(
                 context = context,
                 title = context.getString(UiR.string.error_title),
                 desc = errorMessage,
