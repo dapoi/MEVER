@@ -80,6 +80,8 @@ dependencies {
     implementation(projects.feature.startup)
     implementation(projects.feature.wa)
 
+    implementation(libs.androidx.lifecycle.process)
+
     testImplementation(libs.coroutines.test)
     testImplementation(libs.mockito.core)
     testImplementation(libs.mockito.kotlin)

@@ -37,6 +37,7 @@ import com.dapascript.mever.core.common.util.DeviceType.TABLET
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.LocalDeviceType
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.PATH_HOME
+import com.dapascript.mever.core.common.util.recreateActivity
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.navigation.MainNavigation
 import com.dapascript.mever.core.navigation.base.BaseNavGraph
@@ -56,6 +57,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var navGraphs: Set<@JvmSuppressWildcards BaseNavGraph>
 
     private val viewModel: MainViewModel by viewModels()
+    private var lastInteractionCheck = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -132,6 +134,25 @@ class MainActivity : AppCompatActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
         setupIntent(intent = intent, isTriggerNavigation = true)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        viewModel.checkIdleTimeout { recreateActivity(context = this, activity = this) }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        viewModel.updateInteractionTime()
+    }
+
+    override fun onUserInteraction() {
+        super.onUserInteraction()
+        val currentTime = System.currentTimeMillis()
+        if (currentTime - lastInteractionCheck > 1000L) {
+            lastInteractionCheck = currentTime
+            viewModel.checkIdleTimeout { recreateActivity(context = this, activity = this) }
+        }
     }
 
     private fun setupAdmob() {

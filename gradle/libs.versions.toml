@@ -1,37 +1,38 @@
 [versions]
 ads = "1.4.0"
-androidGradlePlugin = "9.3.1"
-androidTools = "32.3.1"
+androidGradlePlugin = "9.4.0"
+androidTools = "32.4.0"
 androidxActivity = "1.13.0"
-androidxComposeBom = "2026.08.00"
+androidxComposeBom = "2026.09.00"
 appCompat = "1.8.0"
 appUpdate = "2.1.0"
 archCoreTesting = "2.2.0"
 chucker = "4.3.1"
-coil = "3.5.0"
+coil = "3.6.2"
 coreKtxVersion = "1.19.0"
 coroutinesTest = "1.11.0"
 dataStorePreferences = "1.2.1"
 documentFile = "1.1.0"
 firebaseAnalytics = "23.2.0"
-firebaseCrashlytics = "20.1.0"
+firebaseCrashlytics = "20.1.1"
 googleFirebaseCrashlytics = "3.0.8"
 googleGmsGoogleServices = "4.5.0"
 hilt = "2.60.1"
 hilt-common = "1.4.0"
 interceptor = "5.5.0"
 ketch = "2.0.6"
-kotlin = "2.4.10"
+kotlin = "2.4.20"
 kotlinxSerializationJson = "1.11.0"
 ksp = "2.3.7"
 lifecycleViewmodelNav3 = "2.11.0"
-media3 = "1.11.0"
+lifecycleProcess = "2.11.0"
+media3 = "1.11.1"
 mlkitSubjectSegmentation = "16.0.0-beta1"
 mockitoCore = "5.23.0"
 mockitoInline = "5.2.0"
 mockitoKotlin = "6.3.0"
 moshi = "1.15.2"
-nav3Core = "1.1.6"
+nav3 = "1.1.7"
 retrofit = "3.0.0"
 timber = "5.0.1"
 workRuntime = "2.11.2"
@@ -46,9 +47,10 @@ androidx-compose-materialWindow = { group = "androidx.compose.material3", name =
 androidx-compose-ui-tooling-debug = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtxVersion" }
+androidx-lifecycle-process = { group = "androidx.lifecycle", name = "lifecycle-process", version.ref = "lifecycleProcess" }
 androidx-lifecycle-viewmodel-navigation3 = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-navigation3", version.ref = "lifecycleViewmodelNav3" }
-androidx-navigation3-runtime = { group = "androidx.navigation3", name = "navigation3-runtime", version.ref = "nav3Core" }
-androidx-navigation3-ui = { group = "androidx.navigation3", name = "navigation3-ui", version.ref = "nav3Core" }
+androidx-navigation3-runtime = { group = "androidx.navigation3", name = "navigation3-runtime", version.ref = "nav3" }
+androidx-navigation3-ui = { group = "androidx.navigation3", name = "navigation3-ui", version.ref = "nav3" }
 arch-core-testing = { group = "androidx.arch.core", name = "core-testing", version.ref = "archCoreTesting" }
 chucker-debug = { group = "com.github.chuckerteam.chucker", name = "library", version.ref = "chucker" }
 chucker-release = { group = "com.github.chuckerteam.chucker", name = "library-no-op", version.ref = "chucker" }

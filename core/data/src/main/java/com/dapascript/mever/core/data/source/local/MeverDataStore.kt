@@ -80,6 +80,7 @@ class MeverDataStore @Inject constructor(
         const val KEY_LINK_CONTENT = "link_content"
         const val KEY_PIP = "pip_enabled"
         const val KEY_IS_FIRST_CHANGE = "is_first_change_language"
+        const val KEY_LAST_INTERACTION_TIME = "last_interaction_time"
 
         const val MIN_ADS_THRESHOLD = 2
         const val MAX_ADS_THRESHOLD = 3
