@@ -1,3 +1,4 @@
-- Added a notification when content is found, making it easier to download.
-- Fixed several minor issues.
-- Reduced CPU usage when displaying the gallery.
+- Smoother screen transitions for a more fluid experience.
+- Faster performance with optimized storage cleaning.
+- Improved security and battery life with smart idle detection.
+- General stability improvements and bug fixes.
