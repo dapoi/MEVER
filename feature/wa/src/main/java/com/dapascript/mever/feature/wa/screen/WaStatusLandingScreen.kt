@@ -89,14 +89,14 @@ import com.dapascript.mever.core.common.util.isAppInstalled
 import com.dapascript.mever.core.common.util.navigateToWaStore
 import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
+import com.dapascript.mever.core.data.model.local.WaStatusEntity
+import com.dapascript.mever.core.data.model.local.WaType
+import com.dapascript.mever.core.data.model.local.WaType.ALL
+import com.dapascript.mever.core.data.model.local.WaType.BUSINESS
+import com.dapascript.mever.core.data.model.local.WaType.REGULAR
 import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute.Content
-import com.dapascript.mever.feature.wa.screen.WaStatusLandingAttr.WaMediaModel
-import com.dapascript.mever.feature.wa.screen.WaStatusLandingAttr.WaMediaModel.WaType
-import com.dapascript.mever.feature.wa.screen.WaStatusLandingAttr.WaMediaModel.WaType.ALL
-import com.dapascript.mever.feature.wa.screen.WaStatusLandingAttr.WaMediaModel.WaType.BUSINESS
-import com.dapascript.mever.feature.wa.screen.WaStatusLandingAttr.WaMediaModel.WaType.REGULAR
 import com.dapascript.mever.feature.wa.viewmodel.WaStatusViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -143,15 +143,15 @@ internal fun WaStatusLandingScreen(
                 regularPermissionGranted = regularUri != null
                 businessPermissionGranted = businessUri != null
 
-                if (isWaRegularInstalled && regularUri != null) {
-                    fetchStatuses(folderUri = regularUri, type = REGULAR)
-                }
+                val hasRegularFetch = isWaRegularInstalled && regularUri != null
+                val hasBusinessFetch = isWaBusinessInstalled && businessUri != null
 
-                if (isWaBusinessInstalled && businessUri != null) {
-                    fetchStatuses(folderUri = businessUri, type = BUSINESS)
-                }
+                if (isWaRegularInstalled) regularUri?.let { fetchStatuses(folderUri = it, type = REGULAR) }
+                if (isWaBusinessInstalled) businessUri?.let { fetchStatuses(folderUri = it, type = BUSINESS) }
 
-                onFetchFinished()
+                if (!hasRegularFetch && !hasBusinessFetch) {
+                    onFetchFinished()
+                }
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -281,11 +281,11 @@ private fun WaStatusContent(
     isExpanded: Boolean,
     regularPermissionGranted: Boolean,
     businessPermissionGranted: Boolean,
-    waStatuses: List<WaMediaModel>?,
+    waStatuses: List<WaStatusEntity>?,
     modifier: Modifier = Modifier,
     onSetTitleHeight: (Int) -> Unit,
     onRequestPermission: (WaType) -> Unit,
-    onClickNavigate: (WaMediaModel) -> Unit
+    onClickNavigate: (WaStatusEntity) -> Unit
 ) {
     var selectedFilter by rememberSaveable {
         mutableStateOf(

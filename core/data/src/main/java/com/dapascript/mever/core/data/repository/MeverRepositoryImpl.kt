@@ -1,8 +1,16 @@
 package com.dapascript.mever.core.data.repository
 
 import android.graphics.Bitmap
+import android.net.Uri
+import android.provider.DocumentsContract.Document.COLUMN_DISPLAY_NAME
+import android.provider.DocumentsContract.Document.COLUMN_DOCUMENT_ID
+import android.provider.DocumentsContract.Document.COLUMN_LAST_MODIFIED
+import android.provider.DocumentsContract.buildChildDocumentsUriUsingTree
+import android.provider.DocumentsContract.buildDocumentUriUsingTree
+import android.provider.DocumentsContract.getTreeDocumentId
 import androidx.work.workDataOf
 import com.dapascript.mever.core.common.util.getContentTypeFromFile
+import com.dapascript.mever.core.common.util.isVideo
 import com.dapascript.mever.core.common.util.sanitizeFilename
 import com.dapascript.mever.core.common.util.saveBitmapToFile
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFiles
@@ -17,6 +25,8 @@ import com.dapascript.mever.core.common.util.worker.WorkerConstant.TYPE_AUDIO
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.TYPE_VIDEO
 import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.dapascript.mever.core.data.model.local.ImageAiEntity
+import com.dapascript.mever.core.data.model.local.WaStatusEntity
+import com.dapascript.mever.core.data.model.local.WaType
 import com.dapascript.mever.core.data.repository.base.BaseRepository
 import com.dapascript.mever.core.data.repository.base.BaseRepositoryArgs
 import com.dapascript.mever.core.data.source.local.MeverDataStore
@@ -208,5 +218,61 @@ internal class MeverRepositoryImpl @Inject constructor(
                 value = newCount
             )
         }
+    }
+
+    override suspend fun fetchWhatsAppStatuses(
+        folderUri: Uri,
+        type: WaType
+    ): List<WaStatusEntity> {
+        val statuses = mutableListOf<WaStatusEntity>()
+
+        try {
+            val treeDocumentId = getTreeDocumentId(folderUri)
+            val childrenUri = buildChildDocumentsUriUsingTree(
+                folderUri,
+                treeDocumentId
+            )
+            val projection = arrayOf(
+                COLUMN_DOCUMENT_ID,
+                COLUMN_DISPLAY_NAME,
+                COLUMN_LAST_MODIFIED
+            )
+
+            context.contentResolver.query(
+                childrenUri, projection, null, null, null
+            )?.use { cursor ->
+                val idColumn = cursor.getColumnIndexOrThrow(COLUMN_DOCUMENT_ID)
+                val nameColumn = cursor.getColumnIndexOrThrow(COLUMN_DISPLAY_NAME)
+                val modifiedColumn = cursor.getColumnIndexOrThrow(COLUMN_LAST_MODIFIED)
+
+                while (cursor.moveToNext()) {
+                    val documentId = cursor.getString(idColumn)
+                    val name = cursor.getString(nameColumn)
+                    val extension = name.substringAfterLast(".", "").lowercase()
+                    val isValidMedia = extension in listOf("jpg", "mp4")
+
+                    name?.let {
+                        if (isValidMedia) {
+                            val fileUri = buildDocumentUriUsingTree(folderUri, documentId)
+                            val lastModified = cursor.getLong(modifiedColumn)
+
+                            statuses.add(
+                                WaStatusEntity(
+                                    uri = fileUri,
+                                    name = name,
+                                    lastModified = lastModified,
+                                    waType = type,
+                                    isVideo = isVideo(name)
+                                )
+                            )
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        return statuses
     }
 }

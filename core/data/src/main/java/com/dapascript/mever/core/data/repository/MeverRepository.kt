@@ -1,10 +1,13 @@
 package com.dapascript.mever.core.data.repository
 
 import android.graphics.Bitmap
+import android.net.Uri
 import com.dapascript.mever.core.common.util.state.ApiState
 import com.dapascript.mever.core.data.model.local.AppConfigEntity
 import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.dapascript.mever.core.data.model.local.ImageAiEntity
+import com.dapascript.mever.core.data.model.local.WaStatusEntity
+import com.dapascript.mever.core.data.model.local.WaType
 import com.ketch.DownloadModel
 import kotlinx.coroutines.flow.Flow
 
@@ -48,4 +51,10 @@ interface MeverRepository {
     fun getClickCount(): Flow<Int>
     fun getAdsThreshold(): Flow<Int>
     suspend fun incrementClickCount()
+
+    // WhatsApp Status
+    suspend fun fetchWhatsAppStatuses(
+        folderUri: Uri,
+        type: WaType
+    ): List<WaStatusEntity>
 }
