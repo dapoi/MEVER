@@ -32,6 +32,7 @@ object CollectionLibs {
             implementation(libs.media3.session.get())
             implementation(libs.media3.ui.get())
             implementation(libs.mlkit.subject.segmentation.get())
+            implementation(libs.play.services.base.get())
             implementation(libs.timber.get())
         }
     }

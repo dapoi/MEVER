@@ -1,11 +1,15 @@
 package com.dapascript.mever.core.common.util
 
 import android.content.ContentResolver
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Bitmap.Config.ARGB_8888
 import android.net.Uri
 import androidx.core.graphics.scale
 import com.dapascript.mever.core.common.util.BackgroundRemovalProcessor.Companion.MAX_SIZE
+import com.google.android.gms.common.api.OptionalModuleApi
+import com.google.android.gms.common.moduleinstall.ModuleInstall
+import com.google.android.gms.common.moduleinstall.ModuleInstallRequest
 import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.common.InputImage.fromBitmap
 import com.google.mlkit.vision.segmentation.subject.SubjectSegmentation
@@ -19,7 +23,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.math.max
 
-class BackgroundRemovalProcessor @Inject constructor() {
+class BackgroundRemovalProcessor @Inject constructor(private val context: Context) {
 
     private var segmenter: SubjectSegmenter? = null
 
@@ -38,9 +42,9 @@ class BackgroundRemovalProcessor @Inject constructor() {
             reqHeight = MAX_SIZE
         )?.toProcessingBitmap() ?: return@withContext null
 
-        val client = getSegmenter()
-
         try {
+            ensureModuleInstalled()
+            val client = getSegmenter()
             // Ensure segmenter is initialized. This can help identify issues early.
             client.initTask.await()
             val result = client.process(fromBitmap(source, 0)).await()
@@ -50,9 +54,19 @@ class BackgroundRemovalProcessor @Inject constructor() {
             null
         } finally {
             source.recycle()
-            // We don't close the segmenter here to allow reuse and avoid 
-            // expensive re-initialization which can trigger GPU issues.
         }
+    }
+
+    private suspend fun ensureModuleInstalled() {
+        val client = ModuleInstall.getClient(context)
+        val options = SubjectSegmenterOptions.Builder().build()
+        val api = SubjectSegmentation.getClient(options) as OptionalModuleApi
+
+        client.installModules(
+            ModuleInstallRequest.newBuilder()
+                .addApi(api)
+                .build()
+        ).await()
     }
 
     private fun getSegmenter(): SubjectSegmenter {

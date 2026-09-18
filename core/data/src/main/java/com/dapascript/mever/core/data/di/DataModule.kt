@@ -14,9 +14,9 @@ import com.dapascript.mever.core.data.repository.MeverRepositoryImpl
 import com.dapascript.mever.core.data.repository.base.BaseRepositoryArgs
 import com.dapascript.mever.core.data.source.local.MeverDataStore
 import com.dapascript.mever.core.data.source.remote.ApiService
-import com.ketch.Ketch
 import com.dapascript.mever.core.data.util.ApiKeyInterceptor
 import com.dapascript.mever.core.data.util.MoshiHelper
+import com.ketch.Ketch
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
@@ -121,5 +121,7 @@ internal class DataModule {
 
     @Singleton
     @Provides
-    fun provideBackgroundRemovalProcessor(): BackgroundRemovalProcessor = BackgroundRemovalProcessor()
+    fun provideBackgroundRemovalProcessor(
+        @ApplicationContext context: Context
+    ): BackgroundRemovalProcessor = BackgroundRemovalProcessor(context)
 }
