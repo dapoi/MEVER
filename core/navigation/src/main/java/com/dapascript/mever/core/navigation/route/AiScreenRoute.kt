@@ -11,7 +11,9 @@ sealed interface AiScreenRoute : NavKey {
     @Serializable
     data class AiImageGeneratorResultRoute(
         val prompt: String,
-        val artStyle: String
+        val artStyle: String,
+        val imageResponse: String = "",
+        val isFromDeeplink: Boolean = false
     ) : AiScreenRoute
 
     @Serializable

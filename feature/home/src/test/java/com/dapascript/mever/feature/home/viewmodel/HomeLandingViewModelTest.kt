@@ -3,6 +3,7 @@ package com.dapascript.mever.feature.home.viewmodel
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.dapascript.mever.core.common.util.state.ApiState
 import com.dapascript.mever.core.common.util.state.UiState
+import com.dapascript.mever.core.data.deeplink.DeeplinkManager
 import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.source.local.MeverDataStore
@@ -38,6 +39,7 @@ class HomeLandingViewModelTest {
     private val testScope = TestScope(testDispatcher)
 
     @Mock lateinit var repository: MeverRepository
+    @Mock lateinit var deeplinkManager: DeeplinkManager
 
     private lateinit var viewModel: HomeLandingViewModel
 
@@ -54,9 +56,9 @@ class HomeLandingViewModelTest {
         whenever(repository.getPreference(MeverDataStore.KEY_RESOLUTIONS, "")).thenReturn(flowOf(""))
         whenever(repository.getClickCount()).thenReturn(flowOf(1))
         whenever(repository.getAdsThreshold()).thenReturn(flowOf(3))
-        whenever(repository.getPreference(MeverDataStore.KEY_LINK_CONTENT, "")).thenReturn(flowOf(""))
         whenever(repository.observeDownloads()).thenReturn(flowOf(emptyList()))
-        viewModel = HomeLandingViewModel(repository)
+        whenever(deeplinkManager.deeplinkEvent).thenReturn(flowOf(null))
+        viewModel = HomeLandingViewModel(repository, deeplinkManager)
     }
 
     @After

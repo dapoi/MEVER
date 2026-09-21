@@ -21,16 +21,20 @@ import com.dapascript.mever.core.common.util.PlatformType.VIDEY
 import com.dapascript.mever.core.common.util.PlatformType.X
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE_MUSIC
-import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.PATH_HOME
-import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.QUERY_ERROR
-import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.QUERY_RESPONSES
-import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.QUERY_URL
+import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.Path.HOME
+import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.Path.IMAGE_GENERATOR
+import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.Query.ART_STYLE
+import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.Query.ERROR
+import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.Query.PROMPT
+import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.Query.RESPONSES
+import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.Query.URL
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkNotificationManager.showNotification
 import com.dapascript.mever.core.common.util.deeplink.buildMeverDeeplink
 import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.ACTION_DOWNLOAD
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.ACTION_GENERATE_AI
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_ACTION
+import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_ART_STYLE
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_ERROR
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_OUTPUT_FILE_PATH
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_OUTPUT_IS_FILE
@@ -91,7 +95,14 @@ internal class MeverWorker @AssistedInject constructor(
 
                 ACTION_GENERATE_AI -> {
                     currentCoroutineContext().ensureActive()
-                    apiService.getImageAiGenerator(prompt).mapToEntity() to ImageAiEntity::class.java
+                    val artStyle = inputData.getString(KEY_ART_STYLE).orEmpty()
+                    val promptWithStyle = if (artStyle.isNotEmpty()) {
+                        "Generate an image of $prompt in $artStyle style"
+                    } else prompt
+
+                    val res = apiService.getImageAiGenerator(promptWithStyle).mapToEntity()
+
+                    res to ImageAiEntity::class.java
                 }
 
                 else -> throw IllegalArgumentException("Unknown action: $action")
@@ -113,23 +124,41 @@ internal class MeverWorker @AssistedInject constructor(
                     KEY_RESULT to jsonOutput
                 )
             }
-            val deeplink = buildMeverDeeplink(
-                path = PATH_HOME,
+            val deeplinkDownload = buildMeverDeeplink(
+                path = HOME,
                 params = mapOf(
-                    QUERY_URL to url,
-                    QUERY_RESPONSES to jsonOutput
+                    URL to url,
+                    RESPONSES to jsonOutput
                 )
             )
-
-            if (action == ACTION_DOWNLOAD) showNotification(
-                context = context,
-                title = context.getString(
+            val deeplinkImageGenerator = buildMeverDeeplink(
+                path = IMAGE_GENERATOR,
+                params = mapOf(
+                    PROMPT to prompt,
+                    ART_STYLE to inputData.getString(KEY_ART_STYLE).orEmpty(),
+                    RESPONSES to jsonOutput
+                )
+            )
+            val notifData = Triple(
+                if (action == ACTION_DOWNLOAD) context.getString(
                     R.string.notif_link_found_title,
                     getPlatformType(url, type).platformName
+                ) else context.getString(R.string.notif_ai_title),
+                context.getString(
+                    if (action == ACTION_DOWNLOAD) R.string.notif_link_found_description
+                    else R.string.notif_ai_desc
                 ),
-                desc = context.getString(R.string.notif_link_found_description),
-                deeplink = deeplink
+                if (action == ACTION_DOWNLOAD) deeplinkDownload else deeplinkImageGenerator
             )
+
+            notifData.let { (title, desc, deeplink) ->
+                showNotification(
+                    context = context,
+                    title = title,
+                    desc = desc,
+                    deeplink = deeplink
+                )
+            }
             Result.success(outputData)
         } catch (e: CancellationException) {
             throw e
@@ -141,14 +170,23 @@ internal class MeverWorker @AssistedInject constructor(
                 is HttpException -> context.getString(R.string.error_http, e.code())
                 else -> e.message ?: context.getString(R.string.error_unknown)
             }
-            val deeplink = buildMeverDeeplink(
-                path = PATH_HOME,
+            val deeplinkDownload = buildMeverDeeplink(
+                path = HOME,
                 params = mapOf(
-                    QUERY_URL to url,
-                    QUERY_ERROR to errorMessage
+                    URL to url,
+                    ERROR to errorMessage
                 )
             )
-            if (action == ACTION_DOWNLOAD) showNotification(
+            val deeplinkImageGenerator = buildMeverDeeplink(
+                path = IMAGE_GENERATOR,
+                params = mapOf(
+                    PROMPT to prompt,
+                    ART_STYLE to inputData.getString(KEY_ART_STYLE).orEmpty(),
+                    ERROR to errorMessage
+                )
+            )
+            val deeplink = if (action == ACTION_DOWNLOAD) deeplinkDownload else deeplinkImageGenerator
+            showNotification(
                 context = context,
                 title = context.getString(UiR.string.error_title),
                 desc = errorMessage,

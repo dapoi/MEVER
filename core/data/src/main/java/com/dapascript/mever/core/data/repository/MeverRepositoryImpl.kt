@@ -17,6 +17,7 @@ import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFiles
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFolder
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.ACTION_DOWNLOAD
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.ACTION_GENERATE_AI
+import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_ART_STYLE
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_PROMPT
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_QUALITY
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_TYPE
@@ -83,10 +84,14 @@ internal class MeverRepositoryImpl @Inject constructor(
         apiService.getImageSearch(query).mapToEntity() ?: emptyList()
     }
 
-    override fun getImageAiGenerator(prompt: String) = safeWorkerCall<ImageAiEntity>(
+    override fun getImageAiGenerator(
+        prompt: String,
+        artStyle: String
+    ) = safeWorkerCall<ImageAiEntity>(
         serviceType = ACTION_GENERATE_AI,
         requestParam = workDataOf(
-            KEY_PROMPT to prompt.take(1000)
+            KEY_PROMPT to prompt.take(1000),
+            KEY_ART_STYLE to artStyle
         )
     )
 
@@ -178,22 +183,18 @@ internal class MeverRepositoryImpl @Inject constructor(
     override fun <T : Any> getPreference(
         keyName: String,
         defaultValue: T
-    ) = dataStore.getValue(keyName, defaultValue)
+    ) = dataStore.getPreference(keyName, defaultValue)
 
     override suspend fun <T : Any> savePreference(keyName: String, value: T) {
-        dataStore.saveValue(keyName, value)
+        dataStore.savePreference(keyName, value)
     }
 
-    override suspend fun clearPreference(keyName: String) {
-        dataStore.clearValue(keyName)
-    }
-
-    override fun getClickCount(): Flow<Int> = dataStore.getValue(
+    override fun getClickCount(): Flow<Int> = dataStore.getPreference(
         keyName = KEY_CLICK_COUNT,
         defaultValue = 0
     )
 
-    override fun getAdsThreshold(): Flow<Int> = dataStore.getValue(
+    override fun getAdsThreshold(): Flow<Int> = dataStore.getPreference(
         keyName = KEY_ADS_THRESHOLD,
         defaultValue = (MIN_ADS_THRESHOLD..MAX_ADS_THRESHOLD).random()
     )

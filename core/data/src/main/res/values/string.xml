@@ -8,4 +8,6 @@
     <string name="url_error">Invalid URL. Please check the URL and try again.</string>
     <string name="notif_link_found_title">%s Link Found!</string>
     <string name="notif_link_found_description">The file is ready to download. Tap to start downloading.</string>
+    <string name="notif_ai_title">AI Image Generated!</string>
+    <string name="notif_ai_desc">Your stunning image is ready. Tap to view.</string>
 </resources>

@@ -5,11 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.BuildConfig.VERSION_NAME
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.ui.theme.ThemeType
-import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.PATH_HOME
 import com.dapascript.mever.core.data.deeplink.DeeplinkManager
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_LAST_INTERACTION_TIME
-import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_LINK_CONTENT
 import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_THEME
 import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_VERSION
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -40,21 +38,12 @@ internal class MainViewModel @Inject constructor(
         initialValue = ThemeType.System
     )
 
-    private val _navigationEvent = Channel<String>(capacity = Channel.CONFLATED)
-    val navigationEvent = _navigationEvent.receiveAsFlow()
+    private val _navigationPathEvent = Channel<String>(capacity = Channel.CONFLATED)
+    val navigationPathEvent = _navigationPathEvent.receiveAsFlow()
 
     init {
         viewModelScope.launch {
             repository.savePreference(KEY_VERSION, VERSION_NAME)
-        }
-    }
-
-    fun saveLinkContent(link: String, isTriggerNavigation: Boolean = true) {
-        viewModelScope.launch {
-            repository.savePreference(KEY_LINK_CONTENT, link)
-            if (isTriggerNavigation) {
-                _navigationEvent.send(PATH_HOME)
-            }
         }
     }
 
@@ -63,7 +52,7 @@ internal class MainViewModel @Inject constructor(
             deeplinkManager.handleDeeplink(uri)
             if (isTriggerNavigation) {
                 val path = uri.path.orEmpty()
-                _navigationEvent.send(path)
+                _navigationPathEvent.send(path)
             }
         }
     }

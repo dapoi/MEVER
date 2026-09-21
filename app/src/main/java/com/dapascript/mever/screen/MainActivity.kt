@@ -23,6 +23,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
+import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import com.dapascript.mever.BuildConfig.ADMOB_ID
 import com.dapascript.mever.core.common.ui.theme.MeverDark
@@ -36,7 +37,9 @@ import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.DeviceType.TABLET
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.LocalDeviceType
-import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.PATH_HOME
+import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.Path.SPLASH
+import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.Query.URL
+import com.dapascript.mever.core.common.util.deeplink.buildMeverDeeplink
 import com.dapascript.mever.core.common.util.recreateActivity
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.navigation.MainNavigation
@@ -46,7 +49,6 @@ import com.google.android.libraries.ads.mobile.sdk.MobileAds
 import com.google.android.libraries.ads.mobile.sdk.initialization.InitializationConfig
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
@@ -65,13 +67,7 @@ class MainActivity : AppCompatActivity() {
         setupAdmob()
         setupIntent(intent = intent, isTriggerNavigation = false)
 
-        val action = intent.action
-        val type = intent.type
-        val initialPath = when (action) {
-            ACTION_VIEW -> intent.data?.path
-            ACTION_SEND if type == "text/plain" -> PATH_HOME
-            else -> null
-        }
+        val initialPath = if (intent.action == ACTION_VIEW) intent.data?.path else null
 
         setContent {
             val themeType = viewModel.themeType.collectAsStateValue()
@@ -121,7 +117,7 @@ class MainActivity : AppCompatActivity() {
                     ) {
                         MainNavigation(
                             navGraphs = navGraphs,
-                            navigationEvent = viewModel.navigationEvent,
+                            navigationPathEvent = viewModel.navigationPathEvent,
                             initialPath = initialPath
                         )
                     }
@@ -161,25 +157,29 @@ class MainActivity : AppCompatActivity() {
                 this@MainActivity,
                 InitializationConfig.Builder(ADMOB_ID).build()
             )
-            Timber.d("AdMob initialized")
         }
     }
 
     private fun setupIntent(intent: Intent?, isTriggerNavigation: Boolean) {
-        when (intent?.action) {
-            ACTION_SEND if intent.type == "text/plain" -> {
-                intent.getStringExtra(EXTRA_TEXT)?.let { link ->
-                    viewModel.saveLinkContent(link, isTriggerNavigation)
-                    this.intent.action = ""
+        val action = intent?.action
+        val type = intent?.type
+
+        when (action) {
+            ACTION_SEND if type == "text/plain" -> {
+                intent.getStringExtra(EXTRA_TEXT)?.let { url ->
+                    val deepLink = buildMeverDeeplink(
+                        path = SPLASH,
+                        params = mapOf(URL to url)
+                    )
+                    viewModel.handleDeeplink(deepLink.toUri(), isTriggerNavigation)
                 }
             }
 
-            ACTION_VIEW -> {
-                intent.data?.let { uri ->
-                    viewModel.handleDeeplink(uri, isTriggerNavigation)
-                    this.intent.action = ""
-                }
+            ACTION_VIEW -> intent.data?.let { uri ->
+                viewModel.handleDeeplink(uri, isTriggerNavigation)
             }
         }
+
+        action?.let { intent.action = "" }
     }
 }

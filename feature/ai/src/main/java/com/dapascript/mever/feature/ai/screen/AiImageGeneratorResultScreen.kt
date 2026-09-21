@@ -3,7 +3,6 @@ package com.dapascript.mever.feature.ai.screen
 import android.content.Context
 import android.graphics.Bitmap.CompressFormat.PNG
 import android.os.Handler
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.fadeIn
@@ -47,11 +46,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale.Companion.FillBounds
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.core.app.NotificationManagerCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
@@ -90,7 +89,9 @@ import com.dapascript.mever.core.common.util.DeviceType
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.LocalDeviceType
+import com.dapascript.mever.core.common.util.changeToCurrentDate
 import com.dapascript.mever.core.common.util.copyToClipboard
+import com.dapascript.mever.core.common.util.deeplink.DeeplinkNotificationManager.NOTIFICATION_ID
 import com.dapascript.mever.core.common.util.fetchPhotoFromUrl
 import com.dapascript.mever.core.common.util.getStoragePermission
 import com.dapascript.mever.core.common.util.navigateToAppSettings
@@ -100,6 +101,7 @@ import com.dapascript.mever.core.common.util.shareContent
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getStorageInfo
 import com.dapascript.mever.core.common.util.storage.StorageUtil.isStorageFull
+import com.dapascript.mever.core.data.model.local.ImageAiEntity
 import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.AiScreenRoute.AiImageGeneratorLandingRoute
 import com.dapascript.mever.core.navigation.route.AiScreenRoute.AiImageGeneratorResultRoute
@@ -111,6 +113,7 @@ import com.dapascript.mever.feature.ai.viewmodel.AiImageGeneratorResultViewModel
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
+import java.lang.System.currentTimeMillis
 
 @Composable
 internal fun AiImageGeneratorResultScreen(
@@ -140,16 +143,32 @@ internal fun AiImageGeneratorResultScreen(
         showShimmer = true
         getImageAiGenerator(args.prompt, args.artStyle)
     }
+    val notificationManager = remember(context) {
+        NotificationManagerCompat.from(context)
+    }
 
     BaseScreen(
         topBarArgs = TopBarArgs(title = stringResource(R.string.ai_image_generator)),
         useNavigationBarsPadding = true,
         onBackHandler = {
+            notificationManager.cancel(NOTIFICATION_ID)
             if (showShimmer) showCancelExitConfirmation = true else navigator.navigateBack()
         }
     ) {
-        LaunchedEffect(imageResult) {
-            if (imageResult == null) getImageAiGenerator(args.prompt, args.artStyle)
+        LaunchedEffect(imageResult, args) {
+            when (imageResult) {
+                null if args.imageResponse.isEmpty() -> {
+                    getImageAiGenerator(args.prompt, args.artStyle)
+                }
+
+                null if args.imageResponse.isNotEmpty() -> {
+                    imageResult = ImageAiEntity(
+                        imagesUrl = args.imageResponse,
+                        fileName = "MEVER_${changeToCurrentDate(currentTimeMillis())}.jpg"
+                    )
+                    showShimmer = false
+                }
+            }
         }
 
         LaunchedEffect(aiResponseState) {
@@ -190,13 +209,11 @@ internal fun AiImageGeneratorResultScreen(
                 )
                 navigator.navigate(
                     route = GalleryLandingRoute,
-                    popUpTo = AiImageGeneratorLandingRoute,
+                    popUpTo = if (args.isFromDeeplink) args else AiImageGeneratorLandingRoute,
                     isInclusive = true
                 )
             }
         }
-
-        BackHandler { showCancelExitConfirmation = true }
 
         if (checkStoragePermission.isNotEmpty()) {
             val storageInfo = remember { getStorageInfo(context) }
@@ -213,7 +230,7 @@ internal fun AiImageGeneratorResultScreen(
                         )
                         navigator.navigate(
                             route = GalleryLandingRoute,
-                            popUpTo = AiImageGeneratorLandingRoute,
+                            popUpTo = if (args.isFromDeeplink) args else AiImageGeneratorLandingRoute,
                             isInclusive = true
                         )
                     }
@@ -305,7 +322,7 @@ internal fun AiImageGeneratorResultScreen(
         }
 
         AnimatedContent(
-            targetState = showShimmer && imageResult?.imagesUrl.isNullOrEmpty(),
+            targetState = showShimmer && imageResult == null,
             transitionSpec = { (fadeIn() togetherWith fadeOut()).using(SizeTransform(clip = false)) }
         ) { isLoading ->
             if (isLoading) ImageGeneratorLoading(
@@ -354,6 +371,7 @@ internal fun AiImageGeneratorResultScreen(
                     }
                 },
                 onClickRegenerate = {
+                    notificationManager.cancel(NOTIFICATION_ID)
                     onClickWithAds(
                         buttonClickCount = getButtonClickCount,
                         adsThreshold = adsThreshold,
@@ -366,7 +384,10 @@ internal fun AiImageGeneratorResultScreen(
                         }
                     )
                 },
-                onClickDownload = { checkStoragePermission = getStoragePermission() },
+                onClickDownload = {
+                    notificationManager.cancel(NOTIFICATION_ID)
+                    checkStoragePermission = getStoragePermission()
+                },
                 onClickImage = {
                     navigator.navigate(
                         GalleryContentDetailRoute(
@@ -423,8 +444,7 @@ private fun ImageGeneratorResultContent(
         ) {
             MeverImage(
                 modifier = Modifier.fillMaxSize(),
-                source = urlImage,
-                contentScale = FillBounds
+                source = urlImage
             )
             Box(
                 modifier = Modifier

@@ -25,21 +25,14 @@ class MeverDataStore @Inject constructor(
 ) {
     private val dataStore = context.dataStore
 
-    suspend fun <T : Any> saveValue(keyName: String, value: T) {
+    suspend fun <T : Any> savePreference(keyName: String, value: T) {
         val key = getPrefKey(keyName, value)
         dataStore.edit { preferences ->
             preferences[key] = value
         }
     }
 
-    suspend fun clearValue(keyName: String) {
-        val key = getPrefKey(keyName, "")
-        dataStore.edit { preferences ->
-            preferences.remove(key)
-        }
-    }
-
-    fun <T : Any> getValue(keyName: String, defaultValue: T): Flow<T> {
+    fun <T : Any> getPreference(keyName: String, defaultValue: T): Flow<T> {
         val key = getPrefKey(keyName, defaultValue)
         return dataStore.data
             .catch { exception ->
@@ -77,7 +70,6 @@ class MeverDataStore @Inject constructor(
         const val KEY_THEME = "theme"
         const val KEY_CLICK_COUNT = "click_count"
         const val KEY_ADS_THRESHOLD = "ads_threshold"
-        const val KEY_LINK_CONTENT = "link_content"
         const val KEY_PIP = "pip_enabled"
         const val KEY_IS_FIRST_CHANGE = "is_first_change_language"
         const val KEY_LAST_INTERACTION_TIME = "last_interaction_time"

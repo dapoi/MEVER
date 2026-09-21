@@ -18,16 +18,6 @@ internal class MoshiHelper @Inject constructor(val moshi: Moshi) {
         }
     }
 
-    fun <T> fromJson(type: Type, json: String): T? {
-        return try {
-            val adapter: JsonAdapter<T> = moshi.adapter(type)
-            adapter.fromJson(json)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
-    }
-
     inline fun <reified T> fromJson(json: String): T? {
         return try {
             moshi.adapter<T>(resolveType<T>()).fromJson(json)

@@ -2,6 +2,7 @@ package com.dapascript.mever.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.dapascript.mever.core.common.ui.theme.ThemeType
+import com.dapascript.mever.core.data.deeplink.DeeplinkManager
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.source.local.MeverDataStore
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +22,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
-import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -36,6 +36,9 @@ class MainViewModelTest {
     @Mock
     lateinit var repository: MeverRepository
 
+    @Mock
+    lateinit var deeplinkManager: DeeplinkManager
+
     private lateinit var viewModel: MainViewModel
 
     @Before
@@ -44,7 +47,7 @@ class MainViewModelTest {
         Dispatchers.setMain(testDispatcher)
         whenever(repository.getPreference(MeverDataStore.KEY_THEME, ThemeType.System.name))
             .thenReturn(flowOf(ThemeType.System.name))
-        viewModel = MainViewModel(repository)
+        viewModel = MainViewModel(repository, deeplinkManager)
     }
 
     @After
@@ -66,30 +69,12 @@ class MainViewModelTest {
     fun `themeType emits Dark when repository returns Dark`() = testScope.runTest {
         whenever(repository.getPreference(MeverDataStore.KEY_THEME, ThemeType.System.name))
             .thenReturn(flowOf(ThemeType.Dark.name))
-        val vm = MainViewModel(repository)
+        whenever(deeplinkManager.deeplinkEvent).thenReturn(flowOf(null))
+        val vm = MainViewModel(repository, deeplinkManager)
         val collected = mutableListOf<ThemeType>()
         val job = launch { vm.themeType.collect { collected.add(it) } }
         advanceUntilIdle()
         assertTrue(collected.contains(ThemeType.Dark))
-        job.cancel()
-    }
-
-    @Test
-    fun `saveUrlIntent calls repository savePreference`() = testScope.runTest {
-        val url = "https://example.com"
-        viewModel.saveLinkContent(url)
-        advanceUntilIdle()
-        verify(repository).savePreference(MeverDataStore.KEY_LINK_CONTENT, url)
-    }
-
-
-    @Test
-    fun `navigationToHomeEvent emits after saveUrlIntent`() = testScope.runTest {
-        val events = mutableListOf<Unit>()
-        val job = launch { viewModel.navigationToHomeEvent.collect { events.add(it) } }
-        viewModel.saveLinkContent("https://example.com")
-        advanceUntilIdle()
-        assertTrue(events.isNotEmpty())
         job.cancel()
     }
 }

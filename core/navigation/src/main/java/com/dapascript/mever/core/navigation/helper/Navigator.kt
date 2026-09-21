@@ -109,10 +109,6 @@ class Navigator(
                 activity?.finish()
             }
 
-            currentRoute.javaClass.name == state.topLevelRoute.javaClass.name -> {
-                navigate(HomeLandingRoute, isClearBackStacks = true)
-            }
-
             else -> currentBackStack.removeLastOrNull()
         }
     }

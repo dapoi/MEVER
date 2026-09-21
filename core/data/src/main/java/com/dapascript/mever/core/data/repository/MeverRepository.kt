@@ -20,7 +20,11 @@ interface MeverRepository {
     ): Flow<ApiState<List<ContentEntity>>>
 
     fun getImageSearch(query: String): Flow<ApiState<List<ContentEntity>>>
-    fun getImageAiGenerator(prompt: String): Flow<ApiState<ImageAiEntity?>>
+    fun getImageAiGenerator(
+        prompt: String,
+        artStyle: String
+    ): Flow<ApiState<ImageAiEntity?>>
+
     fun postReportAiImage(message: String): Flow<ApiState<Unit>>
     fun uploadImage(bitmap: Bitmap, fileName: String): Flow<ApiState<String?>>
 
@@ -45,7 +49,6 @@ interface MeverRepository {
     // Preferences (DataStore)
     fun <T : Any> getPreference(keyName: String, defaultValue: T): Flow<T>
     suspend fun <T : Any> savePreference(keyName: String, value: T)
-    suspend fun clearPreference(keyName: String)
 
     // Click Count & Ads Threshold
     fun getClickCount(): Flow<Int>

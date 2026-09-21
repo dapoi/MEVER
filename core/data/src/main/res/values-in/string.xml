@@ -8,4 +8,6 @@
     <string name="url_error">URL tidak valid. Periksa URL dan coba lagi.</string>
     <string name="notif_link_found_title">Tautan %s Ditemukan!</string>
     <string name="notif_link_found_description">File siap diunduh. Ketuk untuk mulai mengunduh.</string>
+    <string name="notif_ai_title">Gambar AI Berhasil Dibuat!</string>
+    <string name="notif_ai_desc">Ketuk untuk melihat.</string>
 </resources>

@@ -6,7 +6,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.util.PlatformType.AI
-import com.dapascript.mever.core.common.util.changeToCurrentDate
 import com.dapascript.mever.core.common.util.state.UiState
 import com.dapascript.mever.core.common.util.state.UiState.StateInitial
 import com.dapascript.mever.core.common.util.state.UiState.StateLoading
@@ -21,7 +20,6 @@ import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.lang.System.currentTimeMillis
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
 
@@ -55,7 +53,8 @@ internal class AiImageGeneratorResultViewModel @Inject constructor(
         artStyle: String
     ) = collectApiAsUiState(
         response = repository.getImageAiGenerator(
-            prompt = "Generate an image of $prompt in $artStyle style"
+            prompt = prompt,
+            artStyle = artStyle
         ),
         state = _aiResponseState
     )
@@ -77,7 +76,7 @@ internal class AiImageGeneratorResultViewModel @Inject constructor(
         if (url.isBlank()) return
         repository.download(
             url = url,
-            fileName = fileName.ifEmpty { changeToCurrentDate(currentTimeMillis()) + ".jpg" },
+            fileName = fileName,
             tag = AI.platformName
         )
     }

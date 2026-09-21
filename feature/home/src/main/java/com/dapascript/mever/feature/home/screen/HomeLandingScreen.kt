@@ -149,9 +149,11 @@ import com.dapascript.mever.core.common.util.storage.StorageUtil.StorageInfo
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getStorageInfo
 import com.dapascript.mever.core.common.util.storage.StorageUtil.isStorageFull
 import com.dapascript.mever.core.common.util.syncToGallery
-import com.dapascript.mever.core.data.deeplink.event.DeeplinkEvent
-import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_LINK_CONTENT
+import com.dapascript.mever.core.data.deeplink.event.DeeplinkEvent.DownloadResult
+import com.dapascript.mever.core.data.deeplink.event.DeeplinkEvent.ImageGenerator
+import com.dapascript.mever.core.data.deeplink.event.DeeplinkEvent.SharedUrl
 import com.dapascript.mever.core.navigation.helper.Navigator
+import com.dapascript.mever.core.navigation.route.AiScreenRoute.AiImageGeneratorResultRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute.Content
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute
@@ -346,7 +348,6 @@ private fun HomeLandingContent(
     val downloadList = downloadList.collectAsStateValue()
     val downloaderResponseState = downloaderResponseState.collectAsStateValue()
     val youtubeResolutions = youtubeResolutions.collectAsStateValue()
-    val linkContent = linkContent.collectAsStateValue()
     val showSupportedPlatform = showSupportedPlatform.collectAsStateValue()
     val isImageAiEnabled = isImageAiEnabled.collectAsStateValue()
     val isGoImgEnabled = isGoImgEnabled.collectAsStateValue()
@@ -425,21 +426,40 @@ private fun HomeLandingContent(
             }
     }
 
-    LaunchedEffect(linkContent) {
-        if (linkContent.isNotEmpty()) {
-            urlSocialMediaState = TextFieldValue(linkContent)
-            checkStoragePermissions = getStoragePermission()
-            delay(1.seconds)
-            viewModel.clearValue(KEY_LINK_CONTENT)
-        }
-    }
-
     LaunchedEffect(deeplinkEvent) {
-        if (deeplinkEvent is DeeplinkEvent.DownloadResult) {
-            urlSocialMediaState = TextFieldValue(deeplinkEvent.url)
-            contents = deeplinkEvent.contents
-            errorMessage = deeplinkEvent.errorMessage
-            consumeDeeplinkEvent()
+        when (deeplinkEvent) {
+            is SharedUrl -> {
+                urlSocialMediaState = TextFieldValue(deeplinkEvent.url)
+                onClickWithAds(
+                    buttonClickCount = getButtonClickCount,
+                    adsThreshold = adsThreshold,
+                    onIncrementClickCount = { incrementClickCount() },
+                    onShowAds = { interstitialController.showAd() },
+                    onClickAction = { checkStoragePermissions = getStoragePermission() }
+                )
+                consumeDeeplinkEvent()
+            }
+
+            is DownloadResult -> {
+                urlSocialMediaState = TextFieldValue(deeplinkEvent.url)
+                contents = deeplinkEvent.contents
+                errorMessage = deeplinkEvent.errorMessage
+                consumeDeeplinkEvent()
+            }
+
+            is ImageGenerator -> {
+                navigator.navigate(
+                    route = AiImageGeneratorResultRoute(
+                        prompt = deeplinkEvent.prompt,
+                        artStyle = deeplinkEvent.artStyle,
+                        imageResponse = deeplinkEvent.imageResponse,
+                        isFromDeeplink = true
+                    )
+                )
+                consumeDeeplinkEvent()
+            }
+
+            else -> Unit
         }
     }
 

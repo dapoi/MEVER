@@ -1,5 +1,6 @@
 package com.dapascript.mever.core.navigation
 
+import android.util.Log
 import androidx.compose.animation.core.Spring.StiffnessMedium
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
@@ -24,8 +25,8 @@ import androidx.navigation3.runtime.serialization.NavKeySerializer
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.compose.serialization.serializers.MutableStateSerializer
 import com.dapascript.mever.core.common.util.LocalActivity
+import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.Path.SPLASH
 import com.dapascript.mever.core.navigation.base.BaseNavGraph
-import com.dapascript.mever.core.navigation.deeplink.MeverDeeplinkRegistry
 import com.dapascript.mever.core.navigation.helper.NavigationState
 import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeLandingRoute
@@ -35,12 +36,12 @@ import kotlinx.coroutines.flow.Flow
 @Composable
 fun MainNavigation(
     navGraphs: Set<@JvmSuppressWildcards BaseNavGraph>,
-    navigationEvent: Flow<String>? = null,
+    navigationPathEvent: Flow<String>? = null,
     initialPath: String? = null
 ) {
     val activity = LocalActivity.current
     val topLevelRoutes = remember { setOf(SplashRoute, HomeLandingRoute) }
-    val startRoute = remember(initialPath) { MeverDeeplinkRegistry[initialPath] ?: SplashRoute }
+    val startRoute = remember(initialPath) { initialPath?.let { HomeLandingRoute } ?: SplashRoute }
     val navigationState = rememberNavigationState(
         startRoute = startRoute,
         topLevelRoutes = topLevelRoutes
@@ -54,14 +55,13 @@ fun MainNavigation(
         }
     }
 
-    LaunchedEffect(navigationEvent, navigator) {
-        navigationEvent?.collect { path ->
-            MeverDeeplinkRegistry[path]?.let { route ->
-                navigator.navigate(
-                    route = route,
-                    isClearBackStacks = true
-                )
-            }
+    LaunchedEffect(navigationPathEvent, navigator) {
+        navigationPathEvent?.collect { path ->
+            Log.d("MainNavigation", "Navigating to path: $path")
+            navigator.navigate(
+                route = if (path == SPLASH) SplashRoute else HomeLandingRoute,
+                isClearBackStacks = true
+            )
         }
     }
 

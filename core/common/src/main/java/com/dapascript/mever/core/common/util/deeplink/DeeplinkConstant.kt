@@ -1,12 +1,20 @@
 package com.dapascript.mever.core.common.util.deeplink
 
 object DeeplinkConstant {
-    const val DEEPLINK_SCHEME = "app"
-    const val DEEPLINK_HOST = "mever"
+    const val SCHEME = "app"
+    const val HOST = "mever"
 
-    const val PATH_HOME = "/home"
+    object Path {
+        const val SPLASH = "/splash"
+        const val HOME = "/home"
+        const val IMAGE_GENERATOR = "/image-generator"
+    }
 
-    const val QUERY_URL = "url"
-    const val QUERY_ERROR = "error_msg"
-    const val QUERY_RESPONSES = "responses"
+    object Query {
+        const val URL = "url"
+        const val ERROR = "error_msg"
+        const val RESPONSES = "responses"
+        const val PROMPT = "prompt"
+        const val ART_STYLE = "art_style"
+    }
 }

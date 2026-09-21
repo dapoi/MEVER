@@ -10,6 +10,7 @@ object WorkerConstant {
     const val KEY_URL = "url"
     const val KEY_QUALITY = "quality"
     const val KEY_PROMPT = "prompt"
+    const val KEY_ART_STYLE = "art_style"
     const val KEY_TYPE = "type"
 
     /**

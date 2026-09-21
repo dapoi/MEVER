@@ -20,7 +20,6 @@ import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.source.local.MeverDataStore
 import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_IS_GO_IMG_ENABLED
 import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_IS_IMAGE_AI_ENABLED
-import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_LINK_CONTENT
 import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_RESOLUTIONS
 import com.ketch.Status.PAUSED
 import com.ketch.Status.PROGRESS
@@ -95,12 +94,6 @@ internal class HomeLandingViewModel @Inject constructor(
         scope = viewModelScope,
         started = WhileSubscribed(),
         initialValue = 3
-    )
-
-    val linkContent = repository.getPreference(KEY_LINK_CONTENT, "").stateIn(
-        scope = viewModelScope,
-        started = WhileSubscribed(),
-        initialValue = ""
     )
 
     val showSupportedPlatform = repository.getPreference(
@@ -194,8 +187,4 @@ internal class HomeLandingViewModel @Inject constructor(
     }
 
     fun consumeDeeplinkEvent() = deeplinkManager.clearDeeplink()
-
-    fun clearValue(key: String) = viewModelScope.launch {
-        repository.clearPreference(key)
-    }
 }
