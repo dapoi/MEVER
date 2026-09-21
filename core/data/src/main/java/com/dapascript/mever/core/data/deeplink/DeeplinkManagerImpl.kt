@@ -19,7 +19,6 @@ import com.dapascript.mever.core.data.deeplink.event.DeeplinkEvent.SharedUrl
 import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.dapascript.mever.core.data.model.local.ImageAiEntity
 import com.dapascript.mever.core.data.util.MoshiHelper
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
@@ -29,7 +28,7 @@ internal class DeeplinkManagerImpl @Inject constructor(
 ) : DeeplinkManager {
 
     private val _deeplinkEvent = MutableStateFlow<DeeplinkEvent?>(null)
-    override val deeplinkEvent: Flow<DeeplinkEvent?> = _deeplinkEvent.asStateFlow()
+    override val deeplinkEvent = _deeplinkEvent.asStateFlow()
 
     override suspend fun handleDeeplink(uri: Uri) {
         if (uri.scheme != SCHEME || uri.host != HOST) {
@@ -37,7 +36,7 @@ internal class DeeplinkManagerImpl @Inject constructor(
             return
         }
 
-        val event = when (uri.path) {
+        _deeplinkEvent.value = when (uri.path) {
             SPLASH -> SharedUrl(url = uri.getQueryParameter(URL).orEmpty())
             HOME -> {
                 val url = uri.getQueryParameter(URL).orEmpty()
@@ -71,7 +70,6 @@ internal class DeeplinkManagerImpl @Inject constructor(
 
             else -> Default
         }
-        _deeplinkEvent.value = event
     }
 
     override fun clearDeeplink() {

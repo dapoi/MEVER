@@ -1,7 +1,6 @@
 package com.dapascript.mever.core.data.deeplink.event
 
 import com.dapascript.mever.core.data.model.local.ContentEntity
-import com.dapascript.mever.core.data.model.local.ImageAiEntity
 
 sealed interface DeeplinkEvent {
 
