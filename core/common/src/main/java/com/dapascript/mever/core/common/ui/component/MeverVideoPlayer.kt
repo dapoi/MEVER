@@ -82,6 +82,8 @@ import androidx.core.view.doOnDetach
 import androidx.lifecycle.Lifecycle.Event.ON_STOP
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.media3.common.AudioAttributes
+import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaItem.ClippingConfiguration
 import androidx.media3.common.PlaybackException
@@ -96,6 +98,7 @@ import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.SeekParameters
 import androidx.media3.exoplayer.mediacodec.MediaCodecSelector.DEFAULT
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.ui.PlayerView
@@ -128,7 +131,6 @@ import com.dapascript.mever.core.common.util.onCustomClick
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
-import kotlin.math.max
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
@@ -171,18 +173,29 @@ fun MeverVideoPlayer(
     val renderersFactory = remember { renderersFactory(context) }
     val player = remember(context) {
         ExoPlayer.Builder(context, renderersFactory)
+            .setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setContentType(C.AUDIO_CONTENT_TYPE_MOVIE)
+                    .setUsage(C.USAGE_MEDIA)
+                    .build(),
+                /* handleAudioFocus = */ true
+            )
             .setMediaSourceFactory(mediaSourceFactory)
             .setLoadControl(
                 DefaultLoadControl.Builder()
-                    .setBufferDurationsMs(15_000, 50_000, 1_500, 3_000)
+                    .setBufferDurationsMs(15_000, 50_000, 1_000, 1_500)
                     .build()
             )
             .build()
+            .apply {
+                setSeekParameters(SeekParameters.CLOSEST_SYNC)
+            }
     }
 
     // State
     var totalDuration by rememberSaveable { mutableLongStateOf(0L) }
     var videoTimer by remember { mutableLongStateOf(0L) }
+    var bufferedPosition by remember { mutableLongStateOf(0L) }
     var isVideoPlaying by remember { mutableStateOf(false) }
     var playbackState by remember { mutableStateOf<Int?>(null) }
     var isVideoBuffering by remember { mutableStateOf(false) }
@@ -235,16 +248,19 @@ fun MeverVideoPlayer(
     LaunchedEffect(player) {
         while (isActive) {
             videoTimer = player.currentPosition
+            bufferedPosition = player.bufferedPosition
             delay(300.milliseconds)
         }
     }
 
     LaunchedEffect(isVideoBuffering) {
         if (isVideoBuffering && isPreview.not() && didRecoverOnce.not()) {
-            didRecoverOnce = true
-            delay(1500.milliseconds)
-            player.seekTo(max(0L, player.currentPosition - 5_000))
-            player.playWhenReady = true
+            delay(5.seconds)
+            if (isVideoBuffering) {
+                didRecoverOnce = true
+                player.seekTo(player.currentPosition)
+                player.playWhenReady = true
+            }
         }
         if (isVideoBuffering.not()) didRecoverOnce = false
     }
@@ -357,14 +373,14 @@ fun MeverVideoPlayer(
             context = context,
             player = player,
             title = displayFileName(fileName),
-            isStreaming = isPreview,
+            isPreview = isPreview,
             isVideoBuffering = isVideoBuffering,
             iconPlayOrPause = if (isVideoPlaying) R.drawable.ic_pause else R.drawable.ic_play,
             isControllerVisible = showController,
             isFullScreen = isFullScreen,
             videoTimer = videoTimer,
             totalDuration = totalDuration.coerceAtLeast(0L),
-            bufferProgress = player.bufferedPosition.toFloat(),
+            bufferProgress = bufferedPosition.toFloat(),
             onClickAny = { showController = showController.not() },
             onClickRewind = {
                 player.seekTo(player.currentPosition.minus(5000))
@@ -441,7 +457,7 @@ private fun VideoPlayer(
     context: Context,
     player: Player,
     title: String,
-    isStreaming: Boolean,
+    isPreview: Boolean,
     isVideoBuffering: Boolean,
     iconPlayOrPause: Int,
     isControllerVisible: Boolean,
@@ -492,7 +508,7 @@ private fun VideoPlayer(
             MeverTopBar(
                 modifier = Modifier.padding(horizontal = Dp24),
                 topBarArgs = TopBarArgs(
-                    actionMenus = if (isStreaming) emptyList() else listOf(
+                    actionMenus = if (isPreview) emptyList() else listOf(
                         ActionMenu(
                             icon = R.drawable.ic_more,
                             nameIcon = "More",
@@ -524,7 +540,7 @@ private fun VideoPlayer(
                 videoTimer = videoTimer,
                 totalDuration = totalDuration,
                 isFullScreen = isFullScreen,
-                isStreaming = isStreaming,
+                isPreview = isPreview,
                 bufferProgress = bufferProgress,
                 onChangeSeekbar = onChangeSeekbar,
                 onClickFullScreen = onClickFullScreen
@@ -604,7 +620,7 @@ private fun VideoBottomControlSection(
     videoTimer: Long,
     totalDuration: Long,
     isFullScreen: Boolean,
-    isStreaming: Boolean,
+    isPreview: Boolean,
     bufferProgress: Float,
     modifier: Modifier = Modifier,
     onChangeSeekbar: (Float) -> Unit,
@@ -690,7 +706,7 @@ private fun VideoBottomControlSection(
                 style = typography.body1,
                 color = MeverWhite
             )
-            if (isStreaming.not()) Image(
+            if (isPreview.not()) Image(
                 painter = painterResource(
                     if (isFullScreen) R.drawable.ic_fullscreen_exit else R.drawable.ic_fullscreen
                 ),
@@ -715,7 +731,7 @@ private fun Activity.updatePipParams(
     setPictureInPictureParams(builder.build())
 }
 
-private fun MediaItem.Builder.setClipping(isStreaming: Boolean) = if (isStreaming) {
+private fun MediaItem.Builder.setClipping(isPreview: Boolean) = if (isPreview) {
     setClippingConfiguration(
         ClippingConfiguration.Builder()
             .setStartPositionMs(0)
