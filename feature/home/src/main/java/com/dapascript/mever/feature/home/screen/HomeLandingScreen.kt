@@ -427,9 +427,9 @@ private fun HomeLandingContent(
     }
 
     LaunchedEffect(deeplinkEvent) {
-        when (deeplinkEvent) {
+        when (val event = deeplinkEvent) {
             is SharedUrl -> {
-                urlSocialMediaState = TextFieldValue(deeplinkEvent.url)
+                urlSocialMediaState = TextFieldValue(event.url)
                 onClickWithAds(
                     buttonClickCount = getButtonClickCount,
                     adsThreshold = adsThreshold,
@@ -437,30 +437,28 @@ private fun HomeLandingContent(
                     onShowAds = { interstitialController.showAd() },
                     onClickAction = { checkStoragePermissions = getStoragePermission() }
                 )
-                consumeDeeplinkEvent()
             }
 
             is DownloadResult -> {
-                urlSocialMediaState = TextFieldValue(deeplinkEvent.url)
-                contents = deeplinkEvent.contents
-                errorMessage = deeplinkEvent.errorMessage
-                consumeDeeplinkEvent()
+                urlSocialMediaState = TextFieldValue(event.url)
+                contents = event.contents
+                errorMessage = event.errorMessage
             }
 
             is ImageGenerator -> {
                 navigator.navigate(
                     route = AiImageGeneratorResultRoute(
-                        prompt = deeplinkEvent.prompt,
-                        artStyle = deeplinkEvent.artStyle,
-                        imageResponse = deeplinkEvent.imageResponse,
+                        prompt = event.prompt,
+                        artStyle = event.artStyle,
+                        imageResponse = event.imageResponse,
                         isFromDeeplink = true
                     )
                 )
-                consumeDeeplinkEvent()
             }
 
-            else -> Unit
+            else -> return@LaunchedEffect
         }
+        consumeDeeplinkEvent()
     }
 
     LaunchedEffect(downloaderResponseState) {
