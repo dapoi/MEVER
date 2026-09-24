@@ -2,7 +2,7 @@
 <resources>
     <string name="downloader_title">Semua Bisa,\nSatu Aplikasi!</string>
     <string name="target_title">Aplikasi!</string>
-    <string name="downloader_desc">Tak perlu repot ganti-ganti aplikasi. Cukup satu ketukan untuk mengunduh konten secara instan.</string>
+    <string name="downloader_desc">Tak perlu repot ganti-ganti aplikasi. Cukup satu ketukan untuk mengunduh.</string>
     <string name="platforms_supported">Platform yang Didukung</string>
     <string name="paste_url">Tempel link di sini…</string>
     <string name="download">Unduh</string>

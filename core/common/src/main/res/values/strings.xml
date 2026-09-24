@@ -2,7 +2,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:locale="en">
     <string name="downloader_title">All-in-One\nSocial Saver!</string>
     <string name="target_title">Saver!</string>
-    <string name="downloader_desc">No more switching apps for every platform. Just one tap, instantly downloaded.</string>
+    <string name="downloader_desc">No more switching apps for every platform. Just one tap to download.</string>
     <string name="platforms_supported">Supported Platforms</string>
     <string name="paste_url">Paste the link here…</string>
     <string name="download">Download</string>
