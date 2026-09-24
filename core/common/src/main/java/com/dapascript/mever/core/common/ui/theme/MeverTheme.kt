@@ -6,6 +6,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.theme.MeverColors.Dark
 import com.dapascript.mever.core.common.ui.theme.MeverColors.Light
@@ -44,8 +46,13 @@ fun MeverTheme(
 ) {
     val meverTypography = MeverTypography(deviceType)
     val customColors = if (isDarkMode) Dark else Light
+    val currentDensity = LocalDensity.current
 
     CompositionLocalProvider(
+        LocalDensity provides Density(
+            density = currentDensity.density,
+            fontScale = 1f
+        ),
         LocalTypography provides meverTypography,
         LocalColors provides customColors,
         LocalIsDarkMode provides isDarkMode
