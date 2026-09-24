@@ -26,7 +26,7 @@ object MeverIconAttr {
         platform.contains(APPLE_MUSIC.platformName) -> R.drawable.ic_apple
         platform.contains(CAPCUT.platformName) -> R.drawable.ic_capcut
         platform.contains(DOUYIN.platformName) -> R.drawable.ic_tiktok
-        platform.contains(EXPLORE.platformName) -> R.drawable.ic_language
+        platform.contains(EXPLORE.platformName) -> R.drawable.ic_find_image
         platform.contains(FACEBOOK.platformName) -> R.drawable.ic_facebook
         platform.contains(INSTAGRAM.platformName) -> R.drawable.ic_instagram
         platform.contains(PINTEREST.platformName) -> R.drawable.ic_pinterest
