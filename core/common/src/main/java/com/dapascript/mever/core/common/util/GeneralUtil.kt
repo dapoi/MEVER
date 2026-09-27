@@ -88,6 +88,8 @@ import java.util.Calendar.getInstance
 import java.util.Locale.ROOT
 import java.util.Locale.getDefault
 
+private const val META_DATA_DELIMITER = "|ORIGINAL_NAME="
+
 suspend fun fetchPhotoFromUrl(url: String) = withContext(IO) {
     try {
         decodeStream(URL(url).openStream())
@@ -502,6 +504,21 @@ fun sanitizeFilename(filename: String): String {
     val illegalCharsRegex = Regex("[\\\\/:*?\"<>|\\x00-\\x1F\\x7F]")
     val sanitized = filename.replace(illegalCharsRegex, "_")
     return sanitized.replace(Regex("_{2,}"), "_").trim('_', ' ')
+}
+
+fun encodeMetaData(thumbnail: String, originalFileName: String): String {
+    return "$thumbnail$META_DATA_DELIMITER$originalFileName"
+}
+
+fun parseMetaData(metaData: String?): Pair<String?, String?> {
+    if (metaData.isNullOrEmpty()) return Pair(null, null)
+    if (!metaData.contains(META_DATA_DELIMITER)) {
+        return Pair(metaData, null)
+    }
+    val parts = metaData.split(META_DATA_DELIMITER, limit = 2)
+    val thumbnail = parts.getOrNull(0)?.ifEmpty { null }
+    val originalFileName = parts.getOrNull(1)?.ifEmpty { null }
+    return Pair(thumbnail, originalFileName)
 }
 
 fun displayFileName(fileName: String) = try {

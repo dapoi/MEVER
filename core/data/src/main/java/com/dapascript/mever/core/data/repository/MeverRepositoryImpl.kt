@@ -9,8 +9,10 @@ import android.provider.DocumentsContract.buildChildDocumentsUriUsingTree
 import android.provider.DocumentsContract.buildDocumentUriUsingTree
 import android.provider.DocumentsContract.getTreeDocumentId
 import androidx.work.workDataOf
+import com.dapascript.mever.core.common.util.encodeMetaData
 import com.dapascript.mever.core.common.util.getContentTypeFromFile
 import com.dapascript.mever.core.common.util.isVideo
+import com.dapascript.mever.core.common.util.parseMetaData
 import com.dapascript.mever.core.common.util.sanitizeFilename
 import com.dapascript.mever.core.common.util.saveBitmapToFile
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFiles
@@ -125,9 +127,12 @@ internal class MeverRepositoryImpl @Inject constructor(
             downloads.filter { it.status == CANCELLED }.forEach { ketch.clearDb(it.id) }
         }
         .map { downloads ->
-            downloads.filter { it.status != CANCELLED }.map {
-                it.copy(
-                    path = File(meverFolder, it.fileName).absolutePath
+            downloads.filter { it.status != CANCELLED }.map { item ->
+                val (thumbnail, originalFileName) = parseMetaData(item.metaData)
+                item.copy(
+                    path = File(meverFolder, item.fileName).absolutePath,
+                    fileName = originalFileName ?: item.fileName,
+                    metaData = thumbnail ?: ""
                 )
             }.sortedWith(
                 compareByDescending<DownloadModel> {
@@ -142,12 +147,13 @@ internal class MeverRepositoryImpl @Inject constructor(
         tag: String,
         thumbnail: String
     ) {
+        val sanitized = sanitizeFilename(fileName)
         ketch.download(
             url = url,
             path = meverFolder.path,
-            fileName = sanitizeFilename(fileName),
+            fileName = sanitized,
             tag = tag,
-            metaData = thumbnail
+            metaData = encodeMetaData(thumbnail, fileName)
         )
     }
 

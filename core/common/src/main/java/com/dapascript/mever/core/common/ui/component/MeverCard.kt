@@ -178,7 +178,7 @@ fun MeverCard(
                         }
                         Text(
                             text = displayFileName(
-                                path.substringAfterLast("/").ifEmpty { fileName }
+                                fileName.ifEmpty { path.substringAfterLast("/") }
                             ),
                             style = typography.bodyBold2,
                             color = colors.blackWhite,
