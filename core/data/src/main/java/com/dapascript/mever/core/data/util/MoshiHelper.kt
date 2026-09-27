@@ -8,9 +8,9 @@ import javax.inject.Inject
 
 internal class MoshiHelper @Inject constructor(val moshi: Moshi) {
 
-    fun <T> toJson(type: Type, data: T): String? {
+    inline fun <reified T> toJson(data: T): String? {
         return try {
-            val adapter: JsonAdapter<T> = moshi.adapter(type)
+            val adapter: JsonAdapter<T> = moshi.adapter(resolveType<T>())
             adapter.toJson(data)
         } catch (e: Exception) {
             e.printStackTrace()
@@ -33,6 +33,7 @@ internal class MoshiHelper @Inject constructor(val moshi: Moshi) {
     }
 
     abstract class TypeToken<T> {
-        val type: Type = (this::class.java.genericSuperclass as ParameterizedType).actualTypeArguments[0]
+        val type: Type =
+            (this::class.java.genericSuperclass as ParameterizedType).actualTypeArguments[0]
     }
 }

@@ -45,11 +45,8 @@ import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_TYPE
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_URL
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.SIZE_LIMIT
 import com.dapascript.mever.core.data.R
-import com.dapascript.mever.core.data.model.local.ContentEntity
-import com.dapascript.mever.core.data.model.local.ImageAiEntity
 import com.dapascript.mever.core.data.source.remote.ApiService
 import com.dapascript.mever.core.data.util.MoshiHelper
-import com.squareup.moshi.Types
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CancellationException
@@ -77,7 +74,7 @@ internal class MeverWorker @AssistedInject constructor(
         val prompt = inputData.getString(KEY_PROMPT).orEmpty()
 
         return try {
-            val (resultData, resultType) = when (action) {
+            val resultData = when (action) {
                 ACTION_DOWNLOAD -> {
                     currentCoroutineContext().ensureActive()
                     val res = getApiDownloader(
@@ -90,7 +87,7 @@ internal class MeverWorker @AssistedInject constructor(
                         throw Exception(context.getString(R.string.url_error))
                     }
 
-                    res to Types.newParameterizedType(List::class.java, ContentEntity::class.java)
+                    res
                 }
 
                 ACTION_GENERATE_AI -> {
@@ -100,15 +97,13 @@ internal class MeverWorker @AssistedInject constructor(
                         "Generate an image of $prompt in $artStyle style"
                     } else prompt
 
-                    val res = apiService.getImageAiGenerator(promptWithStyle).mapToEntity()
-
-                    res to ImageAiEntity::class.java
+                    apiService.getImageAiGenerator(promptWithStyle).mapToEntity()
                 }
 
                 else -> throw IllegalArgumentException("Unknown action: $action")
             }
 
-            val jsonOutput = moshiHelper.toJson(resultType, resultData)
+            val jsonOutput = moshiHelper.toJson(resultData)
             val size = jsonOutput?.toByteArray()?.size ?: 0
             val outputData = if (size > SIZE_LIMIT) {
                 val path = context.cacheDir
