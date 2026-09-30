@@ -80,10 +80,12 @@ import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
+import com.dapascript.mever.core.common.util.FadeSide.Bottom
 import com.dapascript.mever.core.common.util.LocalDeviceType
 import com.dapascript.mever.core.common.util.PlatformType
 import com.dapascript.mever.core.common.util.PlatformType.ALL
 import com.dapascript.mever.core.common.util.PlatformType.EXPLORE
+import com.dapascript.mever.core.common.util.fadingEdge
 import com.dapascript.mever.core.common.util.isMusic
 import com.dapascript.mever.core.common.util.isVideo
 import com.dapascript.mever.core.common.util.navigateToMusic
@@ -316,7 +318,11 @@ internal fun GalleryLandingScreen(
                 filteredDownloads = filteredDownloads,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = Dp64),
+                    .padding(top = Dp64)
+                    .fadingEdge(
+                        side = Bottom,
+                        isVisible = true
+                    ),
                 isExpanded = { isExpanded.value },
                 onClickFilter = {
                     scope.launch {
@@ -708,6 +714,10 @@ private fun GalleryShimmer(
         modifier = Modifier
             .fillMaxSize()
             .padding(top = Dp64)
+            .fadingEdge(
+                side = Bottom,
+                isVisible = true
+            )
     ) {
         Box(
             modifier = Modifier

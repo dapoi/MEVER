@@ -83,8 +83,10 @@ import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
+import com.dapascript.mever.core.common.util.FadeSide.Bottom
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.LocalDeviceType
+import com.dapascript.mever.core.common.util.fadingEdge
 import com.dapascript.mever.core.common.util.isAppInstalled
 import com.dapascript.mever.core.common.util.navigateToWaStore
 import com.dapascript.mever.core.common.util.onCustomClick
@@ -146,8 +148,18 @@ internal fun WaStatusLandingScreen(
                 val hasRegularFetch = isWaRegularInstalled && regularUri != null
                 val hasBusinessFetch = isWaBusinessInstalled && businessUri != null
 
-                if (isWaRegularInstalled) regularUri?.let { fetchStatuses(folderUri = it, type = REGULAR) }
-                if (isWaBusinessInstalled) businessUri?.let { fetchStatuses(folderUri = it, type = BUSINESS) }
+                if (isWaRegularInstalled) regularUri?.let {
+                    fetchStatuses(
+                        folderUri = it,
+                        type = REGULAR
+                    )
+                }
+                if (isWaBusinessInstalled) businessUri?.let {
+                    fetchStatuses(
+                        folderUri = it,
+                        type = BUSINESS
+                    )
+                }
 
                 if (!hasRegularFetch && !hasBusinessFetch) {
                     onFetchFinished()
@@ -243,7 +255,11 @@ internal fun WaStatusLandingScreen(
         WaStatusContent(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = Dp64),
+                .padding(top = Dp64)
+                .fadingEdge(
+                    side = Bottom,
+                    isVisible = true
+                ),
             isWaRegularInstalled = isWaRegularInstalled,
             isWaBusinessInstalled = isWaBusinessInstalled,
             listState = listState,
