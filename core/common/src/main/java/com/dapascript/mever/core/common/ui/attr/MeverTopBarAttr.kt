@@ -101,7 +101,7 @@ object MeverTopBarAttr {
                 text = screenName.orEmpty(),
                 maxLines = 2,
                 overflow = Ellipsis,
-                style = typography.h3.copy(fontWeight = Medium)
+                style = typography.h4.copy(fontWeight = Medium)
             )
         }
     }
