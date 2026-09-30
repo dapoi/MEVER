@@ -741,10 +741,8 @@ private fun GalleryShimmer(
         }
         repeat(itemCount) {
             MeverCardShimmer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = Dp16),
-                paddingValues = PaddingValues(horizontal = Dp24, vertical = Dp12)
+                modifier = Modifier.fillMaxWidth(),
+                paddingValues = PaddingValues(horizontal = Dp24, vertical = Dp16)
             )
         }
     }

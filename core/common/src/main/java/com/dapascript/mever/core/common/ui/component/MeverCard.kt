@@ -97,7 +97,7 @@ fun MeverCard(
             .then(
                 paddingValues?.let {
                     Modifier.padding(it)
-                } ?: Modifier.padding(Dp24)
+                } ?: Modifier.padding(horizontal = Dp24, vertical = Dp16)
             ),
         verticalAlignment = CenterVertically
     ) {

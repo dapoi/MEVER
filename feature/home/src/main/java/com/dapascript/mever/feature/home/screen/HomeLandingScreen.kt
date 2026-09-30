@@ -1229,13 +1229,11 @@ private fun RecentlyDownloadedSection(
                     isHorizontal = isPhoneDevice
                 )
             } else {
-                Column {
+                Column(verticalArrangement = spacedBy(Dp32)) {
                     downloadList.forEach { download ->
                         MeverCard(
-                            modifier = Modifier
-                                .padding(top = Dp16)
-                                .clip(RoundedCornerShape(Dp12)),
-                            paddingValues = PaddingValues(vertical = Dp12),
+                            modifier = Modifier.clip(RoundedCornerShape(Dp12)),
+                            paddingValues = PaddingValues(),
                             cardArgs = MeverCardArgs(
                                 source = download.url,
                                 tag = download.tag,
@@ -1262,14 +1260,13 @@ private fun RecentlyDownloadedSection(
         }
 
         if (isScreenReady.not()) {
-            Column {
+            Column(verticalArrangement = spacedBy(Dp24)) {
                 repeat(downloadList.size) {
                     MeverCardShimmer(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = Dp16)
                             .clip(RoundedCornerShape(Dp12)),
-                        paddingValues = PaddingValues(vertical = Dp12)
+                        paddingValues = PaddingValues()
                     )
                 }
             }
