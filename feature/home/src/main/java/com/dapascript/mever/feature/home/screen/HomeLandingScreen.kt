@@ -801,7 +801,7 @@ private fun HomeLandingContent(
                     RecentlyDownloadedSection(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = Dp32)
+                            .padding(vertical = Dp32)
                             .navigationBarsPadding(),
                         downloadList = downloadList.orEmpty().take(3),
                         isScreenReady = isScreenReady,
