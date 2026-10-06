@@ -801,7 +801,7 @@ private fun HomeLandingContent(
                     RecentlyDownloadedSection(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = Dp32)
+                            .padding(top = Dp32)
                             .navigationBarsPadding(),
                         downloadList = downloadList.orEmpty().take(3),
                         isScreenReady = isScreenReady,
@@ -1118,7 +1118,7 @@ private fun QuickToolsSection(
 ) {
     Column(
         modifier = modifier,
-        verticalArrangement = spacedBy(Dp16)
+        verticalArrangement = spacedBy(Dp24)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -1194,7 +1194,7 @@ private fun RecentlyDownloadedSection(
 ) {
     Column(
         modifier = modifier,
-        verticalArrangement = spacedBy(Dp16)
+        verticalArrangement = spacedBy(Dp24)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
