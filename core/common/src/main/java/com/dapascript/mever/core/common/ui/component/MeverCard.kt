@@ -235,37 +235,62 @@ fun MeverCard(
                                     }
 
                                     else -> {
-                                        Text(
-                                            text = "${lastValidProgress.intValue}%",
-                                            style = typography.label2,
-                                            color = colors.alwaysPurple
-                                        )
-                                        Text(
-                                            text = "${
-                                                calculateDownloadedMegabytes(
-                                                    progress = lastValidProgress.intValue,
-                                                    totalBytes = total
-                                                )
-                                            } MB/${getTwoDecimals(total / (1024.0 * 1024.0))} MB",
-                                            style = typography.label2,
-                                            color = MeverGray
-                                        )
+                                        if (total <= 0L) {
+                                            Text(
+                                                text = stringResource(R.string.please_wait),
+                                                style = typography.label2,
+                                                color = colors.alwaysPurple
+                                            )
+                                            Text(
+                                                text = "",
+                                                style = typography.label2,
+                                                color = MeverGray
+                                            )
+                                        } else {
+                                            Text(
+                                                text = "${lastValidProgress.intValue}%",
+                                                style = typography.label2,
+                                                color = colors.alwaysPurple
+                                            )
+                                            Text(
+                                                text = "${
+                                                    calculateDownloadedMegabytes(
+                                                        progress = lastValidProgress.intValue,
+                                                        totalBytes = total
+                                                    )
+                                                } MB/${getTwoDecimals(total / (1024.0 * 1024.0))} MB",
+                                                style = typography.label2,
+                                                color = MeverGray
+                                            )
+                                        }
                                     }
                                 }
                             }
                             Spacer(modifier = Modifier.height(Dp8))
-                            LinearProgressIndicator(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(Dp5)
-                                    .padding(bottom = Dp2),
-                                color = if (status == FAILED) MeverRed else colors.alwaysPurple,
-                                trackColor = MeverLightGray,
-                                gapSize = -Dp15,
-                                strokeCap = Round,
-                                progress = { if (status == FAILED) 100f else animatedProgress },
-                                drawStopIndicator = {}
-                            )
+                            if (total <= 0L && status != FAILED && status != PAUSED) {
+                                LinearProgressIndicator(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(Dp5)
+                                        .padding(bottom = Dp2),
+                                    color = colors.alwaysPurple,
+                                    trackColor = MeverLightGray,
+                                    strokeCap = Round
+                                )
+                            } else {
+                                LinearProgressIndicator(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(Dp5)
+                                        .padding(bottom = Dp2),
+                                    color = if (status == FAILED) MeverRed else colors.alwaysPurple,
+                                    trackColor = MeverLightGray,
+                                    gapSize = -Dp15,
+                                    strokeCap = Round,
+                                    progress = { if (status == FAILED) 100f else animatedProgress },
+                                    drawStopIndicator = {}
+                                )
+                            }
                         }
                         Image(
                             modifier = Modifier
