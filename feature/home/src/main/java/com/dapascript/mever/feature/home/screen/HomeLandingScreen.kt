@@ -1,6 +1,7 @@
 package com.dapascript.mever.feature.home.screen
 
 import android.content.Context
+import android.content.res.Resources
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -54,6 +55,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
@@ -62,6 +64,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale.Companion.Fit
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
@@ -90,6 +93,7 @@ import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
 import com.dapascript.mever.core.common.ui.component.MeverFeatureCard
 import com.dapascript.mever.core.common.ui.component.MeverIcon
 import com.dapascript.mever.core.common.ui.component.MeverPermissionHandler
+import com.dapascript.mever.core.common.ui.component.MeverSnackbar
 import com.dapascript.mever.core.common.ui.component.MeverTopBar
 import com.dapascript.mever.core.common.ui.component.rememberInterstitialAd
 import com.dapascript.mever.core.common.ui.component.showShadow
@@ -107,6 +111,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp5
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp6
 import com.dapascript.mever.core.common.ui.theme.Dimens.DpHalf
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
+import com.dapascript.mever.core.common.ui.theme.MeverRed
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
@@ -344,6 +349,7 @@ private fun HomeLandingContent(
     lazyListState: LazyListState = rememberLazyListState(),
     onIsInPreviewChange: (Boolean) -> Unit
 ) = with(viewModel) {
+    val resources = LocalResources.current
     val deviceType = LocalDeviceType.current
     val downloadList = downloadList.collectAsStateValue()
     val downloaderResponseState = downloaderResponseState.collectAsStateValue()
@@ -367,6 +373,7 @@ private fun HomeLandingContent(
     var isPlaylistNotSupported by remember { mutableStateOf(false) }
     var loadingItemIndex by remember { mutableStateOf<Int?>(null) }
     var isDownloadProcessing by remember { mutableStateOf(false) }
+    var snackbarMessage by remember { mutableStateOf("") }
     val onClickCardAction: (DownloadModel) -> Unit = { download ->
         with(download) {
             when (status) {
@@ -399,7 +406,11 @@ private fun HomeLandingContent(
 
                 FAILED -> showFailedDialog = id
                 PAUSED -> resumeDownload(id)
-                else -> pauseDownload(id)
+                else -> {
+                    if (total <= 0L) {
+                        snackbarMessage = resources.getString(R.string.cannot_pause_large_file)
+                    } else pauseDownload(id)
+                }
             }
         }
     }
@@ -489,11 +500,11 @@ private fun HomeLandingContent(
                     storageInfo = storageInfo,
                     onActionStorageFull = {
                         isStorageFull = true
-                        errorMessage = context.getString(R.string.storage_full)
+                        errorMessage = resources.getString(R.string.storage_full)
                     },
                     onActionIsContentPlaylist = {
                         isPlaylistNotSupported = true
-                        errorMessage = context.getString(R.string.playlist_not_supported)
+                        errorMessage = resources.getString(R.string.playlist_not_supported)
                     },
                     onActionIsContentYT = {
                         if (youtubeResolutions.isNotEmpty()) showYoutubeChooseQualityModal = true
@@ -738,7 +749,7 @@ private fun HomeLandingContent(
                     topBarArgs = TopBarArgs(
                         iconBack = R.drawable.ic_mever,
                         actionMenus = getListActionMenu(
-                            context = context,
+                            resources = resources,
                             hasDownloadProgress = showBadge
                         ).map { (name, resource) ->
                             ActionMenu(
@@ -747,7 +758,7 @@ private fun HomeLandingContent(
                                 showBadge = showBadge && name == stringResource(R.string.gallery),
                             ) {
                                 navigator.handleClickActionMenu(
-                                    context = context,
+                                    resources = resources,
                                     name = name
                                 )
                             }
@@ -881,6 +892,20 @@ private fun HomeLandingContent(
                 }
             }
         }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(start = Dp24, end = Dp24, bottom = Dp32)
+            .navigationBarsPadding(),
+        contentAlignment = BottomCenter
+    ) {
+        MeverSnackbar(
+            message = snackbarMessage,
+            snackbarColor = MeverRed,
+            onClearSnackbar = { snackbarMessage = "" }
+        )
     }
 }
 
@@ -1325,15 +1350,25 @@ private fun checkStateBeforeDownload(
     else -> onActionDownload()
 }
 
-private fun getListActionMenu(context: Context, hasDownloadProgress: Boolean) = listOf(
-    context.getString(R.string.gallery) to if (hasDownloadProgress) FeatureHomeR.drawable.ic_notification
+private fun getListActionMenu(
+    resources: Resources,
+    hasDownloadProgress: Boolean
+) = listOf(
+    resources.getString(
+        R.string.gallery
+    ) to if (hasDownloadProgress) FeatureHomeR.drawable.ic_notification
     else FeatureHomeR.drawable.ic_gallery,
-    context.getString(R.string.settings) to FeatureHomeR.drawable.ic_setting
+    resources.getString(
+        R.string.settings
+    ) to FeatureHomeR.drawable.ic_setting
 )
 
-private fun Navigator.handleClickActionMenu(context: Context, name: String) = when (name) {
-    context.getString(R.string.gallery) -> navigateToGalleryScreen()
-    context.getString(R.string.settings) -> navigateToSettingScreen(showQrisDialog = false)
+private fun Navigator.handleClickActionMenu(
+    resources: Resources,
+    name: String
+) = when (name) {
+    resources.getString(R.string.gallery) -> navigateToGalleryScreen()
+    resources.getString(R.string.settings) -> navigateToSettingScreen(showQrisDialog = false)
     else -> Unit
 }
 

@@ -185,7 +185,7 @@ internal fun AiBackgroundRemovalScreen(
     var errorMessage by rememberSaveable { mutableStateOf("") }
     var isProcessing by rememberSaveable { mutableStateOf(false) }
     var showSourceDialog by remember { mutableStateOf(false) }
-    val snackbarMessage = remember { mutableStateOf("") }
+    var snackbarMessage by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
     var titleHeight by rememberSaveable { mutableIntStateOf(0) }
     var showColorPicker by remember { mutableStateOf(false) }
@@ -337,7 +337,7 @@ internal fun AiBackgroundRemovalScreen(
 
                     GALLERY -> {
                         if (isSaved.not()) {
-                            snackbarMessage.value = resources.getString(
+                            snackbarMessage = resources.getString(
                                 R.string.success_save_image
                             )
                         }
@@ -804,10 +804,8 @@ internal fun AiBackgroundRemovalScreen(
                 message = snackbarMessage,
                 duration = Long,
                 actionMessage = stringResource(R.string.view),
-                onClickSnackbarAction = {
-                    snackbarMessage.value = ""
-                    navigateToSystemGallery(context)
-                }
+                onClickSnackbarAction = { navigateToSystemGallery(context) },
+                onClearSnackbar = { snackbarMessage = "" }
             )
         }
     }

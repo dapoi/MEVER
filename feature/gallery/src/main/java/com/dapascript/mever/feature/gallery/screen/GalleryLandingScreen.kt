@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -39,12 +40,14 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle.State.RESUMED
@@ -64,6 +67,7 @@ import com.dapascript.mever.core.common.ui.component.MeverCardShimmer
 import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverEmptyItem
 import com.dapascript.mever.core.common.ui.component.MeverPopupDropDownMenu
+import com.dapascript.mever.core.common.ui.component.MeverSnackbar
 import com.dapascript.mever.core.common.ui.component.meverShimmer
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
@@ -75,6 +79,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp5
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
+import com.dapascript.mever.core.common.ui.theme.MeverRed
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
@@ -126,6 +131,7 @@ internal fun GalleryLandingScreen(
     viewModel: GalleryLandingViewModel = hiltViewModel()
 ) = with(viewModel) {
     val context = LocalContext.current
+    val resources = LocalResources.current
     val selectedFilter = selectedFilter.collectAsStateValue()
     val filteredDownloads = filteredDownloads.collectAsStateValue()
     val allDownloads = downloadList.collectAsStateValue()
@@ -143,6 +149,7 @@ internal fun GalleryLandingScreen(
     var showDeleteAllDialog by remember { mutableStateOf(false) }
     var showDropDownMenu by remember { mutableStateOf(false) }
     var isSelectedAll by remember { mutableStateOf(false) }
+    var snackbarMessage by remember { mutableStateOf("") }
     var showFilter by rememberSaveable { mutableStateOf(true) }
     var titleHeight by rememberSaveable { mutableIntStateOf(0) }
     val syncedItems = remember { mutableSetOf<Int>() }
@@ -360,7 +367,11 @@ internal fun GalleryLandingScreen(
 
                             FAILED -> showFailedDialog = id
                             PAUSED -> resumeDownload(id)
-                            else -> pauseDownload(id)
+                            else -> {
+                                if (total <= 0L) {
+                                    snackbarMessage = resources.getString(R.string.cannot_pause_large_file)
+                                } else pauseDownload(id)
+                            }
                         }
                     }
                 },
@@ -445,6 +456,20 @@ internal fun GalleryLandingScreen(
                     retryDownload(id)
                     showFailedDialog = null
                 }
+            )
+        }
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(start = Dp24, end = Dp24, bottom = Dp32)
+                .navigationBarsPadding(),
+            contentAlignment = BottomCenter
+        ) {
+            MeverSnackbar(
+                message = snackbarMessage,
+                snackbarColor = MeverRed,
+                onClearSnackbar = { snackbarMessage = "" }
             )
         }
     }

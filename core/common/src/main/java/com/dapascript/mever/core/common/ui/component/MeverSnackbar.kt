@@ -11,10 +11,10 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarDuration.Short
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult.ActionPerformed
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,27 +26,26 @@ import com.dapascript.mever.core.common.util.onCustomClick
 
 @Composable
 fun MeverSnackbar(
-    message: MutableState<String>,
+    message: String,
     modifier: Modifier = Modifier,
     actionMessage: String? = null,
     duration: SnackbarDuration = Short,
     snackbarColor: Color = colors.alwaysPurple,
     snackbarContentColor: Color = colors.alwaysWhite,
-    onClickSnackbarAction: (() -> Unit)? = null
+    onClickSnackbarAction: (() -> Unit)? = null,
+    onClearSnackbar: () -> Unit
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
-    LaunchedEffect(message.value) {
-        if (message.value.isNotEmpty()) {
+    LaunchedEffect(message) {
+        if (message.isNotEmpty()) {
             val result = snackbarHostState.showSnackbar(
-                message = message.value,
+                message = message,
                 actionLabel = actionMessage,
                 duration = duration
             )
-            if (result == androidx.compose.material3.SnackbarResult.ActionPerformed) {
-                onClickSnackbarAction?.invoke()
-            }
-            message.value = ""
+            if (result == ActionPerformed) { onClickSnackbarAction?.invoke() }
+            onClearSnackbar()
         }
     }
 

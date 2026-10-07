@@ -170,6 +170,8 @@
     <string name="view">Lihat</string>
     <string name="gallery_not_found">Aplikasi galeri tidak ditemukan di perangkat ini.</string>
     <string name="please_wait">Mohon tunggu…</string>
+    <string name="downloading_large_file">Mengunduh file besar…</string>
+    <string name="cannot_pause_large_file">Unduhan file besar tidak dapat dijeda</string>
     <string name="faq_q1">Jadi, MEVER itu apa?</string>
     <string name="faq_a1">MEVER adalah alat andalanmu untuk mengambil media dari platform sosial. Cepat, sederhana, dan sangat membantu!</string>
     <string name="faq_q2">Apakah ini berbayar?</string>

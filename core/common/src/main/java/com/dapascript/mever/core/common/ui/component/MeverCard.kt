@@ -45,6 +45,7 @@ import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Filled
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Outlined
 import com.dapascript.mever.core.common.ui.attr.MeverCardAttr.MeverCardArgs
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp0
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp15
@@ -237,7 +238,7 @@ fun MeverCard(
                                     else -> {
                                         if (total <= 0L) {
                                             Text(
-                                                text = stringResource(R.string.please_wait),
+                                                text = stringResource(R.string.downloading_large_file),
                                                 style = typography.label2,
                                                 color = colors.alwaysPurple
                                             )
@@ -269,6 +270,7 @@ fun MeverCard(
                             Spacer(modifier = Modifier.height(Dp8))
                             if (total <= 0L && status != FAILED && status != PAUSED) {
                                 LinearProgressIndicator(
+                                    gapSize = Dp0,
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .height(Dp5)
@@ -292,15 +294,17 @@ fun MeverCard(
                                 )
                             }
                         }
-                        Image(
-                            modifier = Modifier
-                                .padding(start = Dp8)
-                                .size(Dp24)
-                                .align(Bottom),
-                            imageVector = getImageVector(status),
-                            colorFilter = tint(colors.blackWhite),
-                            contentDescription = "Play/Pause/Retry"
-                        )
+                        if (total > 0L || status == FAILED || status == PAUSED) {
+                            Image(
+                                modifier = Modifier
+                                    .padding(start = Dp8)
+                                    .size(Dp24)
+                                    .align(Bottom),
+                                imageVector = getImageVector(status),
+                                colorFilter = tint(colors.blackWhite),
+                                contentDescription = "Play/Pause/Retry"
+                            )
+                        }
                     } else if (showSelector.not()) Row(
                         modifier = Modifier
                             .fillMaxWidth()
