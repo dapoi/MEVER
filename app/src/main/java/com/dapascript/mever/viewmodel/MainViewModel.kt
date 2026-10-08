@@ -63,12 +63,18 @@ internal class MainViewModel @Inject constructor(
         }
     }
 
+    fun resetInteractionTime() {
+        viewModelScope.launch {
+            repository.savePreference(KEY_LAST_INTERACTION_TIME, 0L)
+        }
+    }
+
     fun checkIdleTimeout(onTimeout: () -> Unit) {
         viewModelScope.launch {
             val lastTime = repository.getPreference(KEY_LAST_INTERACTION_TIME, 0L).first()
             val threeMinutes = 3 * 60 * 1000L
             val currentTime = System.currentTimeMillis()
-            if (lastTime != 0L && (currentTime - lastTime) > threeMinutes) {
+            if ((lastTime != 0L) && ((currentTime - lastTime) > threeMinutes)) {
                 onTimeout()
             }
             updateInteractionTime()

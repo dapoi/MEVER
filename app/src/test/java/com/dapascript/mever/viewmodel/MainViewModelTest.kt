@@ -77,4 +77,11 @@ class MainViewModelTest {
         assertTrue(collected.contains(ThemeType.Dark))
         job.cancel()
     }
+
+    @Test
+    fun `resetInteractionTime calls repository savePreference with zero`() = testScope.runTest {
+        viewModel.resetInteractionTime()
+        advanceUntilIdle()
+        org.mockito.kotlin.verify(repository).savePreference(MeverDataStore.KEY_LAST_INTERACTION_TIME, 0L)
+    }
 }

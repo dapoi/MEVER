@@ -142,6 +142,11 @@ class MainActivity : AppCompatActivity() {
         viewModel.updateInteractionTime()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.resetInteractionTime()
+    }
+
     override fun onUserInteraction() {
         super.onUserInteraction()
         val currentTime = System.currentTimeMillis()
