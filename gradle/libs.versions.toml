@@ -13,8 +13,7 @@ coreKtxVersion = "1.19.1"
 coroutinesTest = "1.11.0"
 dataStorePreferences = "1.2.1"
 documentFile = "1.1.0"
-firebaseAnalytics = "23.2.0"
-firebaseCrashlytics = "20.1.1"
+firebaseCrashlytics = "21.0.0"
 googleFirebaseCrashlytics = "3.0.8"
 googleGmsGoogleServices = "4.5.0"
 hilt = "2.60.1"
@@ -28,9 +27,9 @@ lifecycleViewmodelNav3 = "2.11.0"
 lifecycleProcess = "2.11.0"
 media3 = "1.11.1"
 mlkitSubjectSegmentation = "16.0.0-beta1"
-mockitoCore = "5.23.0"
+mockitoCore = "5.24.0"
 mockitoInline = "5.2.0"
-mockitoKotlin = "6.3.0"
+mockitoKotlin = "6.4.0"
 moshi = "1.15.2"
 nav3 = "1.2.0"
 playServicesBase = "18.11.0"
@@ -61,7 +60,6 @@ coil-video = { group = "io.coil-kt.coil3", name = "coil-video", version.ref = "c
 coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutinesTest" }
 dataStorePreferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "dataStorePreferences" }
 documentFile = { group = "androidx.documentfile", name = "documentfile", version.ref = "documentFile" }
-firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics", version.ref = "firebaseAnalytics" }
 firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics", version.ref = "firebaseCrashlytics" }
 google-play-update-core = { group = "com.google.android.play", name = "app-update", version.ref = "appUpdate" }
 google-play-update-ktx = { group = "com.google.android.play", name = "app-update-ktx", version.ref = "appUpdate" }
