@@ -107,6 +107,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp5
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp6
 import com.dapascript.mever.core.common.ui.theme.Dimens.DpHalf
@@ -374,6 +375,7 @@ private fun HomeLandingContent(
     var loadingItemIndex by remember { mutableStateOf<Int?>(null) }
     var isDownloadProcessing by remember { mutableStateOf(false) }
     var snackbarMessage by remember { mutableStateOf("") }
+    var contentId by remember { mutableStateOf<Int?>(null) }
     val onClickCardAction: (DownloadModel) -> Unit = { download ->
         with(download) {
             when (status) {
@@ -409,6 +411,7 @@ private fun HomeLandingContent(
                 else -> {
                     if (total <= 0L) {
                         snackbarMessage = resources.getString(R.string.cannot_pause_large_file)
+                        contentId = id
                     } else pauseDownload(id)
                 }
             }
@@ -897,13 +900,15 @@ private fun HomeLandingContent(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(start = Dp24, end = Dp24, bottom = Dp32)
+            .padding(start = Dp24, end = Dp24, bottom = Dp48)
             .navigationBarsPadding(),
         contentAlignment = BottomCenter
     ) {
         MeverSnackbar(
             message = snackbarMessage,
+            actionMessage = stringResource(R.string.cancel),
             snackbarColor = MeverRed,
+            onClickSnackbarAction = { delete(contentId ?: 0) },
             onClearSnackbar = { snackbarMessage = "" }
         )
     }

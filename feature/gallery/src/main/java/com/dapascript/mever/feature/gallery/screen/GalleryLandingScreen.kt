@@ -75,6 +75,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp3
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp5
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
@@ -150,6 +151,7 @@ internal fun GalleryLandingScreen(
     var showDropDownMenu by remember { mutableStateOf(false) }
     var isSelectedAll by remember { mutableStateOf(false) }
     var snackbarMessage by remember { mutableStateOf("") }
+    var contentId by remember { mutableStateOf<Int?>(null) }
     var showFilter by rememberSaveable { mutableStateOf(true) }
     var titleHeight by rememberSaveable { mutableIntStateOf(0) }
     val syncedItems = remember { mutableSetOf<Int>() }
@@ -370,6 +372,7 @@ internal fun GalleryLandingScreen(
                             else -> {
                                 if (total <= 0L) {
                                     snackbarMessage = resources.getString(R.string.cannot_pause_large_file)
+                                    contentId = id
                                 } else pauseDownload(id)
                             }
                         }
@@ -462,13 +465,15 @@ internal fun GalleryLandingScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(start = Dp24, end = Dp24, bottom = Dp32)
+                .padding(start = Dp24, end = Dp24, bottom = Dp48)
                 .navigationBarsPadding(),
             contentAlignment = BottomCenter
         ) {
             MeverSnackbar(
                 message = snackbarMessage,
+                actionMessage = stringResource(R.string.cancel),
                 snackbarColor = MeverRed,
+                onClickSnackbarAction = { delete(contentId ?: 0) },
                 onClearSnackbar = { snackbarMessage = "" }
             )
         }
