@@ -37,7 +37,7 @@ import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.DeviceType.TABLET
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.LocalDeviceType
-import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.Path.SPLASH
+import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.Path.HOME
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.Query.URL
 import com.dapascript.mever.core.common.util.deeplink.buildMeverDeeplink
 import com.dapascript.mever.core.common.util.recreateActivity
@@ -66,8 +66,6 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setupAdmob()
         setupIntent(intent = intent, isTriggerNavigation = false)
-
-        val initialPath = if (intent.action == ACTION_VIEW) intent.data?.path else null
 
         setContent {
             val themeType = viewModel.themeType.collectAsStateValue()
@@ -117,8 +115,7 @@ class MainActivity : AppCompatActivity() {
                     ) {
                         MainNavigation(
                             navGraphs = navGraphs,
-                            navigationPathEvent = viewModel.navigationPathEvent,
-                            initialPath = initialPath
+                            navDeeplinkTrigger = viewModel.navDeeplinkTrigger
                         )
                     }
                 }
@@ -173,7 +170,7 @@ class MainActivity : AppCompatActivity() {
             ACTION_SEND if type == "text/plain" -> {
                 intent.getStringExtra(EXTRA_TEXT)?.let { url ->
                     val deepLink = buildMeverDeeplink(
-                        path = SPLASH,
+                        path = HOME,
                         params = mapOf(URL to url)
                     )
                     viewModel.handleDeeplink(deepLink.toUri(), isTriggerNavigation)

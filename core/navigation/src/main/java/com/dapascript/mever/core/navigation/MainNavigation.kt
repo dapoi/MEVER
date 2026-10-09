@@ -1,6 +1,5 @@
 package com.dapascript.mever.core.navigation
 
-import android.util.Log
 import androidx.compose.animation.core.Spring.StiffnessMedium
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
@@ -25,7 +24,6 @@ import androidx.navigation3.runtime.serialization.NavKeySerializer
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.compose.serialization.serializers.MutableStateSerializer
 import com.dapascript.mever.core.common.util.LocalActivity
-import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.Path.SPLASH
 import com.dapascript.mever.core.navigation.base.BaseNavGraph
 import com.dapascript.mever.core.navigation.helper.NavigationState
 import com.dapascript.mever.core.navigation.helper.Navigator
@@ -36,12 +34,11 @@ import kotlinx.coroutines.flow.Flow
 @Composable
 fun MainNavigation(
     navGraphs: Set<@JvmSuppressWildcards BaseNavGraph>,
-    navigationPathEvent: Flow<String>? = null,
-    initialPath: String? = null
+    navDeeplinkTrigger: Flow<Unit>? = null
 ) {
     val activity = LocalActivity.current
     val topLevelRoutes = remember { setOf(SplashRoute, HomeLandingRoute) }
-    val startRoute = remember(initialPath) { initialPath?.let { HomeLandingRoute } ?: SplashRoute }
+    val startRoute = SplashRoute
     val navigationState = rememberNavigationState(
         startRoute = startRoute,
         topLevelRoutes = topLevelRoutes
@@ -55,11 +52,10 @@ fun MainNavigation(
         }
     }
 
-    LaunchedEffect(navigationPathEvent, navigator) {
-        navigationPathEvent?.collect { path ->
-            Log.d("MainNavigation", "Navigating to path: $path")
+    LaunchedEffect(navDeeplinkTrigger, navigator) {
+        navDeeplinkTrigger?.collect {
             navigator.navigate(
-                route = if (path == SPLASH) SplashRoute else HomeLandingRoute,
+                route = HomeLandingRoute,
                 isClearBackStacks = true
             )
         }

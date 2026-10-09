@@ -4,7 +4,6 @@ import android.net.Uri
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.HOST
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.Path.HOME
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.Path.IMAGE_GENERATOR
-import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.Path.SPLASH
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.Query.ART_STYLE
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.Query.ERROR
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.Query.PROMPT
@@ -37,18 +36,25 @@ internal class DeeplinkManagerImpl @Inject constructor(
         }
 
         _deeplinkEvent.value = when (uri.path) {
-            SPLASH -> SharedUrl(url = uri.getQueryParameter(URL).orEmpty())
             HOME -> {
                 val url = uri.getQueryParameter(URL).orEmpty()
                 val responses = uri.getQueryParameter(RESPONSES).orEmpty()
                 val errorMsg = uri.getQueryParameter(ERROR).orEmpty()
                 val contents = moshiHelper.fromJson<List<ContentEntity>>(responses).orEmpty()
 
-                DownloadResult(
-                    url = url,
-                    contents = contents,
-                    errorMessage = errorMsg
-                )
+                when {
+                    responses.isNotEmpty() || errorMsg.isNotEmpty() -> {
+                        DownloadResult(
+                            url = url,
+                            contents = contents,
+                            errorMessage = errorMsg
+                        )
+                    }
+
+                    url.isNotEmpty() -> SharedUrl(url = url)
+
+                    else -> Default
+                }
             }
 
             IMAGE_GENERATOR -> {

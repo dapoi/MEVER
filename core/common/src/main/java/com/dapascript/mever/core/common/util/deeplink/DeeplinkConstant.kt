@@ -5,7 +5,6 @@ object DeeplinkConstant {
     const val HOST = "mever"
 
     object Path {
-        const val SPLASH = "/splash"
         const val HOME = "/home"
         const val IMAGE_GENERATOR = "/image-generator"
     }

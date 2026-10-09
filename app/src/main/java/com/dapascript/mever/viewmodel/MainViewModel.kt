@@ -38,8 +38,8 @@ internal class MainViewModel @Inject constructor(
         initialValue = ThemeType.System
     )
 
-    private val _navigationPathEvent = Channel<String>(capacity = Channel.CONFLATED)
-    val navigationPathEvent = _navigationPathEvent.receiveAsFlow()
+    private val _navDeeplinkTrigger = Channel<Unit>(capacity = Channel.CONFLATED)
+    val navDeeplinkTrigger = _navDeeplinkTrigger.receiveAsFlow()
 
     init {
         viewModelScope.launch {
@@ -51,8 +51,7 @@ internal class MainViewModel @Inject constructor(
         viewModelScope.launch {
             deeplinkManager.handleDeeplink(uri)
             if (isTriggerNavigation) {
-                val path = uri.path.orEmpty()
-                _navigationPathEvent.send(path)
+                _navDeeplinkTrigger.send(Unit)
             }
         }
     }
