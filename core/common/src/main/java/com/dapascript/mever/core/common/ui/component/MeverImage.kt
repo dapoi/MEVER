@@ -64,8 +64,11 @@ fun MeverImage(
             AsyncImage(
                 modifier = Modifier.fillMaxSize(),
                 model = remember(source) {
+                    val finalSource = if (source is String && source.startsWith("/")) {
+                        java.io.File(source)
+                    } else source
                     ImageRequest.Builder(context)
-                        .data(source)
+                        .data(finalSource)
                         .crossfade(true)
                         .build()
                 },

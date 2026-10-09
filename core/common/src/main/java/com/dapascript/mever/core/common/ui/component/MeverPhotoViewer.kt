@@ -70,6 +70,7 @@ import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.displayFileName
 import com.dapascript.mever.core.common.util.hideSystemBar
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
+import java.io.File
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -99,7 +100,7 @@ fun MeverPhotoViewer(
     val bgAlpha = 1f - (abs(dragY) / (dismissDistance * 1.5f)).coerceIn(0f, 0.8f)
     val actionMenus = remember(isDeletable) {
         ContentViewerActionMenu.entries.filter { menu ->
-            if (isDeletable.not()) menu != DELETE else true
+            !isDeletable.not() || menu != DELETE
         }
     }
 
@@ -326,7 +327,7 @@ private fun PhotoViewer(
     ) {
         SubcomposeAsyncImage(
             modifier = Modifier.wrapContentSize(),
-            model = primaryImage,
+            model = if (primaryImage.startsWith("/")) File(primaryImage) else primaryImage,
             contentDescription = "Photo Viewer"
         ) { onState() }
     }

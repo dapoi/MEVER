@@ -38,9 +38,8 @@ fun MainNavigation(
 ) {
     val activity = LocalActivity.current
     val topLevelRoutes = remember { setOf(SplashRoute, HomeLandingRoute) }
-    val startRoute = SplashRoute
     val navigationState = rememberNavigationState(
-        startRoute = startRoute,
+        startRoute = SplashRoute,
         topLevelRoutes = topLevelRoutes
     )
     val navigator = remember(activity, navigationState) { Navigator(navigationState, activity) }

@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
 import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT
 import android.graphics.Rect
+import android.net.Uri
 import android.os.Build.BRAND
 import android.os.Build.FINGERPRINT
 import android.os.Build.MODEL
@@ -131,6 +132,7 @@ import com.dapascript.mever.core.common.util.onCustomClick
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
+import java.io.File
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
@@ -157,7 +159,7 @@ fun MeverVideoPlayer(
     val activity = LocalActivity.current
     val actionMenus = remember(isDeletable) {
         ContentViewerActionMenu.entries.filter { menu ->
-            if (isDeletable.not()) menu != DELETE else true
+            !isDeletable.not() || menu != DELETE
         }
     }
 
@@ -267,8 +269,11 @@ fun MeverVideoPlayer(
 
     LaunchedEffect(viewAttached, video, isPreview) {
         if (viewAttached) {
+            val videoUri = if (video.startsWith("/")) {
+                Uri.fromFile(File(video))
+            } else video.toUri()
             val itemBuilder = MediaItem.Builder()
-                .setUri(video.toUri())
+                .setUri(videoUri)
                 .setClipping(isPreview)
 
             player.setMediaItem(itemBuilder.build())
