@@ -113,6 +113,8 @@ import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.GalleryActionMenu.SHARE_SELECTED
 import com.dapascript.mever.feature.gallery.screen.attr.GalleryLandingScreenAttr.GalleryActionMenu.SHOW_FILTER
 import com.dapascript.mever.feature.gallery.viewmodel.GalleryLandingViewModel
+import com.dapascript.mever.feature.gallery.viewmodel.GalleryLandingViewModel.Companion.INITIAL_PAGE_SIZE
+import com.dapascript.mever.feature.gallery.viewmodel.GalleryLandingViewModel.Companion.PAGE_SIZE
 import com.ketch.DownloadModel
 import com.ketch.Status.FAILED
 import com.ketch.Status.PAUSED
@@ -122,7 +124,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.yield
 import java.io.File
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -135,6 +136,11 @@ internal fun GalleryLandingScreen(
     val resources = LocalResources.current
     val selectedFilter = selectedFilter.collectAsStateValue()
     val filteredDownloads = filteredDownloads.collectAsStateValue()
+    val paginatedDownloads = paginatedDownloads.collectAsStateValue()
+    val canLoadMore = canLoadMore.collectAsStateValue()
+    val isLoadingMore = isLoadingMore.collectAsStateValue()
+    val isInitialLoading = isInitialLoading.collectAsStateValue()
+    val isFilterLoading = isFilterLoading.collectAsStateValue()
     val allDownloads = downloadList.collectAsStateValue()
     val isAnyDownloadActive = isAnyDownloadActive.collectAsStateValue()
     val platformTypes = platformTypes.collectAsStateValue()
@@ -142,8 +148,6 @@ internal fun GalleryLandingScreen(
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
     val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
-    var isScreenReady by rememberSaveable { mutableStateOf(false) }
-    var skipRefreshDatabase by remember(lifecycleOwner.value) { mutableStateOf(true) }
     var showSelector by remember { mutableStateOf(false) }
     var showFailedDialog by remember { mutableStateOf<Int?>(null) }
     var showDeleteDialog by remember { mutableStateOf<List<Int>?>(null) }
@@ -155,9 +159,9 @@ internal fun GalleryLandingScreen(
     var showFilter by rememberSaveable { mutableStateOf(true) }
     var titleHeight by rememberSaveable { mutableIntStateOf(0) }
     val syncedItems = remember { mutableSetOf<Int>() }
-    val isExpanded = remember(listState, titleHeight, showSelector, isScreenReady) {
+    val isExpanded = remember(listState, titleHeight, showSelector, isInitialLoading, filteredDownloads) {
         derivedStateOf {
-            if (isScreenReady.not() || titleHeight == 0) return@derivedStateOf true
+            if (isInitialLoading || filteredDownloads == null || titleHeight == 0) return@derivedStateOf true
             listState.firstVisibleItemIndex < 1 &&
                     listState.firstVisibleItemScrollOffset < titleHeight / 2 &&
                     showSelector.not()
@@ -166,7 +170,7 @@ internal fun GalleryLandingScreen(
 
     BaseScreen(
         topBarArgs = TopBarArgs(
-            actionMenus = if (isScreenReady && filteredDownloads.orEmpty().size > 1) {
+            actionMenus = if (isInitialLoading.not() && filteredDownloads.orEmpty().size > 1) {
                 listOf(
                     ActionMenu(
                         icon = R.drawable.ic_more,
@@ -196,10 +200,7 @@ internal fun GalleryLandingScreen(
     ) {
         LaunchedEffect(lifecycleOwner.value) {
             lifecycleOwner.value.lifecycle.repeatOnLifecycle(RESUMED) {
-                yield()
-                isScreenReady = true
-                if (skipRefreshDatabase) skipRefreshDatabase = false
-                else refreshDatabase()
+                refreshDatabase()
             }
         }
 
@@ -314,7 +315,7 @@ internal fun GalleryLandingScreen(
         )
 
         AnimatedVisibility(
-            visible = isScreenReady && filteredDownloads != null,
+            visible = isInitialLoading.not() && filteredDownloads != null,
             enter = fadeIn(),
             exit = fadeOut()
         ) {
@@ -324,7 +325,11 @@ internal fun GalleryLandingScreen(
                 showSelector = showSelector,
                 selectedItems = selectedItems,
                 platformTypes = if (showFilter) platformTypes else emptyList(),
-                filteredDownloads = filteredDownloads,
+                filteredDownloads = paginatedDownloads,
+                canLoadMore = canLoadMore,
+                isLoadingMore = isLoadingMore,
+                isFilterLoading = isFilterLoading,
+                onLoadMore = { loadNextPage() },
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(top = Dp64)
@@ -405,10 +410,13 @@ internal fun GalleryLandingScreen(
             )
         }
 
-        if (isScreenReady.not()) {
+        if (isInitialLoading || filteredDownloads == null) {
+            val initialShimmerCount = if (filteredDownloads.isNullOrEmpty()) {
+                PAGE_SIZE
+            } else filteredDownloads.size.coerceAtMost(INITIAL_PAGE_SIZE)
             GalleryShimmer(
-                itemCount = filteredDownloads?.ifEmpty { null }?.size ?: 5,
-                filterCount = platformTypes.size
+                filterCount = platformTypes.size,
+                itemCount = initialShimmerCount
             )
         }
 
@@ -489,6 +497,10 @@ private fun GalleryContentSection(
     platformTypes: List<PlatformType>,
     filteredDownloads: List<DownloadModel>?,
     modifier: Modifier = Modifier,
+    canLoadMore: Boolean = false,
+    isLoadingMore: Boolean = false,
+    isFilterLoading: Boolean = false,
+    onLoadMore: () -> Unit = {},
     isExpanded: () -> Boolean,
     onClickFilter: (PlatformType) -> Unit,
     onClickCard: (DownloadModel) -> Unit,
@@ -501,6 +513,30 @@ private fun GalleryContentSection(
     val deviceType = LocalDeviceType.current
     val chunkedDownloads = remember(filteredDownloads) {
         filteredDownloads?.chunked(2)
+    }
+    val shouldLoadMore = remember(listState, canLoadMore, isLoadingMore, isFilterLoading) {
+        derivedStateOf {
+            if (!canLoadMore || isLoadingMore || isFilterLoading) return@derivedStateOf false
+            val totalItems = listState.layoutInfo.totalItemsCount
+            val lastVisibleItem = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            val threshold = (totalItems - 5).coerceAtLeast(0)
+            totalItems > 0 && lastVisibleItem >= threshold
+        }
+    }
+
+    LaunchedEffect(shouldLoadMore) {
+        snapshotFlow { shouldLoadMore.value }
+            .distinctUntilChanged()
+            .filter { it }
+            .collect { onLoadMore() }
+    }
+
+    val filterShimmerCount = remember(filteredDownloads) {
+        if (filteredDownloads.isNullOrEmpty()) {
+            INITIAL_PAGE_SIZE
+        } else {
+            filteredDownloads.size.coerceAtMost(INITIAL_PAGE_SIZE)
+        }
     }
 
     CompositionLocalProvider(LocalOverscrollFactory provides null) {
@@ -553,36 +589,59 @@ private fun GalleryContentSection(
                                 )
                             }
                         }
-                        items(
-                            items = filteredDownloads,
-                            key = { it.id },
-                            contentType = { it.status.name }
-                        ) {
-                            MeverCard(
-                                modifier = Modifier.animateItem(),
-                                showSelector = showSelector,
-                                isSelected = it in selectedItems,
-                                cardArgs = MeverCardArgs(
-                                    source = it.url,
-                                    tag = it.tag,
-                                    fileName = it.fileName,
-                                    status = it.status,
-                                    progress = it.progress,
-                                    total = it.total,
-                                    path = it.path,
-                                    urlThumbnail = it.metaData,
-                                    icon = getPlatformIcon(it.tag),
-                                    iconShadowColor = colors.purpleTransparent,
-                                    iconBackgroundColor = colors.whiteDark,
-                                    iconSize = Dp24,
-                                    iconPadding = Dp5
-                                ),
-                                onClickCard = { onClickCard(it) },
-                                onClickDelete = { onClickDelete(it) },
-                                onClickLong = { onClickLong(it) },
-                                onClickShare = { onClickShare(it) },
-                                onClickSelectedItem = { onClickSelectedItem(it) }
-                            )
+                        if (isFilterLoading) {
+                            items(
+                                count = filterShimmerCount,
+                                key = { "filter_loading_indicator_$it" }
+                            ) {
+                                MeverCardShimmer(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    paddingValues = PaddingValues(horizontal = Dp24, vertical = Dp16)
+                                )
+                            }
+                        } else {
+                            items(
+                                items = filteredDownloads,
+                                key = { it.id },
+                                contentType = { it.status.name }
+                            ) {
+                                MeverCard(
+                                    modifier = Modifier.animateItem(),
+                                    showSelector = showSelector,
+                                    isSelected = it in selectedItems,
+                                    cardArgs = MeverCardArgs(
+                                        source = it.url,
+                                        tag = it.tag,
+                                        fileName = it.fileName,
+                                        status = it.status,
+                                        progress = it.progress,
+                                        total = it.total,
+                                        path = it.path,
+                                        urlThumbnail = it.metaData,
+                                        icon = getPlatformIcon(it.tag),
+                                        iconShadowColor = colors.purpleTransparent,
+                                        iconBackgroundColor = colors.whiteDark,
+                                        iconSize = Dp24,
+                                        iconPadding = Dp5
+                                    ),
+                                    onClickCard = { onClickCard(it) },
+                                    onClickDelete = { onClickDelete(it) },
+                                    onClickLong = { onClickLong(it) },
+                                    onClickShare = { onClickShare(it) },
+                                    onClickSelectedItem = { onClickSelectedItem(it) }
+                                )
+                            }
+                        }
+                        if (canLoadMore || isLoadingMore) {
+                            items(
+                                count = 5,
+                                key = { "load_more_indicator_$it" }
+                            ) {
+                                MeverCardShimmer(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    paddingValues = PaddingValues(horizontal = Dp24, vertical = Dp16)
+                                )
+                            }
                         }
                     }
                 } else {
@@ -630,7 +689,17 @@ private fun GalleryContentSection(
                                 )
                             }
                         }
-                        if (filteredDownloads.size > 1) {
+                        if (isFilterLoading) {
+                            items(
+                                count = filterShimmerCount,
+                                key = { "filter_loading_indicator_$it" }
+                            ) {
+                                MeverCardShimmer(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    paddingValues = PaddingValues(horizontal = Dp24, vertical = Dp16)
+                                )
+                            }
+                        } else if (filteredDownloads.size > 1) {
                             items(
                                 items = chunkedDownloads.orEmpty(),
                                 key = { it.first().id }
@@ -708,6 +777,17 @@ private fun GalleryContentSection(
                                 )
                             }
                         }
+                        if (canLoadMore || isLoadingMore) {
+                            items(
+                                count = 5,
+                                key = { "load_more_indicator_$it" }
+                            ) {
+                                MeverCardShimmer(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    paddingValues = PaddingValues(horizontal = Dp24, vertical = Dp16)
+                                )
+                            }
+                        }
                     }
                 }
             } else {
@@ -728,17 +808,14 @@ private fun GalleryContentSection(
                     )
                 }
             }
-        } ?: GalleryShimmer(
-            itemCount = 5,
-            filterCount = platformTypes.size
-        )
+        } ?: GalleryShimmer(filterCount = platformTypes.size)
     }
 }
 
 @Composable
 private fun GalleryShimmer(
-    itemCount: Int,
-    filterCount: Int
+    filterCount: Int,
+    itemCount: Int = 5
 ) {
     Column(
         modifier = Modifier

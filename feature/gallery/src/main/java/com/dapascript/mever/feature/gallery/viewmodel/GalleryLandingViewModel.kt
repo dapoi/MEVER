@@ -12,6 +12,7 @@ import com.ketch.Status.QUEUED
 import com.ketch.Status.STARTED
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers.Default
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,25 +24,26 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 internal class GalleryLandingViewModel @Inject constructor(
     private val repository: MeverRepository
 ) : BaseViewModel() {
 
+    private val _isInitialLoading = MutableStateFlow(true)
+    val isInitialLoading = _isInitialLoading.asStateFlow()
+
+    private val _isFilterLoading = MutableStateFlow(false)
+    val isFilterLoading = _isFilterLoading.asStateFlow()
+
     private val _selectedFilter = MutableStateFlow(ALL)
     val selectedFilter = _selectedFilter.asStateFlow()
 
-    fun updateFilter(filter: PlatformType) {
-        _selectedFilter.value = filter
-    }
-
-    private val _refreshTrigger = MutableStateFlow(0)
+    private val _currentPage = MutableStateFlow(1)
+    val currentPage = _currentPage.asStateFlow()
 
     val downloadList = repository.observeDownloads()
-        .combine(_refreshTrigger) { downloads, _ ->
-            downloads
-        }
         .distinctUntilChanged()
         .flowOn(Default)
         .stateIn(viewModelScope, WhileSubscribed(5000), null)
@@ -53,6 +55,39 @@ internal class GalleryLandingViewModel @Inject constructor(
     }.distinctUntilChanged()
         .flowOn(Default)
         .stateIn(viewModelScope, WhileSubscribed(5000), null)
+
+    val paginatedDownloads = combine(filteredDownloads, _currentPage) { downloads, page ->
+        val currentLoaded = INITIAL_PAGE_SIZE + (page - 1) * PAGE_SIZE
+        downloads?.take(currentLoaded)
+    }.distinctUntilChanged()
+        .flowOn(Default)
+        .stateIn(viewModelScope, WhileSubscribed(5000), null)
+
+    private val _isLoadingMore = MutableStateFlow(false)
+    val isLoadingMore = _isLoadingMore.asStateFlow()
+
+    val canLoadMore = combine(filteredDownloads, _currentPage) { downloads, page ->
+        val total = downloads?.size ?: 0
+        val currentLoaded = INITIAL_PAGE_SIZE + (page - 1) * PAGE_SIZE
+        total > currentLoaded
+    }.distinctUntilChanged()
+        .flowOn(Default)
+        .stateIn(viewModelScope, WhileSubscribed(5000), false)
+
+    fun loadNextPage() {
+        if (_isLoadingMore.value) return
+        viewModelScope.launch {
+            _isLoadingMore.value = true
+            delay(250.milliseconds)
+            _currentPage.update { it + 1 }
+            _isLoadingMore.value = false
+        }
+    }
+
+    fun resetPagination() {
+        _currentPage.value = 1
+        _isLoadingMore.value = false
+    }
 
     val isAnyDownloadActive = downloadList
         .map { list ->
@@ -78,6 +113,24 @@ internal class GalleryLandingViewModel @Inject constructor(
     private val _selectedItems = MutableStateFlow<Set<DownloadModel>>(emptySet())
     val selectedItems = _selectedItems.asStateFlow()
 
+    init {
+        viewModelScope.launch {
+            delay(350.milliseconds)
+            _isInitialLoading.value = false
+        }
+    }
+
+    fun updateFilter(filter: PlatformType) {
+        if (_selectedFilter.value == filter) return
+        _selectedFilter.value = filter
+        resetPagination()
+        viewModelScope.launch {
+            _isFilterLoading.value = true
+            delay(200.milliseconds)
+            _isFilterLoading.value = false
+        }
+    }
+
     fun toggleSelection(item: DownloadModel) {
         _selectedItems.update { currentItem ->
             if (item in currentItem) currentItem - item else currentItem + item
@@ -102,21 +155,23 @@ internal class GalleryLandingViewModel @Inject constructor(
 
     fun delete(id: Int) {
         repository.deleteDownload(id)
-        _refreshTrigger.update { it + 1 }
     }
 
     fun deleteItems(ids: List<Int>) {
         repository.deleteDownloads(ids)
-        _refreshTrigger.update { it + 1 }
     }
 
     fun deleteAll() {
         repository.deleteAllDownloads()
-        _refreshTrigger.update { it + 1 }
+        resetPagination()
     }
 
     fun refreshDatabase() {
-        _refreshTrigger.update { it + 1 }
         viewModelScope.launch { repository.refreshDownloadDatabase() }
+    }
+
+    companion object {
+        const val INITIAL_PAGE_SIZE = 3
+        const val PAGE_SIZE = 5
     }
 }

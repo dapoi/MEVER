@@ -7,6 +7,7 @@ import com.ketch.DownloadModel
 import com.ketch.Status
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -76,7 +77,7 @@ class GalleryLandingViewModelTest {
 
     @Test
     fun `selectedFilter default is ALL`() {
-        assertEquals(PlatformType.ALL, viewModel.selectedFilter)
+        assertEquals(PlatformType.ALL, viewModel.selectedFilter.value)
     }
 
     @Test
@@ -153,5 +154,52 @@ class GalleryLandingViewModelTest {
     fun `deleteAll calls repository deleteAllDownloads`() {
         viewModel.deleteAll()
         verify(repository).deleteAllDownloads()
+    }
+
+    @Test
+    fun `paginatedDownloads limits items to INITIAL_PAGE_SIZE initially`() = runTest {
+        val manyItems = (1..30).map { fakeDownloadModel(id = it) }
+        whenever(repository.observeDownloads()).thenReturn(flowOf(manyItems))
+        val testViewModel = GalleryLandingViewModel(repository)
+
+        val items = testViewModel.paginatedDownloads.first { it != null }
+
+        assertEquals(GalleryLandingViewModel.INITIAL_PAGE_SIZE, items?.size)
+        assertTrue(testViewModel.canLoadMore.first { it })
+    }
+
+    @Test
+    fun `loadNextPage loads more items when available`() = runTest {
+        val manyItems = (1..30).map { fakeDownloadModel(id = it) }
+        whenever(repository.observeDownloads()).thenReturn(flowOf(manyItems))
+        val testViewModel = GalleryLandingViewModel(repository)
+
+        testViewModel.paginatedDownloads.first { it != null }
+
+        testViewModel.loadNextPage()
+        advanceUntilIdle()
+
+        val expectedSize = GalleryLandingViewModel.INITIAL_PAGE_SIZE + GalleryLandingViewModel.PAGE_SIZE
+        val itemsAfterLoad = testViewModel.paginatedDownloads.first { it?.size == expectedSize }
+
+        assertEquals(expectedSize, itemsAfterLoad?.size)
+        assertTrue(testViewModel.canLoadMore.first { it })
+    }
+
+    @Test
+    fun `updateFilter resets currentPage to 1`() = runTest {
+        val manyItems = (1..30).map { fakeDownloadModel(id = it) }
+        whenever(repository.observeDownloads()).thenReturn(flowOf(manyItems))
+        val testViewModel = GalleryLandingViewModel(repository)
+
+        testViewModel.paginatedDownloads.first { it != null }
+
+        testViewModel.loadNextPage()
+        advanceUntilIdle()
+        assertEquals(2, testViewModel.currentPage.value)
+
+        testViewModel.updateFilter(PlatformType.EXPLORE)
+
+        assertEquals(1, testViewModel.currentPage.value)
     }
 }
