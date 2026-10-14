@@ -140,8 +140,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         viewModel.resetInteractionTime()
+        super.onDestroy()
     }
 
     override fun onUserInteraction() {
