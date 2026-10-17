@@ -23,8 +23,10 @@ import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
+import org.mockito.kotlin.any
+import org.mockito.kotlin.never
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import org.mockito.kotlin.verifyNoInteractions
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AiImageGeneratorResultViewModelTest {
@@ -114,13 +116,24 @@ class AiImageGeneratorResultViewModelTest {
     @Test
     fun `startDownload does nothing when url is empty`() {
         viewModel.startDownload("", "fake_image.png")
-        verifyNoInteractions(repository)
+        verify(repository, never()).download(any(), any(), any(), any())
     }
 
     @Test
     fun `startDownload does nothing when url is blank whitespace`() {
         viewModel.startDownload("   ", "fake_image.png")
-        verifyNoInteractions(repository)
+        verify(repository, never()).download(any(), any(), any(), any())
+    }
+
+    @Test
+    fun `startDownload calls repository download when url is valid`() {
+        viewModel.startDownload("https://example.com/fake_image.png", "fake_image.png")
+        verify(repository).download(
+            url = "https://example.com/fake_image.png",
+            fileName = "fake_image.png",
+            tag = "AI",
+            thumbnail = ""
+        )
     }
 
     @Test

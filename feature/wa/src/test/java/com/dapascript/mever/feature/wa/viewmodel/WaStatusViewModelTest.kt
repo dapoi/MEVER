@@ -1,7 +1,9 @@
 package com.dapascript.mever.feature.wa.viewmodel
 
-import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.dapascript.mever.core.data.repository.MeverRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -15,8 +17,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class WaStatusViewModelTest {
@@ -27,7 +27,7 @@ class WaStatusViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
 
     @Mock
-    lateinit var context: Context
+    lateinit var repository: MeverRepository
 
     private lateinit var viewModel: WaStatusViewModel
 
@@ -35,7 +35,7 @@ class WaStatusViewModelTest {
     fun setUp() {
         MockitoAnnotations.openMocks(this)
         Dispatchers.setMain(testDispatcher)
-        viewModel = WaStatusViewModel(context)
+        viewModel = WaStatusViewModel(repository)
     }
 
     @After
