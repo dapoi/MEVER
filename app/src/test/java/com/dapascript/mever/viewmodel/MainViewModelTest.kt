@@ -84,4 +84,30 @@ class MainViewModelTest {
         advanceUntilIdle()
         org.mockito.kotlin.verify(repository).savePreference(MeverDataStore.KEY_LAST_INTERACTION_TIME, 0L)
     }
+
+    @Test
+    fun `checkIdleTimeout triggers onTimeout when last interaction was more than 3 minutes ago`() = testScope.runTest {
+        val fourMinutesAgo = System.currentTimeMillis() - (4 * 60 * 1000L)
+        whenever(repository.getPreference(MeverDataStore.KEY_LAST_INTERACTION_TIME, 0L))
+            .thenReturn(flowOf(fourMinutesAgo))
+
+        var timeoutCalled = false
+        viewModel.checkIdleTimeout { timeoutCalled = true }
+        advanceUntilIdle()
+
+        assertTrue(timeoutCalled)
+    }
+
+    @Test
+    fun `checkIdleTimeout does not trigger onTimeout when last interaction was less than 3 minutes ago`() = testScope.runTest {
+        val oneMinuteAgo = System.currentTimeMillis() - (1 * 60 * 1000L)
+        whenever(repository.getPreference(MeverDataStore.KEY_LAST_INTERACTION_TIME, 0L))
+            .thenReturn(flowOf(oneMinuteAgo))
+
+        var timeoutCalled = false
+        viewModel.checkIdleTimeout { timeoutCalled = true }
+        advanceUntilIdle()
+
+        org.junit.Assert.assertFalse(timeoutCalled)
+    }
 }

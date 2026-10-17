@@ -149,7 +149,7 @@ class MainActivity : AppCompatActivity() {
         val currentTime = System.currentTimeMillis()
         if (currentTime - lastInteractionCheck > 1000L) {
             lastInteractionCheck = currentTime
-            viewModel.checkIdleTimeout { recreateActivity(context = this, activity = this) }
+            viewModel.updateInteractionTime()
         }
     }
 
