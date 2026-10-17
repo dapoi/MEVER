@@ -7,7 +7,7 @@ import okhttp3.Interceptor
 import okhttp3.Interceptor.Chain
 import javax.inject.Inject
 
-internal class ApiKeyInterceptor @Inject constructor() : Interceptor {
+internal class ApiInterceptor @Inject constructor() : Interceptor {
     override fun intercept(chain: Chain) = chain.request().let { request ->
         val urlHost = request.url.host
         if (urlHost.contains("catbox.moe")) return@let chain.proceed(request)

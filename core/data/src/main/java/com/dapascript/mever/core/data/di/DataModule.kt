@@ -14,7 +14,7 @@ import com.dapascript.mever.core.data.repository.MeverRepositoryImpl
 import com.dapascript.mever.core.data.repository.base.BaseRepositoryArgs
 import com.dapascript.mever.core.data.source.local.MeverDataStore
 import com.dapascript.mever.core.data.source.remote.ApiService
-import com.dapascript.mever.core.data.util.ApiKeyInterceptor
+import com.dapascript.mever.core.data.util.ApiInterceptor
 import com.dapascript.mever.core.data.util.MoshiHelper
 import com.ketch.Ketch
 import com.squareup.moshi.Moshi
@@ -49,7 +49,7 @@ internal class DataModule {
 
     @Singleton
     @Provides
-    fun provideApiKeyInterceptor(): ApiKeyInterceptor = ApiKeyInterceptor()
+    fun provideApiKeyInterceptor(): ApiInterceptor = ApiInterceptor()
 
     @Singleton
     @Provides
@@ -62,13 +62,13 @@ internal class DataModule {
     @Singleton
     @Provides
     fun provideOkHttpClient(
-        apiKeyInterceptor: ApiKeyInterceptor,
+        apiInterceptor: ApiInterceptor,
         chuckerInterceptor: ChuckerInterceptor
     ): OkHttpClient = OkHttpClient.Builder()
         .addInterceptor(HttpLoggingInterceptor().apply {
             level = if (DEBUG) BODY else NONE
         })
-        .addInterceptor(apiKeyInterceptor)
+        .addInterceptor(apiInterceptor)
         .addInterceptor(chuckerInterceptor)
         .connectTimeout(80, SECONDS)
         .readTimeout(80, SECONDS)
