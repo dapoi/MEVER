@@ -5,7 +5,6 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -36,25 +35,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale.Companion.Crop
 import androidx.compose.ui.layout.ContentScale.Companion.FillHeight
 import androidx.compose.ui.layout.ContentScale.Companion.Fit
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Filled
 import com.dapascript.mever.core.common.ui.component.MeverButton
 import com.dapascript.mever.core.common.ui.component.MeverPermissionHandler
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp0
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
@@ -161,36 +159,46 @@ private fun OnboardPhoneContent(
     scope: CoroutineScope,
     onClickLaunch: () -> Unit
 ) {
-    var buttonSize by remember { mutableStateOf(Dp0) }
+    val context = LocalContext.current
 
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(color = colors.whiteBlack)
     ) {
         HorizontalPager(
             state = pagerState,
-            modifier = Modifier.fillMaxSize()
+            beyondViewportPageCount = 1,
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
         ) { page ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
+                    .padding(horizontal = Dp24)
             ) {
-                Image(
+                AsyncImage(
                     modifier = Modifier
+                        .fillMaxWidth()
                         .aspectRatio(0.95f)
                         .padding(top = Dp64),
-                    painter = painterResource(pages[page].image),
+                    model = remember(pages[page].image, context) {
+                        ImageRequest.Builder(context)
+                            .data(pages[page].image)
+                            .crossfade(true)
+                            .build()
+                    },
                     contentScale = FillHeight,
                     contentDescription = "Onboard Image ${page + 1}"
                 )
+                Spacer(modifier = Modifier.height(Dp24))
                 DescriptionOnboardSection(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = Dp24, bottom = buttonSize, start = Dp24, end = Dp24),
+                    modifier = Modifier.fillMaxWidth(),
                     page = pages[page]
                 )
+                Spacer(modifier = Modifier.height(Dp24))
             }
         }
         Column(
@@ -199,39 +207,14 @@ private fun OnboardPhoneContent(
                 .background(color = colors.whiteBlack)
                 .padding(start = Dp24, end = Dp24, bottom = Dp16)
                 .navigationBarsPadding()
-                .align(BottomCenter)
-                .onGloballyPositioned { buttonSize = it.size.height.dp }
         ) {
-            Row(
+            PagerIndicator(
+                pageCount = pages.size,
+                currentPage = pagerState.currentPage,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = Dp24),
-                horizontalArrangement = Center
-            ) {
-                repeat(pages.size) { index ->
-                    val isSelected = pagerState.currentPage == index
-                    val size by animateDpAsState(
-                        targetValue = if (isSelected) Dp24 else Dp8,
-                        animationSpec = tween(durationMillis = 300),
-                        label = "indicator_size"
-                    )
-                    val alpha by animateFloatAsState(
-                        targetValue = if (isSelected) 1f else 0.3f,
-                        animationSpec = tween(durationMillis = 300),
-                        label = "indicator_alpha"
-                    )
-                    Box(
-                        modifier = Modifier
-                            .padding(horizontal = Dp6)
-                            .size(width = size, height = Dp8)
-                            .clip(RoundedCornerShape(Dp48))
-                            .background(
-                                if (isSelected) MeverPurple
-                                else colors.grayLightGray.copy(alpha = alpha)
-                            )
-                    )
-                }
-            }
+                    .padding(bottom = Dp24)
+            )
             ButtonOnboardSection(
                 isLastPage = pagerState.currentPage == pages.size - 1,
                 onClickNext = {
@@ -257,12 +240,15 @@ private fun OnboardTabletContent(
     deviceType: DeviceType,
     onClickLaunch: () -> Unit
 ) {
+    val context = LocalContext.current
 
-    Box(
+    HorizontalPager(
+        state = pagerState,
+        beyondViewportPageCount = 1,
         modifier = Modifier
             .fillMaxSize()
             .background(color = colors.whiteBlack)
-    ) {
+    ) { page ->
         Row(
             modifier = Modifier.fillMaxSize(),
             horizontalArrangement = Arrangement.SpaceAround
@@ -272,17 +258,17 @@ private fun OnboardTabletContent(
                     .fillMaxSize()
                     .weight(1f)
             ) {
-                HorizontalPager(
-                    state = pagerState,
-                    modifier = Modifier.fillMaxSize()
-                ) { page ->
-                    Image(
-                        modifier = Modifier.fillMaxSize(),
-                        painter = painterResource(pages[page].image),
-                        contentScale = if (deviceType == DESKTOP) Crop else Fit,
-                        contentDescription = "Onboard Image ${page + 1}"
-                    )
-                }
+                AsyncImage(
+                    modifier = Modifier.fillMaxSize(),
+                    model = remember(pages[page].image, context) {
+                        ImageRequest.Builder(context)
+                            .data(pages[page].image)
+                            .crossfade(true)
+                            .build()
+                    },
+                    contentScale = if (deviceType == DESKTOP) Crop else Fit,
+                    contentDescription = "Onboard Image ${page + 1}"
+                )
                 Box(
                     modifier = Modifier
                         .matchParentSize()
@@ -307,39 +293,16 @@ private fun OnboardTabletContent(
                 Spacer(modifier = Modifier.weight(1f))
                 DescriptionOnboardSection(
                     modifier = Modifier.fillMaxWidth(),
-                    page = pages[pagerState.currentPage]
+                    page = pages[page]
                 )
                 Spacer(modifier = Modifier.size(Dp40))
-                Row(
+                PagerIndicator(
+                    pageCount = pages.size,
+                    currentPage = pagerState.currentPage,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = Dp24),
-                    horizontalArrangement = Center
-                ) {
-                    repeat(pages.size) { index ->
-                        val isSelected = pagerState.currentPage == index
-                        val size by animateDpAsState(
-                            targetValue = if (isSelected) Dp24 else Dp8,
-                            animationSpec = tween(durationMillis = 300),
-                            label = "indicator_size"
-                        )
-                        val alpha by animateFloatAsState(
-                            targetValue = if (isSelected) 1f else 0.3f,
-                            animationSpec = tween(durationMillis = 300),
-                            label = "indicator_alpha"
-                        )
-                        Box(
-                            modifier = Modifier
-                                .padding(horizontal = Dp6)
-                                .size(width = size, height = Dp8)
-                                .clip(RoundedCornerShape(Dp48))
-                                .background(
-                                    if (isSelected) MeverPurple
-                                    else colors.grayLightGray.copy(alpha = alpha)
-                                )
-                        )
-                    }
-                }
+                        .padding(bottom = Dp24)
+                )
                 ButtonOnboardSection(
                     isLastPage = pagerState.currentPage == pages.size - 1,
                     onClickNext = {
@@ -355,6 +318,42 @@ private fun OnboardTabletContent(
                 )
                 Spacer(modifier = Modifier.weight(1f))
             }
+        }
+    }
+}
+
+@Composable
+private fun PagerIndicator(
+    pageCount: Int,
+    currentPage: Int,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Center
+    ) {
+        repeat(pageCount) { index ->
+            val isSelected = currentPage == index
+            val size by animateDpAsState(
+                targetValue = if (isSelected) Dp24 else Dp8,
+                animationSpec = tween(durationMillis = 300),
+                label = "indicator_size"
+            )
+            val alpha by animateFloatAsState(
+                targetValue = if (isSelected) 1f else 0.3f,
+                animationSpec = tween(durationMillis = 300),
+                label = "indicator_alpha"
+            )
+            Box(
+                modifier = Modifier
+                    .padding(horizontal = Dp6)
+                    .size(width = size, height = Dp8)
+                    .clip(RoundedCornerShape(Dp48))
+                    .background(
+                        if (isSelected) MeverPurple
+                        else colors.grayLightGray.copy(alpha = alpha)
+                    )
+            )
         }
     }
 }
