@@ -6,8 +6,10 @@ import android.text.format.Formatter
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Arrangement.spacedBy
@@ -36,6 +38,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -48,6 +51,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap.Companion.Butt
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
@@ -137,9 +141,11 @@ internal fun SettingLandingScreen(
         getStatusStorageColor(storageInfo?.usedPercent ?: 0)
     }
     var showPaypalDialog by remember { mutableStateOf(false) }
-    val isExpanded = remember(listState) {
+    var titleHeight by rememberSaveable { mutableIntStateOf(0) }
+    val isExpanded = remember(listState, titleHeight) {
         derivedStateOf {
-            listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset < 150
+            if (titleHeight == 0) return@derivedStateOf true
+            listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset < (titleHeight / 2)
         }
     }
     var showBottomSheetQris by rememberSaveable { mutableStateOf<Boolean?>(null) }
@@ -157,18 +163,18 @@ internal fun SettingLandingScreen(
             fetchStorageInfo()
         }
 
-        LaunchedEffect(listState) {
+        LaunchedEffect(listState, titleHeight) {
             snapshotFlow { listState.isScrollInProgress }
                 .distinctUntilChanged()
                 .filter { it.not() }
                 .collect {
-                    if (listState.firstVisibleItemIndex > 0) return@collect
+                    if (titleHeight == 0 || listState.firstVisibleItemIndex > 0) return@collect
 
-                    val threshold = 150
+                    val threshold = titleHeight / 2
                     val currentOffset = listState.firstVisibleItemScrollOffset
 
-                    if (currentOffset in 1 until threshold) {
-                        val targetIndex = if (currentOffset < threshold / 2) 0 else 1
+                    if (currentOffset in 1 until titleHeight) {
+                        val targetIndex = if (currentOffset < threshold) 0 else 1
                         listState.animateScrollToItem(targetIndex)
                     }
                 }
@@ -251,6 +257,7 @@ internal fun SettingLandingScreen(
                 storageInfo = storageInfo,
                 menus = menus,
                 isExpanded = { isExpanded.value },
+                onSetTitleHeight = { titleHeight = it },
                 onClickChangeLanguage = { languageCode ->
                     navigator.navigate(SettingLanguageRoute(languageCode))
                 },
@@ -293,6 +300,7 @@ private fun SettingLandingContent(
     menus: List<SettingLandingAttr.SettingMenus>,
     modifier: Modifier = Modifier,
     isExpanded: () -> Boolean,
+    onSetTitleHeight: (Int) -> Unit = {},
     onClickChangeLanguage: (String) -> Unit,
     onClickNotificationPermission: () -> Unit,
     onClickChangeTheme: (ThemeType) -> Unit,
@@ -331,14 +339,16 @@ private fun SettingLandingContent(
                     Spacer(modifier = Modifier.height(Dp16))
                     AnimatedVisibility(
                         visible = isExpanded(),
-                        enter = fadeIn(),
-                        exit = fadeOut()
+                        enter = expandVertically() + fadeIn(),
+                        exit = shrinkVertically() + fadeOut()
                     ) {
                         Text(
                             text = stringResource(R.string.settings),
                             style = typography.h2.copy(fontSize = Sp32),
                             color = colors.blackWhite,
-                            modifier = Modifier.padding(horizontal = Dp24)
+                            modifier = Modifier
+                                .padding(horizontal = Dp24)
+                                .onGloballyPositioned { onSetTitleHeight(it.size.height) }
                         )
                     }
                 }
