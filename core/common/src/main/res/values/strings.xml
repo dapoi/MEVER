@@ -152,6 +152,9 @@
     <string name="images_finder_desc">Explore high-quality images for free.</string>
     <string name="ai_image_generator">AI Image Generator</string>
     <string name="ai_image_generator_desc">Create stunning images from text with AI.</string>
+    <string name="art_image">Art Gallery</string>
+    <string name="art_image_desc">Discover timeless artworks from Art Institute of Chicago.</string>
+    <string name="fullscreen_view">Preview</string>
     <string name="wa_empty_title">No Status Found</string>
     <string name="no_downloads">No Downloads Yet</string>
     <string name="select_image">Select Image</string>

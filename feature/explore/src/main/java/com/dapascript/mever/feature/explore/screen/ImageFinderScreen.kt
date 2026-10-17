@@ -83,7 +83,7 @@ import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryContentDetailRoute.Content
 import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLandingRoute
-import com.dapascript.mever.feature.explore.viewmodel.ExploreLandingViewModel
+import com.dapascript.mever.feature.explore.viewmodel.ImageFinderViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -96,13 +96,13 @@ import kotlin.time.Duration.Companion.seconds
 
 @OptIn(FlowPreview::class)
 @Composable
-internal fun ExploreLandingScreen(
+internal fun ImageFinderScreen(
     navigator: Navigator,
-    viewModel: ExploreLandingViewModel = hiltViewModel()
+    viewModel: ImageFinderViewModel = hiltViewModel()
 ) = with(viewModel) {
     val context = LocalContext.current
     val deviceType = LocalDeviceType.current
-    val exploreResponseState = exploreResponseState.collectAsStateValue()
+    val imageFinderState = imageFinderResponseState.collectAsStateValue()
     val gridState = rememberLazyStaggeredGridState()
     var errorMessage by remember { mutableStateOf("") }
     var lastQuery by rememberSaveable { mutableStateOf("") }
@@ -172,13 +172,13 @@ internal fun ExploreLandingScreen(
                 .collectLatest {
                     if (it.isNotEmpty() && lastQuery != it) {
                         lastQuery = it
-                        getExploreContents(it)
+                        getImageFinderSearch(it)
                     }
                 }
         }
 
-        LaunchedEffect(exploreResponseState) {
-            exploreResponseState.handleUiState(
+        LaunchedEffect(imageFinderState) {
+            imageFinderState.handleUiState(
                 onLoading = {
                     contents = null
                     errorMessage = ""
@@ -196,7 +196,7 @@ internal fun ExploreLandingScreen(
             description = errorMessage,
             onClickPrimaryAction = {
                 errorMessage = ""
-                getExploreContents(query.ifEmpty { randomQuery() })
+                getImageFinderSearch(query.ifEmpty { randomQuery() })
             },
             onClickSecondaryAction = { navigator.navigateBack() }
         )

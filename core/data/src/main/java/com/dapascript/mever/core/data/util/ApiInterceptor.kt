@@ -10,7 +10,7 @@ import javax.inject.Inject
 internal class ApiInterceptor @Inject constructor() : Interceptor {
     override fun intercept(chain: Chain) = chain.request().let { request ->
         val urlHost = request.url.host
-        if (urlHost.contains("catbox.moe")) return@let chain.proceed(request)
+        if (urlHost.contains("catbox.moe") || urlHost.contains("artic.edu")) return@let chain.proceed(request)
 
         val deviceModel = "${Build.MANUFACTURER} - ${Build.MODEL}"
         val builder = request

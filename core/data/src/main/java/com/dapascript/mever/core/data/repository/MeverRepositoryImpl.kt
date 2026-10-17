@@ -26,6 +26,7 @@ import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_TYPE
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_URL
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.TYPE_AUDIO
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.TYPE_VIDEO
+import com.dapascript.mever.core.data.model.local.ArtEntity
 import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.dapascript.mever.core.data.model.local.ImageAiEntity
 import com.dapascript.mever.core.data.model.local.WaStatusEntity
@@ -84,6 +85,18 @@ internal class MeverRepositoryImpl @Inject constructor(
 
     override fun getImageSearch(query: String) = safeApiCall {
         apiService.getImageSearch(query).mapToEntity() ?: emptyList()
+    }
+
+    override fun getArtworks(
+        query: String,
+        page: Int,
+        limit: Int
+    ) = safeApiCall {
+        if (query.isBlank()) {
+            apiService.getArtworks(page = page, limit = limit).mapToEntity()
+        } else {
+            apiService.searchArtworks(query = query, page = page, limit = limit).mapToEntity()
+        }
     }
 
     override fun getImageAiGenerator(

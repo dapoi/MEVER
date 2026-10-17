@@ -19,7 +19,7 @@ sealed interface HomeScreenRoute : NavKey {
         ) {
             @Serializable
             enum class QuickToolsType {
-                WA, REMOVE_BG, FIND_IMAGE, AI_IMAGE
+                WA, REMOVE_BG, FIND_IMAGE, AI_IMAGE, ART_IMAGE
             }
         }
     }

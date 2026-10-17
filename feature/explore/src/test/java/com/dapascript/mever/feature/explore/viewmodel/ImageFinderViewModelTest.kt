@@ -26,7 +26,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.whenever
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class ExploreLandingViewModelTest {
+class ImageFinderViewModelTest {
 
     @get:Rule
     val instantExecutorRule = InstantTaskExecutorRule()
@@ -58,8 +58,8 @@ class ExploreLandingViewModelTest {
 
     @Test
     fun `exploreResponseState is StateInitial before coroutines run`() {
-        val vm = ExploreLandingViewModel(repository)
-        assertTrue(vm.exploreResponseState.value is UiState.StateInitial)
+        val vm = ImageFinderViewModel(repository)
+        assertTrue(vm.imageFinderResponseState.value is UiState.StateInitial)
     }
 
     @Test
@@ -67,10 +67,10 @@ class ExploreLandingViewModelTest {
         whenever(repository.getImageSearch("nature")).thenReturn(
             flowOf(ApiState.Loading, ApiState.Success(fakeContents))
         )
-        val vm = ExploreLandingViewModel(repository)
+        val vm = ImageFinderViewModel(repository)
         val states = mutableListOf<UiState<List<ContentEntity>>>()
-        val job = launch { vm.exploreResponseState.collect { states.add(it) } }
-        vm.getExploreContents("nature")
+        val job = launch { vm.imageFinderResponseState.collect { states.add(it) } }
+        vm.getImageFinderSearch("nature")
         advanceUntilIdle()
         job.cancel()
         assertTrue(states.any { it is UiState.StateSuccess })
@@ -85,10 +85,10 @@ class ExploreLandingViewModelTest {
         whenever(repository.getImageSearch("fail")).thenReturn(
             flowOf(ApiState.Error(Throwable("Network error")))
         )
-        val vm = ExploreLandingViewModel(repository)
+        val vm = ImageFinderViewModel(repository)
         val states = mutableListOf<UiState<List<ContentEntity>>>()
-        val job = launch { vm.exploreResponseState.collect { states.add(it) } }
-        vm.getExploreContents("fail")
+        val job = launch { vm.imageFinderResponseState.collect { states.add(it) } }
+        vm.getImageFinderSearch("fail")
         advanceUntilIdle()
         job.cancel()
         assertTrue(states.any { it is UiState.StateFailed })
@@ -103,21 +103,21 @@ class ExploreLandingViewModelTest {
         whenever(repository.getImageSearch("tech")).thenReturn(
             flowOf(ApiState.Loading)
         )
-        val vm = ExploreLandingViewModel(repository)
-        vm.getExploreContents("tech")
+        val vm = ImageFinderViewModel(repository)
+        vm.getImageFinderSearch("tech")
         advanceUntilIdle()
-        assertTrue(vm.exploreResponseState.value is UiState.StateLoading)
+        assertTrue(vm.imageFinderResponseState.value is UiState.StateLoading)
     }
 
     @Test
     fun `query default value is empty string`() {
-        val vm = ExploreLandingViewModel(repository)
+        val vm = ImageFinderViewModel(repository)
         assertEquals("", vm.query)
     }
 
     @Test
     fun `query can be updated`() {
-        val vm = ExploreLandingViewModel(repository)
+        val vm = ImageFinderViewModel(repository)
         vm.query = "wallpaper"
         assertEquals("wallpaper", vm.query)
     }

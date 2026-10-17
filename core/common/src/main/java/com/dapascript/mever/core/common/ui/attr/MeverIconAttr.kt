@@ -3,6 +3,7 @@ package com.dapascript.mever.core.common.ui.attr
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.util.PlatformType.AI
 import com.dapascript.mever.core.common.util.PlatformType.APPLE_MUSIC
+import com.dapascript.mever.core.common.util.PlatformType.ART
 import com.dapascript.mever.core.common.util.PlatformType.CAPCUT
 import com.dapascript.mever.core.common.util.PlatformType.DOUYIN
 import com.dapascript.mever.core.common.util.PlatformType.EXPLORE
@@ -24,6 +25,7 @@ object MeverIconAttr {
     fun getPlatformIcon(platform: String) = when {
         platform.contains(AI.platformName) -> R.drawable.ic_awesome
         platform.contains(APPLE_MUSIC.platformName) -> R.drawable.ic_apple
+        platform.contains(ART.platformName) -> R.drawable.ic_art_gallery
         platform.contains(CAPCUT.platformName) -> R.drawable.ic_capcut
         platform.contains(DOUYIN.platformName) -> R.drawable.ic_tiktok
         platform.contains(EXPLORE.platformName) -> R.drawable.ic_find_image

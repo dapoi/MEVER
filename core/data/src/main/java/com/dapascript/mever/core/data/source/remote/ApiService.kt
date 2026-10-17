@@ -2,6 +2,7 @@ package com.dapascript.mever.core.data.source.remote
 
 import com.dapascript.mever.core.data.model.remote.AppConfigResponse
 import com.dapascript.mever.core.data.model.remote.AppleMusicDownloaderResponse
+import com.dapascript.mever.core.data.model.remote.ArtResponse
 import com.dapascript.mever.core.data.model.remote.CapCutDownloaderResponse
 import com.dapascript.mever.core.data.model.remote.FacebookDownloaderResponse
 import com.dapascript.mever.core.data.model.remote.ImageAiResponse
@@ -114,6 +115,21 @@ internal interface ApiService {
         @Query("show") show: Int = 25,
         @Query("type") type: String = "image"
     ): ImageSearchResponse
+
+    @GET("https://api.artic.edu/api/v1/artworks")
+    suspend fun getArtworks(
+        @Query("page") page: Int = 1,
+        @Query("limit") limit: Int = 20,
+        @Query("fields") fields: String = "id,title,artist_display,date_display,medium_display,image_id,description,place_of_origin"
+    ): ArtResponse
+
+    @GET("https://api.artic.edu/api/v1/artworks/search")
+    suspend fun searchArtworks(
+        @Query("q") query: String,
+        @Query("page") page: Int = 1,
+        @Query("limit") limit: Int = 20,
+        @Query("fields") fields: String = "id,title,artist_display,date_display,medium_display,image_id,description,place_of_origin"
+    ): ArtResponse
 
     @GET("genimg")
     suspend fun getImageAiGenerator(

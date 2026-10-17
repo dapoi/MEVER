@@ -4,9 +4,11 @@ import androidx.compose.runtime.Composable
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.navigation.route.AiScreenRoute.AiBackgroundRemovalRoute
 import com.dapascript.mever.core.navigation.route.AiScreenRoute.AiImageGeneratorLandingRoute
-import com.dapascript.mever.core.navigation.route.ExploreScreenRoute.ExploreLandingRoute
+import com.dapascript.mever.core.navigation.route.ExploreScreenRoute.ArtImageRoute
+import com.dapascript.mever.core.navigation.route.ExploreScreenRoute.ImageFinderRoute
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeQuickToolsRoute.FeatureCard.QuickToolsType
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeQuickToolsRoute.FeatureCard.QuickToolsType.AI_IMAGE
+import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeQuickToolsRoute.FeatureCard.QuickToolsType.ART_IMAGE
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeQuickToolsRoute.FeatureCard.QuickToolsType.FIND_IMAGE
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeQuickToolsRoute.FeatureCard.QuickToolsType.REMOVE_BG
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeQuickToolsRoute.FeatureCard.QuickToolsType.WA
@@ -19,12 +21,14 @@ internal object HomeLandingScreenAttr {
         REMOVE_BG -> colors.lightPurpleDarkGray
         FIND_IMAGE -> colors.lightOrangeDarkGray
         AI_IMAGE -> colors.lightPinkDarkGray
+        ART_IMAGE -> colors.lightBlueDarkGray
     }
 
     internal fun QuickToolsType.getRoute() = when (this) {
         WA -> WaStatusLandingRoute
         REMOVE_BG -> AiBackgroundRemovalRoute
-        FIND_IMAGE -> ExploreLandingRoute
+        FIND_IMAGE -> ImageFinderRoute
         AI_IMAGE -> AiImageGeneratorLandingRoute
+        ART_IMAGE -> ArtImageRoute
     }
 }

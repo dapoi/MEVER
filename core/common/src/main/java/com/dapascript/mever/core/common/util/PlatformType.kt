@@ -3,6 +3,7 @@ package com.dapascript.mever.core.common.util
 enum class PlatformType(val platformName: String) {
     AI("AI"),
     ALL("All"),
+    ART("Art"),
     APPLE_MUSIC("Apple Music"),
     CAPCUT("CapCut"),
     DOUYIN("Douyin"),

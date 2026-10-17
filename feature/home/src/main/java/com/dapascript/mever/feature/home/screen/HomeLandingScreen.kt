@@ -166,6 +166,7 @@ import com.dapascript.mever.core.navigation.route.GalleryScreenRoute.GalleryLand
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeQuickToolsRoute
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeQuickToolsRoute.FeatureCard
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeQuickToolsRoute.FeatureCard.QuickToolsType.AI_IMAGE
+import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeQuickToolsRoute.FeatureCard.QuickToolsType.ART_IMAGE
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeQuickToolsRoute.FeatureCard.QuickToolsType.FIND_IMAGE
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeQuickToolsRoute.FeatureCard.QuickToolsType.REMOVE_BG
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeQuickToolsRoute.FeatureCard.QuickToolsType.WA
@@ -1337,7 +1338,13 @@ private fun getFeatureCards(
                 icon = R.drawable.ic_awesome,
                 toolsType = AI_IMAGE
             )
-        } else null
+        } else null,
+        FeatureCard(
+            featureName = getString(R.string.art_image),
+            featureDesc = getString(R.string.art_image_desc),
+            icon = R.drawable.ic_art_gallery,
+            toolsType = ART_IMAGE
+        )
     )
 }
 

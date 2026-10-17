@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.BottomSheetDefaults.ExpandedShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ModalBottomSheet
@@ -98,13 +97,12 @@ fun MeverBottomSheet(
         modifier = modifier,
         sheetState = sheetState,
         shape = when {
+            isAlwaysRectangular -> RoundedCornerShape(Dp0)
             skipPartiallyExpanded.not() -> RoundedCornerShape(
                 topStart = corner,
                 topEnd = corner
             )
-
-            isAlwaysRectangular -> RoundedCornerShape(Dp0)
-            else -> ExpandedShape
+            else -> RoundedCornerShape(topStart = Dp24, topEnd = Dp24)
         },
         containerColor = colors.whiteDark,
         properties = ModalBottomSheetProperties(

@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import com.dapascript.mever.core.common.util.state.ApiState
 import com.dapascript.mever.core.data.model.local.AppConfigEntity
+import com.dapascript.mever.core.data.model.local.ArtEntity
 import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.dapascript.mever.core.data.model.local.ImageAiEntity
 import com.dapascript.mever.core.data.model.local.WaStatusEntity
@@ -19,6 +20,11 @@ interface MeverRepository {
         quality: String
     ): Flow<ApiState<List<ContentEntity>>>
     fun getImageSearch(query: String): Flow<ApiState<List<ContentEntity>>>
+    fun getArtworks(
+        query: String = "",
+        page: Int = 1,
+        limit: Int = 20
+    ): Flow<ApiState<List<ArtEntity>>>
     fun getImageAiGenerator(
         prompt: String,
         artStyle: String

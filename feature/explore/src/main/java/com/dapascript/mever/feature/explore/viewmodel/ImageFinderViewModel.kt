@@ -16,23 +16,23 @@ import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
-internal class ExploreLandingViewModel @Inject constructor(
+internal class ImageFinderViewModel @Inject constructor(
     private val repository: MeverRepository
 ) : BaseViewModel() {
 
     var query by mutableStateOf("")
     var contents by mutableStateOf<List<ContentEntity>?>(null)
 
-    private val _exploreResponseState = MutableStateFlow<UiState<List<ContentEntity>>>(StateInitial)
-    val exploreResponseState = _exploreResponseState.asStateFlow()
+    private val _imageFinderResponseState = MutableStateFlow<UiState<List<ContentEntity>>>(StateInitial)
+    val imageFinderResponseState = _imageFinderResponseState.asStateFlow()
 
-    fun getExploreContents(query: String) = collectApiAsUiState(
+    fun getImageFinderSearch(query: String) = collectApiAsUiState(
         response = repository.getImageSearch(query),
-        state = _exploreResponseState
+        state = _imageFinderResponseState
     )
 
     init {
-        getExploreContents(if (DEBUG) randomQuery() else "")
+        getImageFinderSearch(if (DEBUG) randomQuery() else "")
     }
 
     fun randomQuery() = setOf(

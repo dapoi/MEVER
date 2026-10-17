@@ -6,5 +6,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 sealed interface ExploreScreenRoute : NavKey {
     @Serializable
-    data object ExploreLandingRoute : ExploreScreenRoute
+    data object ImageFinderRoute : ExploreScreenRoute
+
+    @Serializable
+    data object ArtImageRoute : ExploreScreenRoute
 }

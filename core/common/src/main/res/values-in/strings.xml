@@ -151,6 +151,9 @@
     <string name="images_finder_desc">Temukan gambar menarik dari berbagai sumber di internet.</string>
     <string name="ai_image_generator">Pembuat Gambar AI</string>
     <string name="ai_image_generator_desc">Buat gambar dari teks dengan teknologi AI terbaru.</string>
+    <string name="art_image">Galeri Seni</string>
+    <string name="art_image_desc">Jelajahi karya seni dari Art Institute of Chicago.</string>
+    <string name="fullscreen_view">Pratinjau</string>
     <string name="wa_empty_title">Tidak ada status yang ditemukan</string>
     <string name="no_downloads">Belum Ada Unduhan</string>
     <string name="select_image">Pilih Gambar</string>

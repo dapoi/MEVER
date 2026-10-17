@@ -42,7 +42,8 @@ sealed class MeverColors(
     val lightGreenDarkGray: Color,
     val lightPurpleDarkGray: Color,
     val lightOrangeDarkGray: Color,
-    val lightPinkDarkGray: Color
+    val lightPinkDarkGray: Color,
+    val lightBlueDarkGray: Color
 ) {
     data object Light : MeverColors(
         alwaysPurple = MeverPurple,
@@ -60,14 +61,15 @@ sealed class MeverColors(
         lightGreenDarkGray = MeverLightGreen,
         lightPurpleDarkGray = MeverLightPurple,
         lightOrangeDarkGray = MeverLightOrange,
-        lightPinkDarkGray = MeverLightPink
+        lightPinkDarkGray = MeverLightPink,
+        lightBlueDarkGray = MeverLightBlue
     )
 
     data object Dark : MeverColors(
         alwaysPurple = MeverPurple,
         alwaysWhite = MeverWhite,
         alwaysGray = MeverGray,
-        whiteBlack = MeverBlack,
+        whiteBlack = MeverWhite,
         whiteDark = MeverDark,
         blackWhite = MeverWhite,
         grayLightGray = MeverLightGray,
@@ -79,6 +81,7 @@ sealed class MeverColors(
         lightGreenDarkGray = MeverDarkGray,
         lightPurpleDarkGray = MeverDarkGray,
         lightOrangeDarkGray = MeverDarkGray,
-        lightPinkDarkGray = MeverDarkGray
+        lightPinkDarkGray = MeverDarkGray,
+        lightBlueDarkGray = MeverDarkGray
     )
 }

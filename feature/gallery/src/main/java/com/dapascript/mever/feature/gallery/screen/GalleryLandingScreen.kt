@@ -90,6 +90,7 @@ import com.dapascript.mever.core.common.util.FadeSide.Bottom
 import com.dapascript.mever.core.common.util.LocalDeviceType
 import com.dapascript.mever.core.common.util.PlatformType
 import com.dapascript.mever.core.common.util.PlatformType.ALL
+import com.dapascript.mever.core.common.util.PlatformType.ART
 import com.dapascript.mever.core.common.util.PlatformType.EXPLORE
 import com.dapascript.mever.core.common.util.fadingEdge
 import com.dapascript.mever.core.common.util.isMusic
@@ -884,7 +885,11 @@ private fun FilterContent(
                 .filterNot { it == ALL }
                 .forEach { type ->
                     MeverButton(
-                        title = if (type == EXPLORE) stringResource(R.string.images_finder) else type.platformName,
+                        title = when (type) {
+                            EXPLORE -> stringResource(R.string.images_finder)
+                            ART -> stringResource(R.string.art_image)
+                            else -> type.platformName
+                        },
                         shape = RoundedCornerShape(Dp64),
                         buttonType = getButtonType(selectedFilter == type)
                     ) { onClickFilter(type) }
