@@ -9,6 +9,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.LocalOverscrollFactory
+import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,6 +27,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
@@ -121,6 +123,7 @@ internal fun SettingLandingScreen(
     args: SettingLandingRoute,
     viewModel: SettingLandingViewModel = hiltViewModel()
 ) = with(viewModel) {
+    val isInitialLoading = isInitialLoading.collectAsStateValue()
     val themeType = themeType.collectAsStateValue()
     val isPipEnabled = isPipEnabled.collectAsStateValue()
     val storageInfo = storageInfo.collectAsStateValue()
@@ -144,7 +147,7 @@ internal fun SettingLandingScreen(
 
     BaseScreen(
         topBarArgs = TopBarArgs(
-            title = if (isExpanded.value.not()) stringResource(R.string.settings) else ""
+            title = if (isExpanded.value.not() && isInitialLoading.not()) stringResource(R.string.settings) else ""
         ),
         onBackHandler = { navigator.navigateBack() }
     ) {
@@ -180,9 +183,10 @@ internal fun SettingLandingScreen(
 
         LaunchedEffect(context) { languageCode = getLanguageCode(context) }
 
-        LaunchedEffect(args.showQrisDialog) {
-            if (showBottomSheetQris == null && args.showQrisDialog) {
-                listState.scrollToItem(listState.layoutInfo.totalItemsCount - 1)
+        LaunchedEffect(args.showQrisDialog, isInitialLoading) {
+            if (showBottomSheetQris == null && args.showQrisDialog && isInitialLoading.not()) {
+                val totalItems = listState.layoutInfo.totalItemsCount
+                if (totalItems > 0) listState.scrollToItem(totalItems - 1)
                 showBottomSheetQris = true
             }
         }
@@ -227,41 +231,51 @@ internal fun SettingLandingScreen(
 
         HandleBottomSheetQris(showBottomSheetQris == true) { showBottomSheetQris = it }
 
-        SettingLandingContent(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = Dp64),
-            context = context,
-            animatedPercent = animatedPercent,
-            statusColor = statusColor,
-            deviceType = deviceType,
-            listState = listState,
-            isPipEnabled = isPipEnabled,
-            getLanguageCode = languageCode,
-            themeType = themeType,
-            storageInfo = storageInfo,
-            menus = menus,
-            isExpanded = { isExpanded.value },
-            onClickChangeLanguage = { languageCode ->
-                navigator.navigate(SettingLanguageRoute(languageCode))
-            },
-            onClickNotificationPermission = {
-                val notifPermission = getNotificationPermission()
-                if (notifPermission.any { context.checkSelfPermission(it) != PERMISSION_GRANTED }) {
-                    checkPermissions = notifPermission
-                } else navigateToNotificationSettings(context)
-            },
-            onClickChangeTheme = { navigator.navigate(SettingScreenRoute.SettingThemeRoute(it)) },
-            onClickCleanCache = {
-                scope.launch { cleanCache(context, activity) }
-            },
-            onClickPip = { savePipState(isPipEnabled.not()) },
-            onClickPaypal = { showPaypalDialog = true },
-            onClickQris = { showBottomSheetQris = true },
-            onClickFaq = { navigator.navigate(SettingFaqRoute) },
-            onClickContact = { navigateToGmail(context) },
-            onClickAbout = { navigator.navigate(SettingAboutAppRoute) }
-        )
+        AnimatedVisibility(
+            visible = isInitialLoading.not(),
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
+            SettingLandingContent(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = Dp64),
+                context = context,
+                animatedPercent = animatedPercent,
+                statusColor = statusColor,
+                deviceType = deviceType,
+                listState = listState,
+                isPipEnabled = isPipEnabled,
+                getLanguageCode = languageCode,
+                themeType = themeType,
+                storageInfo = storageInfo,
+                menus = menus,
+                isExpanded = { isExpanded.value },
+                onClickChangeLanguage = { languageCode ->
+                    navigator.navigate(SettingLanguageRoute(languageCode))
+                },
+                onClickNotificationPermission = {
+                    val notifPermission = getNotificationPermission()
+                    if (notifPermission.any { context.checkSelfPermission(it) != PERMISSION_GRANTED }) {
+                        checkPermissions = notifPermission
+                    } else navigateToNotificationSettings(context)
+                },
+                onClickChangeTheme = { navigator.navigate(SettingScreenRoute.SettingThemeRoute(it)) },
+                onClickCleanCache = {
+                    scope.launch { cleanCache(context, activity) }
+                },
+                onClickPip = { savePipState(isPipEnabled.not()) },
+                onClickPaypal = { showPaypalDialog = true },
+                onClickQris = { showBottomSheetQris = true },
+                onClickFaq = { navigator.navigate(SettingFaqRoute) },
+                onClickContact = { navigateToGmail(context) },
+                onClickAbout = { navigator.navigate(SettingAboutAppRoute) }
+            )
+        }
+
+        if (isInitialLoading) {
+            SettingShimmer(deviceType = deviceType)
+        }
     }
 }
 
@@ -565,5 +579,88 @@ private fun handleClickMenu(
         getString(R.string.faq) -> onClickFaq()
         getString(R.string.contact) -> onClickContact()
         getString(R.string.about) -> onClickAbout()
+    }
+}
+
+@Composable
+private fun SettingShimmer(
+    deviceType: DeviceType,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(top = Dp64)
+            .fadingEdge(
+                side = Bottom,
+                isVisible = true
+            )
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Spacer(modifier = Modifier.height(Dp16))
+            Box(
+                modifier = Modifier
+                    .padding(horizontal = Dp24)
+                    .clip(RoundedCornerShape(Dp8))
+                    .meverShimmer(true)
+            ) {
+                Text(
+                    text = stringResource(R.string.settings),
+                    style = typography.h2.copy(fontSize = Sp32),
+                    color = colors.blackWhite.copy(alpha = 0f)
+                )
+            }
+        }
+        StorageSectionLoading(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = Dp24, vertical = Dp32),
+            deviceType = deviceType
+        )
+        repeat(3) { sectionIndex ->
+            Box(
+                modifier = Modifier
+                    .padding(start = Dp24, end = Dp24, bottom = Dp12)
+                    .width(if (sectionIndex == 0) 80.dp else if (sectionIndex == 1) 100.dp else 60.dp)
+                    .height(20.dp)
+                    .clip(RoundedCornerShape(Dp4))
+                    .meverShimmer(true)
+            )
+            repeat(if (sectionIndex == 0) 3 else if (sectionIndex == 1) 4 else 2) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = Dp24, vertical = Dp12),
+                    horizontalArrangement = SpaceBetween,
+                    verticalAlignment = CenterVertically
+                ) {
+                    Row(
+                        horizontalArrangement = spacedBy(Dp16),
+                        verticalAlignment = CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(Dp40)
+                                .clip(CircleShape)
+                                .meverShimmer(true)
+                        )
+                        Box(
+                            modifier = Modifier
+                                .width(130.dp)
+                                .height(16.dp)
+                                .clip(RoundedCornerShape(Dp4))
+                                .meverShimmer(true)
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .size(Dp40)
+                            .clip(RoundedCornerShape(Dp8))
+                            .meverShimmer(true)
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(Dp28))
+        }
     }
 }

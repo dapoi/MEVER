@@ -18,7 +18,7 @@ import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,12 +27,16 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 internal class SettingLandingViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val repository: MeverRepository
 ) : BaseViewModel() {
+    private val _isInitialLoading = MutableStateFlow(true)
+    val isInitialLoading = _isInitialLoading.asStateFlow()
+
     var languageCode by mutableStateOf("en")
     var animatedPercent by mutableFloatStateOf(0f)
     var appVersion by mutableStateOf("")
@@ -59,11 +63,11 @@ internal class SettingLandingViewModel @Inject constructor(
     val storageInfo = _storageInfo.asStateFlow()
 
     init {
-        viewModelScope.launch(IO) {
-            val version = getAppVersion(context)
-            withContext(Main) {
-                appVersion = version
-            }
+        viewModelScope.launch {
+            val version = withContext(IO) { getAppVersion(context) }
+            appVersion = version
+            delay(200.milliseconds)
+            _isInitialLoading.value = false
         }
     }
 
