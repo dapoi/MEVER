@@ -5,11 +5,15 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Bitmap.Config.ARGB_8888
 import android.net.Uri
+import androidx.core.graphics.createBitmap
 import androidx.core.graphics.scale
-import com.dapascript.mever.core.common.util.BackgroundRemovalProcessor.Companion.MAX_SIZE
 import com.google.android.gms.common.api.OptionalModuleApi
+import com.google.android.gms.common.moduleinstall.InstallStatusListener
 import com.google.android.gms.common.moduleinstall.ModuleInstall
 import com.google.android.gms.common.moduleinstall.ModuleInstallRequest
+import com.google.android.gms.common.moduleinstall.ModuleInstallStatusUpdate.InstallState.STATE_CANCELED
+import com.google.android.gms.common.moduleinstall.ModuleInstallStatusUpdate.InstallState.STATE_COMPLETED
+import com.google.android.gms.common.moduleinstall.ModuleInstallStatusUpdate.InstallState.STATE_FAILED
 import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.common.InputImage.fromBitmap
 import com.google.mlkit.vision.segmentation.subject.SubjectSegmentation
@@ -26,6 +30,21 @@ import kotlin.math.max
 class BackgroundRemovalProcessor @Inject constructor(private val context: Context) {
 
     private var segmenter: SubjectSegmenter? = null
+    private var isWarmedUp = false
+
+    /**
+     * Preloads and warms up the ML Kit Subject Segmentation model in the background.
+     * Triggers Google Play Services optional module download if not yet installed.
+     */
+    suspend fun preload() = withContext(IO) {
+        try {
+            ensureModuleInstalled()
+            val client = getSegmenter()
+            warmUpModelIfNeeded(client)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
 
     /**
      * Removes the background from the image at [imageUri] using ML Kit Subject Segmentation.
@@ -33,40 +52,98 @@ class BackgroundRemovalProcessor @Inject constructor(private val context: Contex
      */
     suspend fun removeBackground(
         contentResolver: ContentResolver,
-        imageUri: Uri
+        imageUri: Uri,
     ): Bitmap? = withContext(IO) {
         val source = decodeResizedBitmap(
             contentResolver = contentResolver,
             uri = imageUri,
             reqWidth = MAX_SIZE,
-            reqHeight = MAX_SIZE
+            reqHeight = MAX_SIZE,
         )?.toProcessingBitmap() ?: return@withContext null
 
         try {
             ensureModuleInstalled()
             val client = getSegmenter()
-            // Ensure segmenter is initialized. This can help identify issues early.
-            client.initTask.await()
+            warmUpModelIfNeeded(client)
             val result = client.process(fromBitmap(source, 0)).await()
             result.foregroundBitmap
         } catch (e: Exception) {
             e.printStackTrace()
-            null
+            throw e
         } finally {
             source.recycle()
         }
     }
 
-    private suspend fun ensureModuleInstalled() {
-        val client = ModuleInstall.getClient(context)
-        val options = SubjectSegmenterOptions.Builder().build()
-        val api = SubjectSegmentation.getClient(options) as OptionalModuleApi
+    private suspend fun warmUpModelIfNeeded(client: SubjectSegmenter) {
+        if (isWarmedUp) return
+        try {
+            client.initTask.await()
+            val dummy = createBitmap(1, 1, ARGB_8888)
+            client.process(fromBitmap(dummy, 0)).await()
+            isWarmedUp = true
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
 
-        client.installModules(
-            ModuleInstallRequest.newBuilder()
+    private suspend fun ensureModuleInstalled() {
+        val segmenterClient = getSegmenter()
+        val api = (segmenterClient as? OptionalModuleApi) ?: return
+        val client = ModuleInstall.getClient(context)
+
+        val availability = client.areModulesAvailable(api).await()
+        if (availability.areModulesAvailable()) {
+            return
+        }
+
+        suspendCancellableCoroutine { continuation ->
+            lateinit var listener: InstallStatusListener
+            listener = InstallStatusListener { update ->
+                when (update.installState) {
+                    STATE_COMPLETED -> {
+                        client.unregisterListener(listener)
+                        if (continuation.isActive) {
+                            continuation.resume(Unit)
+                        }
+                    }
+
+                    STATE_FAILED, STATE_CANCELED -> {
+                        client.unregisterListener(listener)
+                        if (continuation.isActive) {
+                            continuation.resumeWithException(
+                                IllegalStateException("Module installation failed or was canceled (state: ${update.installState})"),
+                            )
+                        }
+                    }
+                }
+            }
+
+            val request = ModuleInstallRequest.newBuilder()
                 .addApi(api)
+                .setListener(listener)
                 .build()
-        ).await()
+
+            client.installModules(request)
+                .addOnSuccessListener { response ->
+                    if (response.areModulesAlreadyInstalled()) {
+                        client.unregisterListener(listener)
+                        if (continuation.isActive) {
+                            continuation.resume(Unit)
+                        }
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    client.unregisterListener(listener)
+                    if (continuation.isActive) {
+                        continuation.resumeWithException(exception)
+                    }
+                }
+
+            continuation.invokeOnCancellation {
+                client.unregisterListener(listener)
+            }
+        }
     }
 
     private fun getSegmenter(): SubjectSegmenter {

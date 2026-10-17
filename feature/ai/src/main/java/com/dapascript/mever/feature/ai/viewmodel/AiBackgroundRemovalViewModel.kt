@@ -103,7 +103,9 @@ internal class AiBackgroundRemovalViewModel @Inject constructor(
                     StateFailed(context.getString(R.string.failed_process_ai))
                 }
             } catch (e: Exception) {
-                _backgroundRemovalState.value = StateFailed(e.message)
+                _backgroundRemovalState.value = StateFailed(
+                    e.message ?: context.getString(R.string.failed_process_ai)
+                )
             }
         }
     }
