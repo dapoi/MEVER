@@ -280,7 +280,8 @@ internal fun AiImageGeneratorResultScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = Dp24, end = Dp24, bottom = Dp16),
+                    .padding(start = Dp24, end = Dp24, bottom = Dp16)
+                    .verticalScroll(rememberScrollState()),
                 verticalArrangement = spacedBy(Dp16)
             ) {
                 Text(
@@ -289,10 +290,12 @@ internal fun AiImageGeneratorResultScreen(
                     color = colors.blackWhite
                 )
                 MeverAutoSizableTextField(
+                    heightFreeTextContainer = Dp120,
                     value = args.prompt,
                     isReadOnly = true,
                     fontSize = Sp18,
-                    minFontSize = Sp14
+                    minFontSize = Sp14,
+                    maxLines = 4
                 ) {}
                 Text(
                     text = stringResource(R.string.report_desc),
