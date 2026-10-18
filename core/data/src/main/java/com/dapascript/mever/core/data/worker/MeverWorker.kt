@@ -31,13 +31,11 @@ import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.Query.RES
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.Query.URL
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkNotificationManager.showNotification
 import com.dapascript.mever.core.common.util.deeplink.buildMeverDeeplink
-import com.dapascript.mever.core.common.util.notification.QuickDownloadNotificationHelper.showQuickDownloadNotification as showQuickDownloadNotificationHelper
 import com.dapascript.mever.core.common.util.encodeMetaData
 import com.dapascript.mever.core.common.util.getExtensionFromUrl
 import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.sanitizeFilename
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFolder
-import com.ketch.Ketch
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.ACTION_DOWNLOAD
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.ACTION_GENERATE_AI
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_ACTION
@@ -53,9 +51,10 @@ import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_TYPE
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_URL
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.SIZE_LIMIT
 import com.dapascript.mever.core.data.R
+import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.dapascript.mever.core.data.source.remote.ApiService
-import com.dapascript.mever.core.data.util.ContentUtil.selectBestContents
 import com.dapascript.mever.core.data.util.MoshiHelper
+import com.ketch.Ketch
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CancellationException
@@ -66,6 +65,7 @@ import java.io.IOException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import com.dapascript.mever.core.common.R as UiR
+import com.dapascript.mever.core.common.util.notification.QuickDownloadNotificationHelper.showQuickDownloadNotification as showQuickDownloadNotificationHelper
 
 @HiltWorker
 internal class MeverWorker @AssistedInject constructor(
@@ -83,6 +83,12 @@ internal class MeverWorker @AssistedInject constructor(
         val type = inputData.getString(KEY_TYPE) ?: "video"
         val prompt = inputData.getString(KEY_PROMPT).orEmpty()
         val isFromNotif = inputData.getBoolean(KEY_IS_FROM_NOTIF, false)
+        val platform = getPlatformType(url, type)
+        val effectiveQuality = if (quality.isEmpty() && (platform == YOUTUBE || platform == YOUTUBE_MUSIC)) {
+            if (type == "audio") "128kbps" else "480p"
+        } else {
+            quality
+        }
 
         return try {
             val resultData = when (action) {
@@ -90,7 +96,7 @@ internal class MeverWorker @AssistedInject constructor(
                     currentCoroutineContext().ensureActive()
                     val res = getApiDownloader(
                         url = url,
-                        quality = quality,
+                        quality = effectiveQuality,
                         type = type
                     )
 
@@ -247,6 +253,35 @@ internal class MeverWorker @AssistedInject constructor(
                 deeplink = deeplink
             )
             Result.failure(workDataOf(KEY_ERROR to errorMessage))
+        }
+    }
+
+    private fun selectBestContents(
+        contents: List<ContentEntity>,
+        url: String,
+    ): List<ContentEntity> {
+        if (contents.isEmpty()) return emptyList()
+
+        return when (getPlatformType(url)) {
+            YOUTUBE -> {
+                val yt480 = contents.firstOrNull { (it.quality).contains("480p", ignoreCase = true) }
+                    ?: contents.firstOrNull { (it.quality).contains("720p", ignoreCase = true) }
+                    ?: contents.firstOrNull { (it.quality).contains("360p", ignoreCase = true) }
+                    ?: contents.first()
+                listOf(yt480)
+            }
+
+            FACEBOOK -> {
+                val fbHd = contents.firstOrNull { (it.quality).contains("hd", ignoreCase = true) }
+                    ?: contents.first()
+                listOf(fbHd)
+            }
+
+            TIKTOK, INSTAGRAM, THREADS, X, PINTEREST, PIXIV, TERABOX, CAPCUT, DOUYIN, VIDEY -> {
+                contents
+            }
+
+            else -> contents
         }
     }
 

@@ -23,7 +23,7 @@ object QuickDownloadNotificationHelper {
         val channel = NotificationChannel(
             CHANNEL_ID,
             CHANNEL_NAME,
-            NotificationManager.IMPORTANCE_LOW,
+            NotificationManager.IMPORTANCE_DEFAULT
         ).apply {
             description = "Channel for Quick Download input notification"
             setSound(null, null)
@@ -49,7 +49,7 @@ object QuickDownloadNotificationHelper {
         val replyAction = NotificationCompat.Action.Builder(
             R.drawable.ic_download,
             context.getString(R.string.quick_download_action_label),
-            replyPendingIntent,
+            replyPendingIntent
         )
             .addRemoteInput(remoteInput)
             .build()
@@ -58,10 +58,10 @@ object QuickDownloadNotificationHelper {
             .setSmallIcon(R.drawable.ic_mever)
             .setContentTitle(context.getString(R.string.quick_download_notif_title))
             .setContentText(context.getString(R.string.quick_download_notif_desc))
-            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .setOngoing(true)
-            .setSilent(true)
+            .setAutoCancel(false)
             .addAction(replyAction)
             .build()
 
