@@ -3,6 +3,8 @@ package com.dapascript.mever.feature.setting.screen
 import android.content.Context
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.text.format.Formatter
+import com.dapascript.mever.core.common.util.notification.QuickDownloadNotificationHelper.cancelQuickDownloadNotification
+import com.dapascript.mever.core.common.util.notification.QuickDownloadNotificationHelper.showQuickDownloadNotification
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -130,6 +132,7 @@ internal fun SettingLandingScreen(
     val isInitialLoading = isInitialLoading.collectAsStateValue()
     val themeType = themeType.collectAsStateValue()
     val isPipEnabled = isPipEnabled.collectAsStateValue()
+    val isQuickNotifEnabled = isQuickNotifEnabled.collectAsStateValue()
     val storageInfo = storageInfo.collectAsStateValue()
     val context = LocalContext.current
     val activity = LocalActivity.current
@@ -252,6 +255,7 @@ internal fun SettingLandingScreen(
                 deviceType = deviceType,
                 listState = listState,
                 isPipEnabled = isPipEnabled,
+                isQuickNotifEnabled = isQuickNotifEnabled,
                 getLanguageCode = languageCode,
                 themeType = themeType,
                 storageInfo = storageInfo,
@@ -272,6 +276,15 @@ internal fun SettingLandingScreen(
                     scope.launch { cleanCache(context, activity) }
                 },
                 onClickPip = { savePipState(isPipEnabled.not()) },
+                onClickQuickNotif = {
+                    val newState = isQuickNotifEnabled.not()
+                    saveQuickNotifState(newState)
+                    if (newState) {
+                        showQuickDownloadNotification(context)
+                    } else {
+                        cancelQuickDownloadNotification(context)
+                    }
+                },
                 onClickPaypal = { showPaypalDialog = true },
                 onClickQris = { showBottomSheetQris = true },
                 onClickFaq = { navigator.navigate(SettingFaqRoute) },
@@ -294,6 +307,7 @@ private fun SettingLandingContent(
     deviceType: DeviceType,
     listState: LazyListState,
     isPipEnabled: Boolean,
+    isQuickNotifEnabled: Boolean,
     getLanguageCode: String,
     themeType: ThemeType,
     storageInfo: StorageInfo?,
@@ -306,6 +320,7 @@ private fun SettingLandingContent(
     onClickChangeTheme: (ThemeType) -> Unit,
     onClickCleanCache: () -> Unit,
     onClickPip: () -> Unit,
+    onClickQuickNotif: () -> Unit,
     onClickPaypal: () -> Unit,
     onClickQris: () -> Unit,
     onClickFaq: () -> Unit,
@@ -405,7 +420,7 @@ private fun SettingLandingContent(
                         }
                     }
 
-                    val menuArgs = remember(menu, trailingTitle, isPipEnabled) {
+                    val menuArgs = remember(menu, trailingTitle, isPipEnabled, isQuickNotifEnabled) {
                         MenuItemArgs(
                             leadingIcon = menu.icon,
                             leadingIconBackground = menu.iconBackgroundColor,
@@ -413,11 +428,11 @@ private fun SettingLandingContent(
                             leadingDesc = menu.leadingDesc,
                             leadingIconSize = Dp40,
                             leadingIconPadding = Dp8,
-                            trailingType = if (menu.leadingTitle != context.getString(R.string.pip)) {
-                                Default(
-                                    trailingTitle = trailingTitle
-                                )
-                            } else Switch(isPipEnabled)
+                            trailingType = when (menu.leadingTitle) {
+                                context.getString(R.string.pip) -> Switch(isPipEnabled)
+                                context.getString(R.string.quick_download_notif_title) -> Switch(isQuickNotifEnabled)
+                                else -> Default(trailingTitle = trailingTitle)
+                            }
                         )
                     }
 
@@ -434,6 +449,7 @@ private fun SettingLandingContent(
                             onClickNotificationPermission = { onClickNotificationPermission() },
                             onClickChangeTheme = { onClickChangeTheme(it) },
                             onClickPip = { onClickPip() },
+                            onClickQuickNotif = { onClickQuickNotif() },
                             onClickCleanCache = { onClickCleanCache() },
                             onClickPaypal = { onClickPaypal() },
                             onClickQris = { onClickQris() },
@@ -571,6 +587,7 @@ private fun handleClickMenu(
     onClickNotificationPermission: () -> Unit,
     onClickChangeTheme: (ThemeType) -> Unit,
     onClickPip: () -> Unit,
+    onClickQuickNotif: () -> Unit,
     onClickCleanCache: () -> Unit,
     onClickPaypal: () -> Unit,
     onClickQris: () -> Unit,
@@ -583,6 +600,7 @@ private fun handleClickMenu(
         getString(R.string.notification) -> onClickNotificationPermission()
         getString(R.string.theme) -> onClickChangeTheme(themeType)
         getString(R.string.pip) -> onClickPip()
+        getString(R.string.quick_download_notif_title) -> onClickQuickNotif()
         getString(R.string.clean_cache) -> onClickCleanCache()
         getString(R.string.paypal) -> onClickPaypal()
         getString(R.string.qris) -> onClickQris()

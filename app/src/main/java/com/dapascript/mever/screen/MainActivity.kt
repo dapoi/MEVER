@@ -19,6 +19,7 @@ import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass.Companion
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass.Companion.Medium
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -40,6 +41,7 @@ import com.dapascript.mever.core.common.util.LocalDeviceType
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.Path.HOME
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.Query.URL
 import com.dapascript.mever.core.common.util.deeplink.buildMeverDeeplink
+import com.dapascript.mever.core.common.util.notification.QuickDownloadNotificationHelper.showQuickDownloadNotification
 import com.dapascript.mever.core.common.util.recreateActivity
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.navigation.MainNavigation
@@ -69,6 +71,14 @@ class MainActivity : AppCompatActivity() {
 
         setContent {
             val themeType = viewModel.themeType.collectAsStateValue()
+            val isQuickNotifEnabled = viewModel.isQuickNotifEnabled.collectAsStateValue()
+
+            LaunchedEffect(isQuickNotifEnabled) {
+                if (isQuickNotifEnabled) {
+                    showQuickDownloadNotification(this@MainActivity)
+                }
+            }
+
             val windowSizeClass = calculateWindowSizeClass(this)
             val deviceType = remember(windowSizeClass) {
                 when (windowSizeClass.widthSizeClass) {

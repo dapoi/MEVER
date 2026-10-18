@@ -85,6 +85,14 @@
                 android:value="true" />
         </service>
 
+        <receiver
+            android:name=".receiver.QuickDownloadReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.dapascript.mever.ACTION_QUICK_DOWNLOAD_REPLY" />
+            </intent-filter>
+        </receiver>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"

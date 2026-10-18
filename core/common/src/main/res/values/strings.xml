@@ -194,4 +194,13 @@
     <string name="faq_a8">The original creators do! We\'re just the middleman here. Make sure to respect their work and play nice with copyrights.</string>
     <string name="faq_q9">Are you guys watching my data?</string>
     <string name="faq_a9">No way. Everything stays right on your phone. We don\'t collect or store a single thing you download. Your privacy is key!</string>
+    <string name="quick_tile_title">Quick Download Tile</string>
+    <string name="quick_tile_desc">Add tile to Quick Settings to download copied links easily</string>
+    <string name="quick_download_processing">Opening copied link in MEVER…</string>
+    <string name="quick_download_no_url">No valid URL found in clipboard</string>
+    <string name="quick_tile_added">Quick Download tile added!</string>
+    <string name="quick_tile_guide">Pull down Quick Settings shade, tap edit, and drag MEVER tile into your active tiles.</string>
+    <string name="quick_download_notif_title">Quick Media Downloader</string>
+    <string name="quick_download_notif_desc">Paste a link below to notification</string>
+    <string name="quick_download_action_label">Paste &amp; Download</string>
 </resources>

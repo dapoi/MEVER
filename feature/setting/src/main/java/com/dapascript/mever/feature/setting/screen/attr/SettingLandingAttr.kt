@@ -59,6 +59,12 @@ internal object SettingLandingAttr {
                         leadingDesc = getString(R.string.when_video_is_playing),
                         icon = R.drawable.ic_pip,
                         iconBackgroundColor = MeverLightPurple
+                    ),
+                    SubMenu(
+                        leadingTitle = getString(R.string.quick_download_notif_title),
+                        leadingDesc = getString(R.string.quick_download_notif_desc),
+                        icon = R.drawable.ic_quick_download_notif,
+                        iconBackgroundColor = MeverPink
                     )
                 )
             ),

@@ -14,6 +14,7 @@ import com.dapascript.mever.core.common.util.storage.StorageUtil.StorageInfo
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getStorageInfo
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_PIP
+import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_QUICK_NOTIF
 import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_THEME
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -59,6 +60,12 @@ internal class SettingLandingViewModel @Inject constructor(
         initialValue = true
     )
 
+    val isQuickNotifEnabled = repository.getPreference(KEY_QUICK_NOTIF, false).stateIn(
+        scope = viewModelScope,
+        started = WhileSubscribed(),
+        initialValue = false
+    )
+
     private val _storageInfo = MutableStateFlow<StorageInfo?>(null)
     val storageInfo = _storageInfo.asStateFlow()
 
@@ -78,5 +85,9 @@ internal class SettingLandingViewModel @Inject constructor(
 
     fun savePipState(isPipEnabled: Boolean) = viewModelScope.launch {
         repository.savePreference(KEY_PIP, isPipEnabled)
+    }
+
+    fun saveQuickNotifState(isEnabled: Boolean) = viewModelScope.launch {
+        repository.savePreference(KEY_QUICK_NOTIF, isEnabled)
     }
 }

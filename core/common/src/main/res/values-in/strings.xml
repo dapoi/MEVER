@@ -193,4 +193,13 @@
     <string name="faq_a8">Pemilik aslinya! Kami hanyalah perantara. Pastikan untuk menghormati karya mereka dan patuhi hak cipta.</string>
     <string name="faq_q9">Apakah kalian memantau data saya?</string>
     <string name="faq_a9">Sama sekali tidak. Semua data tetap ada di ponselmu. Kami tidak mengumpulkan atau menyimpan apa pun yang kamu unduh. Privasimu adalah kunci!</string>
+    <string name="quick_tile_title">Ubin Unduh Cepat</string>
+    <string name="quick_tile_desc">Tambahkan ubin Pengaturan Cepat untuk mengunduh tautan tersalin dengan mudah</string>
+    <string name="quick_download_processing">Membuka tautan tersalin di MEVER…</string>
+    <string name="quick_download_no_url">Tidak ada URL valid di papan klip</string>
+    <string name="quick_tile_added">Ubin Unduh Cepat berhasil ditambahkan!</string>
+    <string name="quick_tile_guide">Tarik panel Pengaturan Cepat, ketuk edit, lalu seret ubin MEVER ke ubin aktif Anda.</string>
+    <string name="quick_download_notif_title">Pengunduh Media Cepat</string>
+    <string name="quick_download_notif_desc">Tempel tautan pada notifikasi</string>
+    <string name="quick_download_action_label">Tempel &amp; Unduh</string>
 </resources>

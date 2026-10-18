@@ -21,6 +21,7 @@ import com.dapascript.mever.core.common.util.PlatformType.VIDEY
 import com.dapascript.mever.core.common.util.PlatformType.X
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE_MUSIC
+import com.dapascript.mever.core.common.util.changeToCurrentDate
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.Path.HOME
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.Path.IMAGE_GENERATOR
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.Query.ART_STYLE
@@ -30,12 +31,19 @@ import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.Query.RES
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.Query.URL
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkNotificationManager.showNotification
 import com.dapascript.mever.core.common.util.deeplink.buildMeverDeeplink
+import com.dapascript.mever.core.common.util.notification.QuickDownloadNotificationHelper.showQuickDownloadNotification as showQuickDownloadNotificationHelper
+import com.dapascript.mever.core.common.util.encodeMetaData
+import com.dapascript.mever.core.common.util.getExtensionFromUrl
 import com.dapascript.mever.core.common.util.getPlatformType
+import com.dapascript.mever.core.common.util.sanitizeFilename
+import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFolder
+import com.ketch.Ketch
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.ACTION_DOWNLOAD
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.ACTION_GENERATE_AI
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_ACTION
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_ART_STYLE
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_ERROR
+import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_IS_FROM_NOTIF
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_OUTPUT_FILE_PATH
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_OUTPUT_IS_FILE
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_PROMPT
@@ -46,6 +54,7 @@ import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_URL
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.SIZE_LIMIT
 import com.dapascript.mever.core.data.R
 import com.dapascript.mever.core.data.source.remote.ApiService
+import com.dapascript.mever.core.data.util.ContentUtil.selectBestContents
 import com.dapascript.mever.core.data.util.MoshiHelper
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -63,7 +72,8 @@ internal class MeverWorker @AssistedInject constructor(
     @Assisted private val context: Context,
     @Assisted workerParameters: WorkerParameters,
     private val apiService: ApiService,
-    private val moshiHelper: MoshiHelper
+    private val moshiHelper: MoshiHelper,
+    private val ketch: Ketch
 ) : CoroutineWorker(context, workerParameters) {
 
     override suspend fun doWork(): Result {
@@ -72,6 +82,7 @@ internal class MeverWorker @AssistedInject constructor(
         val quality = inputData.getString(KEY_QUALITY).orEmpty()
         val type = inputData.getString(KEY_TYPE) ?: "video"
         val prompt = inputData.getString(KEY_PROMPT).orEmpty()
+        val isFromNotif = inputData.getBoolean(KEY_IS_FROM_NOTIF, false)
 
         return try {
             val resultData = when (action) {
@@ -87,7 +98,47 @@ internal class MeverWorker @AssistedInject constructor(
                         throw Exception(context.getString(R.string.url_error))
                     }
 
-                    res
+                    if (isFromNotif) {
+                        val bestContents = selectBestContents(res, url)
+                        val meverFolder = getMeverFolder()
+                        val platformTag = getPlatformType(url, type).platformName
+
+                        bestContents.forEachIndexed { index, content ->
+                            val extension = getExtensionFromUrl(
+                                url = content.downloadUrl,
+                                extensionFromResponse = content.type
+                            ) ?: run {
+                                val contentType = content.type.lowercase()
+                                when {
+                                    contentType.contains("video") || content.downloadUrl.contains("mp4") -> ".mp4"
+                                    contentType.contains("image") || content.downloadUrl.contains("jpg") || content.downloadUrl.contains(
+                                        "jpeg"
+                                    ) -> ".jpg"
+
+                                    contentType.contains("audio") || content.downloadUrl.contains("mp3") -> ".mp3"
+                                    else -> ".jpg"
+                                }
+                            }
+
+                            val timeStamp = changeToCurrentDate(System.currentTimeMillis())
+                            val rawFileName = content.fileName.ifEmpty {
+                                "MEVER_${timeStamp}_${index}${extension}"
+                            }
+
+                            val sanitized = sanitizeFilename(rawFileName)
+
+                            ketch.download(
+                                url = content.downloadUrl,
+                                path = meverFolder.path,
+                                fileName = sanitized,
+                                tag = platformTag,
+                                metaData = encodeMetaData(content.thumbnail, rawFileName)
+                            )
+                        }
+                        bestContents
+                    } else {
+                        res
+                    }
                 }
 
                 ACTION_GENERATE_AI -> {
@@ -146,13 +197,17 @@ internal class MeverWorker @AssistedInject constructor(
                 if (action == ACTION_DOWNLOAD) deeplinkDownload else deeplinkImageGenerator
             )
 
-            notifData.let { (title, desc, deeplink) ->
-                showNotification(
-                    context = context,
-                    title = title,
-                    desc = desc,
-                    deeplink = deeplink
-                )
+            if (isFromNotif) {
+                showQuickDownloadNotificationHelper(context)
+            } else {
+                notifData.let { (title, desc, deeplink) ->
+                    showNotification(
+                        context = context,
+                        title = title,
+                        desc = desc,
+                        deeplink = deeplink
+                    )
+                }
             }
             Result.success(outputData)
         } catch (e: CancellationException) {
@@ -180,7 +235,11 @@ internal class MeverWorker @AssistedInject constructor(
                     ERROR to errorMessage
                 )
             )
-            val deeplink = if (action == ACTION_DOWNLOAD) deeplinkDownload else deeplinkImageGenerator
+            val deeplink =
+                if (action == ACTION_DOWNLOAD) deeplinkDownload else deeplinkImageGenerator
+            if (isFromNotif) {
+                showQuickDownloadNotificationHelper(context)
+            }
             showNotification(
                 context = context,
                 title = context.getString(UiR.string.error_title),

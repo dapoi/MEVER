@@ -12,6 +12,7 @@ object WorkerConstant {
     const val KEY_PROMPT = "prompt"
     const val KEY_ART_STYLE = "art_style"
     const val KEY_TYPE = "type"
+    const val KEY_IS_FROM_NOTIF = "is_from_notif"
 
     /**
      * Worker Actions

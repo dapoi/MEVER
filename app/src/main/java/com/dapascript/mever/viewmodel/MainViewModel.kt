@@ -8,6 +8,7 @@ import com.dapascript.mever.core.common.ui.theme.ThemeType
 import com.dapascript.mever.core.data.deeplink.DeeplinkManager
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_LAST_INTERACTION_TIME
+import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_QUICK_NOTIF
 import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_THEME
 import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_VERSION
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -36,6 +37,12 @@ internal class MainViewModel @Inject constructor(
         scope = viewModelScope,
         started = WhileSubscribed(),
         initialValue = ThemeType.System
+    )
+
+    val isQuickNotifEnabled = repository.getPreference(KEY_QUICK_NOTIF, false).stateIn(
+        scope = viewModelScope,
+        started = WhileSubscribed(),
+        initialValue = false
     )
 
     private val _navDeeplinkTrigger = Channel<Unit>(capacity = Channel.CONFLATED)
