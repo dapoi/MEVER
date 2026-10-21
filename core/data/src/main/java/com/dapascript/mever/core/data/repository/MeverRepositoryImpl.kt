@@ -26,7 +26,6 @@ import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_TYPE
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_URL
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.TYPE_AUDIO
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.TYPE_VIDEO
-import com.dapascript.mever.core.data.model.local.ArtEntity
 import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.dapascript.mever.core.data.model.local.ImageAiEntity
 import com.dapascript.mever.core.data.model.local.WaStatusEntity
