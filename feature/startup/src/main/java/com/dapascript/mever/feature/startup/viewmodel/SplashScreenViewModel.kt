@@ -51,28 +51,29 @@ internal class SplashScreenViewModel @Inject constructor(
             viewModelScope.launch {
                 delay(1.seconds)
                 val mockAppConfig = AppConfigEntity(
-                    isImageGeneratorFeatureActive = true,
-                    isGoImgFeatureActive = true,
-                    showSupportedPlatform = true,
+                    enableForceUpdate = false,
+                    enableImageGen = true,
+                    enableImageFinder = true,
+                    enableMaintenance = false,
+                    showPlatforms = true,
                     videoResolutionsAndAudioQualities = mapOf(
                         "video" to listOf("360p", "480p", "720p"),
                         "audio" to listOf("128kbps")
-                    ),
-                    maintenanceDay = null
+                    )
                 )
                 _appConfigState.value = StateSuccess(mockAppConfig)
                 with(meverRepository) {
                     savePreference(
                         KEY_IS_IMAGE_AI_ENABLED,
-                        mockAppConfig.isImageGeneratorFeatureActive
+                        mockAppConfig.enableImageGen
                     )
                     savePreference(
                         KEY_IS_GO_IMG_ENABLED,
-                        mockAppConfig.isGoImgFeatureActive
+                        mockAppConfig.enableImageFinder
                     )
                     savePreference(
                         KEY_SHOW_SUPPORTED_PLATFORM,
-                        mockAppConfig.showSupportedPlatform
+                        mockAppConfig.showPlatforms
                     )
                     savePreference(
                         KEY_RESOLUTIONS,
@@ -94,15 +95,15 @@ internal class SplashScreenViewModel @Inject constructor(
                             with(meverRepository) {
                                 savePreference(
                                     KEY_IS_IMAGE_AI_ENABLED,
-                                    it.isImageGeneratorFeatureActive
+                                    it.enableImageGen
                                 )
                                 savePreference(
                                     KEY_IS_GO_IMG_ENABLED,
-                                    it.isGoImgFeatureActive
+                                    it.enableImageFinder
                                 )
                                 savePreference(
                                     KEY_SHOW_SUPPORTED_PLATFORM,
-                                    it.showSupportedPlatform
+                                    it.showPlatforms
                                 )
                                 savePreference(
                                     KEY_RESOLUTIONS,
