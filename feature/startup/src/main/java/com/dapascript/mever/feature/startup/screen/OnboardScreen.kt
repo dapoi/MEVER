@@ -1,6 +1,7 @@
 package com.dapascript.mever.feature.startup.screen
 
 import android.content.pm.PackageManager.PERMISSION_GRANTED
+import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -44,6 +45,7 @@ import androidx.compose.ui.layout.ContentScale.Companion.Fit
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
@@ -62,6 +64,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp6
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverPurple
+import com.dapascript.mever.core.common.ui.theme.MeverTheme
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
@@ -414,4 +417,20 @@ private fun Navigator.navigateToHome() {
         route = HomeLandingRoute,
         isClearBackStacks = true
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO, showBackground = true)
+@Composable
+fun DescriptionOnboardSectionDarkPreview() {
+    MeverTheme(DeviceType.PHONE) {
+        DescriptionOnboardSection(
+            page = OnboardPage(
+                image = R.drawable.ilustration_onboard_1,
+                subtitle = "Subtitle",
+                title = "Title",
+                highlightedText = "Highlighted",
+                description = "Description"
+            )
+        )
+    }
 }

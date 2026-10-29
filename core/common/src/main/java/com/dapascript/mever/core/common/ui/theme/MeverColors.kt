@@ -69,7 +69,7 @@ sealed class MeverColors(
         alwaysPurple = MeverPurple,
         alwaysWhite = MeverWhite,
         alwaysGray = MeverGray,
-        whiteBlack = MeverWhite,
+        whiteBlack = MeverBlack,
         whiteDark = MeverDark,
         blackWhite = MeverWhite,
         grayLightGray = MeverLightGray,

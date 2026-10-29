@@ -117,10 +117,10 @@ internal fun SplashScreen(
         LaunchedEffect(appConfigState) {
             appConfigState.handleUiState(
                 onSuccess = { response ->
-                    if (response.maintenanceDay != null) {
+                    if (response.enableMaintenance) {
                         showMaintenanceModal = true
                     } else {
-                        forceUpdateInProgress = response.isForceUpdateRequired
+                        forceUpdateInProgress = response.enableForceUpdate
 
                         if (forceUpdateInProgress) {
                             inAppUpdateManager.startUpdate(

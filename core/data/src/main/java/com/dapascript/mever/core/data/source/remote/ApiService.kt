@@ -29,7 +29,7 @@ import retrofit2.http.Query
 import retrofit2.http.Url
 
 internal interface ApiService {
-    @GET("app-config")
+    @GET("config")
     suspend fun getAppConfig(): AppConfigResponse
 
     @GET("applemusic")
