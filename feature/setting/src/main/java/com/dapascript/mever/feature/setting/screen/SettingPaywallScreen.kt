@@ -159,9 +159,13 @@ internal fun SettingPaywallScreen(
                     horizontalAlignment = CenterHorizontally,
                     verticalArrangement = spacedBy(Dp12)
                 ) {
-                    val formattedPrice = selectedPackage?.product?.price?.formatted ?: "$1.99/mo"
+                    val formattedPrice = selectedPackage?.product?.price?.formatted
                     Text(
-                        text = stringResource(R.string.subscribe_to_pro_for, formattedPrice),
+                        text = when {
+                            isLoadingOfferings -> stringResource(R.string.please_wait)
+                            formattedPrice != null -> stringResource(R.string.subscribe_to_pro_for, formattedPrice)
+                            else -> stringResource(R.string.subscribe_to_pro_for, "$1.99/mo")
+                        },
                         style = typography.body2,
                         color = colors.blackWhite.copy(alpha = 0.7f),
                         textAlign = TextAlign.Center
@@ -227,7 +231,7 @@ internal fun SettingPaywallScreen(
                             style = typography.label2,
                             color = MeverGray,
                             modifier = Modifier.clickable {
-                                navigateToBrowser(context, "https://mever.zeabur.app/privacy-policy")
+                                navigateToBrowser(context, "https://mever.my.id/license")
                             }
                         )
                         Text(
@@ -240,7 +244,7 @@ internal fun SettingPaywallScreen(
                             style = typography.label2,
                             color = MeverGray,
                             modifier = Modifier.clickable {
-                                navigateToBrowser(context, "https://mever.zeabur.app/privacy-policy")
+                                navigateToBrowser(context, "https://mever.my.id/privacy-policy")
                             }
                         )
                     }

@@ -100,7 +100,6 @@ import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.Setti
 import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.getSettingMenus
 import com.dapascript.mever.feature.setting.screen.component.HandleBottomSheetQris
 import com.dapascript.mever.feature.setting.screen.component.MeverProBannerCard
-import com.dapascript.mever.feature.setting.screen.component.RevenueCatCustomerCenterDialog
 import com.dapascript.mever.feature.setting.viewmodel.SettingLandingViewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
@@ -123,7 +122,6 @@ internal fun SettingLandingScreen(
     val scope = rememberCoroutineScope()
     val listState = rememberLazyListState()
     var showPaypalDialog by remember { mutableStateOf(false) }
-    var showCustomerCenterDialog by remember { mutableStateOf(false) }
     var titleHeight by rememberSaveable { mutableIntStateOf(0) }
     val isExpanded = remember(listState, titleHeight) {
         derivedStateOf {
@@ -215,14 +213,6 @@ internal fun SettingLandingScreen(
             checkSubscriptionEntitlement()
         }
 
-        RevenueCatCustomerCenterDialog(
-            shouldDisplay = showCustomerCenterDialog,
-            onDismiss = {
-                showCustomerCenterDialog = false
-                checkSubscriptionEntitlement()
-            }
-        )
-
         AnimatedVisibility(
             visible = isInitialLoading.not(),
             enter = fadeIn(),
@@ -243,7 +233,6 @@ internal fun SettingLandingScreen(
                 isExpanded = { isExpanded.value },
                 onSetTitleHeight = { titleHeight = it },
                 onClickProAccess = { navigator.navigate(SettingPaywallRoute) },
-                onClickCustomerCenter = { showCustomerCenterDialog = true },
                 onClickChangeLanguage = { languageCode ->
                     navigator.navigate(SettingLanguageRoute(languageCode))
                 },
@@ -293,7 +282,6 @@ private fun SettingLandingContent(
     isExpanded: () -> Boolean,
     onSetTitleHeight: (Int) -> Unit = {},
     onClickProAccess: () -> Unit,
-    onClickCustomerCenter: () -> Unit,
     onClickChangeLanguage: (String) -> Unit,
     onClickNotificationPermission: () -> Unit,
     onClickChangeTheme: (ThemeType) -> Unit,
@@ -353,8 +341,7 @@ private fun SettingLandingContent(
                         .fillMaxWidth()
                         .padding(start = Dp24, end = Dp24, top = Dp24, bottom = Dp32),
                     isProActive = isProActive,
-                    onClickUpgrade = onClickProAccess,
-                    onClickCustomerCenter = onClickCustomerCenter
+                    onClickUpgrade = onClickProAccess
                 )
             }
             menus.forEach { (title, menus) ->

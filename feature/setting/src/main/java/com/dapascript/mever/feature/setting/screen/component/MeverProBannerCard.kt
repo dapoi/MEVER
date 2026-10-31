@@ -40,11 +40,8 @@ import com.dapascript.mever.core.common.ui.theme.MeverWhite
 fun MeverProBannerCard(
     isProActive: Boolean,
     onClickUpgrade: () -> Unit,
-    onClickCustomerCenter: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val clickAction = if (isProActive) onClickCustomerCenter else onClickUpgrade
-
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -55,7 +52,10 @@ fun MeverProBannerCard(
                 color = MeverPurple.copy(alpha = 0.25f),
                 shape = RoundedCornerShape(Dp16)
             )
-            .clickable { clickAction() }
+            .then(
+                if (isProActive.not()) Modifier.clickable { onClickUpgrade() }
+                else Modifier
+            )
             .padding(horizontal = Dp16, vertical = Dp12)
     ) {
         Row(
@@ -101,7 +101,10 @@ fun MeverProBannerCard(
                 modifier = Modifier
                     .clip(RoundedCornerShape(Dp20))
                     .background(if (isProActive) MeverPurple.copy(alpha = 0.15f) else MeverPurple)
-                    .clickable { clickAction() }
+                    .then(
+                        if (isProActive.not()) Modifier.clickable { onClickUpgrade() }
+                        else Modifier
+                    )
                     .padding(horizontal = Dp14, vertical = Dp6),
                 contentAlignment = Alignment.Center
             ) {
