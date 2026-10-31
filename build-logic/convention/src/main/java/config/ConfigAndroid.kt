@@ -47,6 +47,15 @@ private fun ApplicationExtension.configure(project: Project) = apply {
                 }
             }\""
         )
+        buildConfigField(
+            "String",
+            "REVENUECAT_API_KEY",
+            "\"${
+                project.getEnvVariable("REVENUECAT_API_KEY").ifEmpty {
+                    "test_WJqrcAsaKDeCFYUtcvOvutpGkWo"
+                }
+            }\""
+        )
     }
 
     buildTypes {
@@ -100,6 +109,15 @@ private fun LibraryExtension.configure(project: Project) = apply {
             "\"${
                 project.getEnvVariable("AD_INTERSTITIAL_UNIT_ID").ifEmpty {
                     "ca-app-pub-3940256099942544/1033173712"
+                }
+            }\""
+        )
+        buildConfigField(
+            "String",
+            "REVENUECAT_API_KEY",
+            "\"${
+                project.getEnvVariable("REVENUECAT_API_KEY").ifEmpty {
+                    "test_WJqrcAsaKDeCFYUtcvOvutpGkWo"
                 }
             }\""
         )

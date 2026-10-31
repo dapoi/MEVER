@@ -73,9 +73,10 @@ class MainActivity : AppCompatActivity() {
         setContent {
             val themeType = viewModel.themeType.collectAsStateValue()
             val isQuickNotifEnabled = viewModel.isQuickNotifEnabled.collectAsStateValue()
+            val isProActive = viewModel.isProActive.collectAsStateValue()
 
-            LaunchedEffect(isQuickNotifEnabled) {
-                if (isQuickNotifEnabled) {
+            LaunchedEffect(isQuickNotifEnabled, isProActive) {
+                if (isQuickNotifEnabled && isProActive) {
                     showQuickDownloadNotification(this@MainActivity)
                 } else {
                     cancelQuickDownloadNotification(this@MainActivity)
@@ -144,6 +145,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+        viewModel.checkSubscriptionEntitlement()
         viewModel.checkIdleTimeout { recreateActivity(context = this, activity = this) }
     }
 

@@ -28,6 +28,7 @@ import com.dapascript.mever.feature.ai.screen.attr.AiBackgroundRemovalAttr.BgRem
 import com.dapascript.mever.feature.ai.screen.attr.AiBackgroundRemovalAttr.SaveResult
 import com.dapascript.mever.feature.ai.screen.attr.AiBackgroundRemovalAttr.SaveResult.ImageLocation.GALLERY
 import com.dapascript.mever.feature.ai.screen.attr.AiBackgroundRemovalAttr.SaveResult.ImageLocation.IN_APP
+import com.dapascript.mever.core.data.repository.SubscriptionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers.IO
@@ -53,8 +54,11 @@ import kotlin.time.Duration.Companion.seconds
 internal class AiBackgroundRemovalViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val processor: BackgroundRemovalProcessor,
-    private val repository: MeverRepository
+    private val repository: MeverRepository,
+    subscriptionRepository: SubscriptionRepository
 ) : BaseViewModel() {
+
+    val isProActive = subscriptionRepository.isProActive
 
     val getButtonClickCount = repository.getClickCount().stateIn(
         scope = viewModelScope,

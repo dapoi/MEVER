@@ -119,7 +119,7 @@ import java.lang.System.currentTimeMillis
 internal fun AiImageGeneratorResultScreen(
     navigator: Navigator,
     args: AiImageGeneratorResultRoute,
-    viewModel: AiImageGeneratorResultViewModel = hiltViewModel()
+    viewModel: AiImageGeneratorResultViewModel = hiltViewModel(),
 ) = with(viewModel) {
     val activity = LocalActivity.current
     val context = LocalContext.current
@@ -131,6 +131,7 @@ internal fun AiImageGeneratorResultScreen(
     val aiReportState = aiReportState.collectAsStateValue()
     val getButtonClickCount = getButtonClickCount.collectAsStateValue()
     val adsThreshold = adsThreshold.collectAsStateValue()
+    val isProActive = isProActive.collectAsStateValue()
     var hasCopied by remember { mutableStateOf(false) }
     var showShimmer by rememberSaveable { mutableStateOf(true) }
     var showLoadingReport by remember { mutableStateOf(false) }
@@ -138,7 +139,7 @@ internal fun AiImageGeneratorResultScreen(
     var showReportDialog by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
     var checkStoragePermission by remember { mutableStateOf<List<String>>(emptyList()) }
-    val interstitialAd = rememberInterstitialAd {
+    val interstitialAd = rememberInterstitialAd(isProActive = isProActive) {
         imageResult = null
         showShimmer = true
         getImageAiGenerator(args.prompt, args.artStyle)
@@ -344,6 +345,7 @@ internal fun AiImageGeneratorResultScreen(
                 promptText = args.prompt,
                 hasCopied = hasCopied,
                 scrollState = scrollState,
+                isPro = isProActive,
                 onClickReport = { showReportDialog = true },
                 onClickCopy = {
                     copyToClipboard(context, args.prompt)
@@ -423,6 +425,7 @@ private fun ImageGeneratorResultContent(
     hasCopied: Boolean,
     scrollState: ScrollState,
     modifier: Modifier = Modifier,
+    isPro: Boolean = false,
     onClickReport: () -> Unit,
     onClickCopy: () -> Unit,
     onClickShare: () -> Unit,
@@ -520,7 +523,7 @@ private fun ImageGeneratorResultContent(
                 }
             }
         }
-        MeverBannerAd(modifier = Modifier.fillMaxWidth())
+        MeverBannerAd(isProActive = isPro, modifier = Modifier.fillMaxWidth())
         Spacer(modifier = Modifier.height(Dp120))
     } else Row(
         modifier = Modifier

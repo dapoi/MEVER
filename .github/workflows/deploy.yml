@@ -36,6 +36,7 @@ jobs:
           echo "API_KEY_DEBUG=${{ secrets.API_KEY_DEBUG }}" >> env.properties
           echo "BASE_URL_DEBUG=${{ secrets.BASE_URL_DEBUG }}" >> env.properties
           echo "BASE_URL_RELEASE=${{ secrets.BASE_URL_RELEASE }}" >> env.properties
+          echo "REVENUECAT_API_KEY=${{ secrets.REVENUECAT_API_KEY }}" >> env.properties
 
       - name: Decode Keystore
         run: |
@@ -63,7 +64,10 @@ jobs:
         run: |
           git fetch --tags --force
 
-          if [[ "${{ github.ref_name }}" == *"-beta"* ]]; then
+          if [[ "${{ github.ref_name }}" == *"-internal"* ]]; then
+            echo "track=internal" >> $GITHUB_OUTPUT
+            echo "prerelease=true" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref_name }}" == *"-beta"* ]]; then
             echo "track=beta" >> $GITHUB_OUTPUT
             echo "prerelease=true" >> $GITHUB_OUTPUT
           else

@@ -33,9 +33,10 @@ import timber.log.Timber
 @Composable
 fun MeverBannerAd(
     modifier: Modifier = Modifier,
-    adUnitId: String = AD_BANNER_UNIT_ID
+    adUnitId: String = AD_BANNER_UNIT_ID,
+    isProActive: Boolean = false
 ) {
-    if (LocalInspectionMode.current) return
+    if (LocalInspectionMode.current || isProActive) return
 
     var isAdLoaded by remember { mutableStateOf(false) }
     var isAdFailed by remember { mutableStateOf(false) }

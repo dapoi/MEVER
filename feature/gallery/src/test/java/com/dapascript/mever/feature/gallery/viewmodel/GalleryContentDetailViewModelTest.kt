@@ -3,8 +3,10 @@ package com.dapascript.mever.feature.gallery.viewmodel
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.source.local.MeverDataStore
+import com.dapascript.mever.core.data.repository.SubscriptionRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -34,6 +36,9 @@ class GalleryContentDetailViewModelTest {
     @Mock
     lateinit var repository: MeverRepository
 
+    @Mock
+    lateinit var subscriptionRepository: SubscriptionRepository
+
     private lateinit var viewModel: GalleryContentDetailViewModel
 
     @Before
@@ -44,8 +49,9 @@ class GalleryContentDetailViewModelTest {
         whenever(repository.getPreference(MeverDataStore.KEY_PIP, true)).thenReturn(flowOf(true))
         whenever(repository.getClickCount()).thenReturn(flowOf(1))
         whenever(repository.getAdsThreshold()).thenReturn(flowOf(3))
+        whenever(subscriptionRepository.isProActive).thenReturn(MutableStateFlow(false))
 
-        viewModel = GalleryContentDetailViewModel(repository)
+        viewModel = GalleryContentDetailViewModel(repository, subscriptionRepository)
     }
 
     @After

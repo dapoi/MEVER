@@ -21,6 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter.Companion.tint
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle.Companion.Italic
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.attr.MeverMenuItemAttr.MenuItemArgs
@@ -28,13 +29,18 @@ import com.dapascript.mever.core.common.ui.attr.MeverMenuItemAttr.MenuItemArgs.T
 import com.dapascript.mever.core.common.ui.attr.MeverMenuItemAttr.MenuItemArgs.TrailingType.Switch
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp50
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp6
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverLightGray
+import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
+import com.dapascript.mever.core.common.ui.theme.MeverWhite
+import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp10
 import com.dapascript.mever.core.common.util.onCustomClick
 
 @Composable
@@ -59,7 +65,8 @@ fun MeverMenuItem(
             .fillMaxWidth()
             .padding(vertical = Dp12)
             .clip(shape)
-            .onCustomClick { onClick() },
+            .onCustomClick(enabled = enabled) { onClick() }
+            .graphicsLayer { alpha = if (enabled) 1f else 0.38f },
         horizontalArrangement = SpaceBetween,
         verticalAlignment = CenterVertically
     ) {
@@ -75,11 +82,30 @@ fun MeverMenuItem(
                 iconPadding = leadingIconPadding
             )
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = leadingTitle,
-                    style = themeTypography.bodyBold1,
-                    color = themeColors.blackWhite
-                )
+                Row(
+                    verticalAlignment = CenterVertically,
+                    horizontalArrangement = spacedBy(Dp8)
+                ) {
+                    Text(
+                        text = leadingTitle,
+                        style = themeTypography.bodyBold1,
+                        color = themeColors.blackWhite
+                    )
+                    if (isProOnly && !enabled) {
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(Dp6))
+                                .background(MeverPurple)
+                                .padding(horizontal = Dp6, vertical = Dp2)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.pro),
+                                style = themeTypography.labelBold2.copy(fontSize = Sp10),
+                                color = MeverWhite
+                            )
+                        }
+                    }
+                }
                 leadingDesc?.let {
                     Text(
                         modifier = Modifier.padding(top = Dp4),
@@ -102,7 +128,7 @@ fun MeverMenuItem(
                         Text(
                             text = title,
                             style = themeTypography.body2,
-                            color = themeColors.blackWhite.copy(alpha = 0.7f)
+                            color = if (enabled) themeColors.blackWhite.copy(alpha = 0.7f) else themeColors.blackWhite.copy(alpha = 0.38f)
                         )
                     }
                     Box(
@@ -116,7 +142,7 @@ fun MeverMenuItem(
                     ) {
                         Image(
                             painter = painterResource(R.drawable.ic_back),
-                            colorFilter = tint(color = themeColors.blackWhite),
+                            colorFilter = tint(color = if (enabled) themeColors.blackWhite else themeColors.blackWhite.copy(alpha = 0.38f)),
                             contentDescription = "Arrow Right",
                             modifier = Modifier
                                 .size(Dp16)

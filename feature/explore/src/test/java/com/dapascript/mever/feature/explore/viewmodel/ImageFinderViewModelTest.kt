@@ -5,10 +5,12 @@ import com.dapascript.mever.core.common.util.state.ApiState
 import com.dapascript.mever.core.common.util.state.UiState
 import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.dapascript.mever.core.data.repository.MeverRepository
+import com.dapascript.mever.core.data.repository.SubscriptionRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -36,6 +38,9 @@ class ImageFinderViewModelTest {
     @Mock
     lateinit var repository: MeverRepository
 
+    @Mock
+    lateinit var subscriptionRepository: SubscriptionRepository
+
     private val fakeContents = listOf(
         ContentEntity(downloadUrl = "https://img1.jpg", status = true, id = "1"),
         ContentEntity(downloadUrl = "https://img2.jpg", status = true, id = "2")
@@ -49,6 +54,7 @@ class ImageFinderViewModelTest {
         whenever(repository.getImageSearch(any())).thenReturn(
             flowOf(ApiState.Success(fakeContents))
         )
+        whenever(subscriptionRepository.isProActive).thenReturn(MutableStateFlow(false))
     }
 
     @After
@@ -58,7 +64,7 @@ class ImageFinderViewModelTest {
 
     @Test
     fun `exploreResponseState is StateInitial before coroutines run`() {
-        val vm = ImageFinderViewModel(repository)
+        val vm = ImageFinderViewModel(repository, subscriptionRepository)
         assertTrue(vm.imageFinderResponseState.value is UiState.StateInitial)
     }
 
@@ -67,7 +73,7 @@ class ImageFinderViewModelTest {
         whenever(repository.getImageSearch("nature")).thenReturn(
             flowOf(ApiState.Loading, ApiState.Success(fakeContents))
         )
-        val vm = ImageFinderViewModel(repository)
+        val vm = ImageFinderViewModel(repository, subscriptionRepository)
         val states = mutableListOf<UiState<List<ContentEntity>>>()
         val job = launch { vm.imageFinderResponseState.collect { states.add(it) } }
         vm.getImageFinderSearch("nature")
@@ -85,7 +91,7 @@ class ImageFinderViewModelTest {
         whenever(repository.getImageSearch("fail")).thenReturn(
             flowOf(ApiState.Error(Throwable("Network error")))
         )
-        val vm = ImageFinderViewModel(repository)
+        val vm = ImageFinderViewModel(repository, subscriptionRepository)
         val states = mutableListOf<UiState<List<ContentEntity>>>()
         val job = launch { vm.imageFinderResponseState.collect { states.add(it) } }
         vm.getImageFinderSearch("fail")
@@ -103,7 +109,7 @@ class ImageFinderViewModelTest {
         whenever(repository.getImageSearch("tech")).thenReturn(
             flowOf(ApiState.Loading)
         )
-        val vm = ImageFinderViewModel(repository)
+        val vm = ImageFinderViewModel(repository, subscriptionRepository)
         vm.getImageFinderSearch("tech")
         advanceUntilIdle()
         assertTrue(vm.imageFinderResponseState.value is UiState.StateLoading)
@@ -111,13 +117,13 @@ class ImageFinderViewModelTest {
 
     @Test
     fun `query default value is empty string`() {
-        val vm = ImageFinderViewModel(repository)
+        val vm = ImageFinderViewModel(repository, subscriptionRepository)
         assertEquals("", vm.query)
     }
 
     @Test
     fun `query can be updated`() {
-        val vm = ImageFinderViewModel(repository)
+        val vm = ImageFinderViewModel(repository, subscriptionRepository)
         vm.query = "wallpaper"
         assertEquals("wallpaper", vm.query)
     }

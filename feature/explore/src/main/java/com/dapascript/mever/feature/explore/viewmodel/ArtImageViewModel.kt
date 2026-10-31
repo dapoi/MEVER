@@ -10,6 +10,7 @@ import com.dapascript.mever.core.common.util.state.UiState
 import com.dapascript.mever.core.common.util.state.UiState.StateInitial
 import com.dapascript.mever.core.data.model.local.ArtEntity
 import com.dapascript.mever.core.data.repository.MeverRepository
+import com.dapascript.mever.core.data.repository.SubscriptionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,8 +18,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 internal class ArtImageViewModel @Inject constructor(
-    private val repository: MeverRepository
+    private val repository: MeverRepository,
+    subscriptionRepository: SubscriptionRepository
 ) : BaseViewModel() {
+
+    val isProActive = subscriptionRepository.isProActive
 
     var query by mutableStateOf("")
     var artworks by mutableStateOf<List<ArtEntity>?>(null)

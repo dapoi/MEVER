@@ -205,7 +205,7 @@ import com.dapascript.mever.feature.home.R as FeatureHomeR
 @Composable
 internal fun HomeLandingScreen(
     navigator: Navigator,
-    viewModel: HomeLandingViewModel = hiltViewModel()
+    viewModel: HomeLandingViewModel = hiltViewModel(),
 ) = with(viewModel) {
     BaseScreen(
         hideDefaultTopBar = true,
@@ -351,8 +351,6 @@ private fun HomeLandingContent(
     lazyListState: LazyListState = rememberLazyListState(),
     onIsInPreviewChange: (Boolean) -> Unit
 ) = with(viewModel) {
-    val resources = LocalResources.current
-    val deviceType = LocalDeviceType.current
     val downloadList = downloadList.collectAsStateValue()
     val downloaderResponseState = downloaderResponseState.collectAsStateValue()
     val youtubeResolutions = youtubeResolutions.collectAsStateValue()
@@ -360,6 +358,9 @@ private fun HomeLandingContent(
     val isImageAiEnabled = isImageAiEnabled.collectAsStateValue()
     val isGoImgEnabled = isGoImgEnabled.collectAsStateValue()
     val deeplinkEvent = deeplinkEvent.collectAsStateValue()
+    val isProActive = isProActive.collectAsStateValue()
+    val resources = LocalResources.current
+    val deviceType = LocalDeviceType.current
     val featuresCard = remember(context, isImageAiEnabled, isGoImgEnabled) {
         getFeatureCards(context, isImageAiEnabled, isGoImgEnabled)
     }
@@ -418,7 +419,7 @@ private fun HomeLandingContent(
             }
         }
     }
-    val interstitialController = rememberInterstitialAd {
+    val interstitialController = rememberInterstitialAd(isProActive = isProActive) {
         checkStoragePermissions = getStoragePermission()
     }
     val notificationManager = remember(context) {
@@ -537,6 +538,7 @@ private fun HomeLandingContent(
         isDownloadProcessing = isDownloadProcessing,
         isInPreview = isInPreview,
         loadingItemIndex = loadingItemIndex,
+        isProActive = isProActive,
         onClickDownload = { urls ->
             isDownloadProcessing = true
             scope.launch {

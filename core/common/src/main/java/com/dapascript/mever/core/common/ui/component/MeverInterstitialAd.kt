@@ -18,7 +18,13 @@ import com.google.android.libraries.ads.mobile.sdk.interstitial.InterstitialAd
 import com.google.android.libraries.ads.mobile.sdk.interstitial.InterstitialAdEventCallback
 
 @Composable
-fun rememberInterstitialAd(onAdComplete: (() -> Unit)? = null): InterstitialAdController {
+fun rememberInterstitialAd(
+    isProActive: Boolean = false,
+    onAdComplete: (() -> Unit)? = null
+): InterstitialAdController {
+    if (isProActive) {
+        return remember { InterstitialAdController { onAdComplete?.invoke() } }
+    }
     val activity = LocalActivity.current
     var interstitialAd by remember { mutableStateOf<InterstitialAd?>(null) }
     var adIsLoading by remember { mutableStateOf(false) }

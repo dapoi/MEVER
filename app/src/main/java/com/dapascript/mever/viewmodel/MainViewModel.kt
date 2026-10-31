@@ -11,6 +11,7 @@ import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_
 import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_QUICK_NOTIF
 import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_THEME
 import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_VERSION
+import com.dapascript.mever.core.data.repository.SubscriptionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
@@ -24,7 +25,8 @@ import javax.inject.Inject
 @HiltViewModel
 internal class MainViewModel @Inject constructor(
     private val repository: MeverRepository,
-    private val deeplinkManager: DeeplinkManager
+    private val deeplinkManager: DeeplinkManager,
+    private val subscriptionRepository: SubscriptionRepository
 ) : BaseViewModel() {
 
     val themeType = repository.getPreference(KEY_THEME, ThemeType.System.name).map { name ->
@@ -38,6 +40,8 @@ internal class MainViewModel @Inject constructor(
         started = WhileSubscribed(),
         initialValue = ThemeType.System
     )
+
+    val isProActive = subscriptionRepository.isProActive
 
     val isQuickNotifEnabled = repository.getPreference(KEY_QUICK_NOTIF, false).stateIn(
         scope = viewModelScope,
@@ -61,6 +65,10 @@ internal class MainViewModel @Inject constructor(
                 _navDeeplinkTrigger.send(Unit)
             }
         }
+    }
+
+    fun checkSubscriptionEntitlement() {
+        subscriptionRepository.checkEntitlement()
     }
 
     fun updateInteractionTime() {

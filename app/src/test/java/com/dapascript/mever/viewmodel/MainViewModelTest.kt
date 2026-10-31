@@ -4,6 +4,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.dapascript.mever.core.common.ui.theme.ThemeType
 import com.dapascript.mever.core.data.deeplink.DeeplinkManager
 import com.dapascript.mever.core.data.repository.MeverRepository
+import com.dapascript.mever.core.data.repository.SubscriptionRepository
 import com.dapascript.mever.core.data.source.local.MeverDataStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -39,6 +40,9 @@ class MainViewModelTest {
     @Mock
     lateinit var deeplinkManager: DeeplinkManager
 
+    @Mock
+    lateinit var subscriptionRepository: SubscriptionRepository
+
     private lateinit var viewModel: MainViewModel
 
     @Before
@@ -47,7 +51,7 @@ class MainViewModelTest {
         Dispatchers.setMain(testDispatcher)
         whenever(repository.getPreference(MeverDataStore.KEY_THEME, ThemeType.System.name))
             .thenReturn(flowOf(ThemeType.System.name))
-        viewModel = MainViewModel(repository, deeplinkManager)
+        viewModel = MainViewModel(repository, deeplinkManager, subscriptionRepository)
     }
 
     @After
@@ -70,7 +74,7 @@ class MainViewModelTest {
         whenever(repository.getPreference(MeverDataStore.KEY_THEME, ThemeType.System.name))
             .thenReturn(flowOf(ThemeType.Dark.name))
         whenever(deeplinkManager.deeplinkEvent).thenReturn(flowOf(null))
-        val vm = MainViewModel(repository, deeplinkManager)
+        val vm = MainViewModel(repository, deeplinkManager, subscriptionRepository)
         val collected = mutableListOf<ThemeType>()
         val job = launch { vm.themeType.collect { collected.add(it) } }
         advanceUntilIdle()

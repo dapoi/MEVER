@@ -17,14 +17,47 @@ fi
 
 echo ""
 echo "🎯 Choose deployment track:"
-echo "  1) Beta (Open Testing)"
-echo "  2) Production"
-echo "  3) Cancel"
+echo "  1) Internal Testing"
+echo "  2) Beta (Open Testing)"
+echo "  3) Production"
+echo "  4) Cancel"
 echo ""
-printf "Enter choice (1/2/3): "
+printf "Enter choice (1/2/3/4): "
 read TRACK_CHOICE
 
 if [ "$TRACK_CHOICE" = "1" ]; then
+  TRACK="internal"
+
+  LATEST_INTERNAL=$(git tag -l "v$VERSION-internal*" | sort -V | tail -n 1)
+
+  if [ -z "$LATEST_INTERNAL" ]; then
+    INTERNAL_NUMBER="01"
+  else
+    LAST_NUM=$(echo $LATEST_INTERNAL | sed 's/.*internal//')
+    NEXT_NUM=$((10#$LAST_NUM + 1))
+    INTERNAL_NUMBER=$(printf "%02d" $NEXT_NUM)
+  fi
+
+  TAG="v$VERSION-internal$INTERNAL_NUMBER"
+  echo "🔍 Suggested Tag: $TAG"
+  printf "Is this internal version correct? (y/n): "
+  read INTERNAL_CONFIRM
+
+  if [ "$INTERNAL_CONFIRM" != "y" ] && [ "$INTERNAL_CONFIRM" != "Y" ]; then
+    printf "Enter internal number manually (e.g., 1, 2, 3): "
+    read INTERNAL_INPUT
+    if [[ ! "$INTERNAL_INPUT" =~ ^[0-9]+$ ]]; then
+      echo "❌ Error: Internal number must be a digit."
+      exit 1
+    fi
+    INTERNAL_NUMBER=$(printf "%02d" $INTERNAL_INPUT)
+    TAG="v$VERSION-internal$INTERNAL_NUMBER"
+  fi
+
+  TRACK_LABEL="Internal Testing (Internal $INTERNAL_NUMBER)"
+  UPLOAD_PLAY_STORE="true"
+  UPLOAD_GITHUB_RELEASE="false"
+elif [ "$TRACK_CHOICE" = "2" ]; then
   TRACK="beta"
 
   # Find the latest beta tag for this version (e.g., v2.0.0-beta01)
@@ -57,17 +90,17 @@ if [ "$TRACK_CHOICE" = "1" ]; then
   TRACK_LABEL="Open Testing (Beta $BETA_NUMBER)"
   UPLOAD_PLAY_STORE="true"
   UPLOAD_GITHUB_RELEASE="true"
-elif [ "$TRACK_CHOICE" = "2" ]; then
+elif [ "$TRACK_CHOICE" = "3" ]; then
   TRACK="production"
   TAG="v$VERSION"
   TRACK_LABEL="Production"
   UPLOAD_PLAY_STORE="true"
   UPLOAD_GITHUB_RELEASE="true"
-elif [ "$TRACK_CHOICE" = "3" ]; then
+elif [ "$TRACK_CHOICE" = "4" ]; then
   echo "❌ Deployment cancelled."
   exit 0
 else
-  echo "❌ Invalid choice. Please enter 1, 2, or 3."
+  echo "❌ Invalid choice. Please enter 1, 2, 3, or 4."
   exit 1
 fi
 
@@ -81,7 +114,7 @@ echo "------------------------------------------"
 echo "Version:         $VERSION"
 echo "Tag:             $TAG"
 echo "Track:           $TRACK_LABEL"
-echo "Deploy To:       ✅ Play Store & ✅ GitHub Release$([ "$TRACK" = "beta" ] && echo " (Pre-release)")"
+echo "Deploy To:       ✅ Play Store$([ "$UPLOAD_GITHUB_RELEASE" = "true" ] && echo " & ✅ GitHub Release")$([ "$TRACK" = "beta" ] || [ "$TRACK" = "internal" ] && echo " (Pre-release)")"
 echo "------------------------------------------"
 echo ""
 printf "Confirm deployment? (y/n): "

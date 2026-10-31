@@ -120,11 +120,12 @@ import kotlin.time.Duration.Companion.seconds
 @Composable
 internal fun ArtImageScreen(
     navigator: Navigator,
-    viewModel: ArtImageViewModel = hiltViewModel()
+    viewModel: ArtImageViewModel = hiltViewModel(),
 ) = with(viewModel) {
+    val artResponseState = artResponseState.collectAsStateValue()
+    val isProActive = isProActive.collectAsStateValue()
     val context = LocalContext.current
     val deviceType = LocalDeviceType.current
-    val artResponseState = artResponseState.collectAsStateValue()
     val gridState = rememberLazyStaggeredGridState()
     var errorMessage by remember { mutableStateOf("") }
     var lastQuery by rememberSaveable { mutableStateOf("") }
@@ -415,6 +416,7 @@ internal fun ArtImageScreen(
                 }
             }
             MeverBannerAd(
+                isProActive = isProActive,
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(BottomCenter)

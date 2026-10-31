@@ -47,6 +47,7 @@ fun MeverBottomSheet(
     modifier: Modifier = Modifier,
     isAlwaysRectangular: Boolean = false,
     isDisableContentDrag: Boolean = false,
+    showDragHandle: Boolean = true,
     skipPartiallyExpanded: Boolean = true,
     shouldDismissOnBackPress: Boolean = true,
     shouldDismissOnClickOutside: Boolean = false,
@@ -109,15 +110,17 @@ fun MeverBottomSheet(
             shouldDismissOnClickOutside = shouldDismissOnClickOutside,
             shouldDismissOnBackPress = shouldDismissOnBackPress
         ),
-        dragHandle = {
-            HorizontalDivider(
-                thickness = Dp2,
-                color = colors.blackWhite,
-                modifier = Modifier
-                    .width(Dp80)
-                    .padding(vertical = Dp24)
-            )
-        },
+        dragHandle = if (showDragHandle) {
+            {
+                HorizontalDivider(
+                    thickness = Dp2,
+                    color = colors.blackWhite,
+                    modifier = Modifier
+                        .width(Dp80)
+                        .padding(vertical = Dp24)
+                )
+            }
+        } else null,
         onDismissRequest = onDismissBottomSheet
     ) {
         val view = LocalView.current
@@ -126,7 +129,7 @@ fun MeverBottomSheet(
         LaunchedEffect(view, isDarkMode) {
             val window = (view.parent as? DialogWindowProvider)?.window
             if (window != null) {
-                WindowCompat.setDecorFitsSystemWindows(window, false)
+                WindowCompat.setDecorFitsSystemWindows(window, true)
                 WindowCompat.getInsetsController(window, view).apply {
                     isAppearanceLightStatusBars = isDarkMode.not()
                     isAppearanceLightNavigationBars = isDarkMode.not()

@@ -75,6 +75,7 @@ internal fun HandleBottomSheetDownload(
     isInPreview: Boolean,
     loadingItemIndex: Int?,
     modifier: Modifier = Modifier,
+    isProActive: Boolean = false,
     onClickDownload: (List<String>) -> Unit,
     onClickPreview: (Int) -> Unit,
     onClickDismiss: () -> Unit
@@ -186,6 +187,7 @@ internal fun HandleBottomSheetDownload(
                 color = colors.blackWhite.copy(alpha = 0.12f)
             )
             MeverBannerAd(
+                isProActive = isProActive,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = Dp8)

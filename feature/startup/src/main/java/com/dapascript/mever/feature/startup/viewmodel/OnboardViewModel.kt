@@ -9,7 +9,6 @@ import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_
 import com.dapascript.mever.feature.startup.screen.attr.OnboardScreenAttr.OnboardPage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -45,7 +44,7 @@ internal class OnboardViewModel @Inject constructor(
         )
     }
 
-    fun setIsOnboarded(isOnboarded: Boolean) = viewModelScope.launch(IO) {
+    fun setIsOnboarded(isOnboarded: Boolean) = viewModelScope.launch {
         repository.savePreference(KEY_IS_ONBOARDED, isOnboarded)
     }
 }

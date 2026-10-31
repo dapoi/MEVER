@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_PIP
+import com.dapascript.mever.core.data.repository.SubscriptionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.stateIn
@@ -12,8 +13,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 internal class GalleryContentDetailViewModel @Inject constructor(
-    private val repository: MeverRepository
+    private val repository: MeverRepository,
+    subscriptionRepository: SubscriptionRepository
 ) : BaseViewModel() {
+
+    val isProActive = subscriptionRepository.isProActive
 
     val isPipEnabled = repository.getPreference(KEY_PIP, true).stateIn(
         scope = viewModelScope,

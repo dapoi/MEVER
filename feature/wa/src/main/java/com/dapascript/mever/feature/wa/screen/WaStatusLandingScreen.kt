@@ -109,13 +109,14 @@ import kotlin.time.Duration.Companion.milliseconds
 @Composable
 internal fun WaStatusLandingScreen(
     navigator: Navigator,
-    viewModel: WaStatusViewModel = hiltViewModel()
+    viewModel: WaStatusViewModel = hiltViewModel(),
 ) = with(viewModel) {
+    val waStatuses = waStatuses.collectAsStateValue()
+    val isProActive = isProActive.collectAsStateValue()
     val activity = LocalActivity.current
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val scope = rememberCoroutineScope()
-    val waStatuses = waStatuses.collectAsStateValue()
     val isWaRegularInstalled = remember { isAppInstalled(context, "com.whatsapp") }
     val isWaBusinessInstalled = remember { isAppInstalled(context, "com.whatsapp.w4b") }
     val listState = rememberLazyGridState()
@@ -264,6 +265,7 @@ internal fun WaStatusLandingScreen(
             isWaBusinessInstalled = isWaBusinessInstalled,
             listState = listState,
             isExpanded = isExpanded,
+            isPro = isProActive,
             regularPermissionGranted = regularPermissionGranted,
             businessPermissionGranted = businessPermissionGranted,
             onSetTitleHeight = { titleHeight = it },
@@ -299,6 +301,7 @@ private fun WaStatusContent(
     businessPermissionGranted: Boolean,
     waStatuses: List<WaStatusEntity>?,
     modifier: Modifier = Modifier,
+    isPro: Boolean = false,
     onSetTitleHeight: (Int) -> Unit,
     onRequestPermission: (WaType) -> Unit,
     onClickNavigate: (WaStatusEntity) -> Unit
@@ -462,6 +465,7 @@ private fun WaStatusContent(
                 }
             }
             MeverBannerAd(
+                isProActive = isPro,
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(BottomCenter)
