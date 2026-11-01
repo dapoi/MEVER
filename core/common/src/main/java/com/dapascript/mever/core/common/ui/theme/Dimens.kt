@@ -43,10 +43,8 @@ object Dimens {
     val Dp130 = 130.dp
     val Dp150 = 150.dp
     val Dp160 = 160.dp
-    val Dp180 = 180.dp
     val Dp189 = 189.dp
     val Dp200 = 200.dp
-    val Dp220 = 220.dp
     val Dp250 = 250.dp
     val Dp500 = 500.dp
 }

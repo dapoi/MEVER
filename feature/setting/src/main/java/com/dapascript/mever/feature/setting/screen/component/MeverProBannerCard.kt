@@ -68,7 +68,7 @@ fun MeverProBannerCard(
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.ic_awesome),
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_crown),
                     contentDescription = stringResource(R.string.mever_pro),
                     tint = MeverWhite,
                     modifier = Modifier.size(Dp20)

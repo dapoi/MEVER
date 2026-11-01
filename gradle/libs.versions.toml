@@ -1,7 +1,7 @@
 [versions]
-ads = "1.5.0"
-androidGradlePlugin = "9.4.1"
-androidTools = "32.4.1"
+ads = "1.6.0"
+androidGradlePlugin = "9.5.0"
+androidTools = "32.5.0"
 androidxActivity = "1.13.0"
 androidxComposeBom = "2026.09.00"
 appCompat = "1.8.0"
@@ -11,17 +11,17 @@ chucker = "4.3.1"
 coil = "3.6.3"
 coreKtxVersion = "1.19.1"
 coroutinesTest = "1.11.0"
-dataStorePreferences = "1.2.1"
+dataStorePreferences = "1.3.0"
 documentFile = "1.1.0"
-firebaseCrashlytics = "21.0.0"
+firebaseCrashlytics = "21.0.1"
 googleFirebaseCrashlytics = "3.0.8"
 googleGmsGoogleServices = "4.5.0"
 hilt = "2.60.1"
 hilt-common = "1.4.0"
-interceptor = "5.5.0"
+interceptor = "5.5.1"
 ketch = "2.0.6"
 kotlin = "2.4.21"
-kotlinxSerializationJson = "1.11.0"
+kotlinxSerializationJson = "1.12.0"
 ksp = "2.3.7"
 lifecycleViewmodelNav3 = "2.11.0"
 lifecycleProcess = "2.11.0"
@@ -34,7 +34,7 @@ moshi = "1.15.2"
 nav3 = "1.2.0"
 playServicesBase = "18.11.1"
 retrofit = "3.0.0"
-revenuecat = "10.28.1"
+revenuecat = "11.0.1"
 timber = "5.0.1"
 workRuntime = "2.12.0"
 
@@ -85,7 +85,6 @@ play-services-base = { group = "com.google.android.gms", name = "play-services-b
 retrofit-lib = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 retrofit-moshi = { group = "com.squareup.retrofit2", name = "converter-moshi", version.ref = "retrofit" }
 revenuecat-purchases = { group = "com.revenuecat.purchases", name = "purchases", version.ref = "revenuecat" }
-revenuecat-ui = { group = "com.revenuecat.purchases", name = "purchases-ui", version.ref = "revenuecat" }
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
 work-runtime = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workRuntime" }
 

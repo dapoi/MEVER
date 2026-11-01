@@ -1,7 +1,7 @@
 package com.dapascript.mever.feature.setting.screen
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
@@ -14,7 +14,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
@@ -28,31 +30,36 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
-import androidx.compose.ui.Alignment.Companion.CenterStart
 import androidx.compose.ui.Alignment.Companion.CenterVertically
+import androidx.compose.ui.Alignment.Companion.TopEnd
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale.Companion.Crop
+import androidx.compose.ui.layout.ContentScale.Companion.FillBounds
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
+import com.dapascript.mever.core.common.ui.component.MeverImage
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp10
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp14
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp18
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp20
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp220
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp200
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp6
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverBlack
 import com.dapascript.mever.core.common.ui.theme.MeverGray
@@ -62,6 +69,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.isDarkMode
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
+import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp22
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.navigateToBrowser
 import com.dapascript.mever.core.navigation.helper.Navigator
@@ -96,6 +104,7 @@ internal fun SettingPaywallScreen(
             Column(
                 modifier = Modifier.fillMaxSize()
             ) {
+                // Scrollable Content: Hero Artwork + Title + Benefits Showcase
                 Column(
                     modifier = Modifier
                         .weight(1f)
@@ -103,23 +112,23 @@ internal fun SettingPaywallScreen(
                         .verticalScroll(scrollState),
                     horizontalAlignment = CenterHorizontally
                 ) {
+                    // Hero Artwork
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(Dp220)
+                            .height(Dp200)
                             .clip(RoundedCornerShape(bottomStart = Dp32, bottomEnd = Dp32))
                     ) {
-                        Image(
-                            painter = painterResource(paywallHeader),
-                            contentDescription = stringResource(R.string.mever_pro),
+                        MeverImage(
                             modifier = Modifier.fillMaxSize(),
-                            contentScale = Crop
+                            source = paywallHeader,
+                            contentScale = FillBounds
                         )
                         if (isDarkMode) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .background(MeverBlack.copy(alpha = 0.2f))
+                                    .background(MeverBlack.copy(alpha = 0.25f))
                             )
                         }
                         Box(
@@ -138,36 +147,79 @@ internal fun SettingPaywallScreen(
                                 )
                         )
                     }
+
+                    // Content Section
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = Dp20, vertical = Dp12),
+                            .padding(horizontal = Dp20, vertical = Dp8),
                         horizontalAlignment = CenterHorizontally,
-                        verticalArrangement = spacedBy(Dp12)
+                        verticalArrangement = spacedBy(Dp16)
                     ) {
-                        Text(
-                            text = stringResource(R.string.paywall_title),
-                            style = typography.h2,
-                            color = colors.blackWhite,
-                            textAlign = TextAlign.Center
-                        )
-                        Text(
-                            text = stringResource(R.string.paywall_desc),
-                            style = typography.body2,
-                            color = colors.blackWhite.copy(alpha = 0.65f),
-                            textAlign = TextAlign.Center
-                        )
-                        PaywallComparisonTable()
+                        // Premium Crown Badge Pill
+                        Row(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(Dp20))
+                                .background(MeverPurple.copy(alpha = 0.12f))
+                                .border(
+                                    width = Dp1,
+                                    color = MeverPurple.copy(alpha = 0.35f),
+                                    shape = RoundedCornerShape(Dp20)
+                                )
+                                .padding(horizontal = Dp14, vertical = Dp6),
+                            verticalAlignment = CenterVertically,
+                            horizontalArrangement = spacedBy(Dp6)
+                        ) {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(R.drawable.ic_crown),
+                                contentDescription = null,
+                                tint = MeverPurple,
+                                modifier = Modifier.size(Dp16)
+                            )
+                            Text(
+                                text = stringResource(R.string.mever_pro),
+                                style = typography.labelBold1,
+                                color = MeverPurple
+                            )
+                        }
+
+                        // Title & Subtitle
+                        Column(
+                            horizontalAlignment = CenterHorizontally,
+                            verticalArrangement = spacedBy(Dp6)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.paywall_title),
+                                style = typography.h3.copy(fontSize = Sp22),
+                                color = colors.blackWhite,
+                                textAlign = TextAlign.Center
+                            )
+                            Text(
+                                text = stringResource(R.string.paywall_desc),
+                                style = typography.body2,
+                                color = colors.blackWhite.copy(alpha = 0.7f),
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.padding(horizontal = Dp10)
+                            )
+                        }
+
+                        // Benefits Card with Dedicated Assets
+                        PaywallBenefitsSection()
+
                         Spacer(modifier = Modifier.height(Dp12))
                     }
                 }
+
+                // Divider above Sticky Bottom Section (Only shown when scrollable forward)
                 if (showDivider) {
                     HorizontalDivider(
                         modifier = Modifier.fillMaxWidth(),
-                        thickness = Dp2,
-                        color = colors.blackWhite.copy(alpha = 0.12f)
+                        thickness = Dp1,
+                        color = colors.blackWhite.copy(alpha = 0.1f)
                     )
                 }
+
+                // Sticky Bottom Bar: Clean Price + Reassurance + CTA + Legal
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -175,19 +227,30 @@ internal fun SettingPaywallScreen(
                         .navigationBarsPadding()
                         .padding(horizontal = Dp20, vertical = Dp12),
                     horizontalAlignment = CenterHorizontally,
-                    verticalArrangement = spacedBy(Dp12)
+                    verticalArrangement = spacedBy(Dp10)
                 ) {
+                    // Minimalist Price & Cancel anytime (No bulky box)
                     val formattedPrice = selectedPackage?.product?.price?.formatted
-                    Text(
-                        text = when {
-                            isLoadingOfferings -> stringResource(R.string.please_wait)
-                            formattedPrice != null -> stringResource(R.string.subscribe_to_pro_for, formattedPrice)
-                            else -> stringResource(R.string.subscribe_to_pro_for, "$1.99/mo")
-                        },
-                        style = typography.body2,
-                        color = colors.blackWhite.copy(alpha = 0.7f),
-                        textAlign = TextAlign.Center
-                    )
+                    Column(
+                        horizontalAlignment = CenterHorizontally,
+                        verticalArrangement = spacedBy(Dp2)
+                    ) {
+                        Text(
+                            text = when {
+                                isLoadingOfferings -> stringResource(R.string.please_wait)
+                                formattedPrice != null -> "$formattedPrice ${stringResource(R.string.per_month)}"
+                                else -> "$1.99 ${stringResource(R.string.per_month)}"
+                            },
+                            style = typography.bodyBold1,
+                            color = colors.blackWhite
+                        )
+                        Text(
+                            text = stringResource(R.string.cancel_anytime_google_play),
+                            style = typography.label3,
+                            color = colors.blackWhite.copy(alpha = 0.6f)
+                        )
+                    }
+
                     if (statusMessage != null) {
                         Text(
                             text = statusMessage.orEmpty(),
@@ -196,12 +259,21 @@ internal fun SettingPaywallScreen(
                             textAlign = TextAlign.Center
                         )
                     }
+
+                    // CTA Button with gradient
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(Dp48)
                             .clip(RoundedCornerShape(Dp24))
-                            .background(MeverPurple)
+                            .background(
+                                brush = Brush.horizontalGradient(
+                                    colors = listOf(
+                                        MeverPurple,
+                                        Color(0xFF7B8DFA)
+                                    )
+                                )
+                            )
                             .clickable(enabled = !isPurchasing) {
                                 purchaseSelectedPackage(activity) {
                                     navigator.navigateBack()
@@ -216,14 +288,26 @@ internal fun SettingPaywallScreen(
                                 strokeWidth = Dp2
                             )
                         } else {
-                            Text(
-                                text = stringResource(R.string.continue_label),
-                                style = typography.bodyBold1,
-                                color = MeverWhite
-                            )
+                            Row(
+                                verticalAlignment = CenterVertically,
+                                horizontalArrangement = spacedBy(Dp8)
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.continue_label),
+                                    style = typography.bodyBold1,
+                                    color = MeverWhite
+                                )
+                                Icon(
+                                    imageVector = ImageVector.vectorResource(R.drawable.ic_arrow_started),
+                                    contentDescription = null,
+                                    tint = MeverWhite,
+                                    modifier = Modifier.size(Dp18)
+                                )
+                            }
                         }
                     }
 
+                    // Footer links
                     Row(
                         horizontalArrangement = spacedBy(Dp16),
                         verticalAlignment = CenterVertically
@@ -268,139 +352,154 @@ internal fun SettingPaywallScreen(
                     }
                 }
             }
+
+            // Floating Top-Right Glass Close Button
+            Box(
+                modifier = Modifier
+                    .align(TopEnd)
+                    .statusBarsPadding()
+                    .padding(end = Dp16, top = Dp8)
+                    .size(Dp32)
+                    .clip(CircleShape)
+                    .background(
+                        brush = Brush.linearGradient(
+                            colors = listOf(
+                                MeverBlack.copy(alpha = 0.55f),
+                                MeverBlack.copy(alpha = 0.35f)
+                            )
+                        )
+                    )
+                    .border(
+                        width = Dp1,
+                        brush = Brush.linearGradient(
+                            colors = listOf(
+                                MeverWhite.copy(alpha = 0.35f),
+                                MeverWhite.copy(alpha = 0.08f)
+                            )
+                        ),
+                        shape = CircleShape
+                    )
+                    .clickable { navigator.navigateBack() },
+                contentAlignment = Center
+            ) {
+                Icon(
+                    modifier = Modifier.size(Dp24),
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_clear),
+                    contentDescription = "Close",
+                    tint = MeverWhite.copy(alpha = 0.9f)
+                )
+            }
         }
     }
 }
 
+private data class PaywallBenefit(
+    val iconRes: Int,
+    val titleRes: Int,
+    val descRes: Int
+)
+
 @Composable
-private fun PaywallComparisonTable() {
-    val features = listOf(
-        Pair(stringResource(R.string.feature_downloader_without_limit), Pair(true, true)),
-        Pair(stringResource(R.string.feature_multiple_downloads), Pair(true, true)),
-        Pair(stringResource(R.string.pip), Pair(true, true)),
-        Pair(stringResource(R.string.quick_download_notif_title), Pair(false, true)),
-        Pair(stringResource(R.string.feature_customization), Pair(false, true)),
-        Pair(stringResource(R.string.feature_no_ads), Pair(false, true))
+private fun PaywallBenefitsSection() {
+    val benefits = listOf(
+        PaywallBenefit(
+            iconRes = R.drawable.ic_no_ads,
+            titleRes = R.string.feature_no_ads,
+            descRes = R.string.feature_no_ads_desc
+        ),
+        PaywallBenefit(
+            iconRes = R.drawable.ic_quick_download_notif,
+            titleRes = R.string.quick_download_notif_title,
+            descRes = R.string.feature_quick_download_desc
+        ),
+        PaywallBenefit(
+            iconRes = R.drawable.ic_art_gallery,
+            titleRes = R.string.feature_customization,
+            descRes = R.string.feature_customization_desc
+        ),
+        PaywallBenefit(
+            iconRes = R.drawable.ic_heart,
+            titleRes = R.string.feature_support_dev,
+            descRes = R.string.feature_support_dev_desc
+        )
     )
 
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(Dp16)),
-        color = colors.whiteDarkGray
+            .clip(RoundedCornerShape(Dp20))
+            .border(
+                width = Dp1,
+                color = MeverPurple.copy(alpha = 0.25f),
+                shape = RoundedCornerShape(Dp20)
+            ),
+        color = colors.lightPurpleDarkGray
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = Dp4)
+                .padding(vertical = Dp6)
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = Dp8),
-                verticalAlignment = CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .weight(2.2f)
-                        .padding(horizontal = Dp12)
-                )
-                Box(
-                    modifier = Modifier.weight(0.9f),
-                    contentAlignment = Center
-                ) {
-                    Text(
-                        text = stringResource(R.string.free),
-                        style = typography.labelBold1,
-                        color = MeverGray
-                    )
-                }
-                Box(
-                    modifier = Modifier
-                        .weight(0.9f)
-                        .background(colors.lightPurpleDarkGray)
-                        .padding(vertical = Dp4),
-                    contentAlignment = Center
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(Dp8))
-                            .background(MeverPurple)
-                            .padding(horizontal = Dp8, vertical = Dp2)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.pro),
-                            style = typography.labelBold1,
-                            color = MeverWhite
-                        )
-                    }
-                }
-            }
-
-            HorizontalDivider(
-                modifier = Modifier.fillMaxWidth(),
-                thickness = Dp1,
-                color = colors.blackWhite.copy(alpha = 0.08f)
-            )
-
-            features.forEachIndexed { index, (featureName, pair) ->
-                val (isFree, _) = pair
+            benefits.forEachIndexed { index, benefit ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = Dp8),
-                    verticalAlignment = CenterVertically
+                        .padding(horizontal = Dp16, vertical = Dp10),
+                    verticalAlignment = CenterVertically,
+                    horizontalArrangement = spacedBy(Dp14)
                 ) {
                     Box(
                         modifier = Modifier
-                            .weight(2.2f)
-                            .padding(horizontal = Dp12),
-                        contentAlignment = CenterStart
-                    ) {
-                        Text(
-                            text = featureName,
-                            style = typography.label1,
-                            color = colors.blackWhite
-                        )
-                    }
-                    Box(
-                        modifier = Modifier.weight(0.9f),
-                        contentAlignment = Center
-                    ) {
-                        if (isFree) {
-                            Icon(
-                                imageVector = ImageVector.vectorResource(R.drawable.ic_round_checked),
-                                contentDescription = "Free Included",
-                                tint = MeverGray,
-                                modifier = Modifier.size(Dp16)
+                            .size(Dp40)
+                            .clip(RoundedCornerShape(Dp10))
+                            .background(
+                                if (isDarkMode) colors.whiteDarkGray
+                                else MeverWhite
                             )
-                        } else {
-                            Text(
-                                text = "—",
-                                style = typography.body2,
-                                color = MeverGray
-                            )
-                        }
-                    }
-                    Box(
-                        modifier = Modifier
-                            .weight(0.9f)
-                            .background(colors.lightPurpleDarkGray)
-                            .padding(vertical = Dp8),
+                            .border(
+                                width = Dp1,
+                                color = MeverPurple.copy(alpha = 0.15f),
+                                shape = RoundedCornerShape(Dp10)
+                            ),
                         contentAlignment = Center
                     ) {
                         Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.ic_round_checked),
-                            contentDescription = "Pro Included",
+                            imageVector = ImageVector.vectorResource(benefit.iconRes),
+                            contentDescription = stringResource(benefit.titleRes),
                             tint = MeverPurple,
-                            modifier = Modifier.size(Dp16)
+                            modifier = Modifier.size(Dp20)
                         )
                     }
+
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = spacedBy(Dp2)
+                    ) {
+                        Text(
+                            text = stringResource(benefit.titleRes),
+                            style = typography.bodyBold2,
+                            color = colors.blackWhite
+                        )
+                        Text(
+                            text = stringResource(benefit.descRes),
+                            style = typography.label2,
+                            color = colors.blackWhite.copy(alpha = 0.65f)
+                        )
+                    }
+
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.ic_round_checked),
+                        contentDescription = "Included in Pro",
+                        tint = MeverPurple,
+                        modifier = Modifier.size(Dp18)
+                    )
                 }
 
-                if (index < features.size - 1) {
+                if (index < benefits.size - 1) {
                     HorizontalDivider(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = Dp16),
                         thickness = Dp1,
                         color = colors.blackWhite.copy(alpha = 0.06f)
                     )

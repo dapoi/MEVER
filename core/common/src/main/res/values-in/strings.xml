@@ -208,19 +208,13 @@
     <string name="mever_pro">MEVER PRO</string>
     <string name="unlock_all_premium_features">Buka fitur premium</string>
     <string name="pro_membership_active">Keanggotaan PRO Aktif</string>
-    <string name="customer_center">Pusat Bantuan</string>
     <string name="upgrade">Berlangganan</string>
     <string name="active">Aktif</string>
-    <string name="manage">Kelola</string>
-    <string name="paywall_title">Pengalaman Tanpa Batas</string>
-    <string name="paywall_desc">Dapatkan akses tanpa batas ke semua fitur unggulan MEVER.</string>
-    <string name="feature_downloader_without_limit">Akses Tanpa Batas</string>
-    <string name="feature_multiple_downloads">Unduh Secara Bersamaan</string>
+    <string name="paywall_title">Buka Akses Penuh dengan\nMEVER PRO</string>
+    <string name="paywall_desc">Nikmati akses tanpa batas ke semua fitur premium tanpa biaya tersembunyi</string>
     <string name="feature_customization">Kustomisasi Tema &amp; Ikon</string>
     <string name="feature_no_ads">Pengalaman Bebas Iklan</string>
-    <string name="free">GRATIS</string>
     <string name="pro">PRO</string>
-    <string name="subscribe_to_pro_for">Berlangganan Pro hanya %1$s</string>
     <string name="continue_label">Lanjutkan</string>
     <string name="restore_purchases">Pulihkan Pembelian</string>
     <string name="restore_no_active_subscription">Tidak ditemukan langganan aktif untuk akun Google ini.</string>
@@ -231,4 +225,11 @@
     <string name="managed_via_google_play">Langganan MEVER PRO Anda dikelola secara aman melalui akun Google Play Store Anda.</string>
     <string name="included_benefits">Manfaat Termasuk</string>
     <string name="quick_download_processing_info">Memproses rincian media, mohon tunggu…</string>
+    <string name="feature_no_ads_desc">Tanpa gangguan, unduh video lancar tanpa iklan</string>
+    <string name="feature_quick_download_desc">Unduh langsung dari bilah notifikasi saat menyalin tautan</string>
+    <string name="feature_customization_desc">Buka tema aplikasi eksklusif dan kustomisasi ikon</string>
+    <string name="per_month">/bulan</string>
+    <string name="cancel_anytime_google_play">Batalkan kapan saja di Google Play</string>
+    <string name="feature_support_dev">Dukung Pengembang Independen</string>
+    <string name="feature_support_dev_desc">Memastikan aplikasi ini agar terus hidup dan semakin berkembang</string>
 </resources>

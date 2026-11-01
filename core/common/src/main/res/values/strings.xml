@@ -209,19 +209,13 @@
     <string name="mever_pro">MEVER PRO</string>
     <string name="unlock_all_premium_features">Unlock premium features</string>
     <string name="pro_membership_active">PRO Membership Active</string>
-    <string name="customer_center">Customer Center</string>
     <string name="upgrade">Upgrade</string>
     <string name="active">Active</string>
-    <string name="manage">Manage</string>
-    <string name="paywall_title">Unlock Your Ultimate Media Downloader</string>
-    <string name="paywall_desc">Get full, unlimited access to all MEVER premium features.</string>
-    <string name="feature_downloader_without_limit">Unlimited Access</string>
-    <string name="feature_multiple_downloads">Multiple Downloads</string>
+    <string name="paywall_title">Unlock Full Power with\nMEVER PRO</string>
+    <string name="paywall_desc">Enjoy unlimited access to all premium features with zero hidden charges</string>
     <string name="feature_customization">Theme &amp; Icon Customization</string>
     <string name="feature_no_ads">Ad-Free Experience</string>
-    <string name="free">FREE</string>
     <string name="pro">PRO</string>
-    <string name="subscribe_to_pro_for">Subscribe to Pro for just %1$s</string>
     <string name="continue_label">Continue</string>
     <string name="restore_purchases">Restore Purchases</string>
     <string name="restore_no_active_subscription">No active subscription found for this Google account.</string>
@@ -232,4 +226,11 @@
     <string name="managed_via_google_play">Your MEVER PRO subscription is managed securely through your Google Play Store account.</string>
     <string name="included_benefits">Included Benefits</string>
     <string name="quick_download_processing_info">Fetching media details, please wait…</string>
+    <string name="feature_no_ads_desc">Zero interruptions, pure uninterrupted downloading</string>
+    <string name="feature_quick_download_desc">Download instantly from notification tray when copying links</string>
+    <string name="feature_customization_desc">Unlock exclusive app themes and dynamic icons</string>
+    <string name="per_month">/month</string>
+    <string name="cancel_anytime_google_play">Cancel anytime in Google Play</string>
+    <string name="feature_support_dev">Support Indie Development</string>
+    <string name="feature_support_dev_desc">Ensuring this app stays alive and keeps growing</string>
 </resources>
