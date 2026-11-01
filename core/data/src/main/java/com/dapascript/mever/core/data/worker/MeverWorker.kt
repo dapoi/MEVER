@@ -90,6 +90,14 @@ internal class MeverWorker @AssistedInject constructor(
             quality
         }
 
+        if (isFromNotif) {
+            showQuickDownloadNotificationHelper(
+                context = context,
+                isProcessing = true,
+                processingUrl = url
+            )
+        }
+
         return try {
             val resultData = when (action) {
                 ACTION_DOWNLOAD -> {
@@ -204,7 +212,11 @@ internal class MeverWorker @AssistedInject constructor(
             )
 
             if (isFromNotif) {
-                showQuickDownloadNotificationHelper(context)
+                showQuickDownloadNotificationHelper(
+                    context = context,
+                    isProcessing = false,
+                    processingUrl = url
+                )
             } else {
                 notifData.let { (title, desc, deeplink) ->
                     showNotification(
@@ -244,7 +256,11 @@ internal class MeverWorker @AssistedInject constructor(
             val deeplink =
                 if (action == ACTION_DOWNLOAD) deeplinkDownload else deeplinkImageGenerator
             if (isFromNotif) {
-                showQuickDownloadNotificationHelper(context)
+                showQuickDownloadNotificationHelper(
+                    context = context,
+                    isProcessing = false,
+                    processingUrl = url
+                )
             }
             showNotification(
                 context = context,

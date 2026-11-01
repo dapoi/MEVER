@@ -39,7 +39,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverWhite
 @Composable
 fun MeverProBannerCard(
     isProActive: Boolean,
-    onClickUpgrade: () -> Unit,
+    onClickBanner: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -52,10 +52,7 @@ fun MeverProBannerCard(
                 color = MeverPurple.copy(alpha = 0.25f),
                 shape = RoundedCornerShape(Dp16)
             )
-            .then(
-                if (isProActive.not()) Modifier.clickable { onClickUpgrade() }
-                else Modifier
-            )
+            .clickable { onClickBanner() }
             .padding(horizontal = Dp16, vertical = Dp12)
     ) {
         Row(
@@ -101,10 +98,7 @@ fun MeverProBannerCard(
                 modifier = Modifier
                     .clip(RoundedCornerShape(Dp20))
                     .background(if (isProActive) MeverPurple.copy(alpha = 0.15f) else MeverPurple)
-                    .then(
-                        if (isProActive.not()) Modifier.clickable { onClickUpgrade() }
-                        else Modifier
-                    )
+                    .clickable { onClickBanner() }
                     .padding(horizontal = Dp14, vertical = Dp6),
                 contentAlignment = Alignment.Center
             ) {

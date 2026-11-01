@@ -3,10 +3,8 @@ package com.dapascript.mever.feature.setting.screen
 import android.content.Context
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Arrangement.spacedBy
@@ -34,7 +32,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -44,7 +41,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
@@ -96,6 +93,7 @@ import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingFaqR
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLandingRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLanguageRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingPaywallRoute
+import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingSubscriptionDetailRoute
 import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.SettingMenus
 import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.getSettingMenus
 import com.dapascript.mever.feature.setting.screen.component.HandleBottomSheetQris
@@ -122,39 +120,36 @@ internal fun SettingLandingScreen(
     val scope = rememberCoroutineScope()
     val listState = rememberLazyListState()
     var showPaypalDialog by remember { mutableStateOf(false) }
-    var titleHeight by rememberSaveable { mutableIntStateOf(0) }
-    val isExpanded = remember(listState, titleHeight) {
+    val isCollapsed by remember {
         derivedStateOf {
-            if (titleHeight == 0) return@derivedStateOf true
-            listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset < (titleHeight / 2)
+            listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 40
         }
     }
     var showBottomSheetQris by rememberSaveable { mutableStateOf<Boolean?>(null) }
     var checkPermissions by remember { mutableStateOf<List<String>>(emptyList()) }
+    var pendingEnableQuickNotif by remember { mutableStateOf(false) }
 
     BaseScreen(
         topBarArgs = TopBarArgs(
-            title = if (isExpanded.value.not() && isInitialLoading.not()) stringResource(R.string.settings) else ""
+            title = if (isCollapsed && isInitialLoading.not()) stringResource(R.string.settings) else ""
         ),
         onBackHandler = { navigator.navigateBack() }
     ) {
-        val menus = remember(context, appVersion) {
-            getSettingMenus(context, appVersion)
+        val menus = remember(context, appVersion, isProActive) {
+            getSettingMenus(context, appVersion, isProActive)
         }
 
-        LaunchedEffect(listState, titleHeight) {
+        LaunchedEffect(listState) {
             snapshotFlow { listState.isScrollInProgress }
                 .distinctUntilChanged()
-                .filter { it.not() }
+                .filter { !it }
                 .collect {
-                    if (titleHeight == 0 || listState.firstVisibleItemIndex > 0) return@collect
-
-                    val threshold = titleHeight / 2
-                    val currentOffset = listState.firstVisibleItemScrollOffset
-
-                    if (currentOffset in 1 until titleHeight) {
-                        val targetIndex = if (currentOffset < threshold) 0 else 1
-                        listState.animateScrollToItem(targetIndex)
+                    if (listState.firstVisibleItemIndex == 0) {
+                        val offset = listState.firstVisibleItemScrollOffset
+                        if (offset in 1..100) {
+                            val target = if (offset < 50) 0 else 1
+                            listState.animateScrollToItem(target)
+                        }
                     }
                 }
         }
@@ -172,8 +167,15 @@ internal fun SettingLandingScreen(
         if (checkPermissions.isNotEmpty()) {
             MeverPermissionHandler(
                 permissions = checkPermissions,
-                onGranted = { checkPermissions = emptyList() },
+                onGranted = {
+                    checkPermissions = emptyList()
+                    if (pendingEnableQuickNotif) {
+                        saveQuickNotifState(true)
+                        pendingEnableQuickNotif = false
+                    }
+                },
                 onDenied = { isPermanentlyDeclined, onRetry ->
+                    pendingEnableQuickNotif = false
                     MeverDialog(
                         showDialog = true,
                         title = stringResource(R.string.permission_request_title),
@@ -230,9 +232,13 @@ internal fun SettingLandingScreen(
                 themeType = themeType,
                 isProActive = isProActive,
                 menus = menus,
-                isExpanded = { isExpanded.value },
-                onSetTitleHeight = { titleHeight = it },
-                onClickProAccess = { navigator.navigate(SettingPaywallRoute) },
+                onClickProAccess = {
+                    if (isProActive) {
+                        navigator.navigate(SettingSubscriptionDetailRoute)
+                    } else {
+                        navigator.navigate(SettingPaywallRoute)
+                    }
+                },
                 onClickChangeLanguage = { languageCode ->
                     navigator.navigate(SettingLanguageRoute(languageCode))
                 },
@@ -249,7 +255,17 @@ internal fun SettingLandingScreen(
                 onClickPip = { savePipState(isPipEnabled.not()) },
                 onClickQuickNotif = {
                     if (isProActive) {
-                        saveQuickNotifState(isQuickNotifEnabled.not())
+                        if (isQuickNotifEnabled) {
+                            saveQuickNotifState(false)
+                        } else {
+                            val notifPermission = getNotificationPermission()
+                            if (notifPermission.any { context.checkSelfPermission(it) != PERMISSION_GRANTED }) {
+                                pendingEnableQuickNotif = true
+                                checkPermissions = notifPermission
+                            } else {
+                                saveQuickNotifState(true)
+                            }
+                        }
                     } else {
                         navigator.navigate(SettingPaywallRoute)
                     }
@@ -279,8 +295,6 @@ private fun SettingLandingContent(
     isProActive: Boolean,
     menus: List<SettingMenus>,
     modifier: Modifier = Modifier,
-    isExpanded: () -> Boolean,
-    onSetTitleHeight: (Int) -> Unit = {},
     onClickProAccess: () -> Unit,
     onClickChangeLanguage: (String) -> Unit,
     onClickNotificationPermission: () -> Unit,
@@ -297,6 +311,17 @@ private fun SettingLandingContent(
     val showBottomFade by remember {
         derivedStateOf { listState.canScrollForward }
     }
+    val isCollapsed by remember {
+        derivedStateOf {
+            listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 40
+        }
+    }
+    val headerAlpha by remember {
+        derivedStateOf {
+            if (listState.firstVisibleItemIndex > 0) 0f
+            else (1f - (listState.firstVisibleItemScrollOffset / 100f)).coerceIn(0f, 1f)
+        }
+    }
 
     Column(
         modifier = modifier.fadingEdge(
@@ -304,7 +329,7 @@ private fun SettingLandingContent(
             isVisible = showBottomFade
         )
     ) {
-        if (isExpanded().not()) {
+        if (isCollapsed) {
             HorizontalDivider(
                 modifier = Modifier.fillMaxWidth(),
                 thickness = Dp1,
@@ -317,22 +342,21 @@ private fun SettingLandingContent(
             contentPadding = PaddingValues(bottom = Dp32)
         ) {
             item {
-                Column(modifier = Modifier.fillMaxWidth()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .graphicsLayer {
+                            alpha = headerAlpha
+                            translationY = (1f - headerAlpha) * -20f
+                        }
+                ) {
                     Spacer(modifier = Modifier.height(Dp16))
-                    AnimatedVisibility(
-                        visible = isExpanded(),
-                        enter = expandVertically() + fadeIn(),
-                        exit = shrinkVertically() + fadeOut()
-                    ) {
-                        Text(
-                            text = stringResource(R.string.settings),
-                            style = typography.h2.copy(fontSize = Sp32),
-                            color = colors.blackWhite,
-                            modifier = Modifier
-                                .padding(horizontal = Dp24)
-                                .onGloballyPositioned { onSetTitleHeight(it.size.height) }
-                        )
-                    }
+                    Text(
+                        text = stringResource(R.string.settings),
+                        style = typography.h2.copy(fontSize = Sp32),
+                        color = colors.blackWhite,
+                        modifier = Modifier.padding(horizontal = Dp24)
+                    )
                 }
             }
             item {
@@ -341,7 +365,7 @@ private fun SettingLandingContent(
                         .fillMaxWidth()
                         .padding(start = Dp24, end = Dp24, top = Dp24, bottom = Dp32),
                     isProActive = isProActive,
-                    onClickUpgrade = onClickProAccess
+                    onClickBanner = onClickProAccess
                 )
             }
             menus.forEach { (title, menus) ->
@@ -383,12 +407,9 @@ private fun SettingLandingContent(
                             leadingDesc = menu.leadingDesc,
                             leadingIconSize = Dp40,
                             leadingIconPadding = Dp8,
-                            enabled = when (menu.leadingTitle) {
-                                context.getString(R.string.quick_download_notif_title) -> isProActive
-                                else -> true
-                            },
+                            enabled = true,
                             isProOnly = when (menu.leadingTitle) {
-                                context.getString(R.string.quick_download_notif_title) -> true
+                                context.getString(R.string.quick_download_notif_title) -> !isProActive
                                 else -> false
                             },
                             trailingType = when (menu.leadingTitle) {

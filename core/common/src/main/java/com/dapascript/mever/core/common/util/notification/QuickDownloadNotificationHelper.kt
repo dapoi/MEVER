@@ -5,9 +5,13 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager.PERMISSION_GRANTED
 import androidx.core.app.NotificationCompat
 import androidx.core.app.RemoteInput
 import com.dapascript.mever.core.common.R
+import com.dapascript.mever.core.common.util.getNotificationPermission
+import java.util.Collections
+import java.util.LinkedHashSet
 
 object QuickDownloadNotificationHelper {
 
@@ -17,7 +21,25 @@ object QuickDownloadNotificationHelper {
     const val KEY_TEXT_REPLY = "key_quick_download_text"
     const val NOTIFICATION_ID = 23041
 
-    fun showQuickDownloadNotification(context: Context) {
+    private val activeProcessingUrls = Collections.synchronizedSet(LinkedHashSet<String>())
+
+    @JvmOverloads
+    fun showQuickDownloadNotification(
+        context: Context,
+        isProcessing: Boolean = false,
+        processingUrl: String? = null,
+    ) {
+        if (isProcessing && !processingUrl.isNullOrEmpty()) {
+            activeProcessingUrls.add(processingUrl)
+        } else if (!isProcessing && !processingUrl.isNullOrEmpty()) {
+            activeProcessingUrls.remove(processingUrl)
+        }
+
+        val notifPermission = getNotificationPermission()
+        if (notifPermission.any { context.checkSelfPermission(it) != PERMISSION_GRANTED }) {
+            return
+        }
+
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         val channel = NotificationChannel(
@@ -54,21 +76,50 @@ object QuickDownloadNotificationHelper {
             .addRemoteInput(remoteInput)
             .build()
 
-        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
+        val urlsSnapshot = synchronized(activeProcessingUrls) {
+            activeProcessingUrls.toList()
+        }
+        val hasProcessingItems = urlsSnapshot.isNotEmpty()
+
+        val contentText = if (hasProcessingItems) {
+            if (urlsSnapshot.size == 1) {
+                context.getString(R.string.quick_download_processing_title)
+            } else {
+                context.getString(R.string.quick_download_processing_multiple_title, urlsSnapshot.size)
+            }
+        } else {
+            context.getString(R.string.quick_download_notif_desc)
+        }
+
+        val bigText = if (hasProcessingItems) {
+            val info = context.getString(R.string.quick_download_processing_info)
+            val urlListText = urlsSnapshot.joinToString("\n") { "• $it" }
+            "⏳ $info\n\n$urlListText"
+        } else {
+            context.getString(R.string.quick_download_notif_desc)
+        }
+
+        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_mever)
             .setContentTitle(context.getString(R.string.quick_download_notif_title))
-            .setContentText(context.getString(R.string.quick_download_notif_desc))
+            .setContentText(contentText)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(bigText))
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .setOngoing(true)
             .setAutoCancel(false)
             .addAction(replyAction)
-            .build()
 
-        notificationManager.notify(NOTIFICATION_ID, notification)
+        if (hasProcessingItems) {
+            builder.setSubText(context.getString(R.string.please_wait))
+            builder.setProgress(0, 0, true)
+        }
+
+        notificationManager.notify(NOTIFICATION_ID, builder.build())
     }
 
     fun cancelQuickDownloadNotification(context: Context) {
+        activeProcessingUrls.clear()
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.cancel(NOTIFICATION_ID)
     }

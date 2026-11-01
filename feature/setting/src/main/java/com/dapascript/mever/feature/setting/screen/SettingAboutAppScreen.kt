@@ -151,10 +151,10 @@ private fun SettingAboutAppContent(
                     borderColor = MeverWhite,
                     contentColor = MeverWhite
                 )
-            ) { navigateToBrowser(context, "https://mever.zeabur.app/license") }
+            ) { navigateToBrowser(context, "https://mever.my.id/license") }
             Spacer(modifier = Modifier.height(Dp16))
             TextButton(
-                onClick = { navigateToBrowser(context, "https://mever.zeabur.app/privacy-policy") },
+                onClick = { navigateToBrowser(context, "https://mever.my.id/privacy-policy") },
                 content = {
                     Text(
                         text = stringResource(R.string.policy),

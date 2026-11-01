@@ -37,7 +37,8 @@
     <string name="choose_source_desc">Pilih foto untuk menghapus atau mengubah latar belakang.</string>
     <string name="gallery">Galeri</string>
     <string name="settings">Pengaturan</string>
-    <string name="application">Aplikasi</string>
+    <string name="general">Umum</string>
+    <string name="features">Fitur</string>
     <string name="language">Bahasa</string>
     <string name="notification">Notifikasi</string>
     <string name="theme">Tema</string>
@@ -199,9 +200,11 @@
     <string name="quick_download_no_url">Tidak ada URL valid di papan klip</string>
     <string name="quick_tile_added">Ubin Unduh Cepat berhasil ditambahkan!</string>
     <string name="quick_tile_guide">Tarik panel Pengaturan Cepat, ketuk edit, lalu seret ubin MEVER ke ubin aktif Anda.</string>
-    <string name="quick_download_notif_title">Unduh Langsung</string>
-    <string name="quick_download_notif_desc">Tempel tautan pada notifikasi</string>
+    <string name="quick_download_notif_title">Pintasan Unduh</string>
+    <string name="quick_download_notif_desc">Tempel tautan media di bawah untuk mengunduh</string>
     <string name="quick_download_action_label">Tempel &amp; Unduh</string>
+    <string name="quick_download_processing_title">Memproses Tautan…</string>
+    <string name="quick_download_processing_multiple_title">Memproses %1$d Tautan…</string>
     <string name="mever_pro">MEVER PRO</string>
     <string name="unlock_all_premium_features">Buka fitur premium</string>
     <string name="pro_membership_active">Keanggotaan PRO Aktif</string>
@@ -209,10 +212,10 @@
     <string name="upgrade">Berlangganan</string>
     <string name="active">Aktif</string>
     <string name="manage">Kelola</string>
-    <string name="paywall_title">Buka Pengunduh Media Terbaikmu</string>
+    <string name="paywall_title">Pengalaman Tanpa Batas</string>
     <string name="paywall_desc">Dapatkan akses tanpa batas ke semua fitur unggulan MEVER.</string>
-    <string name="feature_downloader_without_limit">Unduhan Tanpa Batas</string>
-    <string name="feature_multiple_downloads">Mengunduh Banyak File Sekaligus</string>
+    <string name="feature_downloader_without_limit">Akses Tanpa Batas</string>
+    <string name="feature_multiple_downloads">Unduh Secara Bersamaan</string>
     <string name="feature_customization">Kustomisasi Tema &amp; Ikon</string>
     <string name="feature_no_ads">Pengalaman Bebas Iklan</string>
     <string name="free">GRATIS</string>
@@ -223,4 +226,9 @@
     <string name="restore_no_active_subscription">Tidak ditemukan langganan aktif untuk akun Google ini.</string>
     <string name="terms">Ketentuan</string>
     <string name="privacy">Privasi</string>
+    <string name="subscription_details">Detail Langganan</string>
+    <string name="manage_subscription">Kelola atau Batalkan Langganan</string>
+    <string name="managed_via_google_play">Langganan MEVER PRO Anda dikelola secara aman melalui akun Google Play Store Anda.</string>
+    <string name="included_benefits">Manfaat Termasuk</string>
+    <string name="quick_download_processing_info">Memproses rincian media, mohon tunggu…</string>
 </resources>

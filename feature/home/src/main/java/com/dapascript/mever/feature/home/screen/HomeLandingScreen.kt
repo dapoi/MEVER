@@ -485,9 +485,9 @@ private fun HomeLandingContent(
         )
     }
 
-    LaunchedEffect(randomDonateDialogOffer, shouldShowDonationOfferDialog) {
+    LaunchedEffect(randomDonateDialogOffer, shouldShowDonationOfferDialog, isProActive) {
         delay(1.seconds)
-        if (shouldShowDonationOfferDialog) {
+        if (isProActive.not() && shouldShowDonationOfferDialog) {
             (0..2).random(Random).also { randomValue ->
                 randomDonateDialogOffer = randomValue
                 shouldShowDonationOfferDialog = false
@@ -673,7 +673,7 @@ private fun HomeLandingContent(
     )
 
     MeverDialog(
-        showDialog = randomDonateDialogOffer == 1,
+        showDialog = isProActive.not() && randomDonateDialogOffer == 1,
         image = R.drawable.ic_coffee,
         title = stringResource(R.string.thanks),
         description = stringResource(R.string.donation_desc),

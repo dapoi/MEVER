@@ -7,15 +7,14 @@ import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
@@ -24,7 +23,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterStart
@@ -32,7 +33,6 @@ import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale.Companion.Crop
 import androidx.compose.ui.platform.LocalContext
@@ -60,6 +60,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.isDarkMode
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
+import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.navigateToBrowser
@@ -79,6 +80,13 @@ internal fun SettingPaywallScreen(
         val context = LocalContext.current
         val activity = LocalActivity.current
         val isDarkMode = isDarkMode
+        val scrollState = rememberScrollState()
+        val paywallHeader = remember(isDarkMode) {
+            if (isDarkMode) R.drawable.paywall_header_dark else R.drawable.paywall_header
+        }
+        val showDivider by remember {
+            derivedStateOf { scrollState.canScrollForward }
+        }
 
         Box(
             modifier = Modifier
@@ -92,16 +100,17 @@ internal fun SettingPaywallScreen(
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxWidth()
-                        .verticalScroll(rememberScrollState()),
+                        .verticalScroll(scrollState),
                     horizontalAlignment = CenterHorizontally
                 ) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(Dp220)
+                            .clip(RoundedCornerShape(bottomStart = Dp32, bottomEnd = Dp32))
                     ) {
                         Image(
-                            painter = painterResource(R.drawable.paywall_header),
+                            painter = painterResource(paywallHeader),
                             contentDescription = stringResource(R.string.mever_pro),
                             modifier = Modifier.fillMaxSize(),
                             contentScale = Crop
@@ -119,8 +128,10 @@ internal fun SettingPaywallScreen(
                                 .background(
                                     brush = Brush.verticalGradient(
                                         colors = listOf(
-                                            Color.Transparent,
-                                            colors.whiteDark.copy(alpha = 0.5f),
+                                            MeverTransparent,
+                                            MeverTransparent,
+                                            colors.whiteDark.copy(alpha = 0.3f),
+                                            colors.whiteDark.copy(alpha = 0.85f),
                                             colors.whiteDark
                                         )
                                     )
@@ -146,9 +157,16 @@ internal fun SettingPaywallScreen(
                             color = colors.blackWhite.copy(alpha = 0.65f),
                             textAlign = TextAlign.Center
                         )
-
                         PaywallComparisonTable()
+                        Spacer(modifier = Modifier.height(Dp12))
                     }
+                }
+                if (showDivider) {
+                    HorizontalDivider(
+                        modifier = Modifier.fillMaxWidth(),
+                        thickness = Dp2,
+                        color = colors.blackWhite.copy(alpha = 0.12f)
+                    )
                 }
                 Column(
                     modifier = Modifier
@@ -250,25 +268,6 @@ internal fun SettingPaywallScreen(
                     }
                 }
             }
-
-            Box(
-                modifier = Modifier
-                    .statusBarsPadding()
-                    .padding(Dp16)
-                    .size(Dp32)
-                    .clip(CircleShape)
-                    .background(MeverBlack.copy(alpha = 0.4f))
-                    .clickable { navigator.navigateBack() }
-                    .align(Alignment.TopEnd),
-                contentAlignment = Center
-            ) {
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.ic_clear),
-                    contentDescription = "Close",
-                    tint = MeverWhite,
-                    modifier = Modifier.size(Dp16)
-                )
-            }
         }
     }
 }
@@ -278,6 +277,7 @@ private fun PaywallComparisonTable() {
     val features = listOf(
         Pair(stringResource(R.string.feature_downloader_without_limit), Pair(true, true)),
         Pair(stringResource(R.string.feature_multiple_downloads), Pair(true, true)),
+        Pair(stringResource(R.string.pip), Pair(true, true)),
         Pair(stringResource(R.string.quick_download_notif_title), Pair(false, true)),
         Pair(stringResource(R.string.feature_customization), Pair(false, true)),
         Pair(stringResource(R.string.feature_no_ads), Pair(false, true))

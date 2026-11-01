@@ -26,11 +26,12 @@ internal object SettingLandingAttr {
 
     fun getSettingMenus(
         context: Context,
-        appVersion: String
+        appVersion: String,
+        isProActive: Boolean = false
     ) = with(context){
-        listOf(
+        listOfNotNull(
             SettingMenus(
-                header = R.string.application,
+                header = R.string.general,
                 menus = listOf(
                     SubMenu(
                         leadingTitle = getString(R.string.language),
@@ -53,7 +54,12 @@ internal object SettingLandingAttr {
                         leadingTitle = getString(R.string.clean_cache),
                         icon = R.drawable.ic_cache,
                         iconBackgroundColor = MeverLightBlue
-                    ),
+                    )
+                )
+            ),
+            SettingMenus(
+                header = R.string.features,
+                menus = listOf(
                     SubMenu(
                         leadingTitle = getString(R.string.pip),
                         leadingDesc = getString(R.string.when_video_is_playing),
@@ -68,7 +74,7 @@ internal object SettingLandingAttr {
                     )
                 )
             ),
-            SettingMenus(
+            if (isProActive.not()) SettingMenus(
                 header = R.string.appreciate,
                 menus = listOf(
                     SubMenu(
@@ -82,7 +88,7 @@ internal object SettingLandingAttr {
                         iconBackgroundColor = MeverPink
                     )
                 )
-            ),
+            ) else null,
             SettingMenus(
                 header = R.string.support,
                 menus = listOf(

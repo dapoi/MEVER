@@ -91,7 +91,7 @@ fun MeverMenuItem(
                         style = themeTypography.bodyBold1,
                         color = themeColors.blackWhite
                     )
-                    if (isProOnly && !enabled) {
+                    if (isProOnly) {
                         Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(Dp6))

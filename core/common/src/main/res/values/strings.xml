@@ -37,7 +37,8 @@
     <string name="choose_source_desc">Select a photo to remove its background or change it.</string>
     <string name="gallery">Gallery</string>
     <string name="settings">Settings</string>
-    <string name="application">Application</string>
+    <string name="general">General</string>
+    <string name="features">Features</string>
     <string name="language">Language</string>
     <string name="notification">Notification</string>
     <string name="theme">Theme</string>
@@ -201,8 +202,10 @@
     <string name="quick_tile_added">Quick Download tile added!</string>
     <string name="quick_tile_guide">Pull down Quick Settings shade, tap edit, and drag MEVER tile into your active tiles.</string>
     <string name="quick_download_notif_title">Quick Download</string>
-    <string name="quick_download_notif_desc">Paste a link below to notification</string>
+    <string name="quick_download_notif_desc">Paste a media link below to start downloading</string>
     <string name="quick_download_action_label">Paste &amp; Download</string>
+    <string name="quick_download_processing_title">Processing Link…</string>
+    <string name="quick_download_processing_multiple_title">Processing %1$d Links…</string>
     <string name="mever_pro">MEVER PRO</string>
     <string name="unlock_all_premium_features">Unlock premium features</string>
     <string name="pro_membership_active">PRO Membership Active</string>
@@ -212,7 +215,7 @@
     <string name="manage">Manage</string>
     <string name="paywall_title">Unlock Your Ultimate Media Downloader</string>
     <string name="paywall_desc">Get full, unlimited access to all MEVER premium features.</string>
-    <string name="feature_downloader_without_limit">Unlimited Downloader</string>
+    <string name="feature_downloader_without_limit">Unlimited Access</string>
     <string name="feature_multiple_downloads">Multiple Downloads</string>
     <string name="feature_customization">Theme &amp; Icon Customization</string>
     <string name="feature_no_ads">Ad-Free Experience</string>
@@ -224,4 +227,9 @@
     <string name="restore_no_active_subscription">No active subscription found for this Google account.</string>
     <string name="terms">Terms</string>
     <string name="privacy">Privacy</string>
+    <string name="subscription_details">Subscription Details</string>
+    <string name="manage_subscription">Manage or Cancel Subscription</string>
+    <string name="managed_via_google_play">Your MEVER PRO subscription is managed securely through your Google Play Store account.</string>
+    <string name="included_benefits">Included Benefits</string>
+    <string name="quick_download_processing_info">Fetching media details, please wait…</string>
 </resources>

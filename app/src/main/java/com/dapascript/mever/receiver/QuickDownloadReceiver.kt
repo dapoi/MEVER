@@ -7,7 +7,6 @@ import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import android.util.Patterns
-import android.webkit.URLUtil
 import android.widget.Toast
 import androidx.core.app.RemoteInput
 import com.dapascript.mever.core.common.R
@@ -23,16 +22,20 @@ class QuickDownloadReceiver : BroadcastReceiver() {
             val remoteInput = RemoteInput.getResultsFromIntent(intent)
             val rawInput = remoteInput?.getCharSequence(KEY_TEXT_REPLY)?.toString()
 
-            val clipboardText = if (rawInput.isNullOrBlank()) {
-                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
-                val clipData = clipboard?.primaryClip
-                val item = if ((clipData != null) && (clipData.itemCount > 0)) clipData.getItemAt(0) else null
-                item?.text?.toString()
+            val inputSource = if (rawInput.isNullOrBlank()) {
+                try {
+                    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+                    val clipData = clipboard?.primaryClip
+                    val item = if ((clipData != null) && (clipData.itemCount > 0)) clipData.getItemAt(0) else null
+                    item?.text?.toString()
+                } catch (_: Exception) {
+                    null
+                }
             } else {
                 rawInput
             }
 
-            val validUrl = extractUrl(clipboardText)
+            val validUrl = extractUrl(inputSource)
 
             if (validUrl != null) {
                 Handler(Looper.getMainLooper()).post {
@@ -44,6 +47,11 @@ class QuickDownloadReceiver : BroadcastReceiver() {
                 }
 
                 MeverWorkerHelper.enqueueDownloadWorker(context, validUrl)
+                QuickDownloadNotificationHelper.showQuickDownloadNotification(
+                    context = context,
+                    isProcessing = true,
+                    processingUrl = validUrl
+                )
             } else {
                 Handler(Looper.getMainLooper()).post {
                     Toast.makeText(
@@ -59,7 +67,7 @@ class QuickDownloadReceiver : BroadcastReceiver() {
 
     private fun extractUrl(input: String?): String? {
         if (input.isNullOrBlank()) return null
-        var text = input.trim()
+        val text = input.trim()
 
         val matcher = Patterns.WEB_URL.matcher(text)
         if (matcher.find()) {
@@ -71,10 +79,6 @@ class QuickDownloadReceiver : BroadcastReceiver() {
                 return url
             }
         }
-
-        if (!text.startsWith("http://") && !text.startsWith("https://")) {
-            text = "https://$text"
-        }
-        return if (URLUtil.isValidUrl(text)) text else null
+        return null
     }
 }
