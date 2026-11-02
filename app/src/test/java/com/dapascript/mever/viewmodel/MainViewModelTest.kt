@@ -57,8 +57,8 @@ class MainViewModelTest {
         whenever(subscriptionRepository.isProActive).thenReturn(isProActiveFlow)
         whenever(repository.getPreference(MeverDataStore.KEY_THEME, ThemeType.System.name))
             .thenReturn(flowOf(ThemeType.System.name))
-        whenever(repository.getPreference(MeverDataStore.KEY_THEME_PALETTE, com.dapascript.mever.core.common.ui.theme.ThemePalette.Default.name))
-            .thenReturn(flowOf(com.dapascript.mever.core.common.ui.theme.ThemePalette.Default.name))
+        whenever(repository.getPreference(MeverDataStore.KEY_THEME_PALETTE, com.dapascript.mever.core.common.ui.theme.ThemePalette.CLASSIC.name))
+            .thenReturn(flowOf(com.dapascript.mever.core.common.ui.theme.ThemePalette.CLASSIC.name))
         whenever(repository.getPreference(MeverDataStore.KEY_APP_ICON, com.dapascript.mever.core.common.util.AppIconType.Default.name))
             .thenReturn(flowOf(com.dapascript.mever.core.common.util.AppIconType.Default.name))
         viewModel = MainViewModel(repository, deeplinkManager, subscriptionRepository)
@@ -127,7 +127,7 @@ class MainViewModelTest {
 
     @Test
     fun `when user is free and current theme palette is Doodle, reverts to Default`() = testScope.runTest {
-        whenever(repository.getPreference(MeverDataStore.KEY_THEME_PALETTE, com.dapascript.mever.core.common.ui.theme.ThemePalette.Default.name))
+        whenever(repository.getPreference(MeverDataStore.KEY_THEME_PALETTE, com.dapascript.mever.core.common.ui.theme.ThemePalette.CLASSIC.name))
             .thenReturn(flowOf(com.dapascript.mever.core.common.ui.theme.ThemePalette.Doodle.name))
         whenever(repository.getPreference(MeverDataStore.KEY_APP_ICON, com.dapascript.mever.core.common.util.AppIconType.Default.name))
             .thenReturn(flowOf(com.dapascript.mever.core.common.util.AppIconType.Default.name))
@@ -137,14 +137,14 @@ class MainViewModelTest {
 
         verify(repository).savePreference(
             MeverDataStore.KEY_THEME_PALETTE,
-            com.dapascript.mever.core.common.ui.theme.ThemePalette.Default.name
+            com.dapascript.mever.core.common.ui.theme.ThemePalette.CLASSIC.name
         )
     }
 
     @Test
     fun `when user is free and current app icon is Doodle, reverts to Default`() = testScope.runTest {
-        whenever(repository.getPreference(MeverDataStore.KEY_THEME_PALETTE, com.dapascript.mever.core.common.ui.theme.ThemePalette.Default.name))
-            .thenReturn(flowOf(com.dapascript.mever.core.common.ui.theme.ThemePalette.Default.name))
+        whenever(repository.getPreference(MeverDataStore.KEY_THEME_PALETTE, com.dapascript.mever.core.common.ui.theme.ThemePalette.CLASSIC.name))
+            .thenReturn(flowOf(com.dapascript.mever.core.common.ui.theme.ThemePalette.CLASSIC.name))
         whenever(repository.getPreference(MeverDataStore.KEY_APP_ICON, com.dapascript.mever.core.common.util.AppIconType.Default.name))
             .thenReturn(flowOf(com.dapascript.mever.core.common.util.AppIconType.Doodle.name))
 
@@ -161,7 +161,7 @@ class MainViewModelTest {
     fun `when user is pro and current theme is Doodle, does not revert`() = testScope.runTest {
         val proFlow = MutableStateFlow(true)
         whenever(subscriptionRepository.isProActive).thenReturn(proFlow)
-        whenever(repository.getPreference(MeverDataStore.KEY_THEME_PALETTE, com.dapascript.mever.core.common.ui.theme.ThemePalette.Default.name))
+        whenever(repository.getPreference(MeverDataStore.KEY_THEME_PALETTE, com.dapascript.mever.core.common.ui.theme.ThemePalette.CLASSIC.name))
             .thenReturn(flowOf(com.dapascript.mever.core.common.ui.theme.ThemePalette.Doodle.name))
 
         MainViewModel(repository, deeplinkManager, subscriptionRepository)
@@ -169,7 +169,7 @@ class MainViewModelTest {
 
         verify(repository, never()).savePreference(
             MeverDataStore.KEY_THEME_PALETTE,
-            com.dapascript.mever.core.common.ui.theme.ThemePalette.Default.name
+            com.dapascript.mever.core.common.ui.theme.ThemePalette.CLASSIC.name
         )
     }
 }

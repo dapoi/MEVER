@@ -42,6 +42,7 @@ import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
@@ -76,6 +77,8 @@ import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.ui.theme.ThemePalette
+import com.dapascript.mever.core.common.ui.theme.ThemePalette.CLASSIC
+import com.dapascript.mever.core.common.ui.theme.ThemePalette.Doodle
 import com.dapascript.mever.core.common.ui.theme.ThemeType
 import com.dapascript.mever.core.common.util.FadeSide.Bottom
 import com.dapascript.mever.core.common.util.LanguageManager.getLanguageCode
@@ -117,11 +120,13 @@ internal fun SettingLandingScreen(
     val rawPalette = themePalette.collectAsStateValue()
     val activePalette = remember(rawPalette, isProActive) {
         if (isProActive || !rawPalette.isProOnly) rawPalette
-        else ThemePalette.Default
+        else CLASSIC
     }
     val isPipEnabled = isPipEnabled.collectAsStateValue()
     val isQuickNotifEnabled = isQuickNotifEnabled.collectAsStateValue()
     val context = LocalContext.current
+    val configuration = LocalConfiguration.current
+    val currentLanguageCode = remember(configuration, context) { getLanguageCode(context) }
     val activity = LocalActivity.current
     val resources = LocalResources.current
     val scope = rememberCoroutineScope()
@@ -160,7 +165,7 @@ internal fun SettingLandingScreen(
                 }
         }
 
-        LaunchedEffect(context) { languageCode = getLanguageCode(context) }
+        LaunchedEffect(currentLanguageCode) { languageCode = currentLanguageCode }
 
         LaunchedEffect(args.showQrisDialog, isInitialLoading) {
             if (showBottomSheetQris == null && args.showQrisDialog && isInitialLoading.not()) {
@@ -227,7 +232,7 @@ internal fun SettingLandingScreen(
                 listState = listState,
                 isPipEnabled = isPipEnabled,
                 isQuickNotifEnabled = isQuickNotifEnabled,
-                getLanguageCode = languageCode,
+                getLanguageCode = currentLanguageCode,
                 themeType = themeType,
                 themePalette = activePalette,
                 isProActive = isProActive,
@@ -373,25 +378,35 @@ private fun SettingLandingContent(
                     key = { menu -> menu.leadingTitle },
                     contentType = { "menu_item" }
                 ) { menu ->
-                    val trailingTitle = remember(menu, getLanguageCode, themeType) {
+                    val trailingTitle = remember(menu, getLanguageCode, themeType, themePalette) {
                         menu.trailingTitle?.let {
+                            val isIndonesian = getLanguageCode in setOf("id", "in")
                             when (menu.leadingTitle) {
                                 context.getString(R.string.language) -> {
-                                    if (getLanguageCode == "en") "English"
-                                    else "Bahasa Indonesia"
+                                    if (isIndonesian) "Bahasa Indonesia"
+                                    else "English"
                                 }
 
                                 context.getString(R.string.appearance_and_icons),
-                                context.getString(R.string.theme) -> context.getString(
-                                    themeType.themeResId
-                                )
+                                context.getString(R.string.theme) -> {
+                                    val themeName = when (themeType) {
+                                        ThemeType.System -> if (isIndonesian) "Sistem" else "System"
+                                        ThemeType.Light -> context.getString(R.string.light)
+                                        ThemeType.Dark -> context.getString(R.string.dark)
+                                    }
+                                    val paletteName = when (themePalette) {
+                                        CLASSIC -> if (isIndonesian) "Klasik" else "Classic"
+                                        Doodle -> "Doodle"
+                                    }
+                                    "$themeName ($paletteName)"
+                                }
 
                                 else -> it
                             }
                         }
                     }
 
-                    val isDoodle = themePalette == ThemePalette.Doodle
+                    val isDoodle = themePalette == Doodle
                     val doodleBg = colors.lightPurpleDarkGray
                     val doodleTint = colors.blackWhite
                     val menuArgs = remember(menu, trailingTitle, isPipEnabled, isQuickNotifEnabled, isProActive, isDoodle, doodleBg, doodleTint) {

@@ -31,7 +31,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverDark
 import com.dapascript.mever.core.common.ui.theme.MeverTheme
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
-import com.dapascript.mever.core.common.ui.theme.ThemePalette.Default
+import com.dapascript.mever.core.common.ui.theme.ThemePalette.CLASSIC
 import com.dapascript.mever.core.common.ui.theme.ThemeType.Dark
 import com.dapascript.mever.core.common.ui.theme.ThemeType.Light
 import com.dapascript.mever.core.common.util.AppIconManager.resetToDefaultIfProOnly
@@ -114,7 +114,7 @@ class MainActivity : AppCompatActivity() {
             }
             val activePalette = remember(themePalette, isProActive) {
                 if (isProActive || themePalette.isProOnly.not()) themePalette
-                else Default
+                else CLASSIC
             }
 
             SideEffect {

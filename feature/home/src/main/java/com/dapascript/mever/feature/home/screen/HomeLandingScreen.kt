@@ -112,8 +112,8 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp5
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp6
 import com.dapascript.mever.core.common.ui.theme.Dimens.DpHalf
 import com.dapascript.mever.core.common.ui.theme.MeverRed
-import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
+import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.isDoodle
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.FadeSide.Bottom
@@ -943,7 +943,6 @@ private fun HeaderSection(modifier: Modifier = Modifier) {
                 color = colors.alwaysGray
             )
         }
-        val isDoodle = MeverThemeAttr.isDoodle
         Image(
             modifier = Modifier
                 .weight(if (deviceType == PHONE) 1f else 0.7f)
@@ -1253,7 +1252,6 @@ private fun RecentlyDownloadedSection(
             exit = fadeOut()
         ) {
             if (downloadList.isEmpty()) {
-                val isDoodle = MeverThemeAttr.isDoodle
                 MeverEmptyItem(
                     modifier = Modifier.fillMaxWidth(),
                     image = if (isDoodle) R.drawable.ic_empty_state_doodle else R.drawable.ic_empty_state,

@@ -10,6 +10,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.theme.MeverColors.Companion.getColors
+import com.dapascript.mever.core.common.ui.theme.ThemePalette.CLASSIC
 import com.dapascript.mever.core.common.ui.theme.ThemePalette.Doodle
 import com.dapascript.mever.core.common.util.DeviceType
 import com.dapascript.mever.core.common.util.LocalColors
@@ -47,7 +48,7 @@ object MeverThemeAttr {
 fun MeverTheme(
     deviceType: DeviceType,
     isDarkMode: Boolean = isSystemInDarkTheme(),
-    themePalette: ThemePalette = ThemePalette.Default,
+    themePalette: ThemePalette = CLASSIC,
     content: @Composable () -> Unit
 ) {
     val fontFamily = if (themePalette == Doodle) comicSansFamily else poppinsFamily

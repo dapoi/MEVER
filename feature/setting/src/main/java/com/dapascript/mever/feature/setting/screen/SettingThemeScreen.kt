@@ -68,18 +68,21 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp28
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp3
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp6
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp60
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
 import com.dapascript.mever.core.common.ui.theme.MeverBlack
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.ui.theme.ThemePalette
+import com.dapascript.mever.core.common.ui.theme.ThemePalette.CLASSIC
+import com.dapascript.mever.core.common.ui.theme.ThemePalette.Doodle
 import com.dapascript.mever.core.common.ui.theme.ThemeType
 import com.dapascript.mever.core.common.util.AppIconType
+import com.dapascript.mever.core.common.util.AppIconType.Default
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingPaywallRoute
@@ -105,12 +108,12 @@ internal fun SettingThemeScreen(
     val rawPalette = themePalette.collectAsStateValue()
     val selectedPalette = remember(rawPalette, isProActive) {
         if (isProActive || !rawPalette.isProOnly) rawPalette
-        else ThemePalette.Default
+        else CLASSIC
     }
     val rawIcon = appIcon.collectAsStateValue()
     val selectedIcon = remember(rawIcon, isProActive) {
         if (isProActive || !rawIcon.isProOnly) rawIcon
-        else AppIconType.Default
+        else Default
     }
 
     BaseScreen(
@@ -149,7 +152,7 @@ internal fun SettingThemeScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .verticalScroll(scrollState)
-                        .padding(bottom = Dp40)
+                        .padding(bottom = Dp80)
                 ) {
                     Column(
                         modifier = Modifier
@@ -243,7 +246,7 @@ internal fun SettingThemeScreen(
                                             .background(palette.previewColor)
                                             .border(
                                                 width = Dp1,
-                                                color = if (palette == ThemePalette.Doodle) colors.blackWhite
+                                                color = if (palette == Doodle) colors.blackWhite
                                                 else colors.blackWhite.copy(alpha = 0.15f),
                                                 shape = CircleShape
                                             )

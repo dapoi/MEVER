@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,12 +30,12 @@ import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
 import com.dapascript.mever.core.common.util.PlatformType
 import com.dapascript.mever.core.common.util.PlatformType.AI
 import com.dapascript.mever.core.common.util.PlatformType.ALL
+import com.dapascript.mever.core.common.util.PlatformType.ART
 import com.dapascript.mever.core.common.util.PlatformType.EXPLORE
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE
 import com.dapascript.mever.core.common.util.PlatformType.YOUTUBE_MUSIC
 import com.dapascript.mever.core.common.util.onCustomClick
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun HandleBottomSheetPlatformSupport(
     showPlatformSupportDialog: Boolean,
@@ -80,6 +79,7 @@ internal fun HandleBottomSheetPlatformSupport(
             val platforms = PlatformType.entries
                 .filterNot {
                     it in buildSet {
+                        add(ART)
                         add(AI)
                         add(ALL)
                         add(EXPLORE)

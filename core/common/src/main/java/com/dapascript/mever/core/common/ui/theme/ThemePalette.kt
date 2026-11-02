@@ -10,7 +10,7 @@ enum class ThemePalette(
     val previewColor: Color,
     val isProOnly: Boolean
 ) {
-    Default(
+    CLASSIC(
         titleRes = R.string.theme_palette_default,
         previewColor = MeverPurple,
         isProOnly = false

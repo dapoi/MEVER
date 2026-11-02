@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.ui.theme.ThemePalette
+import com.dapascript.mever.core.common.ui.theme.ThemePalette.CLASSIC
 import com.dapascript.mever.core.common.ui.theme.ThemeType
 import com.dapascript.mever.core.common.ui.theme.ThemeType.System
 import com.dapascript.mever.core.common.util.getAppVersion
@@ -56,16 +57,16 @@ internal class SettingLandingViewModel @Inject constructor(
         initialValue = System
     )
 
-    val themePalette = repository.getPreference(KEY_THEME_PALETTE, ThemePalette.Default.name).map { name ->
+    val themePalette = repository.getPreference(KEY_THEME_PALETTE, CLASSIC.name).map { name ->
         try {
             ThemePalette.valueOf(name)
         } catch (_: IllegalArgumentException) {
-            ThemePalette.Default
+            CLASSIC
         }
     }.stateIn(
         scope = viewModelScope,
         started = WhileSubscribed(),
-        initialValue = ThemePalette.Default
+        initialValue = CLASSIC
     )
 
     val isPipEnabled = repository.getPreference(KEY_PIP, true).stateIn(
@@ -91,10 +92,6 @@ internal class SettingLandingViewModel @Inject constructor(
 
     fun savePipState(isPipEnabled: Boolean) = viewModelScope.launch {
         repository.savePreference(KEY_PIP, isPipEnabled)
-    }
-
-    fun saveQuickNotifState(isEnabled: Boolean) = viewModelScope.launch {
-        repository.savePreference(KEY_QUICK_NOTIF, isEnabled)
     }
 
     fun checkSubscriptionEntitlement() {

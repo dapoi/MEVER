@@ -240,13 +240,13 @@
     <string name="cancel_anytime_google_play">Cancel anytime in Google Play</string>
     <string name="feature_support_dev">Support Indie Development</string>
     <string name="feature_support_dev_desc">Ensuring this app stays alive and keeps growing</string>
-    <string name="appearance_and_icons">Appearance &amp; Icons</string>
+    <string name="appearance_and_icons">Appearance</string>
     <string name="theme_mode">Theme Mode</string>
     <string name="color_theme">Color Theme</string>
     <string name="color_theme_desc">Personalize your app colors with signature palettes</string>
     <string name="app_icon">App Icon</string>
     <string name="app_icon_desc">Customize your home screen launcher icon</string>
-    <string name="theme_palette_default">Default Purple</string>
+    <string name="theme_palette_default">Classic Purple</string>
     <string name="theme_palette_doodle">Doodle (B&amp;W)</string>
     <string name="icon_default">Classic</string>
     <string name="icon_doodle">Doodle</string>

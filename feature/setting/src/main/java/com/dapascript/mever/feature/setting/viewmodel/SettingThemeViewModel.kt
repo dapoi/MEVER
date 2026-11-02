@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.common.ui.theme.ThemePalette
+import com.dapascript.mever.core.common.ui.theme.ThemePalette.CLASSIC
 import com.dapascript.mever.core.common.ui.theme.ThemeType
 import com.dapascript.mever.core.common.util.AppIconManager
 import com.dapascript.mever.core.common.util.AppIconType
@@ -27,16 +28,16 @@ internal class SettingThemeViewModel @Inject constructor(
 
     val isProActive = subscriptionRepository.isProActive
 
-    val themePalette = repository.getPreference(KEY_THEME_PALETTE, ThemePalette.Default.name).map { name ->
+    val themePalette = repository.getPreference(KEY_THEME_PALETTE, CLASSIC.name).map { name ->
         try {
             ThemePalette.valueOf(name)
         } catch (_: IllegalArgumentException) {
-            ThemePalette.Default
+            CLASSIC
         }
     }.stateIn(
         scope = viewModelScope,
         started = WhileSubscribed(),
-        initialValue = ThemePalette.Default
+        initialValue = CLASSIC
     )
 
     val appIcon = repository.getPreference(KEY_APP_ICON, AppIconType.Default.name).map { name ->

@@ -27,10 +27,11 @@ object LanguageManager {
         } else {
             AppCompatDelegate.getApplicationLocales().get(0)
         }
-        val languageTag = locale?.toLanguageTag() ?: Locale.getDefault().toLanguageTag()
-        return appLanguages()
-            .map { it.second }
-            .find { languageTag.startsWith(it) } ?: "en"
+        val language = (locale?.language ?: Locale.getDefault().language).lowercase()
+        return when (language) {
+            "id", "in" -> "id"
+            else -> "en"
+        }
     }
 
     fun appLanguages() = listOf(

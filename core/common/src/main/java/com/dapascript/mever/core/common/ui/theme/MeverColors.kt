@@ -1,7 +1,7 @@
 package com.dapascript.mever.core.common.ui.theme
 
 import androidx.compose.ui.graphics.Color
-import com.dapascript.mever.core.common.ui.theme.ThemePalette.Default
+import com.dapascript.mever.core.common.ui.theme.ThemePalette.CLASSIC
 import com.dapascript.mever.core.common.ui.theme.ThemePalette.Doodle
 
 // Neutrals
@@ -146,10 +146,10 @@ sealed class MeverColors(
     companion object {
         fun getColors(
             isDarkMode: Boolean,
-            palette: ThemePalette = Default
+            palette: ThemePalette = CLASSIC
         ): MeverColors {
             return when (palette) {
-                Default -> if (isDarkMode) Dark else Light
+                CLASSIC -> if (isDarkMode) Dark else Light
                 Doodle -> if (isDarkMode) {
                     PaletteColors(
                         alwaysPurple = MeverWhite,
