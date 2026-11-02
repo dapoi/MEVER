@@ -18,6 +18,8 @@ data class PurchaseResultData(
  */
 interface SubscriptionRepository {
     val isProActive: StateFlow<Boolean>
+    val isEntitlementChecked: StateFlow<Boolean>
+        get() = kotlinx.coroutines.flow.MutableStateFlow(true)
 
     fun checkEntitlement()
     suspend fun checkProActive(): Boolean

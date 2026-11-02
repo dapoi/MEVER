@@ -31,10 +31,8 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp20
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp38
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp6
-import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
-import com.dapascript.mever.core.common.ui.theme.MeverWhite
 
 @Composable
 fun MeverProBannerCard(
@@ -49,7 +47,7 @@ fun MeverProBannerCard(
             .background(colors.lightPurpleDarkGray)
             .border(
                 width = Dp1,
-                color = MeverPurple.copy(alpha = 0.25f),
+                color = colors.alwaysPurple.copy(alpha = 0.25f),
                 shape = RoundedCornerShape(Dp16)
             )
             .clickable { onClickBanner() }
@@ -64,13 +62,13 @@ fun MeverProBannerCard(
                 modifier = Modifier
                     .size(Dp38)
                     .clip(CircleShape)
-                    .background(MeverPurple),
+                    .background(colors.alwaysPurple),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = ImageVector.vectorResource(R.drawable.ic_crown),
                     contentDescription = stringResource(R.string.mever_pro),
-                    tint = MeverWhite,
+                    tint = colors.alwaysWhiteBlack,
                     modifier = Modifier.size(Dp20)
                 )
             }
@@ -97,7 +95,7 @@ fun MeverProBannerCard(
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(Dp20))
-                    .background(if (isProActive) MeverPurple.copy(alpha = 0.15f) else MeverPurple)
+                    .background(if (isProActive) colors.alwaysPurple.copy(alpha = 0.15f) else colors.alwaysPurple)
                     .clickable { onClickBanner() }
                     .padding(horizontal = Dp14, vertical = Dp6),
                 contentAlignment = Alignment.Center
@@ -108,7 +106,7 @@ fun MeverProBannerCard(
                         else R.string.upgrade
                     ),
                     style = typography.labelBold1,
-                    color = if (isProActive) MeverPurple else MeverWhite
+                    color = if (isProActive) colors.alwaysPurple else colors.alwaysWhiteBlack
                 )
             }
         }

@@ -12,6 +12,7 @@ object MeverMenuItemAttr {
         val leadingIconPadding: Dp,
         val trailingType: TrailingType,
         val leadingDesc: String? = null,
+        val leadingIconTint: Color? = null,
         val enabled: Boolean = true,
         val isProOnly: Boolean = false
     ) {

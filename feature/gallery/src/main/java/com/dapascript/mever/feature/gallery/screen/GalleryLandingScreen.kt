@@ -81,9 +81,9 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
 import com.dapascript.mever.core.common.ui.theme.MeverRed
+import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
-import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.FadeSide.Bottom
@@ -799,11 +799,12 @@ private fun GalleryContentSection(
                         style = typography.h2.copy(fontSize = Sp32),
                         color = colors.blackWhite
                     )
+                    val isDoodle = MeverThemeAttr.isDoodle
                     MeverEmptyItem(
                         modifier = Modifier
                             .weight(1f)
                             .padding(horizontal = Dp24),
-                        image = R.drawable.ic_empty_state,
+                        image = if (isDoodle) R.drawable.ic_empty_state_doodle else R.drawable.ic_empty_state,
                         title = stringResource(R.string.no_downloads),
                         description = stringResource(R.string.empty_list_desc)
                     )
@@ -914,7 +915,7 @@ private fun FilterContent(
 @Composable
 private fun getButtonType(isFilled: Boolean) = if (isFilled) Filled(
     backgroundColor = colors.alwaysPurple,
-    contentColor = MeverWhite
+    contentColor = colors.alwaysWhiteBlack
 ) else Outlined(
     borderColor = colors.alwaysPurple,
     contentColor = colors.alwaysPurple

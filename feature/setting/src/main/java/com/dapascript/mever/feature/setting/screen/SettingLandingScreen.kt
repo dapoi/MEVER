@@ -75,6 +75,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
+import com.dapascript.mever.core.common.ui.theme.ThemePalette
 import com.dapascript.mever.core.common.ui.theme.ThemeType
 import com.dapascript.mever.core.common.util.FadeSide.Bottom
 import com.dapascript.mever.core.common.util.LanguageManager.getLanguageCode
@@ -113,6 +114,11 @@ internal fun SettingLandingScreen(
     val isInitialLoading = isInitialLoading.collectAsStateValue()
     val isProActive = isProActive.collectAsStateValue()
     val themeType = themeType.collectAsStateValue()
+    val rawPalette = themePalette.collectAsStateValue()
+    val activePalette = remember(rawPalette, isProActive) {
+        if (isProActive || !rawPalette.isProOnly) rawPalette
+        else ThemePalette.Default
+    }
     val isPipEnabled = isPipEnabled.collectAsStateValue()
     val isQuickNotifEnabled = isQuickNotifEnabled.collectAsStateValue()
     val context = LocalContext.current
@@ -223,6 +229,7 @@ internal fun SettingLandingScreen(
                 isQuickNotifEnabled = isQuickNotifEnabled,
                 getLanguageCode = languageCode,
                 themeType = themeType,
+                themePalette = activePalette,
                 isProActive = isProActive,
                 menus = menus,
                 onClickProAccess = {
@@ -275,6 +282,7 @@ private fun SettingLandingContent(
     isQuickNotifEnabled: Boolean,
     getLanguageCode: String,
     themeType: ThemeType,
+    themePalette: ThemePalette,
     isProActive: Boolean,
     menus: List<SettingMenus>,
     modifier: Modifier = Modifier,
@@ -373,6 +381,7 @@ private fun SettingLandingContent(
                                     else "Bahasa Indonesia"
                                 }
 
+                                context.getString(R.string.appearance_and_icons),
                                 context.getString(R.string.theme) -> context.getString(
                                     themeType.themeResId
                                 )
@@ -382,10 +391,14 @@ private fun SettingLandingContent(
                         }
                     }
 
-                    val menuArgs = remember(menu, trailingTitle, isPipEnabled, isQuickNotifEnabled, isProActive) {
+                    val isDoodle = themePalette == ThemePalette.Doodle
+                    val doodleBg = colors.lightPurpleDarkGray
+                    val doodleTint = colors.blackWhite
+                    val menuArgs = remember(menu, trailingTitle, isPipEnabled, isQuickNotifEnabled, isProActive, isDoodle, doodleBg, doodleTint) {
                         MenuItemArgs(
                             leadingIcon = menu.icon,
-                            leadingIconBackground = menu.iconBackgroundColor,
+                            leadingIconBackground = if (isDoodle) doodleBg else menu.iconBackgroundColor,
+                            leadingIconTint = if (isDoodle) doodleTint else null,
                             leadingTitle = menu.leadingTitle,
                             leadingDesc = menu.leadingDesc,
                             leadingIconSize = Dp40,
@@ -451,6 +464,7 @@ private fun handleClickMenu(
     when (title) {
         getString(R.string.language) -> onClickChangeLanguage(languageCode)
         getString(R.string.notification) -> onClickNotificationPermission()
+        getString(R.string.appearance_and_icons),
         getString(R.string.theme) -> onClickChangeTheme(themeType)
         getString(R.string.pip) -> onClickPip()
         getString(R.string.quick_download_notif_title) -> onClickQuickNotif()

@@ -100,9 +100,7 @@
     <string name="image">Gambar %1$s</string>
     <string name="audio">Audio</string>
     <string name="preview">Pratinjau</string>
-    <string name="storage">Penyimpanan Internal</string>
     <string name="storage_full">Penyimpananmu hampir penuh 😬 Kosongin sedikit ruang ya.</string>
-    <string name="used_storage">Terpakai %1$s dari %2$s</string>
     <string name="playlist_not_supported">Belum bisa download playlist nih 😅</string>
     <string name="ok">Oke</string>
     <string name="keyword_hint">Masukkan kata kunci…</string>
@@ -194,12 +192,8 @@
     <string name="faq_a8">Pemilik aslinya! Kami hanyalah perantara. Pastikan untuk menghormati karya mereka dan patuhi hak cipta.</string>
     <string name="faq_q9">Apakah kalian memantau data saya?</string>
     <string name="faq_a9">Sama sekali tidak. Semua data tetap ada di ponselmu. Kami tidak mengumpulkan atau menyimpan apa pun yang kamu unduh. Privasimu adalah kunci!</string>
-    <string name="quick_tile_title">Pintasan Pengaturan Cepat</string>
-    <string name="quick_tile_desc">Tambahkan pintasan Pengaturan Cepat untuk mengunduh tautan tersalin dengan mudah</string>
     <string name="quick_download_processing">Membuka tautan tersalin di MEVER…</string>
     <string name="quick_download_no_url">Tidak ada URL valid di papan klip</string>
-    <string name="quick_tile_added">Pintasan Pengaturan Cepat berhasil ditambahkan!</string>
-    <string name="quick_tile_guide">Tarik panel Pengaturan Cepat, ketuk edit, lalu seret ikon MEVER ke daftar aktif Anda.</string>
     <string name="quick_download_notif_title">Pintasan Unduh</string>
     <string name="quick_download_setting_desc">Unduh media dari notifikasi</string>
     <string name="quick_download_notif_desc">Tempel tautan media di bawah untuk mengunduh</string>
@@ -208,7 +202,6 @@
     <string name="quick_download_notif_section_desc">Tampilkan notifikasi tetap di bilah status untuk menempel dan mengunduh media secara langsung tanpa membuka aplikasi.</string>
     <string name="quick_tile_section_title">Pengaturan Cepat</string>
     <string name="quick_tile_section_desc">Jika notifikasi ditutup atau terhapus, Anda tetap dapat mengunduh tautan tersalin atau memunculkan kembali notifikasi kapan saja menggunakan pintasan di Pengaturan Cepat.</string>
-    <string name="quick_tile_add_button">Tambahkan ke Pengaturan Cepat</string>
     <string name="quick_tile_how_to_use">Gunakan jika notifikasi tidak sengaja ditutup</string>
     <string name="quick_tile_step_1">Tarik ke bawah dua kali dari atas layar untuk membuka Pengaturan Cepat sepenuhnya.</string>
     <string name="quick_tile_step_2">Ketuk tombol Edit (ikon pensil) di Pengaturan Cepat.</string>
@@ -226,7 +219,7 @@
     <string name="active">Aktif</string>
     <string name="paywall_title">Buka Akses Penuh dengan\nMEVER PRO</string>
     <string name="paywall_desc">Nikmati akses tanpa batas ke semua fitur premium tanpa biaya tersembunyi</string>
-    <string name="feature_customization">Kustomisasi Tema &amp; Ikon</string>
+    <string name="feature_doodle_theme">Tema &amp; Ikon Eksklusif Doodle</string>
     <string name="feature_no_ads">Pengalaman Bebas Iklan</string>
     <string name="pro">PRO</string>
     <string name="continue_label">Lanjutkan</string>
@@ -241,9 +234,20 @@
     <string name="quick_download_processing_info">Memproses rincian media, mohon tunggu…</string>
     <string name="feature_no_ads_desc">Tanpa gangguan, unduh video lancar tanpa iklan</string>
     <string name="feature_quick_download_desc">Unduh langsung dari bilah notifikasi saat menyalin tautan</string>
-    <string name="feature_customization_desc">Buka tema aplikasi eksklusif dan kustomisasi ikon</string>
+    <string name="feature_doodle_theme_desc">Buka tema eksklusif Doodle dan ikon aplikasi yang serasi</string>
     <string name="per_month">/bulan</string>
     <string name="cancel_anytime_google_play">Batalkan kapan saja di Google Play</string>
     <string name="feature_support_dev">Dukung Pengembang Independen</string>
     <string name="feature_support_dev_desc">Memastikan aplikasi ini agar terus hidup dan semakin berkembang</string>
+    <string name="appearance_and_icons">Tampilan &amp; Ikon</string>
+    <string name="theme_mode">Mode Tema</string>
+    <string name="color_theme">Tema Warna</string>
+    <string name="color_theme_desc">Personalisasi warna aplikasi dengan palet khas</string>
+    <string name="app_icon">Ikon Aplikasi</string>
+    <string name="app_icon_desc">Kustomisasi ikon aplikasi di layar utama</string>
+    <string name="theme_palette_default">Ungu Klasik</string>
+    <string name="theme_palette_doodle">Doodle (Hitam &amp; Putih)</string>
+    <string name="icon_default">Klasik</string>
+    <string name="icon_doodle">Doodle</string>
+    <string name="app_icon_changed">Ikon aplikasi berhasil diubah</string>
 </resources>

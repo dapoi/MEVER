@@ -45,7 +45,7 @@ internal object SettingLandingAttr {
                         iconBackgroundColor = MeverCreamPink
                     ),
                     SubMenu(
-                        leadingTitle = getString(R.string.theme),
+                        leadingTitle = getString(R.string.appearance_and_icons),
                         icon = R.drawable.ic_theme,
                         iconBackgroundColor = MeverViolet,
                         trailingTitle = ""

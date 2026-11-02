@@ -44,7 +44,8 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp189
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp72
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
-import com.dapascript.mever.core.common.ui.theme.MeverPurple
+import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
+import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.isDoodle
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.InAppUpdateManager
@@ -66,10 +67,13 @@ internal fun SplashScreen(
     navigator: Navigator,
     viewModel: SplashScreenViewModel = hiltViewModel()
 ) = with(viewModel) {
+    val isDoodle = isDoodle
+    val contentColor = if (isDoodle) colors.blackWhite else MeverWhite
+
     BaseScreen(
         hideDefaultTopBar = true,
         useStatusBarsPadding = false,
-        backgroundColor = MeverPurple,
+        backgroundColor = if (isDoodle) colors.whiteDark else colors.alwaysPurple,
         onBackHandler = { navigator.navigateBack() }
     ) {
         val isOnboarded = isOnboarded.collectAsStateValue()
@@ -206,14 +210,14 @@ internal fun SplashScreen(
                         .height(Dp72)
                         .graphicsLayer { translationY = -contentOffset.value },
                     painter = painterResource(R.drawable.ic_mever),
-                    colorFilter = tint(MeverWhite),
+                    colorFilter = tint(contentColor),
                     contentDescription = "Logo Mever"
                 )
                 Text(
                     modifier = Modifier.graphicsLayer { translationY = contentOffset.value },
                     text = "Media Saver",
                     style = typography.bodyBold1,
-                    color = MeverWhite
+                    color = contentColor
                 )
             }
             Text(
@@ -223,7 +227,7 @@ internal fun SplashScreen(
                     .graphicsLayer { alpha = contentAlpha.value },
                 text = "v${appVersion}",
                 style = typography.body1,
-                color = MeverWhite
+                color = contentColor
             )
         }
     }

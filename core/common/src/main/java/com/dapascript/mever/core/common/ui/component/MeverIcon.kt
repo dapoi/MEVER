@@ -12,9 +12,14 @@ import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorFilter.Companion.tint
+import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
+import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr
+import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 
 @Composable
 fun MeverIcon(
@@ -22,13 +27,27 @@ fun MeverIcon(
     iconBackgroundColor: Color,
     iconSize: Dp,
     iconPadding: Dp,
-    iconShadowColor: Color? = null
+    iconShadowColor: Color? = null,
+    iconTint: Color? = null
 ) {
+    val isDoodle = MeverThemeAttr.isDoodle
+    val effectiveBg = if (isDoodle) {
+        if (iconBackgroundColor == colors.whiteDark || iconBackgroundColor == colors.whiteBlack) iconBackgroundColor
+        else colors.lightPurpleDarkGray
+    } else iconBackgroundColor
+
+    val effectiveColorFilter = when {
+        isDoodle && iconTint != null -> tint(colors.blackWhite)
+        isDoodle -> ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) })
+        iconTint != null -> tint(iconTint)
+        else -> null
+    }
+
     Box(
         modifier = Modifier
             .size(iconSize)
-            .showShadow(shadowColor = iconShadowColor)
-            .background(color = iconBackgroundColor, shape = CircleShape),
+            .showShadow(shadowColor = if (isDoodle) null else iconShadowColor)
+            .background(color = effectiveBg, shape = CircleShape),
         contentAlignment = Center
     ) {
         Image(
@@ -36,6 +55,7 @@ fun MeverIcon(
                 .fillMaxSize()
                 .padding(iconPadding),
             painter = painterResource(icon),
+            colorFilter = effectiveColorFilter,
             contentDescription = "Icon"
         )
     }

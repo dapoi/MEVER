@@ -16,6 +16,7 @@ import androidx.compose.ui.layout.ContentScale.Companion.Fit
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
+import androidx.compose.runtime.remember
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
@@ -23,13 +24,14 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp250
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
+import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
 import androidx.compose.ui.text.style.TextAlign.Companion.Center as TextAlignCenter
 
 @Composable
 fun MeverEmptyItem(
-    image: Int,
+    image: Int = if (MeverThemeAttr.isDoodle) R.drawable.ic_empty_state_doodle else R.drawable.ic_empty_state,
     title: String,
     description: String,
     modifier: Modifier = Modifier,
@@ -38,6 +40,15 @@ fun MeverEmptyItem(
     actionButtonLabel: String? = null,
     onClickAction: (() -> Unit)? = null
 ) {
+    val isDoodle = MeverThemeAttr.isDoodle
+    val resolvedImage = remember(image, isDoodle) {
+        if (isDoodle && image == R.drawable.ic_empty_state) {
+            R.drawable.ic_empty_state_doodle
+        } else {
+            image
+        }
+    }
+
     if (isHorizontal) {
         Row(
             modifier = modifier.fillMaxWidth(),
@@ -46,7 +57,7 @@ fun MeverEmptyItem(
         ) {
             MeverImage(
                 modifier = Modifier.size(imageSize),
-                source = image,
+                source = resolvedImage,
                 contentScale = Fit
             )
             Spacer(modifier = Modifier.size(Dp16))
@@ -71,7 +82,7 @@ fun MeverEmptyItem(
         ) {
             MeverImage(
                 modifier = Modifier.size(imageSize),
-                source = image,
+                source = resolvedImage,
                 contentScale = Fit
             )
             MeverEmptyItemContent(
@@ -113,7 +124,7 @@ private fun MeverEmptyItemContent(
             title = actionButtonLabel ?: stringResource(R.string.ok),
             buttonType = MeverButtonAttr.MeverButtonType.Filled(
                 backgroundColor = colors.alwaysPurple,
-                contentColor = colors.alwaysWhite
+                contentColor = colors.alwaysWhiteBlack
             )
         ) { onClickAction() }
     }

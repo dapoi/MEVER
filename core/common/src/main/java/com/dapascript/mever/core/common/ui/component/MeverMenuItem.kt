@@ -36,7 +36,6 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp50
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp6
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverLightGray
-import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
@@ -79,7 +78,8 @@ fun MeverMenuItem(
                 icon = leadingIcon,
                 iconBackgroundColor = leadingIconBackground,
                 iconSize = leadingIconSize,
-                iconPadding = leadingIconPadding
+                iconPadding = leadingIconPadding,
+                iconTint = leadingIconTint
             )
             Column(modifier = Modifier.weight(1f)) {
                 Row(
@@ -95,13 +95,13 @@ fun MeverMenuItem(
                         Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(Dp6))
-                                .background(MeverPurple)
+                                .background(themeColors.alwaysPurple)
                                 .padding(horizontal = Dp6, vertical = Dp2)
                         ) {
                             Text(
                                 text = stringResource(R.string.pro),
                                 style = themeTypography.labelBold2.copy(fontSize = Sp10),
-                                color = MeverWhite
+                                color = themeColors.alwaysWhiteBlack
                             )
                         }
                     }

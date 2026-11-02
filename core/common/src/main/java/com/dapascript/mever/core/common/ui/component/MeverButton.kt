@@ -24,16 +24,17 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp15
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp20
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp30
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
-import com.dapascript.mever.core.common.ui.theme.MeverPurple
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
 import com.dapascript.mever.core.common.util.onCustomClick
 
@@ -47,8 +48,11 @@ fun MeverButton(
     interval: Long = 500L,
     shape: RoundedCornerShape = RoundedCornerShape(Dp30),
     textSize: TextUnit? = null,
+    textStyle: TextStyle? = null,
     trailingIcon: Painter? = null,
     trailingIconTint: Color? = null,
+    trailingIconSize: Dp? = null,
+    iconSpacing: Dp = Dp8,
     onClick: () -> Unit
 ) = with(buttonType) {
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -75,7 +79,7 @@ fun MeverButton(
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(CircleShape)
-                    .background(MeverPurple),
+                    .background(backgroundColor),
                 contentAlignment = Center
             ) {
                 CircularProgressIndicator(
@@ -90,16 +94,20 @@ fun MeverButton(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
             ) {
+                val resolvedStyle = (textStyle ?: typography.body2).let { base ->
+                    textSize?.let { base.copy(fontSize = it) } ?: base
+                }
                 Text(
                     text = title,
-                    style = textSize?.let { typography.body2.copy(fontSize = it) } ?: typography.body2,
+                    style = resolvedStyle,
                     color = contentColor
                 )
                 if (trailingIcon != null) {
-                    Spacer(modifier = Modifier.size(Dp16))
+                    Spacer(modifier = Modifier.size(iconSpacing))
                     Icon(
                         painter = trailingIcon,
                         tint = trailingIconTint ?: contentColor,
+                        modifier = if (trailingIconSize != null) Modifier.size(trailingIconSize) else Modifier,
                         contentDescription = null
                     )
                 }

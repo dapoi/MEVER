@@ -50,11 +50,10 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverPink
-import com.dapascript.mever.core.common.ui.theme.MeverPurple
-import com.dapascript.mever.core.common.ui.theme.MeverViolet
+import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
-import com.dapascript.mever.core.common.ui.theme.MeverWhite
+import com.dapascript.mever.core.common.ui.theme.MeverViolet
 import com.dapascript.mever.core.common.util.getNotificationPermission
 import com.dapascript.mever.core.common.util.navigateToNotificationSettings
 import com.dapascript.mever.core.common.util.notification.QuickDownloadNotificationHelper.cancelQuickDownloadNotification
@@ -146,9 +145,11 @@ internal fun SettingQuickDownloadScreen(
                             horizontalArrangement = spacedBy(Dp14),
                             verticalAlignment = CenterVertically
                         ) {
+                            val isDoodle = MeverThemeAttr.isDoodle
                             MeverIcon(
                                 icon = R.drawable.ic_quick_download_notif,
-                                iconBackgroundColor = MeverPink,
+                                iconBackgroundColor = if (isDoodle) colors.lightPurpleDarkGray else MeverPink,
+                                iconTint = if (isDoodle) colors.blackWhite else null,
                                 iconSize = Dp40,
                                 iconPadding = Dp8
                             )
@@ -217,9 +218,11 @@ internal fun SettingQuickDownloadScreen(
                             horizontalArrangement = spacedBy(Dp14),
                             verticalAlignment = CenterVertically
                         ) {
+                            val isDoodle = MeverThemeAttr.isDoodle
                             MeverIcon(
                                 icon = R.drawable.ic_quick_tile,
-                                iconBackgroundColor = MeverViolet,
+                                iconBackgroundColor = if (isDoodle) colors.lightPurpleDarkGray else MeverViolet,
+                                iconTint = if (isDoodle) colors.blackWhite else null,
                                 iconSize = Dp40,
                                 iconPadding = Dp8
                             )
@@ -258,13 +261,13 @@ internal fun SettingQuickDownloadScreen(
                                     modifier = Modifier
                                         .size(Dp20)
                                         .clip(CircleShape)
-                                        .background(MeverPurple),
+                                        .background(colors.alwaysPurple),
                                     contentAlignment = Center
                                 ) {
                                     Text(
                                         text = (index + 1).toString(),
                                         style = typography.labelBold2,
-                                        color = MeverWhite
+                                        color = colors.alwaysWhiteBlack
                                     )
                                 }
                                 Text(

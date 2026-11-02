@@ -23,6 +23,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter.Companion.tint
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
@@ -41,8 +42,9 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp52
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp90
 import com.dapascript.mever.core.common.ui.theme.MeverDark
-import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
+import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.isDarkMode
+import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.isDoodle
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
@@ -56,20 +58,37 @@ import java.time.LocalDate
 internal fun SettingAboutAppScreen(navigator: Navigator) {
     val context = LocalContext.current
     val activity = LocalActivity.current
-    val isDarkMode = MeverThemeAttr.isDarkMode
+    val isDarkMode = isDarkMode
+    val isDoodle = isDoodle
+    val contentColor = if (isDoodle) colors.blackWhite else MeverWhite
 
     BaseScreen(
         topBarArgs = TopBarArgs(
             title = "",
-            iconBackColor = MeverWhite
+            iconBackColor = contentColor
         ),
         useStatusBarsPadding = false,
         onBackHandler = { navigator.navigateBack() }
     ) {
-        DisposableEffect(isDarkMode) {
+        DisposableEffect(isDarkMode, isDoodle) {
+            val isDarkBar = isDoodle.not() || isDarkMode
             activity.enableEdgeToEdge(
-                statusBarStyle = dark(scrim = MeverTransparent.toArgb()),
-                navigationBarStyle = dark(scrim = MeverTransparent.toArgb())
+                statusBarStyle = if (isDarkBar) {
+                    dark(scrim = MeverTransparent.toArgb())
+                } else {
+                    light(
+                        scrim = MeverTransparent.toArgb(),
+                        darkScrim = MeverDark.toArgb()
+                    )
+                },
+                navigationBarStyle = if (isDarkBar) {
+                    dark(scrim = MeverTransparent.toArgb())
+                } else {
+                    light(
+                        scrim = MeverTransparent.toArgb(),
+                        darkScrim = MeverDark.toArgb()
+                    )
+                }
             )
             onDispose {
                 activity.enableEdgeToEdge(
@@ -95,9 +114,11 @@ internal fun SettingAboutAppScreen(navigator: Navigator) {
 
         SettingAboutAppContent(
             context = context,
+            contentColor = contentColor,
+            isDoodle = isDoodle,
             modifier = Modifier
                 .fillMaxSize()
-                .background(colors.alwaysPurple)
+                .background(if (isDoodle) colors.whiteDark else colors.alwaysPurple)
                 .navigationBarsPadding()
         )
     }
@@ -106,6 +127,8 @@ internal fun SettingAboutAppScreen(navigator: Navigator) {
 @Composable
 private fun SettingAboutAppContent(
     context: Context,
+    contentColor: Color,
+    isDoodle: Boolean,
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier) {
@@ -119,37 +142,37 @@ private fun SettingAboutAppContent(
                     .width(Dp150)
                     .height(Dp52),
                 painter = painterResource(R.drawable.ic_mever),
-                colorFilter = tint(MeverWhite),
+                colorFilter = tint(contentColor),
                 contentDescription = "Logo Mever"
             )
             Spacer(modifier = Modifier.height(Dp8))
             Text(
                 text = "Media Saver",
                 style = typography.bodyBold2,
-                color = MeverWhite
+                color = contentColor
             )
             Spacer(modifier = Modifier.height(Dp8))
             Image(
                 modifier = Modifier.size(Dp90),
                 painter = painterResource(R.drawable.ic_download),
+                colorFilter = if (isDoodle) tint(contentColor) else null,
                 contentDescription = "Download Icon"
             )
             Spacer(modifier = Modifier.height(Dp16))
-            // get years
             Text(
                 text = stringResource(
                     R.string.copyright,
                     LocalDate.now().year
                 ),
                 style = typography.body2,
-                color = MeverWhite
+                color = contentColor
             )
             Spacer(modifier = Modifier.height(Dp24))
             MeverButton(
                 title = stringResource(R.string.license).uppercase(),
                 buttonType = Outlined(
-                    borderColor = MeverWhite,
-                    contentColor = MeverWhite
+                    borderColor = contentColor,
+                    contentColor = contentColor
                 )
             ) { navigateToBrowser(context, "https://mever.my.id/license") }
             Spacer(modifier = Modifier.height(Dp16))
@@ -159,7 +182,7 @@ private fun SettingAboutAppContent(
                     Text(
                         text = stringResource(R.string.policy),
                         style = typography.body2,
-                        color = MeverWhite,
+                        color = contentColor,
                         textDecoration = Underline
                     )
                 }
@@ -171,7 +194,7 @@ private fun SettingAboutAppContent(
                 .padding(bottom = Dp16),
             text = getAppVersion(context),
             style = typography.body1,
-            color = MeverWhite
+            color = contentColor
         )
     }
 }

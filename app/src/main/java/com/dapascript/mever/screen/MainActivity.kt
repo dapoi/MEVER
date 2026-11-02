@@ -31,8 +31,10 @@ import com.dapascript.mever.core.common.ui.theme.MeverDark
 import com.dapascript.mever.core.common.ui.theme.MeverTheme
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
+import com.dapascript.mever.core.common.ui.theme.ThemePalette.Default
 import com.dapascript.mever.core.common.ui.theme.ThemeType.Dark
 import com.dapascript.mever.core.common.ui.theme.ThemeType.Light
+import com.dapascript.mever.core.common.util.AppIconManager.resetToDefaultIfProOnly
 import com.dapascript.mever.core.common.util.DeviceType.DESKTOP
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.DeviceType.TABLET
@@ -46,6 +48,7 @@ import com.dapascript.mever.core.common.util.notification.QuickDownloadNotificat
 import com.dapascript.mever.core.common.util.notification.QuickDownloadNotificationHelper.showQuickDownloadNotification
 import com.dapascript.mever.core.common.util.recreateActivity
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
+import kotlinx.coroutines.flow.combine
 import com.dapascript.mever.core.navigation.MainNavigation
 import com.dapascript.mever.core.navigation.base.BaseNavGraph
 import com.dapascript.mever.viewmodel.MainViewModel
@@ -71,8 +74,19 @@ class MainActivity : AppCompatActivity() {
         setupAdmob()
         setupIntent(intent = intent, isTriggerNavigation = false)
 
+        lifecycleScope.launch {
+            combine(viewModel.isEntitlementChecked, viewModel.isProActive) { checked, isPro ->
+                checked && isPro.not()
+            }.collect { shouldReset ->
+                if (shouldReset) {
+                    resetToDefaultIfProOnly(this@MainActivity)
+                }
+            }
+        }
+
         setContent {
             val themeType = viewModel.themeType.collectAsStateValue()
+            val themePalette = viewModel.themePalette.collectAsStateValue()
             val isQuickNotifEnabled = viewModel.isQuickNotifEnabled.collectAsStateValue()
             val isProActive = viewModel.isProActive.collectAsStateValue()
 
@@ -98,6 +112,10 @@ class MainActivity : AppCompatActivity() {
                 Dark -> true
                 else -> isSystemInDarkTheme()
             }
+            val activePalette = remember(themePalette, isProActive) {
+                if (isProActive || themePalette.isProOnly.not()) themePalette
+                else Default
+            }
 
             SideEffect {
                 enableEdgeToEdge(
@@ -122,7 +140,8 @@ class MainActivity : AppCompatActivity() {
 
             MeverTheme(
                 deviceType = deviceType,
-                isDarkMode = isDarkMode
+                isDarkMode = isDarkMode,
+                themePalette = activePalette
             ) {
                 Surface(modifier = Modifier.fillMaxSize(), color = colors.whiteDark) {
                     CompositionLocalProvider(

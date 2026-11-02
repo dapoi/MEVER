@@ -54,6 +54,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp20
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp200
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
+import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
 import com.dapascript.mever.core.common.util.onCustomClick
@@ -62,7 +63,7 @@ import com.dapascript.mever.core.common.util.onCustomClick
 @Composable
 fun MeverDialog(
     showDialog: Boolean,
-    image: Int? = R.drawable.ic_error_state,
+    image: Int? = if (MeverThemeAttr.isDoodle) R.drawable.ic_error_state_doodle else R.drawable.ic_error_state,
     title: String? = stringResource(R.string.error_title),
     description: String? = stringResource(R.string.error_desc),
     primaryActionLabel: String? = stringResource(R.string.retry),
@@ -77,6 +78,14 @@ fun MeverDialog(
     onClickSecondaryAction: (() -> Unit)? = null,
     content: @Composable (() -> Unit)? = null
 ) {
+    val isDoodle = MeverThemeAttr.isDoodle
+    val resolvedImage = remember(image, isDoodle) {
+        if (isDoodle && image == R.drawable.ic_error_state) {
+            R.drawable.ic_error_state_doodle
+        } else {
+            image
+        }
+    }
     val currentDismiss = rememberUpdatedState(onDismiss)
     val currentPrimary = rememberUpdatedState(onClickPrimaryAction)
     val currentSecondary = rememberUpdatedState(onClickSecondaryAction)
@@ -138,7 +147,7 @@ fun MeverDialog(
                     ) {
                         DialogContent(
                             title = title,
-                            image = image,
+                            image = resolvedImage,
                             description = description,
                             primaryActionLabel = primaryActionLabel,
                             secondaryActionLabel = secondaryActionLabel,

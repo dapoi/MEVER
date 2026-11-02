@@ -29,6 +29,9 @@ class SubscriptionRepositoryImpl @Inject constructor() : SubscriptionRepository 
     private val _isProActive = MutableStateFlow(false)
     override val isProActive: StateFlow<Boolean> = _isProActive.asStateFlow()
 
+    private val _isEntitlementChecked = MutableStateFlow(false)
+    override val isEntitlementChecked: StateFlow<Boolean> = _isEntitlementChecked.asStateFlow()
+
     init {
         setupCustomerInfoListener()
         checkEntitlement()
@@ -50,6 +53,14 @@ class SubscriptionRepositoryImpl @Inject constructor() : SubscriptionRepository 
     override fun checkEntitlement() {
         if (!Purchases.isConfigured) return
         setupCustomerInfoListener()
+        // Fast-path: check local cache first so entitlement is restored immediately without waiting for network
+        Purchases.sharedInstance.getCustomerInfoWith(
+            fetchPolicy = CacheFetchPolicy.CACHE_ONLY,
+            onError = { /* Ignore cache miss, network call will follow */ },
+            onSuccess = { info ->
+                updateState(info)
+            }
+        )
         Purchases.sharedInstance.getCustomerInfoWith(
             fetchPolicy = CacheFetchPolicy.FETCH_CURRENT,
             onError = { error ->
@@ -161,6 +172,7 @@ class SubscriptionRepositoryImpl @Inject constructor() : SubscriptionRepository 
     private fun updateState(info: CustomerInfo) {
         val isPro = isEntitlementActive(info)
         _isProActive.value = isPro
+        _isEntitlementChecked.value = true
         Timber.d("Updated customer info. pro_access active: $isPro")
     }
 

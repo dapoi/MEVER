@@ -100,9 +100,7 @@
     <string name="image">Image %1$s</string>
     <string name="audio">Audio</string>
     <string name="preview">Preview</string>
-    <string name="storage">Internal Storage</string>
     <string name="storage_full">Your storage is almost full 😬 Try freeing up some space.</string>
-    <string name="used_storage">Used %1$s of %2$s</string>
     <string name="playlist_not_supported">Playlist downloads aren’t supported yet 😅</string>
     <string name="ok">Okay</string>
     <string name="keyword_hint">Enter keywords…</string>
@@ -195,12 +193,8 @@
     <string name="faq_a8">The original creators do! We\'re just the middleman here. Make sure to respect their work and play nice with copyrights.</string>
     <string name="faq_q9">Are you guys watching my data?</string>
     <string name="faq_a9">No way. Everything stays right on your phone. We don\'t collect or store a single thing you download. Your privacy is key!</string>
-    <string name="quick_tile_title">Quick Download Tile</string>
-    <string name="quick_tile_desc">Add tile to Quick Settings to download copied links easily</string>
     <string name="quick_download_processing">Opening copied link in MEVER…</string>
     <string name="quick_download_no_url">No valid URL found in clipboard</string>
-    <string name="quick_tile_added">Quick Download tile added!</string>
-    <string name="quick_tile_guide">Pull down Quick Settings shade, tap edit, and drag MEVER tile into your active tiles.</string>
     <string name="quick_download_notif_title">Quick Download</string>
     <string name="quick_download_setting_desc">Download media directly from notif</string>
     <string name="quick_download_notif_desc">Paste a media link below to start downloading</string>
@@ -209,7 +203,6 @@
     <string name="quick_download_notif_section_desc">Keep a persistent notification in your status bar to quickly paste and download media without opening the app.</string>
     <string name="quick_tile_section_title">Quick Settings Tile</string>
     <string name="quick_tile_section_desc">If the notification was dismissed, you can still download copied links or easily restore the notification anytime by adding the MEVER shortcut to your Quick Settings panel.</string>
-    <string name="quick_tile_add_button">Add to Quick Settings</string>
     <string name="quick_tile_how_to_use">Restore or download if notification was dismissed</string>
     <string name="quick_tile_step_1">Swipe down twice from the top of your screen to fully open Quick Settings.</string>
     <string name="quick_tile_step_2">Tap the Edit button (pencil icon) in Quick Settings.</string>
@@ -227,7 +220,7 @@
     <string name="active">Active</string>
     <string name="paywall_title">Unlock Full Power with\nMEVER PRO</string>
     <string name="paywall_desc">Enjoy unlimited access to all premium features with zero hidden charges</string>
-    <string name="feature_customization">Theme &amp; Icon Customization</string>
+    <string name="feature_doodle_theme">Exclusive Doodle Theme &amp; Icon</string>
     <string name="feature_no_ads">Ad-Free Experience</string>
     <string name="pro">PRO</string>
     <string name="continue_label">Continue</string>
@@ -242,9 +235,20 @@
     <string name="quick_download_processing_info">Fetching media details, please wait…</string>
     <string name="feature_no_ads_desc">Zero interruptions, pure uninterrupted downloading</string>
     <string name="feature_quick_download_desc">Download instantly from notification tray when copying links</string>
-    <string name="feature_customization_desc">Unlock exclusive app themes and dynamic icons</string>
+    <string name="feature_doodle_theme_desc">Unlock the exclusive Doodle theme and matching app icon</string>
     <string name="per_month">/month</string>
     <string name="cancel_anytime_google_play">Cancel anytime in Google Play</string>
     <string name="feature_support_dev">Support Indie Development</string>
     <string name="feature_support_dev_desc">Ensuring this app stays alive and keeps growing</string>
+    <string name="appearance_and_icons">Appearance &amp; Icons</string>
+    <string name="theme_mode">Theme Mode</string>
+    <string name="color_theme">Color Theme</string>
+    <string name="color_theme_desc">Personalize your app colors with signature palettes</string>
+    <string name="app_icon">App Icon</string>
+    <string name="app_icon_desc">Customize your home screen launcher icon</string>
+    <string name="theme_palette_default">Default Purple</string>
+    <string name="theme_palette_doodle">Doodle (B&amp;W)</string>
+    <string name="icon_default">Classic</string>
+    <string name="icon_doodle">Doodle</string>
+    <string name="app_icon_changed">App icon updated successfully</string>
 </resources>

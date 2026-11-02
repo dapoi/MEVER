@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.core.common.base.BaseViewModel
+import com.dapascript.mever.core.common.ui.theme.ThemePalette
 import com.dapascript.mever.core.common.ui.theme.ThemeType
 import com.dapascript.mever.core.common.ui.theme.ThemeType.System
 import com.dapascript.mever.core.common.util.getAppVersion
@@ -14,6 +15,7 @@ import com.dapascript.mever.core.data.repository.SubscriptionRepository
 import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_PIP
 import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_QUICK_NOTIF
 import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_THEME
+import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_THEME_PALETTE
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers.IO
@@ -52,6 +54,18 @@ internal class SettingLandingViewModel @Inject constructor(
         scope = viewModelScope,
         started = WhileSubscribed(),
         initialValue = System
+    )
+
+    val themePalette = repository.getPreference(KEY_THEME_PALETTE, ThemePalette.Default.name).map { name ->
+        try {
+            ThemePalette.valueOf(name)
+        } catch (_: IllegalArgumentException) {
+            ThemePalette.Default
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = WhileSubscribed(),
+        initialValue = ThemePalette.Default
     )
 
     val isPipEnabled = repository.getPreference(KEY_PIP, true).stateIn(

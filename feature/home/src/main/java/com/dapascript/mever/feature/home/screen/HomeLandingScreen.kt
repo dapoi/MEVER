@@ -111,11 +111,10 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp5
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp6
 import com.dapascript.mever.core.common.ui.theme.Dimens.DpHalf
-import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverRed
+import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
-import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.FadeSide.Bottom
 import com.dapascript.mever.core.common.util.FadeSide.Top
@@ -944,13 +943,14 @@ private fun HeaderSection(modifier: Modifier = Modifier) {
                 color = colors.alwaysGray
             )
         }
+        val isDoodle = MeverThemeAttr.isDoodle
         Image(
             modifier = Modifier
                 .weight(if (deviceType == PHONE) 1f else 0.7f)
                 .then(
                     if (deviceType != PHONE) Modifier.sizeIn(maxHeight = Dp150) else Modifier
                 ),
-            painter = painterResource(id = R.drawable.ic_header),
+            painter = painterResource(id = if (isDoodle) R.drawable.ic_header_doodle else R.drawable.ic_header),
             contentScale = Fit,
             contentDescription = null
         )
@@ -1003,7 +1003,7 @@ private fun DownloaderSection(
                             pasteFromClipboard(context)?.let { onChangeUrl(TextFieldValue(it)) }
                         },
                         painter = painterResource(id = R.drawable.ic_link),
-                        tint = MeverPurple,
+                        tint = colors.alwaysPurple,
                         contentDescription = null
                     )
                 }
@@ -1050,7 +1050,7 @@ private fun DownloaderSection(
                     title = "",
                     buttonType = Filled(
                         backgroundColor = colors.alwaysPurple,
-                        contentColor = MeverWhite
+                        contentColor = colors.alwaysWhiteBlack
                     ),
                     shape = CircleShape,
                     isEnabled = getPlatformType(urlProvider().text.trim()) != ALL && isLoading.not(),
@@ -1253,9 +1253,10 @@ private fun RecentlyDownloadedSection(
             exit = fadeOut()
         ) {
             if (downloadList.isEmpty()) {
+                val isDoodle = MeverThemeAttr.isDoodle
                 MeverEmptyItem(
                     modifier = Modifier.fillMaxWidth(),
-                    image = R.drawable.ic_empty_state,
+                    image = if (isDoodle) R.drawable.ic_empty_state_doodle else R.drawable.ic_empty_state,
                     imageSize = Dp160,
                     title = stringResource(R.string.no_downloads),
                     description = stringResource(R.string.empty_list_desc),

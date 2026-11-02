@@ -2,11 +2,16 @@ package com.dapascript.mever.feature.setting.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.SavedStateHandle
+import com.dapascript.mever.core.common.ui.theme.ThemePalette
 import com.dapascript.mever.core.common.ui.theme.ThemeType
+import com.dapascript.mever.core.common.util.AppIconType
 import com.dapascript.mever.core.data.repository.MeverRepository
+import com.dapascript.mever.core.data.repository.SubscriptionRepository
 import com.dapascript.mever.core.data.source.local.MeverDataStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -20,6 +25,7 @@ import org.junit.Test
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SettingThemeViewModelTest {
@@ -33,6 +39,9 @@ class SettingThemeViewModelTest {
     @Mock
     lateinit var repository: MeverRepository
 
+    @Mock
+    lateinit var subscriptionRepository: SubscriptionRepository
+
     // Provide savedStateHandle with the SettingThemeRoute args
     private val savedStateHandle = SavedStateHandle(
         mapOf("themeType" to ThemeType.System)
@@ -44,7 +53,12 @@ class SettingThemeViewModelTest {
     fun setUp() {
         MockitoAnnotations.openMocks(this)
         Dispatchers.setMain(testDispatcher)
-        viewModel = SettingThemeViewModel(repository)
+        whenever(subscriptionRepository.isProActive).thenReturn(MutableStateFlow(false))
+        whenever(repository.getPreference(MeverDataStore.KEY_THEME_PALETTE, ThemePalette.Default.name))
+            .thenReturn(flowOf(ThemePalette.Default.name))
+        whenever(repository.getPreference(MeverDataStore.KEY_APP_ICON, AppIconType.Default.name))
+            .thenReturn(flowOf(AppIconType.Default.name))
+        viewModel = SettingThemeViewModel(repository, subscriptionRepository)
     }
 
     @After
@@ -73,4 +87,10 @@ class SettingThemeViewModelTest {
         verify(repository).savePreference(MeverDataStore.KEY_THEME, ThemeType.System.name)
     }
 
+    @Test
+    fun `setThemePalette Doodle calls repository savePreference with Doodle`() = testScope.runTest {
+        viewModel.setThemePalette(ThemePalette.Doodle)
+        advanceUntilIdle()
+        verify(repository).savePreference(MeverDataStore.KEY_THEME_PALETTE, ThemePalette.Doodle.name)
+    }
 }

@@ -2,7 +2,6 @@ package com.dapascript.mever.feature.setting.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
@@ -34,11 +33,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
+import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
+import com.dapascript.mever.core.common.ui.component.MeverButton
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp10
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
@@ -53,7 +55,6 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp6
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp60
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
-import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.isDarkMode
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
@@ -103,7 +104,7 @@ internal fun SettingSubscriptionDetailScreen(navigator: Navigator) {
                         )
                         .border(
                             width = Dp1,
-                            color = MeverPurple.copy(alpha = 0.35f),
+                            color = colors.alwaysPurple.copy(alpha = 0.35f),
                             shape = RoundedCornerShape(Dp20)
                         )
                         .padding(Dp16)
@@ -125,13 +126,13 @@ internal fun SettingSubscriptionDetailScreen(navigator: Navigator) {
                                     modifier = Modifier
                                         .size(Dp40)
                                         .clip(CircleShape)
-                                        .background(MeverPurple),
+                                        .background(colors.alwaysPurple),
                                     contentAlignment = Center
                                 ) {
                                     Icon(
                                         imageVector = ImageVector.vectorResource(R.drawable.ic_crown),
                                         contentDescription = stringResource(R.string.mever_pro),
-                                        tint = MeverWhite,
+                                        tint = colors.alwaysWhiteBlack,
                                         modifier = Modifier.size(Dp20)
                                     )
                                 }
@@ -153,10 +154,10 @@ internal fun SettingSubscriptionDetailScreen(navigator: Navigator) {
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(Dp20))
-                                    .background(MeverPurple.copy(alpha = 0.15f))
+                                    .background(colors.alwaysPurple.copy(alpha = 0.15f))
                                     .border(
                                         width = Dp1,
-                                        color = MeverPurple.copy(alpha = 0.3f),
+                                        color = colors.alwaysPurple.copy(alpha = 0.3f),
                                         shape = RoundedCornerShape(Dp20)
                                     )
                                     .padding(horizontal = Dp12, vertical = Dp6),
@@ -165,7 +166,7 @@ internal fun SettingSubscriptionDetailScreen(navigator: Navigator) {
                                 Text(
                                     text = stringResource(R.string.active),
                                     style = typography.labelBold1,
-                                    color = MeverPurple
+                                    color = colors.alwaysPurple
                                 )
                             }
                         }
@@ -205,8 +206,8 @@ internal fun SettingSubscriptionDetailScreen(navigator: Navigator) {
                     ),
                     SubscriptionBenefitItem(
                         iconRes = R.drawable.ic_art_gallery,
-                        titleRes = R.string.feature_customization,
-                        descRes = R.string.feature_customization_desc
+                        titleRes = R.string.feature_doodle_theme,
+                        descRes = R.string.feature_doodle_theme_desc
                     ),
                     SubscriptionBenefitItem(
                         iconRes = R.drawable.ic_heart,
@@ -221,7 +222,7 @@ internal fun SettingSubscriptionDetailScreen(navigator: Navigator) {
                         .clip(RoundedCornerShape(Dp20))
                         .border(
                             width = Dp1,
-                            color = MeverPurple.copy(alpha = 0.25f),
+                            color = colors.alwaysPurple.copy(alpha = 0.25f),
                             shape = RoundedCornerShape(Dp20)
                         ),
                     color = colors.lightPurpleDarkGray
@@ -249,7 +250,7 @@ internal fun SettingSubscriptionDetailScreen(navigator: Navigator) {
                                         )
                                         .border(
                                             width = Dp1,
-                                            color = MeverPurple.copy(alpha = 0.15f),
+                                            color = colors.alwaysPurple.copy(alpha = 0.15f),
                                             shape = RoundedCornerShape(Dp10)
                                         ),
                                     contentAlignment = Center
@@ -257,7 +258,7 @@ internal fun SettingSubscriptionDetailScreen(navigator: Navigator) {
                                     Icon(
                                         imageVector = ImageVector.vectorResource(benefit.iconRes),
                                         contentDescription = stringResource(benefit.titleRes),
-                                        tint = MeverPurple,
+                                        tint = colors.alwaysPurple,
                                         modifier = Modifier.size(Dp20)
                                     )
                                 }
@@ -281,7 +282,7 @@ internal fun SettingSubscriptionDetailScreen(navigator: Navigator) {
                                 Icon(
                                     imageVector = ImageVector.vectorResource(R.drawable.ic_round_checked),
                                     contentDescription = "Included in Pro",
-                                    tint = MeverPurple,
+                                    tint = colors.alwaysPurple,
                                     modifier = Modifier.size(Dp18)
                                 )
                             }
@@ -319,42 +320,28 @@ internal fun SettingSubscriptionDetailScreen(navigator: Navigator) {
                     .navigationBarsPadding()
                     .padding(horizontal = Dp20, vertical = Dp12)
             ) {
-                Box(
+                MeverButton(
+                    title = stringResource(R.string.manage_subscription),
+                    buttonType = MeverButtonType.Filled(
+                        backgroundColor = colors.lightPurpleDarkGray,
+                        contentColor = colors.alwaysPurple,
+                        borderColor = colors.alwaysPurple.copy(alpha = 0.35f)
+                    ),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(Dp48)
-                        .clip(RoundedCornerShape(Dp24))
-                        .background(colors.lightPurpleDarkGray)
-                        .border(
-                            width = Dp1,
-                            color = MeverPurple.copy(alpha = 0.35f),
-                            shape = RoundedCornerShape(Dp24)
-                        )
-                        .clickable {
-                            navigateToBrowser(
-                                context,
-                                "https://play.google.com/store/account/subscriptions?package=com.dapascript.mever"
-                            )
-                        },
-                    contentAlignment = Center
-                ) {
-                    Row(
-                        verticalAlignment = CenterVertically,
-                        horizontalArrangement = spacedBy(Dp8)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.manage_subscription),
-                            style = typography.bodyBold1,
-                            color = MeverPurple
-                        )
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.ic_link),
-                            contentDescription = null,
-                            tint = MeverPurple,
-                            modifier = Modifier.size(Dp16)
+                        .height(Dp48),
+                    shape = RoundedCornerShape(Dp24),
+                    textStyle = typography.bodyBold1,
+                    trailingIcon = painterResource(R.drawable.ic_link),
+                    trailingIconSize = Dp16,
+                    iconSpacing = Dp8,
+                    onClick = {
+                        navigateToBrowser(
+                            context,
+                            "https://play.google.com/store/account/subscriptions?package=com.dapascript.mever"
                         )
                     }
-                }
+                )
             }
         }
     }

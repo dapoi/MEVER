@@ -19,7 +19,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
@@ -35,16 +34,18 @@ import androidx.compose.ui.Alignment.Companion.TopEnd
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale.Companion.FillBounds
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
+import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType
+import com.dapascript.mever.core.common.ui.component.MeverButton
 import com.dapascript.mever.core.common.ui.component.MeverImage
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp10
@@ -63,7 +64,6 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp6
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverBlack
 import com.dapascript.mever.core.common.ui.theme.MeverGray
-import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.isDarkMode
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
@@ -73,6 +73,7 @@ import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp22
 import com.dapascript.mever.core.common.util.LocalActivity
 import com.dapascript.mever.core.common.util.navigateToBrowser
 import com.dapascript.mever.core.navigation.helper.Navigator
+import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLandingRoute
 import com.dapascript.mever.feature.setting.viewmodel.SettingPaywallViewModel
 
 @Composable
@@ -160,10 +161,10 @@ internal fun SettingPaywallScreen(
                         Row(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(Dp20))
-                                .background(MeverPurple.copy(alpha = 0.12f))
+                                .background(colors.alwaysPurple.copy(alpha = 0.12f))
                                 .border(
                                     width = Dp1,
-                                    color = MeverPurple.copy(alpha = 0.35f),
+                                    color = colors.alwaysPurple.copy(alpha = 0.35f),
                                     shape = RoundedCornerShape(Dp20)
                                 )
                                 .padding(horizontal = Dp14, vertical = Dp6),
@@ -173,13 +174,13 @@ internal fun SettingPaywallScreen(
                             Icon(
                                 imageVector = ImageVector.vectorResource(R.drawable.ic_crown),
                                 contentDescription = null,
-                                tint = MeverPurple,
+                                tint = colors.alwaysPurple,
                                 modifier = Modifier.size(Dp16)
                             )
                             Text(
                                 text = stringResource(R.string.mever_pro),
                                 style = typography.labelBold1,
-                                color = MeverPurple
+                                color = colors.alwaysPurple
                             )
                         }
 
@@ -255,57 +256,34 @@ internal fun SettingPaywallScreen(
                         Text(
                             text = statusMessage.orEmpty(),
                             style = typography.body2,
-                            color = MeverPurple,
+                            color = colors.alwaysPurple,
                             textAlign = TextAlign.Center
                         )
                     }
 
-                    // CTA Button with gradient
-                    Box(
+                    // CTA Button
+                    MeverButton(
+                        title = stringResource(R.string.continue_label),
+                        buttonType = MeverButtonType.Filled(
+                            backgroundColor = colors.alwaysPurple,
+                            contentColor = MeverWhite
+                        ),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(Dp48)
-                            .clip(RoundedCornerShape(Dp24))
-                            .background(
-                                brush = Brush.horizontalGradient(
-                                    colors = listOf(
-                                        MeverPurple,
-                                        Color(0xFF7B8DFA)
-                                    )
-                                )
-                            )
-                            .clickable(enabled = !isPurchasing) {
-                                purchaseSelectedPackage(activity) {
-                                    navigator.navigateBack()
-                                }
-                            },
-                        contentAlignment = Center
-                    ) {
-                        if (isPurchasing || isLoadingOfferings) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(Dp24),
-                                color = MeverWhite,
-                                strokeWidth = Dp2
-                            )
-                        } else {
-                            Row(
-                                verticalAlignment = CenterVertically,
-                                horizontalArrangement = spacedBy(Dp8)
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.continue_label),
-                                    style = typography.bodyBold1,
-                                    color = MeverWhite
-                                )
-                                Icon(
-                                    imageVector = ImageVector.vectorResource(R.drawable.ic_arrow_started),
-                                    contentDescription = null,
-                                    tint = MeverWhite,
-                                    modifier = Modifier.size(Dp18)
-                                )
+                            .height(Dp48),
+                        shape = RoundedCornerShape(Dp24),
+                        textStyle = typography.bodyBold1,
+                        isEnabled = isPurchasing.not(),
+                        isLoading = isPurchasing || isLoadingOfferings,
+                        trailingIcon = painterResource(R.drawable.ic_arrow_started),
+                        trailingIconSize = Dp18,
+                        iconSpacing = Dp8,
+                        onClick = {
+                            purchaseSelectedPackage(activity) {
+                                navigator.navigateBack(popUpTo = SettingLandingRoute::class)
                             }
                         }
-                    }
+                    )
 
                     // Footer links
                     Row(
@@ -317,7 +295,7 @@ internal fun SettingPaywallScreen(
                             text = stringResource(R.string.restore_purchases),
                             style = typography.label2,
                             color = MeverGray,
-                            modifier = Modifier.clickable(enabled = !isPurchasing) {
+                            modifier = Modifier.clickable(enabled = isPurchasing.not()) {
                                 restorePurchases(noActiveSubMsg) {
                                     navigator.navigateBack()
                                 }
@@ -414,8 +392,8 @@ private fun PaywallBenefitsSection() {
         ),
         PaywallBenefit(
             iconRes = R.drawable.ic_art_gallery,
-            titleRes = R.string.feature_customization,
-            descRes = R.string.feature_customization_desc
+            titleRes = R.string.feature_doodle_theme,
+            descRes = R.string.feature_doodle_theme_desc
         ),
         PaywallBenefit(
             iconRes = R.drawable.ic_heart,
@@ -430,7 +408,7 @@ private fun PaywallBenefitsSection() {
             .clip(RoundedCornerShape(Dp20))
             .border(
                 width = Dp1,
-                color = MeverPurple.copy(alpha = 0.25f),
+                color = colors.alwaysPurple.copy(alpha = 0.25f),
                 shape = RoundedCornerShape(Dp20)
             ),
         color = colors.lightPurpleDarkGray
@@ -458,7 +436,7 @@ private fun PaywallBenefitsSection() {
                             )
                             .border(
                                 width = Dp1,
-                                color = MeverPurple.copy(alpha = 0.15f),
+                                color = colors.alwaysPurple.copy(alpha = 0.15f),
                                 shape = RoundedCornerShape(Dp10)
                             ),
                         contentAlignment = Center
@@ -466,7 +444,7 @@ private fun PaywallBenefitsSection() {
                         Icon(
                             imageVector = ImageVector.vectorResource(benefit.iconRes),
                             contentDescription = stringResource(benefit.titleRes),
-                            tint = MeverPurple,
+                            tint = colors.alwaysPurple,
                             modifier = Modifier.size(Dp20)
                         )
                     }
@@ -490,7 +468,7 @@ private fun PaywallBenefitsSection() {
                     Icon(
                         imageVector = ImageVector.vectorResource(R.drawable.ic_round_checked),
                         contentDescription = "Included in Pro",
-                        tint = MeverPurple,
+                        tint = colors.alwaysPurple,
                         modifier = Modifier.size(Dp18)
                     )
                 }
