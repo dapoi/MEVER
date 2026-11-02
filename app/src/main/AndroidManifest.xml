@@ -125,7 +125,7 @@
 
         <receiver
             android:name=".receiver.QuickDownloadReceiver"
-            android:exported="true">
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.dapascript.mever.ACTION_QUICK_DOWNLOAD_REPLY" />
                 <action android:name="com.dapascript.mever.ACTION_QUICK_DOWNLOAD_DISMISS" />
