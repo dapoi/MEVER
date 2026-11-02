@@ -65,13 +65,13 @@ jobs:
           git fetch --tags --force
 
           if [[ "${{ github.ref_name }}" == *"-internal"* ]]; then
-            echo "track=internal" >> $GITHUB_OUTPUT
+            echo "tracks=internal" >> $GITHUB_OUTPUT
             echo "prerelease=true" >> $GITHUB_OUTPUT
           elif [[ "${{ github.ref_name }}" == *"-beta"* ]]; then
-            echo "track=beta" >> $GITHUB_OUTPUT
+            echo "tracks=beta" >> $GITHUB_OUTPUT
             echo "prerelease=true" >> $GITHUB_OUTPUT
           else
-            echo "track=production" >> $GITHUB_OUTPUT
+            echo "tracks=production" >> $GITHUB_OUTPUT
             echo "prerelease=false" >> $GITHUB_OUTPUT
           fi
 
@@ -109,14 +109,15 @@ jobs:
 
       - name: Upload to Play Store
         if: steps.flags.outputs.upload_play_store == 'true'
-        uses: r0adkll/upload-google-play@v1
+        uses: r0adkll/upload-google-play@v1.1.5
         with:
           serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_JSON }}
           packageName: com.dapascript.mever
           releaseFiles: app/build/outputs/bundle/release/app-release.aab
-          track: ${{ steps.flags.outputs.track }}
+          tracks: ${{ steps.flags.outputs.tracks }}
           status: completed
           whatsNewDirectory: distribution/whatsnew
+          mappingFile: app/build/outputs/mapping/release/mapping.txt
 
       - name: Create GitHub Release
         if: steps.flags.outputs.upload_github_release == 'true'
