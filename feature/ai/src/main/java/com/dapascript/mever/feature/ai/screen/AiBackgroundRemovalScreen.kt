@@ -131,7 +131,6 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
-import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.LocalActivity
@@ -917,7 +916,7 @@ private fun ActionButtons(
             },
             buttonType = Filled(
                 backgroundColor = colors.alwaysPurple,
-                contentColor = MeverWhite
+                contentColor = colors.alwaysWhiteBlack
             ),
             isLoading = isProcessing || isLoading,
             isEnabled = isProcessing.not() && isLoading.not(),

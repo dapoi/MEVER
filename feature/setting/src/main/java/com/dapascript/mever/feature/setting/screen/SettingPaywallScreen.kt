@@ -266,7 +266,7 @@ internal fun SettingPaywallScreen(
                         title = stringResource(R.string.continue_label),
                         buttonType = MeverButtonType.Filled(
                             backgroundColor = colors.alwaysPurple,
-                            contentColor = MeverWhite
+                            contentColor = colors.alwaysWhiteBlack
                         ),
                         modifier = Modifier
                             .fillMaxWidth()

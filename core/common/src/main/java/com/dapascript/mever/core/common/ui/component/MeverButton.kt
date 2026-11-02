@@ -29,13 +29,19 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType
+import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Filled
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp15
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp20
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp30
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
+import com.dapascript.mever.core.common.ui.theme.MeverBlack
+import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
+import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.isDarkMode
+import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.isDoodle
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
+import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.onCustomClick
 
 @Composable
@@ -56,6 +62,29 @@ fun MeverButton(
     onClick: () -> Unit
 ) = with(buttonType) {
     val keyboardController = LocalSoftwareKeyboardController.current
+    val isDoodle = isDoodle
+    val isDarkMode = isDarkMode
+    val colors = colors
+    val resolvedContentColor = if (buttonType is Filled) {
+        when {
+            isDoodle && isDarkMode && (backgroundColor == colors.alwaysPurple || backgroundColor == MeverWhite) && (contentColor == MeverWhite || contentColor == colors.alwaysWhite || contentColor == colors.alwaysPurple || contentColor == backgroundColor) -> {
+                MeverBlack
+            }
+
+            contentColor == backgroundColor -> {
+                colors.alwaysWhiteBlack
+            }
+
+            else -> contentColor
+        }
+    } else contentColor
+    val resolvedTrailingIconTint = if (trailingIconTint != null) {
+        if (buttonType is Filled && isDoodle && isDarkMode && (backgroundColor == colors.alwaysPurple || backgroundColor == MeverWhite) && (trailingIconTint == MeverWhite || trailingIconTint == colors.alwaysWhite || trailingIconTint == backgroundColor)) {
+            MeverBlack
+        } else trailingIconTint
+    } else {
+        resolvedContentColor
+    }
 
     Box(
         modifier = modifier
@@ -85,7 +114,7 @@ fun MeverButton(
                 CircularProgressIndicator(
                     modifier = Modifier.size(Dp20),
                     strokeCap = Round,
-                    color = contentColor
+                    color = resolvedContentColor
                 )
             }
 
@@ -100,13 +129,13 @@ fun MeverButton(
                 Text(
                     text = title,
                     style = resolvedStyle,
-                    color = contentColor
+                    color = resolvedContentColor
                 )
                 if (trailingIcon != null) {
                     Spacer(modifier = Modifier.size(iconSpacing))
                     Icon(
                         painter = trailingIcon,
-                        tint = trailingIconTint ?: contentColor,
+                        tint = resolvedTrailingIconTint,
                         modifier = if (trailingIconSize != null) Modifier.size(trailingIconSize) else Modifier,
                         contentDescription = null
                     )
@@ -121,7 +150,7 @@ fun MeverButton(
             ) {
                 Icon(
                     imageVector = ImageVector.vectorResource(R.drawable.ic_download),
-                    tint = contentColor,
+                    tint = resolvedContentColor,
                     contentDescription = "Download"
                 )
             }

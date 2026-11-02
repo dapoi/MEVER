@@ -597,7 +597,7 @@ private fun ArtworkDetailSheetContent(
                 title = stringResource(R.string.download),
                 buttonType = MeverButtonType.Filled(
                     backgroundColor = colors.alwaysPurple,
-                    contentColor = colors.alwaysWhite
+                    contentColor = colors.alwaysWhiteBlack
                 ),
                 onClick = onClickDownload
             )

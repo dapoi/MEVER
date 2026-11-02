@@ -38,7 +38,6 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverLightGray
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
-import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp10
 import com.dapascript.mever.core.common.util.onCustomClick
 
@@ -70,7 +69,9 @@ fun MeverMenuItem(
         verticalAlignment = CenterVertically
     ) {
         Row(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier
+                .weight(1f)
+                .padding(end = Dp4),
             horizontalArrangement = spacedBy(Dp16),
             verticalAlignment = CenterVertically
         ) {
@@ -128,7 +129,9 @@ fun MeverMenuItem(
                         Text(
                             text = title,
                             style = themeTypography.body2,
-                            color = if (enabled) themeColors.blackWhite.copy(alpha = 0.7f) else themeColors.blackWhite.copy(alpha = 0.38f)
+                            color = if (enabled) themeColors.blackWhite.copy(alpha = 0.7f) else themeColors.blackWhite.copy(
+                                alpha = 0.38f
+                            )
                         )
                     }
                     Box(
@@ -142,7 +145,11 @@ fun MeverMenuItem(
                     ) {
                         Image(
                             painter = painterResource(R.drawable.ic_back),
-                            colorFilter = tint(color = if (enabled) themeColors.blackWhite else themeColors.blackWhite.copy(alpha = 0.38f)),
+                            colorFilter = tint(
+                                color = if (enabled) themeColors.blackWhite else themeColors.blackWhite.copy(
+                                    alpha = 0.38f
+                                )
+                            ),
                             contentDescription = "Arrow Right",
                             modifier = Modifier
                                 .size(Dp16)

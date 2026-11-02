@@ -68,7 +68,6 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp90
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
-import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp14
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
@@ -196,7 +195,7 @@ internal fun AiImageGeneratorLandingScreen(
                                 title = stringResource(R.string.generate),
                                 buttonType = Filled(
                                     backgroundColor = colors.alwaysPurple,
-                                    contentColor = MeverWhite
+                                    contentColor = colors.alwaysWhiteBlack
                                 ),
                                 isEnabled = prompt.isNotEmpty(),
                                 onClick = onGenerate
@@ -245,7 +244,7 @@ internal fun AiImageGeneratorLandingScreen(
                                         title = stringResource(R.string.generate),
                                         buttonType = Filled(
                                             backgroundColor = colors.alwaysPurple,
-                                            contentColor = MeverWhite
+                                            contentColor = colors.alwaysWhiteBlack
                                         ),
                                         isEnabled = prompt.isNotEmpty(),
                                         onClick = onGenerate

@@ -9,6 +9,8 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import com.dapascript.mever.core.common.R
+import com.dapascript.mever.core.common.ui.theme.MeverColors.Companion.getColors
+import com.dapascript.mever.core.common.ui.theme.ThemePalette.Doodle
 import com.dapascript.mever.core.common.util.DeviceType
 import com.dapascript.mever.core.common.util.LocalColors
 import com.dapascript.mever.core.common.util.LocalIsDarkMode
@@ -35,14 +37,10 @@ object MeverThemeAttr {
         @Composable
         @ReadOnlyComposable
         get() = LocalIsDarkMode.current
-    val themePalette: ThemePalette
-        @Composable
-        @ReadOnlyComposable
-        get() = LocalThemePalette.current
     val isDoodle: Boolean
         @Composable
         @ReadOnlyComposable
-        get() = LocalThemePalette.current == ThemePalette.Doodle
+        get() = LocalThemePalette.current == Doodle
 }
 
 @Composable
@@ -52,9 +50,9 @@ fun MeverTheme(
     themePalette: ThemePalette = ThemePalette.Default,
     content: @Composable () -> Unit
 ) {
-    val fontFamily = if (themePalette == ThemePalette.Doodle) comicSansFamily else poppinsFamily
+    val fontFamily = if (themePalette == Doodle) comicSansFamily else poppinsFamily
     val meverTypography = MeverTypography(deviceType = deviceType, fontFamily = fontFamily)
-    val customColors = MeverColors.getColors(isDarkMode, themePalette)
+    val customColors = getColors(isDarkMode, themePalette)
     val currentDensity = LocalDensity.current
 
     CompositionLocalProvider(

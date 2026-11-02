@@ -82,7 +82,6 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
-import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp14
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp18
 import com.dapascript.mever.core.common.util.DeviceType
@@ -319,7 +318,7 @@ internal fun AiImageGeneratorResultScreen(
                     isLoading = showLoadingReport,
                     buttonType = Filled(
                         backgroundColor = colors.alwaysPurple,
-                        contentColor = MeverWhite
+                        contentColor = colors.alwaysWhiteBlack
                     )
                 ) { postReportAiImage(reportMessage) }
             }
@@ -672,7 +671,7 @@ private fun ImageGeneratorResultContent(
                         title = stringResource(R.string.download),
                         buttonType = Filled(
                             backgroundColor = colors.alwaysPurple,
-                            contentColor = MeverWhite
+                            contentColor = colors.alwaysWhiteBlack
                         )
                     ) { onClickDownload() }
                 }
