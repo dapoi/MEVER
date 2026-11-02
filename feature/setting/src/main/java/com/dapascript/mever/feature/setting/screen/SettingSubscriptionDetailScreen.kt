@@ -36,6 +36,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType
@@ -60,16 +61,23 @@ import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.isDarkMode
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.navigateToBrowser
+import com.dapascript.mever.core.common.util.state.collectAsStateValue
 import com.dapascript.mever.core.navigation.helper.Navigator
+import com.dapascript.mever.feature.setting.viewmodel.SettingSubscriptionDetailViewModel
 
 @Composable
-internal fun SettingSubscriptionDetailScreen(navigator: Navigator) {
+internal fun SettingSubscriptionDetailScreen(
+    navigator: Navigator,
+    viewModel: SettingSubscriptionDetailViewModel = hiltViewModel()
+) = with(viewModel) {
     val context = LocalContext.current
     val isDarkMode = isDarkMode
     val scrollState = rememberScrollState()
     val showDivider by remember {
         derivedStateOf { scrollState.canScrollForward }
     }
+    val expirationDateStr = expirationDateString.collectAsStateValue()
+    val willRenew = proWillRenew.collectAsStateValue()
 
     BaseScreen(
         topBarArgs = TopBarArgs(title = stringResource(R.string.subscription_details)),
@@ -147,6 +155,14 @@ internal fun SettingSubscriptionDetailScreen(navigator: Navigator) {
                                         style = typography.label2,
                                         color = colors.blackWhite.copy(alpha = 0.65f)
                                     )
+                                    expirationDateStr?.let { dateStr ->
+                                        Text(
+                                            text = if (willRenew) stringResource(R.string.renews_on, dateStr)
+                                            else stringResource(R.string.expires_on, dateStr),
+                                            style = typography.label2,
+                                            color = colors.alwaysPurple
+                                        )
+                                    }
                                 }
                             }
 

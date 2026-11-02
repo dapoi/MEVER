@@ -21,12 +21,19 @@ import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.res.stringResource
 import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import com.dapascript.mever.BuildConfig.ADMOB_ID
+import com.dapascript.mever.core.common.R
+import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.theme.MeverDark
 import com.dapascript.mever.core.common.ui.theme.MeverTheme
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
@@ -34,6 +41,7 @@ import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.ThemePalette.CLASSIC
 import com.dapascript.mever.core.common.ui.theme.ThemeType.Dark
 import com.dapascript.mever.core.common.ui.theme.ThemeType.Light
+import com.dapascript.mever.core.common.util.AppIconManager.isProIconActive
 import com.dapascript.mever.core.common.util.AppIconManager.resetToDefaultIfProOnly
 import com.dapascript.mever.core.common.util.DeviceType.DESKTOP
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
@@ -74,21 +82,22 @@ class MainActivity : AppCompatActivity() {
         setupAdmob()
         setupIntent(intent = intent, isTriggerNavigation = false)
 
-        lifecycleScope.launch {
-            combine(viewModel.isEntitlementChecked, viewModel.isProActive) { checked, isPro ->
-                checked && isPro.not()
-            }.collect { shouldReset ->
-                if (shouldReset) {
-                    resetToDefaultIfProOnly(this@MainActivity)
-                }
-            }
-        }
-
         setContent {
             val themeType = viewModel.themeType.collectAsStateValue()
             val themePalette = viewModel.themePalette.collectAsStateValue()
             val isQuickNotifEnabled = viewModel.isQuickNotifEnabled.collectAsStateValue()
             val isProActive = viewModel.isProActive.collectAsStateValue()
+            var showProExpiredDialog by rememberSaveable { mutableStateOf(false) }
+
+            LaunchedEffect(Unit) {
+                combine(viewModel.isEntitlementChecked, viewModel.isProActive) { checked, isPro ->
+                    checked && isPro.not()
+                }.collect { shouldReset ->
+                    if (shouldReset && isProIconActive(this@MainActivity)) {
+                        showProExpiredDialog = true
+                    }
+                }
+            }
 
             LaunchedEffect(isQuickNotifEnabled, isProActive) {
                 if (isQuickNotifEnabled && isProActive) {
@@ -143,6 +152,21 @@ class MainActivity : AppCompatActivity() {
                 isDarkMode = isDarkMode,
                 themePalette = activePalette
             ) {
+                MeverDialog(
+                    showDialog = showProExpiredDialog,
+                    image = null,
+                    title = stringResource(R.string.pro_expired_title),
+                    description = stringResource(R.string.pro_expired_desc),
+                    primaryActionLabel = stringResource(R.string.ok),
+                    secondaryActionLabel = null,
+                    dismissOnClickOutside = false,
+                    dismissOnBackPress = false,
+                    onClickPrimaryAction = {
+                        showProExpiredDialog = false
+                        resetToDefaultIfProOnly(this@MainActivity)
+                    }
+                )
+
                 Surface(modifier = Modifier.fillMaxSize(), color = colors.whiteDark) {
                     CompositionLocalProvider(
                         LocalActivity provides this,

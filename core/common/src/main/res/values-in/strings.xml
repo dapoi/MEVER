@@ -230,9 +230,11 @@
     <string name="subscription_details">Detail Langganan</string>
     <string name="manage_subscription">Kelola atau Batalkan Langganan</string>
     <string name="managed_via_google_play">Langganan MEVER PRO Anda dikelola secara aman melalui akun Google Play Store Anda.</string>
+    <string name="renews_on">Perpanjangan pada %1$s</string>
+    <string name="expires_on">Berakhir pada %1$s</string>
     <string name="included_benefits">Manfaat Termasuk</string>
     <string name="quick_download_processing_info">Memproses rincian media, mohon tunggu…</string>
-    <string name="feature_no_ads_desc">Tanpa gangguan, unduh video lancar tanpa iklan</string>
+    <string name="feature_no_ads_desc">Tanpa gangguan, unduh media lancar tanpa iklan</string>
     <string name="feature_quick_download_desc">Unduh langsung dari bilah notifikasi saat menyalin tautan</string>
     <string name="feature_doodle_theme_desc">Buka tema eksklusif Doodle dan ikon aplikasi yang serasi</string>
     <string name="per_month">/bulan</string>
@@ -250,5 +252,9 @@
     <string name="icon_default">Klasik</string>
     <string name="icon_doodle">Doodle</string>
     <string name="app_icon_changed">Ikon aplikasi berhasil diubah</string>
+    <string name="change_app_icon_title">Ganti Ikon Aplikasi</string>
+    <string name="change_app_icon_desc">Apakah Anda ingin memperbarui ikon aplikasi di layar utama?</string>
+    <string name="pro_expired_title">Langganan Berakhir</string>
+    <string name="pro_expired_desc">Keanggotaan Pro Anda telah berakhir. Ikon aplikasi Anda telah dikembalikan ke standar.</string>
     <string name="user_id_copied">ID Pengguna disalin ke papan klip</string>
 </resources>

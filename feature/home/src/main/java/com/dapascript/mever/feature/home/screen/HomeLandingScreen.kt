@@ -752,7 +752,9 @@ private fun HomeLandingContent(
                 MeverTopBar(
                     modifier = Modifier.fillMaxWidth(),
                     topBarArgs = TopBarArgs(
-                        iconBack = R.drawable.ic_mever,
+                        iconBack = remember(isProActive) {
+                            if (isProActive) R.drawable.ic_mever_pro else R.drawable.ic_mever
+                        },
                         actionMenus = getListActionMenu(
                             resources = resources,
                             hasDownloadProgress = showBadge

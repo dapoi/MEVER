@@ -3,6 +3,7 @@ package com.dapascript.mever.core.common.util
 import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
+import com.dapascript.mever.core.common.util.AppIconType.Default
 
 object AppIconManager {
 
@@ -41,7 +42,7 @@ object AppIconManager {
                 e.printStackTrace()
             }
         }
-        return AppIconType.Default
+        return Default
     }
 
     fun isProIconActive(context: Context): Boolean {
@@ -50,7 +51,7 @@ object AppIconManager {
 
     fun resetToDefaultIfProOnly(context: Context) {
         if (isProIconActive(context)) {
-            setAppIcon(context, AppIconType.Default)
+            setAppIcon(context, Default)
         }
     }
 

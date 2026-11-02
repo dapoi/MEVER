@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
 import timber.log.Timber
+import java.util.Date
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.resume
@@ -30,6 +31,12 @@ class SubscriptionRepositoryImpl @Inject constructor() : SubscriptionRepository 
 
     private val _isEntitlementChecked = MutableStateFlow(false)
     override val isEntitlementChecked = _isEntitlementChecked.asStateFlow()
+
+    private val _proExpirationDate = MutableStateFlow<Date?>(null)
+    override val proExpirationDate = _proExpirationDate.asStateFlow()
+
+    private val _proWillRenew = MutableStateFlow(true)
+    override val proWillRenew = _proWillRenew.asStateFlow()
 
     init {
         setupCustomerInfoListener()
@@ -183,7 +190,12 @@ class SubscriptionRepositoryImpl @Inject constructor() : SubscriptionRepository 
         val isPro = isEntitlementActive(info)
         _isProActive.value = isPro
         _isEntitlementChecked.value = true
-        Timber.d("Updated customer info. pro_access active: $isPro")
+
+        val proEntitlement = info.entitlements[MEVER_PRO] ?: info.entitlements.active.values.firstOrNull()
+        _proExpirationDate.value = proEntitlement?.expirationDate
+        _proWillRenew.value = proEntitlement?.willRenew ?: true
+
+        Timber.d("Updated customer info. pro_access active: $isPro, expiration: ${_proExpirationDate.value}, willRenew: ${_proWillRenew.value}")
     }
 
     class RevenueCatPurchaseException(

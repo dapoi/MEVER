@@ -8,6 +8,7 @@ import com.dapascript.mever.core.common.ui.theme.ThemePalette
 import com.dapascript.mever.core.common.ui.theme.ThemePalette.CLASSIC
 import com.dapascript.mever.core.common.ui.theme.ThemeType
 import com.dapascript.mever.core.common.util.AppIconType
+import com.dapascript.mever.core.common.util.AppIconType.Default
 import com.dapascript.mever.core.data.deeplink.DeeplinkManager
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.repository.SubscriptionRepository
@@ -58,18 +59,6 @@ internal class MainViewModel @Inject constructor(
         initialValue = CLASSIC
     )
 
-    val appIcon = repository.getPreference(KEY_APP_ICON, AppIconType.Default.name).map { name ->
-        try {
-            AppIconType.valueOf(name)
-        } catch (_: IllegalArgumentException) {
-            AppIconType.Default
-        }
-    }.stateIn(
-        scope = viewModelScope,
-        started = WhileSubscribed(),
-        initialValue = AppIconType.Default
-    )
-
     val isProActive = subscriptionRepository.isProActive
     val isEntitlementChecked = subscriptionRepository.isEntitlementChecked
 
@@ -98,14 +87,16 @@ internal class MainViewModel @Inject constructor(
                         repository.savePreference(KEY_THEME_PALETTE, CLASSIC.name)
                     }
 
-                    val currentIcon = repository.getPreference(KEY_APP_ICON, AppIconType.Default.name).first()
+                    val currentIcon = repository.getPreference(KEY_APP_ICON, Default.name).first()
                     try {
                         if (AppIconType.valueOf(currentIcon).isProOnly) {
-                            repository.savePreference(KEY_APP_ICON, AppIconType.Default.name)
+                            repository.savePreference(KEY_APP_ICON, Default.name)
                         }
                     } catch (_: IllegalArgumentException) {
-                        repository.savePreference(KEY_APP_ICON, AppIconType.Default.name)
+                        repository.savePreference(KEY_APP_ICON, Default.name)
                     }
+
+                    repository.savePreference(KEY_QUICK_NOTIF, false)
                 }
             }
         }

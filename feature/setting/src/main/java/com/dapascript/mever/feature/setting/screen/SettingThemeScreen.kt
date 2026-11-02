@@ -54,6 +54,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
+import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverRadioButton
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp10
@@ -103,6 +104,7 @@ internal fun SettingThemeScreen(
     var themeType by remember { mutableStateOf(args.themeType) }
     var titleHeight by rememberSaveable { mutableIntStateOf(0) }
     val isExpanded by remember { derivedStateOf { scrollState.value < titleHeight / 2 } }
+    var pendingAppIcon by remember { mutableStateOf<AppIconType?>(null) }
 
     val isProActive = isProActive.collectAsStateValue()
     val rawPalette = themePalette.collectAsStateValue()
@@ -309,7 +311,6 @@ internal fun SettingThemeScreen(
                         maxItemsInEachRow = 2
                     ) {
                         val cardWidth = Dp120
-                        val appIconSuccessMsg = stringResource(R.string.app_icon_changed)
 
                         AppIconType.entries.forEach { icon ->
                             val isSelected = selectedIcon == icon
@@ -322,9 +323,8 @@ internal fun SettingThemeScreen(
                                     .clickable {
                                         if (isLocked) {
                                             navigator.navigate(SettingPaywallRoute)
-                                        } else {
-                                            setAppIcon(context, icon)
-                                            Toast.makeText(context, appIconSuccessMsg, Toast.LENGTH_SHORT).show()
+                                        } else if (!isSelected) {
+                                            pendingAppIcon = icon
                                         }
                                     }
                                     .padding(vertical = Dp8),
@@ -394,6 +394,25 @@ internal fun SettingThemeScreen(
                                 }
                             }
                         }
+                    }
+
+                    pendingAppIcon?.let { targetIcon ->
+                        val appIconSuccessMsg = stringResource(R.string.app_icon_changed)
+                        MeverDialog(
+                            showDialog = true,
+                            image = null,
+                            title = stringResource(R.string.change_app_icon_title),
+                            description = stringResource(R.string.change_app_icon_desc),
+                            primaryActionLabel = stringResource(R.string.apply),
+                            secondaryActionLabel = stringResource(R.string.cancel),
+                            onDismiss = { pendingAppIcon = null },
+                            onClickSecondaryAction = { pendingAppIcon = null },
+                            onClickPrimaryAction = {
+                                pendingAppIcon = null
+                                setAppIcon(context, targetIcon)
+                                Toast.makeText(context, appIconSuccessMsg, Toast.LENGTH_SHORT).show()
+                            }
+                        )
                     }
                 }
             }

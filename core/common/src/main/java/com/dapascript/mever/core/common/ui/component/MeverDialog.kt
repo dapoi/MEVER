@@ -73,6 +73,8 @@ fun MeverDialog(
     backgroundColor: Color? = null,
     primaryActionColor: Color? = null,
     secondaryActionColor: Color? = null,
+    dismissOnClickOutside: Boolean = true,
+    dismissOnBackPress: Boolean = true,
     onDismiss: (() -> Unit)? = null,
     onClickPrimaryAction: (() -> Unit)? = null,
     onClickSecondaryAction: (() -> Unit)? = null,
@@ -107,14 +109,23 @@ fun MeverDialog(
 
     if (showAnimatedDialog) {
         Dialog(
-            properties = DialogProperties(),
-            onDismissRequest = { onDismissRequest() }
+            properties = DialogProperties(
+                dismissOnClickOutside = dismissOnClickOutside,
+                dismissOnBackPress = dismissOnBackPress
+            ),
+            onDismissRequest = {
+                if (dismissOnClickOutside || dismissOnBackPress) {
+                    onDismissRequest()
+                }
+            }
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .pointerInput(Unit) {
-                        detectTapGestures { onDismissRequest() }
+                    .pointerInput(dismissOnClickOutside) {
+                        if (dismissOnClickOutside) {
+                            detectTapGestures { onDismissRequest() }
+                        }
                     },
                 contentAlignment = Center
             ) {

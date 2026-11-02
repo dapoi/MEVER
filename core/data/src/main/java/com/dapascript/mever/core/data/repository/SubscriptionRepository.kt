@@ -5,6 +5,7 @@ import com.revenuecat.purchases.CustomerInfo
 import com.revenuecat.purchases.Offerings
 import com.revenuecat.purchases.Package
 import com.revenuecat.purchases.models.StoreTransaction
+import java.util.Date
 import kotlinx.coroutines.flow.StateFlow
 
 data class PurchaseResultData(
@@ -19,6 +20,8 @@ data class PurchaseResultData(
 interface SubscriptionRepository {
     val isProActive: StateFlow<Boolean>
     val isEntitlementChecked: StateFlow<Boolean>
+    val proExpirationDate: StateFlow<Date?>
+    val proWillRenew: StateFlow<Boolean>
 
     fun getAppUserId(): String
     fun checkEntitlement()

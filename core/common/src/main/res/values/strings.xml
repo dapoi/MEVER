@@ -231,6 +231,8 @@
     <string name="subscription_details">Subscription Details</string>
     <string name="manage_subscription">Manage or Cancel Subscription</string>
     <string name="managed_via_google_play">Your MEVER PRO subscription is managed securely through your Google Play Store account.</string>
+    <string name="renews_on">Renews on %1$s</string>
+    <string name="expires_on">Expires on %1$s</string>
     <string name="included_benefits">Included Benefits</string>
     <string name="quick_download_processing_info">Fetching media details, please wait…</string>
     <string name="feature_no_ads_desc">Zero interruptions, pure uninterrupted downloading</string>
@@ -251,5 +253,9 @@
     <string name="icon_default">Classic</string>
     <string name="icon_doodle">Doodle</string>
     <string name="app_icon_changed">App icon updated successfully</string>
+    <string name="change_app_icon_title">Change App Icon</string>
+    <string name="change_app_icon_desc">Do you want to update your home screen launcher icon?</string>
+    <string name="pro_expired_title">Subscription Expired</string>
+    <string name="pro_expired_desc">Your Pro membership has ended. Your app launcher icon has been reset to default.</string>
     <string name="user_id_copied">User ID copied to clipboard</string>
 </resources>
