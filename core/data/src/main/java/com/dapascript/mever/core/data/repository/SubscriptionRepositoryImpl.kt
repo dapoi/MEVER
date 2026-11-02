@@ -11,11 +11,10 @@ import com.revenuecat.purchases.PurchasesError
 import com.revenuecat.purchases.PurchasesException
 import com.revenuecat.purchases.getCustomerInfoWith
 import com.revenuecat.purchases.getOfferingsWith
+import com.revenuecat.purchases.interfaces.UpdatedCustomerInfoListener
 import com.revenuecat.purchases.purchaseWith
 import com.revenuecat.purchases.restorePurchasesWith
-import com.revenuecat.purchases.interfaces.UpdatedCustomerInfoListener
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
 import timber.log.Timber
@@ -27,10 +26,10 @@ import kotlin.coroutines.resume
 class SubscriptionRepositoryImpl @Inject constructor() : SubscriptionRepository {
 
     private val _isProActive = MutableStateFlow(false)
-    override val isProActive: StateFlow<Boolean> = _isProActive.asStateFlow()
+    override val isProActive = _isProActive.asStateFlow()
 
     private val _isEntitlementChecked = MutableStateFlow(false)
-    override val isEntitlementChecked: StateFlow<Boolean> = _isEntitlementChecked.asStateFlow()
+    override val isEntitlementChecked = _isEntitlementChecked.asStateFlow()
 
     init {
         setupCustomerInfoListener()
@@ -49,6 +48,10 @@ class SubscriptionRepositoryImpl @Inject constructor() : SubscriptionRepository 
             Timber.e(e, "Failed to setup RevenueCat UpdatedCustomerInfoListener")
         }
     }
+
+    override fun getAppUserId() = if (Purchases.isConfigured) {
+        Purchases.sharedInstance.appUserID
+    } else ""
 
     override fun checkEntitlement() {
         if (!Purchases.isConfigured) return
@@ -132,7 +135,14 @@ class SubscriptionRepositoryImpl @Inject constructor() : SubscriptionRepository 
             onError = { error, userCancelled ->
                 Timber.e("Purchase error (cancelled=$userCancelled): ${error.message}")
                 if (continuation.isActive) {
-                    continuation.resume(Result.failure(RevenueCatPurchaseException(error, userCancelled)))
+                    continuation.resume(
+                        Result.failure(
+                            RevenueCatPurchaseException(
+                                error,
+                                userCancelled
+                            )
+                        )
+                    )
                 }
             },
             onSuccess = { storeTransaction, info ->

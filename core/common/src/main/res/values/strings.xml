@@ -251,4 +251,5 @@
     <string name="icon_default">Classic</string>
     <string name="icon_doodle">Doodle</string>
     <string name="app_icon_changed">App icon updated successfully</string>
+    <string name="user_id_copied">User ID copied to clipboard</string>
 </resources>

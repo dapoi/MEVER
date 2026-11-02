@@ -250,4 +250,5 @@
     <string name="icon_default">Klasik</string>
     <string name="icon_doodle">Doodle</string>
     <string name="app_icon_changed">Ikon aplikasi berhasil diubah</string>
+    <string name="user_id_copied">ID Pengguna disalin ke papan klip</string>
 </resources>

@@ -1,6 +1,8 @@
 package com.dapascript.mever.feature.setting.screen
 
 import android.content.Context
+import android.widget.Toast
+import android.widget.Toast.LENGTH_SHORT
 import androidx.activity.SystemBarStyle.Companion.dark
 import androidx.activity.SystemBarStyle.Companion.light
 import androidx.activity.enableEdgeToEdge
@@ -30,6 +32,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration.Companion.Underline
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Outlined
@@ -37,6 +40,7 @@ import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverButton
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp150
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp52
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
@@ -49,13 +53,19 @@ import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.LocalActivity
+import com.dapascript.mever.core.common.util.copyToClipboard
 import com.dapascript.mever.core.common.util.getAppVersion
 import com.dapascript.mever.core.common.util.navigateToBrowser
+import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.navigation.helper.Navigator
+import com.dapascript.mever.feature.setting.viewmodel.SettingAboutAppViewModel
 import java.time.LocalDate
 
 @Composable
-internal fun SettingAboutAppScreen(navigator: Navigator) {
+internal fun SettingAboutAppScreen(
+    navigator: Navigator,
+    viewModel: SettingAboutAppViewModel = hiltViewModel()
+) {
     val context = LocalContext.current
     val activity = LocalActivity.current
     val isDarkMode = isDarkMode
@@ -116,6 +126,7 @@ internal fun SettingAboutAppScreen(navigator: Navigator) {
             context = context,
             contentColor = contentColor,
             isDoodle = isDoodle,
+            userId = viewModel.userId,
             modifier = Modifier
                 .fillMaxSize()
                 .background(if (isDoodle) colors.whiteDark else colors.alwaysPurple)
@@ -129,8 +140,11 @@ private fun SettingAboutAppContent(
     context: Context,
     contentColor: Color,
     isDoodle: Boolean,
+    userId: String,
     modifier: Modifier = Modifier
 ) {
+    val userIdCopiedMsg = stringResource(R.string.user_id_copied)
+
     Box(modifier = modifier) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -188,13 +202,31 @@ private fun SettingAboutAppContent(
                 }
             )
         }
-        Text(
+        Column(
             modifier = Modifier
                 .align(BottomCenter)
                 .padding(bottom = Dp16),
-            text = getAppVersion(context),
-            style = typography.body1,
-            color = contentColor
-        )
+            horizontalAlignment = CenterHorizontally
+        ) {
+            Text(
+                text = getAppVersion(context),
+                style = typography.body1,
+                color = contentColor
+            )
+            if (userId.isNotBlank()) {
+                Spacer(modifier = Modifier.height(Dp2))
+                Text(
+                    text = userId,
+                    style = typography.label2,
+                    color = contentColor.copy(alpha = 0.7f),
+                    modifier = Modifier
+                        .onCustomClick {
+                            copyToClipboard(context, userId)
+                            Toast.makeText(context, userIdCopiedMsg, LENGTH_SHORT).show()
+                        }
+                        .padding(horizontal = Dp8, vertical = Dp2)
+                )
+            }
+        }
     }
 }
