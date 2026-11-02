@@ -240,6 +240,7 @@
     <string name="feature_doodle_theme_desc">Unlock the exclusive Doodle theme and matching app icon</string>
     <string name="per_month">/month</string>
     <string name="cancel_anytime_google_play">Cancel anytime in Google Play</string>
+    <string name="unable_to_load_packages">Unable to load subscription packages. Please check your internet connection.</string>
     <string name="feature_support_dev">Support Indie Development</string>
     <string name="feature_support_dev_desc">Ensuring this app stays alive and keeps growing</string>
     <string name="appearance_and_icons">Appearance</string>

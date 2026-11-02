@@ -239,6 +239,7 @@
     <string name="feature_doodle_theme_desc">Buka tema eksklusif Doodle dan ikon aplikasi yang serasi</string>
     <string name="per_month">/bulan</string>
     <string name="cancel_anytime_google_play">Batalkan kapan saja di Google Play</string>
+    <string name="unable_to_load_packages">Gagal memuat paket langganan. Harap periksa koneksi internet Anda.</string>
     <string name="feature_support_dev">Dukung Pengembang Independen</string>
     <string name="feature_support_dev_desc">Memastikan aplikasi ini agar terus hidup dan semakin berkembang</string>
     <string name="appearance_and_icons">Tampilan</string>

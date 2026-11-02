@@ -84,7 +84,9 @@ internal fun SettingPaywallScreen(
     BaseScreen(
         hideDefaultTopBar = true,
         useStatusBarsPadding = false,
-        onBackHandler = { navigator.navigateBack() }
+        onBackHandler = {
+            if (isPurchasing.not()) navigator.navigateBack()
+        }
     ) {
         val context = LocalContext.current
         val activity = LocalActivity.current
@@ -240,19 +242,22 @@ internal fun SettingPaywallScreen(
                             text = when {
                                 isLoadingOfferings -> stringResource(R.string.please_wait)
                                 formattedPrice != null -> "$formattedPrice ${stringResource(R.string.per_month)}"
-                                else -> "$1.99 ${stringResource(R.string.per_month)}"
+                                else -> stringResource(R.string.unable_to_load_packages)
                             },
                             style = typography.bodyBold1,
-                            color = colors.blackWhite
+                            color = colors.blackWhite,
+                            textAlign = TextAlign.Center
                         )
-                        Text(
-                            text = stringResource(R.string.cancel_anytime_google_play),
-                            style = typography.label3,
-                            color = colors.blackWhite.copy(alpha = 0.6f)
-                        )
+                        if (selectedPackage != null) {
+                            Text(
+                                text = stringResource(R.string.cancel_anytime_google_play),
+                                style = typography.label3,
+                                color = colors.blackWhite.copy(alpha = 0.6f)
+                            )
+                        }
                     }
 
-                    if (statusMessage != null) {
+                    if (statusMessage != null && selectedPackage != null) {
                         Text(
                             text = statusMessage.orEmpty(),
                             style = typography.body2,
@@ -263,7 +268,10 @@ internal fun SettingPaywallScreen(
 
                     // CTA Button
                     MeverButton(
-                        title = stringResource(R.string.continue_label),
+                        title = stringResource(
+                            if (selectedPackage != null || isLoadingOfferings) R.string.continue_label
+                            else R.string.retry
+                        ),
                         buttonType = MeverButtonType.Filled(
                             backgroundColor = colors.alwaysPurple,
                             contentColor = colors.alwaysWhiteBlack
@@ -275,12 +283,16 @@ internal fun SettingPaywallScreen(
                         textStyle = typography.bodyBold1,
                         isEnabled = isPurchasing.not(),
                         isLoading = isPurchasing || isLoadingOfferings,
-                        trailingIcon = painterResource(R.drawable.ic_arrow_started),
+                        trailingIcon = if (selectedPackage != null) painterResource(R.drawable.ic_arrow_started) else null,
                         trailingIconSize = Dp18,
                         iconSpacing = Dp8,
                         onClick = {
-                            purchaseSelectedPackage(activity) {
-                                navigator.navigateBack(popUpTo = SettingLandingRoute::class)
+                            if (selectedPackage != null) {
+                                purchaseSelectedPackage(activity) {
+                                    navigator.navigateBack(popUpTo = SettingLandingRoute::class)
+                                }
+                            } else {
+                                fetchOfferings()
                             }
                         }
                     )
@@ -357,7 +369,7 @@ internal fun SettingPaywallScreen(
                         ),
                         shape = CircleShape
                     )
-                    .clickable { navigator.navigateBack() },
+                    .clickable(enabled = isPurchasing.not()) { navigator.navigateBack() },
                 contentAlignment = Center
             ) {
                 Icon(
