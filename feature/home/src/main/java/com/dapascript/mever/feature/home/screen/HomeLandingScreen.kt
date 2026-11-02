@@ -113,10 +113,10 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp6
 import com.dapascript.mever.core.common.ui.theme.Dimens.DpHalf
 import com.dapascript.mever.core.common.ui.theme.MeverRed
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
-import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.isDoodle
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.FadeSide.Bottom
+import com.dapascript.mever.core.common.util.getDoodleHeaderDrawable
 import com.dapascript.mever.core.common.util.FadeSide.Top
 import com.dapascript.mever.core.common.util.InAppUpdateManager
 import com.dapascript.mever.core.common.util.LocalActivity
@@ -951,7 +951,7 @@ private fun HeaderSection(modifier: Modifier = Modifier) {
                 .then(
                     if (deviceType != PHONE) Modifier.sizeIn(maxHeight = Dp150) else Modifier
                 ),
-            painter = painterResource(id = if (isDoodle) R.drawable.ic_header_doodle else R.drawable.ic_header),
+            painter = painterResource(id = getDoodleHeaderDrawable()),
             contentScale = Fit,
             contentDescription = null
         )
@@ -1256,7 +1256,6 @@ private fun RecentlyDownloadedSection(
             if (downloadList.isEmpty()) {
                 MeverEmptyItem(
                     modifier = Modifier.fillMaxWidth(),
-                    image = if (isDoodle) R.drawable.ic_empty_state_doodle else R.drawable.ic_empty_state,
                     imageSize = Dp160,
                     title = stringResource(R.string.no_downloads),
                     description = stringResource(R.string.empty_list_desc),

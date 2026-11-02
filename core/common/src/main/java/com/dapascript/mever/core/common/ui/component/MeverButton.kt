@@ -65,25 +65,25 @@ fun MeverButton(
     val isDoodle = isDoodle
     val isDarkMode = isDarkMode
     val colors = colors
-    val resolvedContentColor = if (buttonType is Filled) {
+    val contentColor = if (buttonType is Filled) {
         when {
-            isDoodle && isDarkMode && (backgroundColor == colors.alwaysPurple || backgroundColor == MeverWhite) && (contentColor == MeverWhite || contentColor == colors.alwaysWhite || contentColor == colors.alwaysPurple || contentColor == backgroundColor) -> {
+            isDoodle && isDarkMode && (backgroundColor == colors.alwaysPurple || backgroundColor == MeverWhite) && (this.contentColor == MeverWhite || this.contentColor == colors.alwaysWhite || this.contentColor == colors.alwaysPurple || this.contentColor == backgroundColor) -> {
                 MeverBlack
             }
 
-            contentColor == backgroundColor -> {
+            this.contentColor == backgroundColor -> {
                 colors.alwaysWhiteBlack
             }
 
-            else -> contentColor
+            else -> this.contentColor
         }
-    } else contentColor
-    val resolvedTrailingIconTint = if (trailingIconTint != null) {
+    } else this.contentColor
+    val trailingIconColor = if (trailingIconTint != null) {
         if (buttonType is Filled && isDoodle && isDarkMode && (backgroundColor == colors.alwaysPurple || backgroundColor == MeverWhite) && (trailingIconTint == MeverWhite || trailingIconTint == colors.alwaysWhite || trailingIconTint == backgroundColor)) {
             MeverBlack
         } else trailingIconTint
     } else {
-        resolvedContentColor
+        contentColor
     }
 
     Box(
@@ -114,7 +114,7 @@ fun MeverButton(
                 CircularProgressIndicator(
                     modifier = Modifier.size(Dp20),
                     strokeCap = Round,
-                    color = resolvedContentColor
+                    color = contentColor
                 )
             }
 
@@ -123,19 +123,19 @@ fun MeverButton(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
             ) {
-                val resolvedStyle = (textStyle ?: typography.body2).let { base ->
+                val style = (textStyle ?: typography.body2).let { base ->
                     textSize?.let { base.copy(fontSize = it) } ?: base
                 }
                 Text(
                     text = title,
-                    style = resolvedStyle,
-                    color = resolvedContentColor
+                    style = style,
+                    color = contentColor
                 )
                 if (trailingIcon != null) {
                     Spacer(modifier = Modifier.size(iconSpacing))
                     Icon(
                         painter = trailingIcon,
-                        tint = resolvedTrailingIconTint,
+                        tint = trailingIconColor,
                         modifier = if (trailingIconSize != null) Modifier.size(trailingIconSize) else Modifier,
                         contentDescription = null
                     )
@@ -150,7 +150,7 @@ fun MeverButton(
             ) {
                 Icon(
                     imageVector = ImageVector.vectorResource(R.drawable.ic_download),
-                    tint = resolvedContentColor,
+                    tint = contentColor,
                     contentDescription = "Download"
                 )
             }

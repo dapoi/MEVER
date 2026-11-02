@@ -57,6 +57,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
+import com.dapascript.mever.core.common.util.getDoodleErrorStateDrawable
 import com.dapascript.mever.core.common.util.onCustomClick
 
 @Suppress("ASSIGNED_VALUE_IS_NEVER_READ")
@@ -80,14 +81,7 @@ fun MeverDialog(
     onClickSecondaryAction: (() -> Unit)? = null,
     content: @Composable (() -> Unit)? = null
 ) {
-    val isDoodle = MeverThemeAttr.isDoodle
-    val resolvedImage = remember(image, isDoodle) {
-        if (isDoodle && image == R.drawable.ic_error_state) {
-            R.drawable.ic_error_state_doodle
-        } else {
-            image
-        }
-    }
+    val dialogImage = image?.let { img -> getDoodleErrorStateDrawable(img) }
     val currentDismiss = rememberUpdatedState(onDismiss)
     val currentPrimary = rememberUpdatedState(onClickPrimaryAction)
     val currentSecondary = rememberUpdatedState(onClickSecondaryAction)
@@ -158,7 +152,7 @@ fun MeverDialog(
                     ) {
                         DialogContent(
                             title = title,
-                            image = resolvedImage,
+                            image = dialogImage,
                             description = description,
                             primaryActionLabel = primaryActionLabel,
                             secondaryActionLabel = secondaryActionLabel,

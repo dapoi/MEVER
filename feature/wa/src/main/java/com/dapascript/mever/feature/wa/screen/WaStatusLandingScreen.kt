@@ -78,7 +78,6 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp3
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
-import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
@@ -426,12 +425,10 @@ private fun WaStatusContent(
                             )
                         }
                     } else {
-                        val isDoodle = MeverThemeAttr.isDoodle
                         MeverEmptyItem(
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(horizontal = Dp24),
-                            image = if (isDoodle) R.drawable.ic_empty_state_doodle else R.drawable.ic_empty_state,
                             title = stringResource(R.string.wa_empty_title),
                             description = stringResource(
                                 if (isPermissionGranted) R.string.empty_wa_status_desc

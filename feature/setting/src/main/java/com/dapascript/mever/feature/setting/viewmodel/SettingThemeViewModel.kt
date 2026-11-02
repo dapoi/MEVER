@@ -8,6 +8,7 @@ import com.dapascript.mever.core.common.ui.theme.ThemePalette.CLASSIC
 import com.dapascript.mever.core.common.ui.theme.ThemeType
 import com.dapascript.mever.core.common.util.AppIconManager
 import com.dapascript.mever.core.common.util.AppIconType
+import com.dapascript.mever.core.common.util.AppIconType.Default
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.repository.SubscriptionRepository
 import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_APP_ICON
@@ -40,16 +41,16 @@ internal class SettingThemeViewModel @Inject constructor(
         initialValue = CLASSIC
     )
 
-    val appIcon = repository.getPreference(KEY_APP_ICON, AppIconType.Default.name).map { name ->
+    val appIcon = repository.getPreference(KEY_APP_ICON, Default.name).map { name ->
         try {
             AppIconType.valueOf(name)
         } catch (_: IllegalArgumentException) {
-            AppIconType.Default
+            Default
         }
     }.stateIn(
         scope = viewModelScope,
         started = WhileSubscribed(),
-        initialValue = AppIconType.Default
+        initialValue = Default
     )
 
     fun setThemeType(mode: ThemeType) = viewModelScope.launch {

@@ -245,11 +245,14 @@
     <string name="appearance_and_icons">Tampilan</string>
     <string name="theme_mode">Mode Tema</string>
     <string name="color_theme">Tema Warna</string>
-    <string name="color_theme_desc">Personalisasi warna aplikasi dengan palet khas</string>
+    <string name="color_theme_desc">Personalisasi aplikasi dengan ungu klasik atau buka tema eksklusif Doodle</string>
+    <string name="color_theme_desc_pro">Personalisasi aplikasi dengan ungu klasik atau tema eksklusif Doodle</string>
     <string name="app_icon">Ikon Aplikasi</string>
     <string name="app_icon_desc">Kustomisasi ikon aplikasi di layar utama</string>
     <string name="theme_palette_default">Ungu Klasik</string>
-    <string name="theme_palette_doodle">Doodle (Hitam &amp; Putih)</string>
+    <string name="theme_palette_default_desc">Aksen ungu khas dengan tipografi Poppins yang bersih</string>
+    <string name="theme_palette_doodle">Doodle (B&amp;W)</string>
+    <string name="theme_palette_doodle_desc">Estetika komik hitam putih dengan gaya Comic Sans tulisan tangan</string>
     <string name="icon_default">Klasik</string>
     <string name="icon_doodle">Doodle</string>
     <string name="app_icon_changed">Ikon aplikasi berhasil diubah</string>

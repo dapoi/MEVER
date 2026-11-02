@@ -21,7 +21,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter.Companion.tint
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle.Companion.Italic
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.ui.attr.MeverMenuItemAttr.MenuItemArgs
@@ -29,16 +28,13 @@ import com.dapascript.mever.core.common.ui.attr.MeverMenuItemAttr.MenuItemArgs.T
 import com.dapascript.mever.core.common.ui.attr.MeverMenuItemAttr.MenuItemArgs.TrailingType.Switch
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp50
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp6
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverLightGray
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
-import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp10
 import com.dapascript.mever.core.common.util.onCustomClick
 
 @Composable
@@ -85,7 +81,7 @@ fun MeverMenuItem(
             Column(modifier = Modifier.weight(1f)) {
                 Row(
                     verticalAlignment = CenterVertically,
-                    horizontalArrangement = spacedBy(Dp8)
+                    horizontalArrangement = spacedBy(Dp12)
                 ) {
                     Text(
                         text = leadingTitle,
@@ -93,18 +89,7 @@ fun MeverMenuItem(
                         color = themeColors.blackWhite
                     )
                     if (isProOnly) {
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(Dp6))
-                                .background(themeColors.alwaysPurple)
-                                .padding(horizontal = Dp6, vertical = Dp2)
-                        ) {
-                            Text(
-                                text = stringResource(R.string.pro),
-                                style = themeTypography.labelBold2.copy(fontSize = Sp10),
-                                color = themeColors.alwaysWhiteBlack
-                            )
-                        }
+                        MeverProBadge()
                     }
                 }
                 leadingDesc?.let {

@@ -38,6 +38,7 @@ import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverIcon
 import com.dapascript.mever.core.common.ui.component.MeverPermissionHandler
+import com.dapascript.mever.core.common.ui.component.MeverProBadge
 import com.dapascript.mever.core.common.ui.component.MeverSwitch
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
@@ -154,11 +155,19 @@ internal fun SettingQuickDownloadScreen(
                                 iconPadding = Dp8
                             )
                             Column {
-                                Text(
-                                    text = stringResource(R.string.quick_download_notif_title),
-                                    style = typography.bodyBold1,
-                                    color = colors.blackWhite
-                                )
+                                Row(
+                                    verticalAlignment = CenterVertically,
+                                    horizontalArrangement = spacedBy(Dp8)
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.quick_download_notif_title),
+                                        style = typography.bodyBold1,
+                                        color = colors.blackWhite
+                                    )
+                                    if (!isProActive) {
+                                        MeverProBadge()
+                                    }
+                                }
                                 Text(
                                     text = stringResource(R.string.quick_download_setting_desc),
                                     style = typography.body2,

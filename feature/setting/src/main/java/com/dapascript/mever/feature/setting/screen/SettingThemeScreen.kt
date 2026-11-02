@@ -5,18 +5,19 @@ import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.IntrinsicSize.Max
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -37,8 +38,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,40 +49,44 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.style.TextOverflow.Companion.Ellipsis
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverDialog
+import com.dapascript.mever.core.common.ui.component.MeverImage
+import com.dapascript.mever.core.common.ui.component.MeverProBadge
 import com.dapascript.mever.core.common.ui.component.MeverRadioButton
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp10
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp120
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp14
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp18
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp20
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp28
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp3
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp6
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp60
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
 import com.dapascript.mever.core.common.ui.theme.MeverBlack
+import com.dapascript.mever.core.common.ui.theme.MeverLightSoftPurple
+import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
+import com.dapascript.mever.core.common.ui.theme.MeverWhite
+import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp10
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.ui.theme.ThemePalette
 import com.dapascript.mever.core.common.ui.theme.ThemePalette.CLASSIC
 import com.dapascript.mever.core.common.ui.theme.ThemePalette.Doodle
 import com.dapascript.mever.core.common.ui.theme.ThemeType
+import com.dapascript.mever.core.common.ui.theme.comicSansFamily
+import com.dapascript.mever.core.common.ui.theme.poppinsFamily
 import com.dapascript.mever.core.common.util.AppIconType
 import com.dapascript.mever.core.common.util.AppIconType.Default
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
@@ -105,7 +110,6 @@ internal fun SettingThemeScreen(
     var titleHeight by rememberSaveable { mutableIntStateOf(0) }
     val isExpanded by remember { derivedStateOf { scrollState.value < titleHeight / 2 } }
     var pendingAppIcon by remember { mutableStateOf<AppIconType?>(null) }
-
     val isProActive = isProActive.collectAsStateValue()
     val rawPalette = themePalette.collectAsStateValue()
     val selectedPalette = remember(rawPalette, isProActive) {
@@ -169,8 +173,6 @@ internal fun SettingThemeScreen(
                             modifier = Modifier.padding(horizontal = Dp24)
                         )
                     }
-
-                    // Section 1: Theme Mode
                     Spacer(modifier = Modifier.height(Dp32))
                     Text(
                         text = stringResource(R.string.theme_mode),
@@ -189,8 +191,6 @@ internal fun SettingThemeScreen(
                             setThemeType(type)
                         }
                     }
-
-                    // Section 2: Color Palette
                     Spacer(modifier = Modifier.height(Dp32))
                     Text(
                         text = stringResource(R.string.color_theme),
@@ -199,29 +199,37 @@ internal fun SettingThemeScreen(
                         modifier = Modifier.padding(horizontal = Dp24)
                     )
                     Text(
-                        text = stringResource(R.string.color_theme_desc),
+                        text = stringResource(
+                            if (isProActive) R.string.color_theme_desc_pro
+                            else R.string.color_theme_desc
+                        ),
                         style = typography.body2,
                         color = colors.blackWhite.copy(alpha = 0.65f),
                         modifier = Modifier.padding(horizontal = Dp24, vertical = Dp4)
                     )
                     Spacer(modifier = Modifier.height(Dp16))
-                    Column(
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .height(Max)
                             .padding(horizontal = Dp24),
-                        verticalArrangement = spacedBy(Dp10)
+                        horizontalArrangement = spacedBy(Dp12)
                     ) {
                         ThemePalette.entries.forEach { palette ->
                             val isSelected = selectedPalette == palette
-                            val isLocked = palette.isProOnly && !isProActive
+                            val isLocked = palette.isProOnly && isProActive.not()
+                            val isDoodle = palette == Doodle
 
                             Surface(
                                 modifier = Modifier
-                                    .fillMaxWidth()
+                                    .weight(1f)
+                                    .fillMaxHeight()
                                     .clip(RoundedCornerShape(Dp16))
                                     .border(
-                                        width = if (isSelected) Dp2 else Dp1,
-                                        color = if (isSelected) colors.alwaysPurple else colors.blackWhite.copy(alpha = 0.1f),
+                                        width = Dp2,
+                                        color = if (isSelected) colors.alwaysPurple else colors.blackWhite.copy(
+                                            alpha = 0.1f
+                                        ),
                                         shape = RoundedCornerShape(Dp16)
                                     )
                                     .clickable {
@@ -233,163 +241,224 @@ internal fun SettingThemeScreen(
                                     },
                                 color = if (isSelected) colors.lightPurpleDarkGray else colors.whiteDark
                             ) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = Dp16, vertical = Dp14),
-                                    verticalAlignment = CenterVertically,
-                                    horizontalArrangement = spacedBy(Dp14)
+                                Column(
+                                    modifier = Modifier.padding(Dp12),
+                                    horizontalAlignment = CenterHorizontally,
+                                    verticalArrangement = spacedBy(Dp8)
                                 ) {
-                                    // Palette preview circle
                                     Box(
                                         modifier = Modifier
-                                            .size(Dp28)
-                                            .clip(CircleShape)
-                                            .background(palette.previewColor)
+                                            .fillMaxWidth()
+                                            .height(Dp64)
+                                            .clip(RoundedCornerShape(Dp10))
+                                            .background(if (isDoodle) MeverWhite else MeverLightSoftPurple)
                                             .border(
-                                                width = Dp1,
-                                                color = if (palette == Doodle) colors.blackWhite
-                                                else colors.blackWhite.copy(alpha = 0.15f),
-                                                shape = CircleShape
+                                                width = if (isDoodle) Dp2 else Dp1,
+                                                color = if (isDoodle) MeverBlack else MeverPurple.copy(
+                                                    alpha = 0.25f
+                                                ),
+                                                shape = RoundedCornerShape(Dp10)
                                             )
-                                    )
-
-                                    Column(
-                                        modifier = Modifier.weight(1f),
-                                        verticalArrangement = spacedBy(Dp2)
+                                            .padding(Dp8)
                                     ) {
-                                        Row(
-                                            verticalAlignment = CenterVertically,
-                                            horizontalArrangement = spacedBy(Dp8)
+                                        Column(
+                                            modifier = Modifier.fillMaxSize(),
+                                            verticalArrangement = SpaceBetween
                                         ) {
-                                            Text(
-                                                text = stringResource(palette.titleRes),
-                                                style = typography.bodyBold2,
-                                                color = colors.blackWhite
-                                            )
-                                            if (palette.isProOnly) {
-                                                ProBadge()
+                                            Row(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .height(Dp12)
+                                                    .clip(RoundedCornerShape(Dp4))
+                                                    .background(if (isDoodle) MeverBlack else MeverPurple)
+                                                    .padding(horizontal = Dp6),
+                                                verticalAlignment = CenterVertically,
+                                                horizontalArrangement = SpaceBetween
+                                            ) {
+                                                Text(
+                                                    text = "MEVER",
+                                                    style = typography.label3.copy(
+                                                        fontSize = Sp10,
+                                                        fontFamily = if (isDoodle) comicSansFamily else poppinsFamily
+                                                    ),
+                                                    color = MeverWhite
+                                                )
+                                                Box(
+                                                    modifier = Modifier
+                                                        .size(Dp6)
+                                                        .clip(CircleShape)
+                                                        .background(MeverWhite)
+                                                )
+                                            }
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                horizontalArrangement = spacedBy(Dp6),
+                                                verticalAlignment = CenterVertically
+                                            ) {
+                                                Box(
+                                                    modifier = Modifier
+                                                        .size(Dp20)
+                                                        .clip(RoundedCornerShape(Dp4))
+                                                        .background(if (isDoodle) MeverBlack else MeverPurple)
+                                                ) {
+                                                    Text(
+                                                        modifier = Modifier.align(Center),
+                                                        text = "Aa",
+                                                        style = typography.labelBold2.copy(
+                                                            fontSize = Sp10,
+                                                            fontFamily = if (isDoodle) comicSansFamily else poppinsFamily
+                                                        ),
+                                                        color = MeverWhite
+                                                    )
+                                                }
+                                                Column(
+                                                    modifier = Modifier.weight(1f),
+                                                    verticalArrangement = spacedBy(Dp3)
+                                                ) {
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth(0.8f)
+                                                            .height(Dp6)
+                                                            .clip(RoundedCornerShape(Dp2))
+                                                            .background(
+                                                                if (isDoodle) MeverBlack else MeverPurple.copy(
+                                                                    alpha = 0.35f
+                                                                )
+                                                            )
+                                                    )
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth(0.5f)
+                                                            .height(Dp4)
+                                                            .clip(RoundedCornerShape(Dp2))
+                                                            .background(
+                                                                if (isDoodle) MeverBlack.copy(
+                                                                    alpha = 0.5f
+                                                                ) else MeverPurple.copy(alpha = 0.2f)
+                                                            )
+                                                    )
+                                                }
                                             }
                                         }
                                     }
-
-                                    if (isSelected) {
-                                        Icon(
-                                            imageVector = ImageVector.vectorResource(R.drawable.ic_round_checked),
-                                            contentDescription = "Selected",
-                                            tint = colors.alwaysPurple,
-                                            modifier = Modifier.size(Dp20)
+                                    Row(
+                                        verticalAlignment = CenterVertically,
+                                        horizontalArrangement = spacedBy(Dp6)
+                                    ) {
+                                        Text(
+                                            text = stringResource(palette.titleRes),
+                                            style = typography.bodyBold2.copy(
+                                                fontFamily = if (isDoodle) comicSansFamily else poppinsFamily
+                                            ),
+                                            color = colors.blackWhite,
+                                            maxLines = 2,
+                                            overflow = Ellipsis,
+                                            modifier = Modifier.weight(1f, fill = false)
                                         )
+                                        if (isLocked) MeverProBadge()
+                                        if (isSelected) {
+                                            Icon(
+                                                modifier = Modifier.size(Dp18),
+                                                imageVector = ImageVector.vectorResource(R.drawable.ic_round_checked),
+                                                contentDescription = "Selected",
+                                                tint = colors.alwaysPurple
+                                            )
+                                        }
                                     }
                                 }
                             }
                         }
                     }
-
-                    // Section 3: App Launcher Icon
                     Spacer(modifier = Modifier.height(Dp32))
                     Text(
+                        modifier = Modifier.padding(horizontal = Dp24),
                         text = stringResource(R.string.app_icon),
                         style = typography.h3,
-                        color = colors.blackWhite,
-                        modifier = Modifier.padding(horizontal = Dp24)
+                        color = colors.blackWhite
                     )
                     Text(
+                        modifier = Modifier.padding(horizontal = Dp24, vertical = Dp4),
                         text = stringResource(R.string.app_icon_desc),
                         style = typography.body2,
-                        color = colors.blackWhite.copy(alpha = 0.65f),
-                        modifier = Modifier.padding(horizontal = Dp24, vertical = Dp4)
+                        color = colors.blackWhite.copy(alpha = 0.65f)
                     )
                     Spacer(modifier = Modifier.height(Dp16))
-
-                    FlowRow(
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .height(Max)
                             .padding(horizontal = Dp24),
-                        horizontalArrangement = spacedBy(Dp20),
-                        verticalArrangement = spacedBy(Dp16),
-                        maxItemsInEachRow = 2
+                        horizontalArrangement = spacedBy(Dp16)
                     ) {
-                        val cardWidth = Dp120
+                        AppIconType.entries.forEach { iconType ->
+                            val isSelected = selectedIcon == iconType
+                            val isLocked = iconType.isProOnly && isProActive.not()
+                            val isDoodle = iconType == AppIconType.Doodle
 
-                        AppIconType.entries.forEach { icon ->
-                            val isSelected = selectedIcon == icon
-                            val isLocked = icon.isProOnly && !isProActive
-
-                            Column(
+                            Surface(
                                 modifier = Modifier
-                                    .width(cardWidth)
+                                    .weight(1f)
+                                    .fillMaxHeight()
                                     .clip(RoundedCornerShape(Dp16))
+                                    .border(
+                                        width = Dp2,
+                                        color = if (isSelected) colors.alwaysPurple else colors.blackWhite.copy(
+                                            alpha = 0.1f
+                                        ),
+                                        shape = RoundedCornerShape(Dp16)
+                                    )
                                     .clickable {
                                         if (isLocked) {
                                             navigator.navigate(SettingPaywallRoute)
                                         } else if (!isSelected) {
-                                            pendingAppIcon = icon
+                                            pendingAppIcon = iconType
                                         }
-                                    }
-                                    .padding(vertical = Dp8),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = spacedBy(Dp8)
+                                    },
+                                color = if (isSelected) colors.lightPurpleDarkGray else colors.whiteDark
                             ) {
-                                // Launcher preview box
-                                Box(
-                                    modifier = Modifier
-                                        .size(Dp60)
-                                        .clip(RoundedCornerShape(Dp14))
-                                        .background(icon.backgroundColor)
-                                        .border(
-                                            width = if (isSelected) Dp2 else Dp1,
-                                            color = when {
-                                                isSelected -> colors.alwaysPurple
-                                                icon == AppIconType.Doodle -> MeverBlack
-                                                else -> colors.blackWhite.copy(alpha = 0.15f)
-                                            },
-                                            shape = RoundedCornerShape(Dp14)
-                                        ),
-                                    contentAlignment = Center
+                                Column(
+                                    modifier = Modifier.padding(vertical = Dp16, horizontal = Dp12),
+                                    horizontalAlignment = CenterHorizontally,
+                                    verticalArrangement = spacedBy(Dp12)
                                 ) {
-                                    Icon(
-                                        imageVector = ImageVector.vectorResource(R.drawable.ic_download),
-                                        contentDescription = null,
-                                        tint = icon.iconTint,
-                                        modifier = Modifier.size(Dp32)
-                                    )
+                                    Box(
+                                        modifier = Modifier
+                                            .size(Dp64)
+                                            .clip(RoundedCornerShape(Dp16))
+                                            .background(iconType.backgroundColor)
+                                            .border(
+                                                width = Dp1,
+                                                color = when {
+                                                    isDoodle -> MeverBlack
+                                                    else -> colors.blackWhite.copy(alpha = 0.15f)
+                                                },
+                                                shape = RoundedCornerShape(Dp16)
+                                            ),
+                                        contentAlignment = Center
+                                    ) { MeverImage(source = iconType.icon) }
 
-                                    if (isSelected) {
-                                        Box(
-                                            modifier = Modifier
-                                                .align(Alignment.BottomEnd)
-                                                .padding(Dp2)
-                                                .size(Dp16)
-                                                .clip(CircleShape)
-                                                .background(colors.alwaysPurple),
-                                            contentAlignment = Center
-                                        ) {
+                                    Row(
+                                        verticalAlignment = CenterVertically,
+                                        horizontalArrangement = spacedBy(Dp6)
+                                    ) {
+                                        Text(
+                                            text = stringResource(iconType.titleRes),
+                                            style = typography.bodyBold2.copy(
+                                                fontFamily = if (isDoodle) comicSansFamily else poppinsFamily
+                                            ),
+                                            color = colors.blackWhite,
+                                            maxLines = 1,
+                                            overflow = Ellipsis
+                                        )
+                                        if (isLocked) MeverProBadge()
+                                        if (isSelected) {
                                             Icon(
+                                                modifier = Modifier.size(Dp18),
                                                 imageVector = ImageVector.vectorResource(R.drawable.ic_round_checked),
-                                                contentDescription = null,
-                                                tint = colors.alwaysWhiteBlack,
-                                                modifier = Modifier.size(Dp12)
+                                                tint = colors.alwaysPurple,
+                                                contentDescription = "Selected"
                                             )
                                         }
-                                    }
-                                }
-
-                                // Title and Pro status
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = spacedBy(Dp2)
-                                ) {
-                                    Text(
-                                        text = stringResource(icon.titleRes),
-                                        style = typography.labelBold2,
-                                        color = colors.blackWhite,
-                                        textAlign = TextAlign.Center,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis
-                                    )
-                                    if (icon.isProOnly) {
-                                        ProBadge()
                                     }
                                 }
                             }
@@ -410,36 +479,13 @@ internal fun SettingThemeScreen(
                             onClickPrimaryAction = {
                                 pendingAppIcon = null
                                 setAppIcon(context, targetIcon)
-                                Toast.makeText(context, appIconSuccessMsg, Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, appIconSuccessMsg, Toast.LENGTH_SHORT)
+                                    .show()
                             }
                         )
                     }
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun ProBadge() {
-    Row(
-        modifier = Modifier
-            .clip(RoundedCornerShape(Dp10))
-            .background(colors.alwaysPurple.copy(alpha = 0.15f))
-            .padding(horizontal = Dp6, vertical = Dp2),
-        verticalAlignment = CenterVertically,
-        horizontalArrangement = spacedBy(Dp2)
-    ) {
-        Icon(
-            imageVector = ImageVector.vectorResource(R.drawable.ic_crown),
-            contentDescription = null,
-            tint = colors.alwaysPurple,
-            modifier = Modifier.size(Dp10)
-        )
-        Text(
-            text = stringResource(R.string.pro),
-            style = typography.label3,
-            color = colors.alwaysPurple
-        )
     }
 }
