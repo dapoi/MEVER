@@ -115,3 +115,6 @@
 # Additional rule to suppress warnings about synthetic companion objects
 -dontwarn **$serializer
 -dontwarn **$$serializer
+
+# Suppress R8 warning about missing companion object in Play Services Location internals
+-dontwarn com.google.android.gms.internal.location.**
