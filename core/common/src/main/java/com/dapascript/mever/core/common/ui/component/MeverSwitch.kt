@@ -19,9 +19,10 @@ fun MeverSwitch(
         colors = SwitchDefaults.colors(
             checkedThumbColor = MeverWhite,
             checkedTrackColor = colors.alwaysPurple,
-            uncheckedThumbColor = colors.grayLightGray,
-            uncheckedTrackColor = colors.lightGrayDarkGray,
-            uncheckedBorderColor = Unspecified
+            checkedBorderColor = Unspecified,
+            uncheckedThumbColor = colors.blackWhite.copy(alpha = 0.5f),
+            uncheckedTrackColor = colors.whiteDarkGray,
+            uncheckedBorderColor = colors.blackWhite.copy(alpha = 0.35f)
         ),
         checked = isChecked,
         onCheckedChange = onCheckedChange?.let { { onCheckedChange(it) } }

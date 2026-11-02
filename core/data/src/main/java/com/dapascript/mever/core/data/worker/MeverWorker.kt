@@ -52,6 +52,7 @@ import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_URL
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.SIZE_LIMIT
 import com.dapascript.mever.core.data.R
 import com.dapascript.mever.core.data.model.local.ContentEntity
+import com.dapascript.mever.core.data.repository.SubscriptionRepository
 import com.dapascript.mever.core.data.source.remote.ApiService
 import com.dapascript.mever.core.data.util.MoshiHelper
 import com.ketch.Ketch
@@ -73,7 +74,8 @@ internal class MeverWorker @AssistedInject constructor(
     @Assisted workerParameters: WorkerParameters,
     private val apiService: ApiService,
     private val moshiHelper: MoshiHelper,
-    private val ketch: Ketch
+    private val ketch: Ketch,
+    private val subscriptionRepository: SubscriptionRepository
 ) : CoroutineWorker(context, workerParameters) {
 
     override suspend fun doWork(): Result {
@@ -102,6 +104,11 @@ internal class MeverWorker @AssistedInject constructor(
             val resultData = when (action) {
                 ACTION_DOWNLOAD -> {
                     currentCoroutineContext().ensureActive()
+
+                    if (isFromNotif && subscriptionRepository.checkProActive().not()) {
+                        throw Exception(context.getString(UiR.string.quick_download_pro_required))
+                    }
+
                     val res = getApiDownloader(
                         url = url,
                         quality = effectiveQuality,

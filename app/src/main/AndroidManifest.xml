@@ -86,11 +86,28 @@
                 android:value="true" />
         </service>
 
+        <service
+            android:name="com.dapascript.mever.core.common.service.QuickDownloadService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
+        <service
+            android:name=".service.QuickDownloadTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_download"
+            android:label="@string/quick_download_notif_title"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
         <receiver
             android:name=".receiver.QuickDownloadReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="com.dapascript.mever.ACTION_QUICK_DOWNLOAD_REPLY" />
+                <action android:name="com.dapascript.mever.ACTION_QUICK_DOWNLOAD_DISMISS" />
             </intent-filter>
         </receiver>
 

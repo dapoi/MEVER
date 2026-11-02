@@ -61,6 +61,26 @@ class SubscriptionRepositoryImpl @Inject constructor() : SubscriptionRepository 
         )
     }
 
+    override suspend fun checkProActive(): Boolean =
+        suspendCancellableCoroutine { continuation ->
+            if (!Purchases.isConfigured) {
+                if (continuation.isActive) continuation.resume(_isProActive.value)
+                return@suspendCancellableCoroutine
+            }
+            setupCustomerInfoListener()
+            Purchases.sharedInstance.getCustomerInfoWith(
+                fetchPolicy = CacheFetchPolicy.FETCH_CURRENT,
+                onError = { error ->
+                    Timber.e("Error fetching customer info in checkProActive: ${error.message}")
+                    if (continuation.isActive) continuation.resume(_isProActive.value)
+                },
+                onSuccess = { info ->
+                    updateState(info)
+                    if (continuation.isActive) continuation.resume(_isProActive.value)
+                }
+            )
+        }
+
     override suspend fun fetchOfferings(): Result<Offerings> =
         suspendCancellableCoroutine { continuation ->
             if (!Purchases.isConfigured) {

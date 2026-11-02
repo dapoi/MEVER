@@ -20,6 +20,7 @@ interface SubscriptionRepository {
     val isProActive: StateFlow<Boolean>
 
     fun checkEntitlement()
+    suspend fun checkProActive(): Boolean
     suspend fun fetchOfferings(): Result<Offerings>
     suspend fun purchasePackage(activity: Activity, packageToPurchase: Package): Result<PurchaseResultData>
     suspend fun restorePurchases(): Result<CustomerInfo>

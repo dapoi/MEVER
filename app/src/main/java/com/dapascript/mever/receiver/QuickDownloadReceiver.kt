@@ -11,13 +11,28 @@ import android.widget.Toast
 import androidx.core.app.RemoteInput
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.util.notification.QuickDownloadNotificationHelper
+import com.dapascript.mever.core.common.util.notification.QuickDownloadNotificationHelper.ACTION_QUICK_DOWNLOAD_DISMISS
 import com.dapascript.mever.core.common.util.notification.QuickDownloadNotificationHelper.ACTION_QUICK_DOWNLOAD_REPLY
 import com.dapascript.mever.core.common.util.notification.QuickDownloadNotificationHelper.KEY_TEXT_REPLY
+import com.dapascript.mever.core.data.source.local.MeverDataStore
+import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_QUICK_NOTIF
 import com.dapascript.mever.core.data.worker.MeverWorkerHelper
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.launch
 
 class QuickDownloadReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
+        if (intent.action == ACTION_QUICK_DOWNLOAD_DISMISS) {
+            QuickDownloadNotificationHelper.cancelQuickDownloadNotification(context)
+            CoroutineScope(IO).launch {
+                MeverDataStore(context.applicationContext).savePreference(KEY_QUICK_NOTIF, false)
+                QuickDownloadNotificationHelper.requestTileUpdate(context)
+            }
+            return
+        }
+
         if (intent.action == ACTION_QUICK_DOWNLOAD_REPLY) {
             val remoteInput = RemoteInput.getResultsFromIntent(intent)
             val rawInput = remoteInput?.getCharSequence(KEY_TEXT_REPLY)?.toString()

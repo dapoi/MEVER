@@ -42,6 +42,7 @@ import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.Path.HOME
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.Query.URL
 import com.dapascript.mever.core.common.util.deeplink.buildMeverDeeplink
 import com.dapascript.mever.core.common.util.notification.QuickDownloadNotificationHelper.cancelQuickDownloadNotification
+import com.dapascript.mever.core.common.util.notification.QuickDownloadNotificationHelper.requestTileUpdate
 import com.dapascript.mever.core.common.util.notification.QuickDownloadNotificationHelper.showQuickDownloadNotification
 import com.dapascript.mever.core.common.util.recreateActivity
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
@@ -81,6 +82,7 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     cancelQuickDownloadNotification(this@MainActivity)
                 }
+                requestTileUpdate(this@MainActivity)
             }
 
             val windowSizeClass = calculateWindowSizeClass(this)

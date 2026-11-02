@@ -68,7 +68,7 @@ internal object SettingLandingAttr {
                     ),
                     SubMenu(
                         leadingTitle = getString(R.string.quick_download_notif_title),
-                        leadingDesc = getString(R.string.quick_download_notif_desc),
+                        leadingDesc = getString(R.string.quick_download_setting_desc),
                         icon = R.drawable.ic_quick_download_notif,
                         iconBackgroundColor = MeverPink
                     )

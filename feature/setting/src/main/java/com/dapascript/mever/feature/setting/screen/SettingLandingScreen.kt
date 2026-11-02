@@ -93,6 +93,7 @@ import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingFaqR
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLandingRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLanguageRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingPaywallRoute
+import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingQuickDownloadRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingSubscriptionDetailRoute
 import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.SettingMenus
 import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.getSettingMenus
@@ -127,7 +128,6 @@ internal fun SettingLandingScreen(
     }
     var showBottomSheetQris by rememberSaveable { mutableStateOf<Boolean?>(null) }
     var checkPermissions by remember { mutableStateOf<List<String>>(emptyList()) }
-    var pendingEnableQuickNotif by remember { mutableStateOf(false) }
 
     BaseScreen(
         topBarArgs = TopBarArgs(
@@ -167,15 +167,8 @@ internal fun SettingLandingScreen(
         if (checkPermissions.isNotEmpty()) {
             MeverPermissionHandler(
                 permissions = checkPermissions,
-                onGranted = {
-                    checkPermissions = emptyList()
-                    if (pendingEnableQuickNotif) {
-                        saveQuickNotifState(true)
-                        pendingEnableQuickNotif = false
-                    }
-                },
+                onGranted = { checkPermissions = emptyList() },
                 onDenied = { isPermanentlyDeclined, onRetry ->
-                    pendingEnableQuickNotif = false
                     MeverDialog(
                         showDialog = true,
                         title = stringResource(R.string.permission_request_title),
@@ -255,17 +248,7 @@ internal fun SettingLandingScreen(
                 onClickPip = { savePipState(isPipEnabled.not()) },
                 onClickQuickNotif = {
                     if (isProActive) {
-                        if (isQuickNotifEnabled) {
-                            saveQuickNotifState(false)
-                        } else {
-                            val notifPermission = getNotificationPermission()
-                            if (notifPermission.any { context.checkSelfPermission(it) != PERMISSION_GRANTED }) {
-                                pendingEnableQuickNotif = true
-                                checkPermissions = notifPermission
-                            } else {
-                                saveQuickNotifState(true)
-                            }
-                        }
+                        navigator.navigate(SettingQuickDownloadRoute)
                     } else {
                         navigator.navigate(SettingPaywallRoute)
                     }
@@ -414,9 +397,6 @@ private fun SettingLandingContent(
                             },
                             trailingType = when (menu.leadingTitle) {
                                 context.getString(R.string.pip) -> Switch(isPipEnabled)
-                                context.getString(R.string.quick_download_notif_title) -> Switch(
-                                    switchState = isProActive && isQuickNotifEnabled
-                                )
                                 else -> Default(trailingTitle = trailingTitle)
                             }
                         )

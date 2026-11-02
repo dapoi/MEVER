@@ -20,6 +20,7 @@ import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingFaqR
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLandingRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLanguageRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingPaywallRoute
+import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingQuickDownloadRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingSubscriptionDetailRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingThemeRoute
 import com.dapascript.mever.feature.setting.screen.SettingAboutAppScreen
@@ -27,6 +28,7 @@ import com.dapascript.mever.feature.setting.screen.SettingFaqScreen
 import com.dapascript.mever.feature.setting.screen.SettingLandingScreen
 import com.dapascript.mever.feature.setting.screen.SettingLanguageScreen
 import com.dapascript.mever.feature.setting.screen.SettingPaywallScreen
+import com.dapascript.mever.feature.setting.screen.SettingQuickDownloadScreen
 import com.dapascript.mever.feature.setting.screen.SettingSubscriptionDetailScreen
 import com.dapascript.mever.feature.setting.screen.SettingThemeScreen
 import javax.inject.Inject
@@ -39,6 +41,7 @@ internal class SettingNavGraphImpl @Inject constructor() : BaseNavGraph {
         entry<SettingFaqRoute> { SettingFaqScreen(navigator) }
         entry<SettingAboutAppRoute> { SettingAboutAppScreen(navigator) }
         entry<SettingSubscriptionDetailRoute> { SettingSubscriptionDetailScreen(navigator) }
+        entry<SettingQuickDownloadRoute> { SettingQuickDownloadScreen(navigator) }
         entry<SettingPaywallRoute>(
             metadata = metadata {
                 put(NavDisplay.TransitionKey) {
