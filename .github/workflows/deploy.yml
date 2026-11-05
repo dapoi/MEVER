@@ -6,7 +6,13 @@ on:
       - 'v*'
 
 jobs:
-  determine-matrix:
+  # ─────────────────────────────────────────────
+  # JOB 1 — SETUP
+  # Determine matrix (tracks & version names)
+  # and whether to upload to Play Store
+  # ─────────────────────────────────────────────
+  setup:
+    name: 🔧 Setup
     runs-on: ubuntu-latest
     if: github.actor == 'dapoi'
     outputs:
@@ -37,21 +43,31 @@ jobs:
           elif [[ "$TAG_NAME" == *"-beta"* ]]; then
             VER_NAME="${TAG_NAME#v}"
             MATRIX_JSON="[{\"track\":\"beta\",\"version_name\":\"$VER_NAME\"}]"
-          else
+          elif [[ "$TAG_MESSAGE" == *"dual=true"* ]] || [[ "$TAG_MESSAGE" == *"Production & Beta"* ]]; then
             CLEAN_VER="${TAG_NAME#v}"
             BETA_VER="${CLEAN_VER}-beta01"
             MATRIX_JSON="[{\"track\":\"beta\",\"version_name\":\"$BETA_VER\"},{\"track\":\"production\",\"version_name\":\"$CLEAN_VER\"}]"
+          else
+            CLEAN_VER="${TAG_NAME#v}"
+            MATRIX_JSON="[{\"track\":\"production\",\"version_name\":\"$CLEAN_VER\"}]"
           fi
 
           echo "matrix=$MATRIX_JSON" >> $GITHUB_OUTPUT
 
-  build-and-deploy:
-    needs: determine-matrix
-    if: needs.determine-matrix.outputs.upload_play_store == 'true'
+  # ─────────────────────────────────────────────
+  # JOB 2 — BUILD (parallel per track)
+  # Runs simultaneously for beta & production
+  # Uploads AAB as artifact for the deploy job
+  # ─────────────────────────────────────────────
+  build:
+    name: 🏗️ Build (${{ matrix.track }})
+    needs: setup
+    if: needs.setup.outputs.upload_play_store == 'true'
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.determine-matrix.outputs.matrix) }}
+        include: ${{ fromJson(needs.setup.outputs.matrix) }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -89,12 +105,51 @@ jobs:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          VERSION_CODE=$((20260701 + ${{ github.run_number }}))
+          BASE_VERSION_CODE=$((20260701 + ${{ github.run_number }} * 10))
+          if [[ "${{ matrix.track }}" == "production" ]]; then
+            VERSION_CODE=$((BASE_VERSION_CODE + 1))
+          else
+            VERSION_CODE=$BASE_VERSION_CODE
+          fi
           echo "Building ${{ matrix.track }} version ${{ matrix.version_name }} ($VERSION_CODE)"
 
           ./gradlew bundleRelease \
             -PversionName="${{ matrix.version_name }}" \
             -PversionCode="$VERSION_CODE"
+
+      - name: Save AAB artifact (${{ matrix.track }})
+        uses: actions/upload-artifact@v4
+        with:
+          name: aab-${{ matrix.track }}
+          path: |
+            app/build/outputs/bundle/release/app-release.aab
+            app/build/outputs/mapping/release/mapping.txt
+          retention-days: 1
+
+  # ─────────────────────────────────────────────
+  # JOB 3 — DEPLOY (sequential per track)
+  # Waits for ALL builds to finish, then uploads
+  # one at a time to avoid Play Store edit conflict
+  # ─────────────────────────────────────────────
+  deploy:
+    name: 🚀 Deploy (${{ matrix.track }})
+    needs: [setup, build]
+    if: needs.setup.outputs.upload_play_store == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        include: ${{ fromJson(needs.setup.outputs.matrix) }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download AAB artifact (${{ matrix.track }})
+        uses: actions/download-artifact@v4
+        with:
+          name: aab-${{ matrix.track }}
+          path: app/build/outputs/
 
       - name: Upload to Play Store (${{ matrix.track }})
         uses: r0adkll/upload-google-play@v1.1.5
