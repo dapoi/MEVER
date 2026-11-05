@@ -1,7 +1,6 @@
 # MEVER (Media Saver) 🚀
-![GitHub release](https://img.shields.io/github/v/release/dapoi/mever?style=flat-square)
 ![Android API](https://img.shields.io/badge/API-36%2B-brightgreen?style=flat-square)
-<img width="1024" height="500" alt="Banner App MEVER Playstore" src="https://github.com/user-attachments/assets/6ee5de4a-a930-48d0-bedf-fe4333c96084" />
+<img width="1280" height="714" alt="WhatsApp Image 2026-10-18 at 20 54 18" src="https://github.com/user-attachments/assets/6604dd6b-c601-4a03-908c-516c51932f9e" />
 
 ## 🔥 Features
 
@@ -42,22 +41,6 @@ You can install the app via:
 
 ### 👉 Play Store
 <a href='https://play.google.com/store/apps/details?id=com.dapascript.mever&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get in Google Play' src='https://github.com/user-attachments/assets/e0eceed2-3f1d-41f4-972a-6bd422c7d6e0' height="50"/></a>
-
-
-### 👉 GitHub Releases
-
-<p>
-  <a href="https://github.com/dapoi/mever/releases">
-    <img alt='Github Release' src="https://img.shields.io/badge/GitHub_Release-181717?style=for-the-badge&logo=github&logoColor=white" />
-  </a>
-</p>
-
-1. Go to the [Releases](https://github.com/dapoi/mever/releases) page  
-2. Download the latest APK  
-3. Enable installation from unknown sources:  
-   - **Settings > Security > Unknown Sources**
-4. Install the APK  
-5. Enjoy 🎉
 
 ## 🤝 Contributing
 
