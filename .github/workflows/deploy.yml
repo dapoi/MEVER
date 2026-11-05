@@ -6,12 +6,52 @@ on:
       - 'v*'
 
 jobs:
-  build-and-deploy:
+  determine-matrix:
     runs-on: ubuntu-latest
     if: github.actor == 'dapoi'
-    permissions:
-      contents: write
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      upload_play_store: ${{ steps.set-matrix.outputs.upload_play_store }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
+      - name: Calculate Matrix
+        id: set-matrix
+        run: |
+          git fetch --tags --force
+          TAG_NAME="${{ github.ref_name }}"
+          TAG_MESSAGE=$(git for-each-ref --format='%(contents)' "refs/tags/$TAG_NAME")
+
+          if [[ "$TAG_MESSAGE" == *"upload_play_store=false"* ]]; then
+            echo "upload_play_store=false" >> $GITHUB_OUTPUT
+          else
+            echo "upload_play_store=true" >> $GITHUB_OUTPUT
+          fi
+
+          if [[ "$TAG_NAME" == *"-internal"* ]]; then
+            VER_NAME="${TAG_NAME#v}"
+            MATRIX_JSON="[{\"track\":\"internal\",\"version_name\":\"$VER_NAME\"}]"
+          elif [[ "$TAG_NAME" == *"-beta"* ]]; then
+            VER_NAME="${TAG_NAME#v}"
+            MATRIX_JSON="[{\"track\":\"beta\",\"version_name\":\"$VER_NAME\"}]"
+          else
+            CLEAN_VER="${TAG_NAME#v}"
+            BETA_VER="${CLEAN_VER}-beta01"
+            MATRIX_JSON="[{\"track\":\"beta\",\"version_name\":\"$BETA_VER\"},{\"track\":\"production\",\"version_name\":\"$CLEAN_VER\"}]"
+          fi
+
+          echo "matrix=$MATRIX_JSON" >> $GITHUB_OUTPUT
+
+  build-and-deploy:
+    needs: determine-matrix
+    if: needs.determine-matrix.outputs.upload_play_store == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include: ${{ fromJson(needs.determine-matrix.outputs.matrix) }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -42,91 +82,27 @@ jobs:
         run: |
           echo "${{ secrets.SIGNING_KEY_BASE64 }}" | base64 --decode > ${{ github.workspace }}/keystore.jks
 
-      - name: Build Release AAB & APK
+      - name: Build Release AAB (${{ matrix.track }})
         env:
           KEYSTORE_PATH: ${{ github.workspace }}/keystore.jks
           KEY_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          VERSION_NAME="${{ github.ref_name }}"
-          VERSION_NAME="${VERSION_NAME#v}"
           VERSION_CODE=$((20260701 + ${{ github.run_number }}))
-          
-          echo "Building version $VERSION_NAME ($VERSION_CODE)"
+          echo "Building ${{ matrix.track }} version ${{ matrix.version_name }} ($VERSION_CODE)"
 
-          ./gradlew bundleRelease assembleRelease \
-            -PversionName="$VERSION_NAME" \
+          ./gradlew bundleRelease \
+            -PversionName="${{ matrix.version_name }}" \
             -PversionCode="$VERSION_CODE"
 
-      - name: Determine Flags
-        id: flags
-        run: |
-          git fetch --tags --force
-
-          if [[ "${{ github.ref_name }}" == *"-internal"* ]]; then
-            echo "tracks=internal" >> $GITHUB_OUTPUT
-            echo "prerelease=true" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.ref_name }}" == *"-beta"* ]]; then
-            echo "tracks=beta" >> $GITHUB_OUTPUT
-            echo "prerelease=true" >> $GITHUB_OUTPUT
-          else
-            echo "tracks=production" >> $GITHUB_OUTPUT
-            echo "prerelease=false" >> $GITHUB_OUTPUT
-          fi
-
-          TAG_MESSAGE=$(git for-each-ref --format='%(contents)' "refs/tags/${{ github.ref_name }}")
-          
-          echo "Debug: Tag name is ${{ github.ref_name }}"
-          echo "Debug: Tag message content: $TAG_MESSAGE"
-
-          if [[ "$TAG_MESSAGE" == *"upload_play_store=true"* ]]; then
-            echo "upload_play_store=true" >> $GITHUB_OUTPUT
-          else
-            echo "upload_play_store=false" >> $GITHUB_OUTPUT
-          fi
-
-          if [[ "$TAG_MESSAGE" == *"upload_github_release=true"* ]]; then
-            echo "upload_github_release=true" >> $GITHUB_OUTPUT
-          else
-            echo "upload_github_release=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Prepare What's New
-        id: whatsnew
-        run: |
-          find distribution/whatsnew -type f -exec sed -i -E 's/^[0-9]+:- //g' {} +
-          
-          NOTES_FILE="distribution/whatsnew/whatsnew-en-US"
-          if [ -f "$NOTES_FILE" ]; then
-            NOTES=$(cat "$NOTES_FILE")
-          else
-            NOTES="Release ${{ github.ref_name }}"
-          fi
-          echo "notes<<EOF" >> $GITHUB_OUTPUT
-          echo "$NOTES" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-      - name: Upload to Play Store
-        if: steps.flags.outputs.upload_play_store == 'true'
+      - name: Upload to Play Store (${{ matrix.track }})
         uses: r0adkll/upload-google-play@v1.1.5
         with:
           serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_JSON }}
           packageName: com.dapascript.mever
           releaseFiles: app/build/outputs/bundle/release/app-release.aab
-          tracks: ${{ steps.flags.outputs.tracks }}
+          tracks: ${{ matrix.track }}
           status: completed
           whatsNewDirectory: distribution/whatsnew
           mappingFile: app/build/outputs/mapping/release/mapping.txt
-
-      - name: Create GitHub Release
-        if: steps.flags.outputs.upload_github_release == 'true'
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ github.ref_name }}
-          name: ${{ github.ref_name }}
-          body: ${{ steps.whatsnew.outputs.notes }}
-          prerelease: ${{ steps.flags.outputs.prerelease }}
-          files: app/build/outputs/apk/release/app-release.apk
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

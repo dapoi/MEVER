@@ -19,7 +19,7 @@ echo ""
 echo "🎯 Choose deployment track:"
 echo "  1) Internal Testing"
 echo "  2) Beta (Open Testing)"
-echo "  3) Production"
+echo "  3) Production & Beta"
 echo "  4) Cancel"
 echo ""
 printf "Enter choice (1/2/3/4): "
@@ -54,9 +54,10 @@ if [ "$TRACK_CHOICE" = "1" ]; then
     TAG="v$VERSION-internal$INTERNAL_NUMBER"
   fi
 
-  TRACK_LABEL="Internal Testing (Internal $INTERNAL_NUMBER)"
+  TRACK_LABEL="Internal Testing"
+  TARGET_BUILDS="  • Internal Track   ➜  versionName: ${TAG#v}"
   UPLOAD_PLAY_STORE="true"
-  UPLOAD_GITHUB_RELEASE="false"
+
 elif [ "$TRACK_CHOICE" = "2" ]; then
   TRACK="beta"
 
@@ -87,15 +88,17 @@ elif [ "$TRACK_CHOICE" = "2" ]; then
     TAG="v$VERSION-beta$BETA_NUMBER"
   fi
 
-  TRACK_LABEL="Open Testing (Beta $BETA_NUMBER)"
+  TRACK_LABEL="Beta (Open Testing)"
+  TARGET_BUILDS="  • Beta Track       ➜  versionName: ${TAG#v}"
   UPLOAD_PLAY_STORE="true"
-  UPLOAD_GITHUB_RELEASE="true"
+
 elif [ "$TRACK_CHOICE" = "3" ]; then
   TRACK="production"
   TAG="v$VERSION"
-  TRACK_LABEL="Production"
+  TRACK_LABEL="Production & Beta (Dual Parallel Builds)"
+  TARGET_BUILDS="  • Beta Track       ➜  versionName: ${VERSION}-beta01\n  • Production Track ➜  versionName: ${VERSION}"
   UPLOAD_PLAY_STORE="true"
-  UPLOAD_GITHUB_RELEASE="true"
+
 elif [ "$TRACK_CHOICE" = "4" ]; then
   echo "❌ Deployment cancelled."
   exit 0
@@ -104,18 +107,17 @@ else
   exit 1
 fi
 
-# GitHub Release is now always enabled by default
-
 # --- Deployment Summary & Confirmation ---
 echo ""
-echo "------------------------------------------"
+echo "----------------------------------------------------"
 echo "🚀 DEPLOYMENT SUMMARY"
-echo "------------------------------------------"
-echo "Version:         $VERSION"
-echo "Tag:             $TAG"
-echo "Track:           $TRACK_LABEL"
-echo "Deploy To:       ✅ Play Store$([ "$UPLOAD_GITHUB_RELEASE" = "true" ] && echo " & ✅ GitHub Release")$([ "$TRACK" = "beta" ] || [ "$TRACK" = "internal" ] && echo " (Pre-release)")"
-echo "------------------------------------------"
+echo "----------------------------------------------------"
+echo "App Version:     $VERSION"
+echo "Git Tag:         $TAG"
+echo "Target Track:    $TRACK_LABEL"
+echo "Build Outputs:"
+echo -e "$TARGET_BUILDS"
+echo "----------------------------------------------------"
 echo ""
 printf "Confirm deployment? (y/n): "
 read CONFIRM
@@ -125,8 +127,26 @@ if [ "$CONFIRM" != "y" ] && [ "$CONFIRM" != "Y" ]; then
   exit 0
 fi
 
+# Cleanup old tags for internal or beta
+if [ "$TRACK" = "internal" ]; then
+  OLD_TAGS=$(git tag -l "v$VERSION-internal*" | grep -v "$TAG")
+elif [ "$TRACK" = "beta" ]; then
+  OLD_TAGS=$(git tag -l "v$VERSION-beta*" | grep -v "$TAG")
+else
+  OLD_TAGS=""
+fi
+
+if [ -n "$OLD_TAGS" ]; then
+  echo "🧹 Cleaning up previous $TRACK tags for v$VERSION..."
+  for old_tag in ${(f)OLD_TAGS}; do
+    echo "  🗑️ Deleting remote tag: $old_tag"
+    git push origin --delete "$old_tag" 2>/dev/null || true
+    git tag -d "$old_tag" 2>/dev/null || true
+  done
+fi
+
 echo ""
-echo "🚀 Tagging $TRACK_LABEL build: $TAG"
+echo "🚀 Tagging build: $TAG"
 
 # Remove existing local tag if present
 if git tag -l "$TAG" | grep -q "$TAG"; then
@@ -140,24 +160,23 @@ if git ls-remote --tags origin "refs/tags/$TAG" | grep -q "$TAG"; then
   git push origin ":refs/tags/$TAG"
 fi
 
-git tag -a "$TAG" -m "$TRACK_LABEL build $TAG upload_play_store=$UPLOAD_PLAY_STORE upload_github_release=$UPLOAD_GITHUB_RELEASE"
+git tag -a "$TAG" -m "$TRACK_LABEL build $TAG upload_play_store=$UPLOAD_PLAY_STORE"
 
 if [ $? -ne 0 ]; then
-  echo "❌ Failed to create tag."
+  echo "❌ Failed to create tag $TAG."
   exit 1
 fi
 
 git push origin "$TAG"
 
 if [ $? -ne 0 ]; then
-  echo "❌ Failed to push tag."
+  echo "❌ Failed to push tag $TAG."
   exit 1
 fi
 
 echo "✅ Successfully tagged and pushed: $TAG"
-if [ "$UPLOAD_PLAY_STORE" = "true" ]; then
-  echo "🔄 GitHub Actions will build and deploy to Play Store - $TRACK_LABEL track."
-fi
-if [ "$UPLOAD_GITHUB_RELEASE" = "true" ]; then
-  echo "📦 GitHub Release will also be created for $TAG."
+if [ "$TRACK_CHOICE" = "3" ]; then
+  echo "🎉 GitHub Actions will run two parallel builds (Beta & Production) under a single Action run."
+else
+  echo "🎉 GitHub Actions will build and deploy $TRACK_LABEL to Play Store."
 fi

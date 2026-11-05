@@ -1,4 +1,4 @@
-name: Cleanup Old Releases
+name: Cleanup Old Releases & Tags
 
 on:
   workflow_dispatch: # Allows manual triggering of the workflow
@@ -11,34 +11,38 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Delete Old Releases and Tags
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          echo "🔍 Searching for latest releases..."
-          
-          # Get latest stable tag
-          STABLE=$(gh release list --exclude-pre-releases --limit 1 | awk '{print $1}')
-          
-          # Get latest pre-release tag using jq
-          PRE=$(gh release list --json tagName,isPrerelease --jq '.[] | select(.isPrerelease == true) | .tagName' | head -n 1)
-          
-          echo "✅ Latest Stable: $STABLE"
-          echo "✅ Latest Pre-release: $PRE"
+          git fetch --tags --force
+
+          echo "🔍 Finding tags to keep..."
+
+          # Keep latest stable tag, latest beta tag, and latest internal tag
+          STABLE_TAG=$(git tag -l "v*" | grep -v "\-internal" | grep -v "\-beta" | sort -V | tail -n 1)
+          BETA_TAG=$(git tag -l "v*-beta*" | sort -V | tail -n 1)
+          INTERNAL_TAG=$(git tag -l "v*-internal*" | sort -V | tail -n 1)
+
+          echo "✅ Keeping Latest Stable:   ${STABLE_TAG:-none}"
+          echo "✅ Keeping Latest Beta:     ${BETA_TAG:-none}"
+          echo "✅ Keeping Latest Internal: ${INTERNAL_TAG:-none}"
           echo "---------------------------------------"
 
-          # Get all releases (limit 100)
-          RELEASES=$(gh release list --limit 100 --json tagName --jq '.[] | .tagName')
+          ALL_TAGS=$(git tag -l "v*")
 
-          for tag in $RELEASES; do
-            if [ "$tag" != "$STABLE" ] && [ "$tag" != "$PRE" ]; then
-              echo "🗑️ Deleting release and tag: $tag"
-              gh release delete "$tag" --yes --cleanup-tag
+          for tag in $ALL_TAGS; do
+            if [ "$tag" != "$STABLE_TAG" ] && [ "$tag" != "$BETA_TAG" ] && [ "$tag" != "$INTERNAL_TAG" ]; then
+              echo "🗑️ Deleting release & tag: $tag"
+              gh release delete "$tag" --yes --cleanup-tag 2>/dev/null || true
+              git push origin --delete "$tag" 2>/dev/null || true
             else
               echo "✨ Keeping: $tag"
             fi
           done
-          
+
           echo "---------------------------------------"
-          echo "🎉 Finished! Kept $STABLE and $PRE."
+          echo "🎉 Cleanup finished!"
