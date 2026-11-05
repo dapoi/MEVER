@@ -134,6 +134,7 @@
     <string name="clean_cache">Clean Cache</string>
     <string name="email" translatable="false">daffaprabowo5@gmail.com</string>
     <string name="update_available">Update Available</string>
+    <string name="update_downloading_in_background">The update is downloading in the background.</string>
     <string name="update_has_completed">The update has been completed. Please restart the app to enjoy the new features and improvements!</string>
     <string name="faq">FAQ</string>
     <string name="quick_tools">Quick Tools</string>

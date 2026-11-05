@@ -51,11 +51,13 @@ internal class HomeLandingViewModel @Inject constructor(
 
     var urlSocialMediaState by mutableStateOf(TextFieldValue(""))
     var selectedQuality by mutableStateOf("")
-    var shouldShowDonationOfferDialog by mutableStateOf(true)
+    var shouldShowDonationOfferDialog by mutableStateOf(false)
     var contents by mutableStateOf<List<ContentEntity>>(emptyList())
     var errorMessage by mutableStateOf("")
     var storageInfo by mutableStateOf<StorageInfo?>(null)
     var hasCheckedUpdate by mutableStateOf(false)
+    var snackbarMessage by mutableStateOf("")
+    var contentId by mutableStateOf<Int?>(null)
 
     private val _refreshTrigger = MutableStateFlow(0)
 

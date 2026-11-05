@@ -1,5 +1,6 @@
 package com.dapascript.mever.feature.home.screen
 
+import android.app.Activity.RESULT_OK
 import android.content.Context
 import android.content.res.Resources
 import androidx.activity.ComponentActivity
@@ -215,13 +216,20 @@ internal fun HomeLandingScreen(
         var isUpdateRefused by rememberSaveable { mutableStateOf(false) }
         val activity = LocalActivity.current
         val context = LocalContext.current
+        val resources = LocalResources.current
         val isAnyDownloadActive = isAnyDownloadActive.collectAsStateValue()
         val getButtonClickCount = getButtonClickCount.collectAsStateValue()
         val adsThresholdValue = adsThreshold.collectAsStateValue()
         val scope = rememberCoroutineScope()
         val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
         val inAppUpdateManager = remember { InAppUpdateManager(activity) }
-        val updateLauncher = rememberLauncherForActivityResult(StartIntentSenderForResult()) { }
+        val updateLauncher = rememberLauncherForActivityResult(
+            contract = StartIntentSenderForResult()
+        ) { result ->
+            if (result.resultCode == RESULT_OK) {
+                snackbarMessage = resources.getString(R.string.update_downloading_in_background)
+            } else shouldShowDonationOfferDialog = true
+        }
         val lazyListState = rememberLazyListState()
         val syncedItems = remember { mutableSetOf<Int>() }
         val showTopFade by remember {
@@ -252,7 +260,9 @@ internal fun HomeLandingScreen(
                     updateType = FLEXIBLE,
                     updateAvailability = UPDATE_AVAILABLE,
                     launcher = updateLauncher,
-                    onUpdateNotAvailable = {}
+                    onUpdateNotAvailable = {
+                        shouldShowDonationOfferDialog = true
+                    }
                 )
                 hasCheckedUpdate = true
             }
@@ -296,6 +306,7 @@ internal fun HomeLandingScreen(
             onClickSecondaryAction = {
                 isUpdateReady = false
                 isUpdateRefused = true
+                shouldShowDonationOfferDialog = true
             }
         )
 
@@ -375,8 +386,6 @@ private fun HomeLandingContent(
     var isPlaylistNotSupported by remember { mutableStateOf(false) }
     var loadingItemIndex by remember { mutableStateOf<Int?>(null) }
     var isDownloadProcessing by remember { mutableStateOf(false) }
-    var snackbarMessage by remember { mutableStateOf("") }
-    var contentId by remember { mutableStateOf<Int?>(null) }
     val onClickCardAction: (DownloadModel) -> Unit = { download ->
         with(download) {
             when (status) {
@@ -910,10 +919,13 @@ private fun HomeLandingContent(
     ) {
         MeverSnackbar(
             message = snackbarMessage,
-            actionMessage = stringResource(R.string.cancel),
-            snackbarColor = MeverRed,
-            onClickSnackbarAction = { delete(contentId ?: 0) },
-            onClearSnackbar = { snackbarMessage = "" }
+            actionMessage = if (contentId != null) stringResource(R.string.cancel) else null,
+            snackbarColor = if (contentId != null) MeverRed else colors.alwaysPurple,
+            onClickSnackbarAction = { contentId?.let { delete(it) } },
+            onClearSnackbar = {
+                snackbarMessage = ""
+                contentId = null
+            }
         )
     }
 }
