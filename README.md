@@ -51,7 +51,7 @@ Want to contribute? Let’s go!
    <img src="https://github.com/user-attachments/assets/b478861f-a72d-4c63-8841-70e2d85f8b26" width="500" />
 3. Add your `API_KEY` (get it from [api neoxr](https://api.neoxr.eu/)) or you can send me a message to ask for the api key 
     ```
-      # ADMob Configuration (Optional)
+      # ADMob Configuration
       ADMOB_ID=
       AD_BANNER_UNIT_ID=
       AD_INTERSTITIAL_UNIT_ID=
@@ -62,6 +62,9 @@ Want to contribute? Let’s go!
     
       # Release Environment
       BASE_URL_RELEASE=YOUR_RELEASE_URL_HERE
+      
+      # RevenueCat
+      REVENUECAT_API_KEY=
     ```
 4. Create a new branch, commit & push:
    ```bash
