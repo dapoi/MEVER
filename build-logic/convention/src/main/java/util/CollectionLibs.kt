@@ -32,6 +32,7 @@ object CollectionLibs {
             implementation(libs.media3.ui.get())
             implementation(libs.mlkit.subject.segmentation.get())
             implementation(libs.play.services.base.get())
+            implementation(libs.revenuecat.purchases.get())
             implementation(libs.timber.get())
         }
     }
@@ -45,6 +46,7 @@ object CollectionLibs {
             implementation(libs.okhttp.interceptor.get())
             implementation(libs.retrofit.lib.get())
             implementation(libs.retrofit.moshi.get())
+            implementation(libs.revenuecat.purchases.get())
             implementation(libs.timber.get())
             implementation(libs.work.runtime.get())
             add(KSP, libs.moshi.codegen.get())

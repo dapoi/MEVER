@@ -18,6 +18,8 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow.Companion.Ellipsis
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
@@ -45,6 +47,7 @@ fun MeverFeatureCard(
     onClick: () -> Unit
 ) {
     val isDarkMode = MeverThemeAttr.isDarkMode
+    val isDoodle = MeverThemeAttr.isDoodle
     Box(
         modifier = modifier
             .border(
@@ -83,12 +86,13 @@ fun MeverFeatureCard(
                 modifier = Modifier
                     .size(Dp40)
                     .clip(RoundedCornerShape(Dp8))
-                    .background(color = if (isDarkMode) MeverDark else cardColor.copy(alpha = 0.5f)),
+                    .background(color = if (isDarkMode) MeverDark else if (isDoodle) colors.lightPurpleDarkGray else cardColor.copy(alpha = 0.5f)),
                 contentAlignment = Center
             ) {
                 MeverImage(
                     modifier = Modifier.size(Dp24),
-                    source = icon
+                    source = icon,
+                    colorFilter = if (isDoodle) ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) }) else null
                 )
             }
             Spacer(modifier = Modifier.size(Dp12))

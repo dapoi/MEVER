@@ -80,7 +80,6 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
-import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.FadeSide.Bottom
@@ -109,13 +108,14 @@ import kotlin.time.Duration.Companion.milliseconds
 @Composable
 internal fun WaStatusLandingScreen(
     navigator: Navigator,
-    viewModel: WaStatusViewModel = hiltViewModel()
+    viewModel: WaStatusViewModel = hiltViewModel(),
 ) = with(viewModel) {
+    val waStatuses = waStatuses.collectAsStateValue()
+    val isProActive = isProActive.collectAsStateValue()
     val activity = LocalActivity.current
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val scope = rememberCoroutineScope()
-    val waStatuses = waStatuses.collectAsStateValue()
     val isWaRegularInstalled = remember { isAppInstalled(context, "com.whatsapp") }
     val isWaBusinessInstalled = remember { isAppInstalled(context, "com.whatsapp.w4b") }
     val listState = rememberLazyGridState()
@@ -264,6 +264,7 @@ internal fun WaStatusLandingScreen(
             isWaBusinessInstalled = isWaBusinessInstalled,
             listState = listState,
             isExpanded = isExpanded,
+            isPro = isProActive,
             regularPermissionGranted = regularPermissionGranted,
             businessPermissionGranted = businessPermissionGranted,
             onSetTitleHeight = { titleHeight = it },
@@ -299,6 +300,7 @@ private fun WaStatusContent(
     businessPermissionGranted: Boolean,
     waStatuses: List<WaStatusEntity>?,
     modifier: Modifier = Modifier,
+    isPro: Boolean = false,
     onSetTitleHeight: (Int) -> Unit,
     onRequestPermission: (WaType) -> Unit,
     onClickNavigate: (WaStatusEntity) -> Unit
@@ -377,7 +379,7 @@ private fun WaStatusContent(
                             shape = RoundedCornerShape(Dp64),
                             buttonType = if (selectedFilter == filter) Filled(
                                 backgroundColor = colors.alwaysPurple,
-                                contentColor = MeverWhite
+                                contentColor = colors.alwaysWhiteBlack
                             ) else Outlined(
                                 borderColor = colors.alwaysPurple,
                                 contentColor = colors.alwaysPurple
@@ -427,7 +429,6 @@ private fun WaStatusContent(
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(horizontal = Dp24),
-                            image = R.drawable.ic_empty_state,
                             title = stringResource(R.string.wa_empty_title),
                             description = stringResource(
                                 if (isPermissionGranted) R.string.empty_wa_status_desc
@@ -462,6 +463,7 @@ private fun WaStatusContent(
                 }
             }
             MeverBannerAd(
+                isProActive = isPro,
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(BottomCenter)

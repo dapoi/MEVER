@@ -11,10 +11,12 @@ object MeverButtonAttr {
     ) {
         data class Filled(
             override val backgroundColor: Color,
-            override val contentColor: Color
+            override val contentColor: Color,
+            override val borderColor: Color? = null
         ) : MeverButtonType(
             backgroundColor = backgroundColor,
-            contentColor = contentColor
+            contentColor = contentColor,
+            borderColor = borderColor
         )
 
         data class Outlined(

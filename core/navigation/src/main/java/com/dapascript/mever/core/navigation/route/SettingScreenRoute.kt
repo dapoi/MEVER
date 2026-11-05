@@ -20,4 +20,13 @@ sealed interface SettingScreenRoute : NavKey {
 
     @Serializable
     data object SettingAboutAppRoute : SettingScreenRoute
+
+    @Serializable
+    data object SettingPaywallRoute : SettingScreenRoute
+
+    @Serializable
+    data object SettingSubscriptionDetailRoute : SettingScreenRoute
+
+    @Serializable
+    data object SettingQuickDownloadRoute : SettingScreenRoute
 }

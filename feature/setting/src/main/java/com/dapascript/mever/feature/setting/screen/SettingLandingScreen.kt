@@ -2,14 +2,9 @@ package com.dapascript.mever.feature.setting.screen
 
 import android.content.Context
 import android.content.pm.PackageManager.PERMISSION_GRANTED
-import android.text.format.Formatter
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Arrangement.spacedBy
@@ -30,7 +25,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,24 +32,20 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap.Companion.Butt
-import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
@@ -67,36 +57,32 @@ import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.component.MeverMenuItem
 import com.dapascript.mever.core.common.ui.component.MeverPermissionHandler
 import com.dapascript.mever.core.common.ui.component.meverShimmer
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp0
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp1
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp100
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp12
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp120
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp150
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp130
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp20
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp28
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp32
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp60
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp62
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
-import com.dapascript.mever.core.common.ui.theme.Dimens.Dp90
-import com.dapascript.mever.core.common.ui.theme.MeverOrange
-import com.dapascript.mever.core.common.ui.theme.MeverPurple
-import com.dapascript.mever.core.common.ui.theme.MeverRed
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
-import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp20
-import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp22
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
+import com.dapascript.mever.core.common.ui.theme.ThemePalette
+import com.dapascript.mever.core.common.ui.theme.ThemePalette.CLASSIC
+import com.dapascript.mever.core.common.ui.theme.ThemePalette.Doodle
 import com.dapascript.mever.core.common.ui.theme.ThemeType
-import com.dapascript.mever.core.common.util.DeviceType
-import com.dapascript.mever.core.common.util.DeviceType.PHONE
-import com.dapascript.mever.core.common.util.DeviceType.TABLET
 import com.dapascript.mever.core.common.util.FadeSide.Bottom
 import com.dapascript.mever.core.common.util.LanguageManager.getLanguageCode
 import com.dapascript.mever.core.common.util.LocalActivity
-import com.dapascript.mever.core.common.util.LocalDeviceType
 import com.dapascript.mever.core.common.util.cleanCache
 import com.dapascript.mever.core.common.util.copyToClipboard
 import com.dapascript.mever.core.common.util.fadingEdge
@@ -104,22 +90,23 @@ import com.dapascript.mever.core.common.util.getNotificationPermission
 import com.dapascript.mever.core.common.util.navigateToGmail
 import com.dapascript.mever.core.common.util.navigateToNotificationSettings
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
-import com.dapascript.mever.core.common.util.storage.StorageUtil.StorageInfo
 import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingAboutAppRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingFaqRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLandingRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLanguageRoute
-import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr
+import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingPaywallRoute
+import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingQuickDownloadRoute
+import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingSubscriptionDetailRoute
+import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.SettingMenus
 import com.dapascript.mever.feature.setting.screen.attr.SettingLandingAttr.getSettingMenus
 import com.dapascript.mever.feature.setting.screen.component.HandleBottomSheetQris
+import com.dapascript.mever.feature.setting.screen.component.MeverProBannerCard
 import com.dapascript.mever.feature.setting.viewmodel.SettingLandingViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
-import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 internal fun SettingLandingScreen(
@@ -128,24 +115,26 @@ internal fun SettingLandingScreen(
     viewModel: SettingLandingViewModel = hiltViewModel()
 ) = with(viewModel) {
     val isInitialLoading = isInitialLoading.collectAsStateValue()
+    val isProActive = isProActive.collectAsStateValue()
     val themeType = themeType.collectAsStateValue()
+    val rawPalette = themePalette.collectAsStateValue()
+    val activePalette = remember(rawPalette, isProActive) {
+        if (isProActive || !rawPalette.isProOnly) rawPalette
+        else CLASSIC
+    }
     val isPipEnabled = isPipEnabled.collectAsStateValue()
-    val storageInfo = storageInfo.collectAsStateValue()
+    val isQuickNotifEnabled = isQuickNotifEnabled.collectAsStateValue()
     val context = LocalContext.current
+    val configuration = LocalConfiguration.current
+    val currentLanguageCode = remember(configuration, context) { getLanguageCode(context) }
     val activity = LocalActivity.current
     val resources = LocalResources.current
-    val deviceType = LocalDeviceType.current
     val scope = rememberCoroutineScope()
     val listState = rememberLazyListState()
-    val statusColor = remember(storageInfo?.usedPercent) {
-        getStatusStorageColor(storageInfo?.usedPercent ?: 0)
-    }
     var showPaypalDialog by remember { mutableStateOf(false) }
-    var titleHeight by rememberSaveable { mutableIntStateOf(0) }
-    val isExpanded = remember(listState, titleHeight) {
+    val isCollapsed by remember {
         derivedStateOf {
-            if (titleHeight == 0) return@derivedStateOf true
-            listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset < (titleHeight / 2)
+            listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 40
         }
     }
     var showBottomSheetQris by rememberSaveable { mutableStateOf<Boolean?>(null) }
@@ -153,41 +142,30 @@ internal fun SettingLandingScreen(
 
     BaseScreen(
         topBarArgs = TopBarArgs(
-            title = if (isExpanded.value.not() && isInitialLoading.not()) stringResource(R.string.settings) else ""
+            title = if (isCollapsed && isInitialLoading.not()) stringResource(R.string.settings) else ""
         ),
         onBackHandler = { navigator.navigateBack() }
     ) {
-        val menus = remember(context, appVersion) { getSettingMenus(context, appVersion) }
-
-        LaunchedEffect(Unit) {
-            fetchStorageInfo()
+        val menus = remember(context, appVersion, isProActive) {
+            getSettingMenus(context, appVersion, isProActive)
         }
 
-        LaunchedEffect(listState, titleHeight) {
+        LaunchedEffect(listState) {
             snapshotFlow { listState.isScrollInProgress }
                 .distinctUntilChanged()
-                .filter { it.not() }
+                .filter { !it }
                 .collect {
-                    if (titleHeight == 0 || listState.firstVisibleItemIndex > 0) return@collect
-
-                    val threshold = titleHeight / 2
-                    val currentOffset = listState.firstVisibleItemScrollOffset
-
-                    if (currentOffset in 1 until titleHeight) {
-                        val targetIndex = if (currentOffset < threshold) 0 else 1
-                        listState.animateScrollToItem(targetIndex)
+                    if (listState.firstVisibleItemIndex == 0) {
+                        val offset = listState.firstVisibleItemScrollOffset
+                        if (offset in 1..100) {
+                            val target = if (offset < 50) 0 else 1
+                            listState.animateScrollToItem(target)
+                        }
                     }
                 }
         }
 
-        LaunchedEffect(storageInfo?.usedPercent) {
-            storageInfo?.usedPercent?.let {
-                delay(300.milliseconds)
-                animatedPercent = it / 100f
-            }
-        }
-
-        LaunchedEffect(context) { languageCode = getLanguageCode(context) }
+        LaunchedEffect(currentLanguageCode) { languageCode = currentLanguageCode }
 
         LaunchedEffect(args.showQrisDialog, isInitialLoading) {
             if (showBottomSheetQris == null && args.showQrisDialog && isInitialLoading.not()) {
@@ -237,6 +215,10 @@ internal fun SettingLandingScreen(
 
         HandleBottomSheetQris(showBottomSheetQris == true) { showBottomSheetQris = it }
 
+        LaunchedEffect(Unit) {
+            checkSubscriptionEntitlement()
+        }
+
         AnimatedVisibility(
             visible = isInitialLoading.not(),
             enter = fadeIn(),
@@ -247,17 +229,21 @@ internal fun SettingLandingScreen(
                     .fillMaxSize()
                     .padding(top = Dp64),
                 context = context,
-                animatedPercent = animatedPercent,
-                statusColor = statusColor,
-                deviceType = deviceType,
                 listState = listState,
                 isPipEnabled = isPipEnabled,
-                getLanguageCode = languageCode,
+                isQuickNotifEnabled = isQuickNotifEnabled,
+                getLanguageCode = currentLanguageCode,
                 themeType = themeType,
-                storageInfo = storageInfo,
+                themePalette = activePalette,
+                isProActive = isProActive,
                 menus = menus,
-                isExpanded = { isExpanded.value },
-                onSetTitleHeight = { titleHeight = it },
+                onClickProAccess = {
+                    if (isProActive) {
+                        navigator.navigate(SettingSubscriptionDetailRoute)
+                    } else {
+                        navigator.navigate(SettingPaywallRoute)
+                    }
+                },
                 onClickChangeLanguage = { languageCode ->
                     navigator.navigate(SettingLanguageRoute(languageCode))
                 },
@@ -272,6 +258,13 @@ internal fun SettingLandingScreen(
                     scope.launch { cleanCache(context, activity) }
                 },
                 onClickPip = { savePipState(isPipEnabled.not()) },
+                onClickQuickNotif = {
+                    if (isProActive) {
+                        navigator.navigate(SettingQuickDownloadRoute)
+                    } else {
+                        navigator.navigate(SettingPaywallRoute)
+                    }
+                },
                 onClickPaypal = { showPaypalDialog = true },
                 onClickQris = { showBottomSheetQris = true },
                 onClickFaq = { navigator.navigate(SettingFaqRoute) },
@@ -281,7 +274,7 @@ internal fun SettingLandingScreen(
         }
 
         if (isInitialLoading) {
-            SettingShimmer(deviceType = deviceType)
+            SettingShimmer()
         }
     }
 }
@@ -289,23 +282,22 @@ internal fun SettingLandingScreen(
 @Composable
 private fun SettingLandingContent(
     context: Context,
-    animatedPercent: Float,
-    statusColor: Color,
-    deviceType: DeviceType,
     listState: LazyListState,
     isPipEnabled: Boolean,
+    isQuickNotifEnabled: Boolean,
     getLanguageCode: String,
     themeType: ThemeType,
-    storageInfo: StorageInfo?,
-    menus: List<SettingLandingAttr.SettingMenus>,
+    themePalette: ThemePalette,
+    isProActive: Boolean,
+    menus: List<SettingMenus>,
     modifier: Modifier = Modifier,
-    isExpanded: () -> Boolean,
-    onSetTitleHeight: (Int) -> Unit = {},
+    onClickProAccess: () -> Unit,
     onClickChangeLanguage: (String) -> Unit,
     onClickNotificationPermission: () -> Unit,
     onClickChangeTheme: (ThemeType) -> Unit,
     onClickCleanCache: () -> Unit,
     onClickPip: () -> Unit,
+    onClickQuickNotif: () -> Unit,
     onClickPaypal: () -> Unit,
     onClickQris: () -> Unit,
     onClickFaq: () -> Unit,
@@ -315,6 +307,17 @@ private fun SettingLandingContent(
     val showBottomFade by remember {
         derivedStateOf { listState.canScrollForward }
     }
+    val isCollapsed by remember {
+        derivedStateOf {
+            listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 40
+        }
+    }
+    val headerAlpha by remember {
+        derivedStateOf {
+            if (listState.firstVisibleItemIndex > 0) 0f
+            else (1f - (listState.firstVisibleItemScrollOffset / 100f)).coerceIn(0f, 1f)
+        }
+    }
 
     Column(
         modifier = modifier.fadingEdge(
@@ -322,7 +325,7 @@ private fun SettingLandingContent(
             isVisible = showBottomFade
         )
     ) {
-        if (isExpanded().not()) {
+        if (isCollapsed) {
             HorizontalDivider(
                 modifier = Modifier.fillMaxWidth(),
                 thickness = Dp1,
@@ -335,44 +338,31 @@ private fun SettingLandingContent(
             contentPadding = PaddingValues(bottom = Dp32)
         ) {
             item {
-                Column(modifier = Modifier.fillMaxWidth()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .graphicsLayer {
+                            alpha = headerAlpha
+                            translationY = (1f - headerAlpha) * -20f
+                        }
+                ) {
                     Spacer(modifier = Modifier.height(Dp16))
-                    AnimatedVisibility(
-                        visible = isExpanded(),
-                        enter = expandVertically() + fadeIn(),
-                        exit = shrinkVertically() + fadeOut()
-                    ) {
-                        Text(
-                            text = stringResource(R.string.settings),
-                            style = typography.h2.copy(fontSize = Sp32),
-                            color = colors.blackWhite,
-                            modifier = Modifier
-                                .padding(horizontal = Dp24)
-                                .onGloballyPositioned { onSetTitleHeight(it.size.height) }
-                        )
-                    }
+                    Text(
+                        text = stringResource(R.string.settings),
+                        style = typography.h2.copy(fontSize = Sp32),
+                        color = colors.blackWhite,
+                        modifier = Modifier.padding(horizontal = Dp24)
+                    )
                 }
             }
             item {
-                if (storageInfo != null) {
-                    AvailableStorageSection(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = Dp24, vertical = Dp32),
-                        context = context,
-                        storageInfo = storageInfo,
-                        animatedPercent = animatedPercent,
-                        statusColor = statusColor,
-                        deviceType = deviceType
-                    )
-                } else {
-                    StorageSectionLoading(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = Dp24, vertical = Dp32),
-                        deviceType = deviceType
-                    )
-                }
+                MeverProBannerCard(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = Dp24, end = Dp24, top = Dp24, bottom = Dp32),
+                    isProActive = isProActive,
+                    onClickBanner = onClickProAccess
+                )
             }
             menus.forEach { (title, menus) ->
                 item {
@@ -388,36 +378,55 @@ private fun SettingLandingContent(
                     key = { menu -> menu.leadingTitle },
                     contentType = { "menu_item" }
                 ) { menu ->
-                    val trailingTitle = remember(menu, getLanguageCode, themeType) {
+                    val trailingTitle = remember(menu, getLanguageCode, themeType, themePalette) {
                         menu.trailingTitle?.let {
+                            val isIndonesian = getLanguageCode in setOf("id", "in")
                             when (menu.leadingTitle) {
                                 context.getString(R.string.language) -> {
-                                    if (getLanguageCode == "en") "English"
-                                    else "Bahasa Indonesia"
+                                    if (isIndonesian) "Bahasa Indonesia"
+                                    else "English"
                                 }
 
-                                context.getString(R.string.theme) -> context.getString(
-                                    themeType.themeResId
-                                )
+                                context.getString(R.string.appearance_and_icons),
+                                context.getString(R.string.theme) -> {
+                                    val themeName = when (themeType) {
+                                        ThemeType.System -> if (isIndonesian) "Sistem" else "System"
+                                        ThemeType.Light -> context.getString(R.string.light)
+                                        ThemeType.Dark -> context.getString(R.string.dark)
+                                    }
+                                    val paletteName = when (themePalette) {
+                                        CLASSIC -> if (isIndonesian) "Klasik" else "Classic"
+                                        Doodle -> "Doodle"
+                                    }
+                                    "$themeName ($paletteName)"
+                                }
 
                                 else -> it
                             }
                         }
                     }
 
-                    val menuArgs = remember(menu, trailingTitle, isPipEnabled) {
+                    val isDoodle = themePalette == Doodle
+                    val doodleBg = colors.lightPurpleDarkGray
+                    val doodleTint = colors.blackWhite
+                    val menuArgs = remember(menu, trailingTitle, isPipEnabled, isQuickNotifEnabled, isProActive, isDoodle, doodleBg, doodleTint) {
                         MenuItemArgs(
                             leadingIcon = menu.icon,
-                            leadingIconBackground = menu.iconBackgroundColor,
+                            leadingIconBackground = if (isDoodle) doodleBg else menu.iconBackgroundColor,
+                            leadingIconTint = if (isDoodle) doodleTint else null,
                             leadingTitle = menu.leadingTitle,
                             leadingDesc = menu.leadingDesc,
                             leadingIconSize = Dp40,
                             leadingIconPadding = Dp8,
-                            trailingType = if (menu.leadingTitle != context.getString(R.string.pip)) {
-                                Default(
-                                    trailingTitle = trailingTitle
-                                )
-                            } else Switch(isPipEnabled)
+                            enabled = true,
+                            isProOnly = when (menu.leadingTitle) {
+                                context.getString(R.string.quick_download_notif_title) -> !isProActive
+                                else -> false
+                            },
+                            trailingType = when (menu.leadingTitle) {
+                                context.getString(R.string.pip) -> Switch(isPipEnabled)
+                                else -> Default(trailingTitle = trailingTitle)
+                            }
                         )
                     }
 
@@ -434,6 +443,7 @@ private fun SettingLandingContent(
                             onClickNotificationPermission = { onClickNotificationPermission() },
                             onClickChangeTheme = { onClickChangeTheme(it) },
                             onClickPip = { onClickPip() },
+                            onClickQuickNotif = { onClickQuickNotif() },
                             onClickCleanCache = { onClickCleanCache() },
                             onClickPaypal = { onClickPaypal() },
                             onClickQris = { onClickQris() },
@@ -449,119 +459,6 @@ private fun SettingLandingContent(
     }
 }
 
-@Composable
-private fun AvailableStorageSection(
-    context: Context,
-    storageInfo: StorageInfo,
-    animatedPercent: Float,
-    statusColor: Color,
-    deviceType: DeviceType,
-    modifier: Modifier = Modifier
-) = with(storageInfo) {
-    val progressState = animateFloatAsState(
-        targetValue = animatedPercent,
-        animationSpec = tween(durationMillis = 1000),
-        label = "StorageProgressAnimation"
-    )
-    Box(modifier = modifier) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = CenterVertically,
-            horizontalArrangement = spacedBy(Dp24)
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(if (deviceType == PHONE) Dp120 else Dp150),
-                    progress = { progressState.value },
-                    color = statusColor,
-                    strokeWidth = Dp8,
-                    trackColor = colors.lightGrayDarkGray,
-                    strokeCap = Butt,
-                    gapSize = Dp0
-                )
-                Text(
-                    text = "$usedPercent%",
-                    style = typography.body1.copy(fontSize = Sp20),
-                    color = colors.blackWhite
-                )
-            }
-            Column(
-                modifier = Modifier.then(if (deviceType == PHONE) Modifier.weight(1f) else Modifier),
-                verticalArrangement = spacedBy(Dp4)
-            ) {
-                Text(
-                    text = stringResource(R.string.storage),
-                    style = typography.bodyBold1,
-                    color = statusColor
-                )
-                Text(
-                    text = getUsedOfTotalText(context, this@with),
-                    style = typography.body2,
-                    color = colors.blackWhite
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun StorageSectionLoading(
-    deviceType: DeviceType,
-    modifier: Modifier = Modifier
-) = Box(modifier = modifier) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = CenterVertically,
-        horizontalArrangement = spacedBy(Dp24)
-    ) {
-        Box(
-            modifier = Modifier
-                .size(if (deviceType == PHONE) Dp120 else Dp150)
-                .clip(CircleShape)
-                .meverShimmer()
-        )
-        Column(verticalArrangement = spacedBy(Dp4)) {
-            Box(
-                modifier = Modifier
-                    .height(Sp22.run {
-                        when (deviceType) {
-                            PHONE -> value.dp
-                            TABLET -> (value + 2).dp
-                            else -> (value + 4).dp
-                        }
-                    })
-                    .width(Dp90)
-                    .meverShimmer()
-            )
-            Box(
-                modifier = Modifier
-                    .height(Sp20.run {
-                        when (deviceType) {
-                            PHONE -> value.dp
-                            TABLET -> (value + 2).dp
-                            else -> (value + 4).dp
-                        }
-                    })
-                    .width(Dp150)
-                    .meverShimmer()
-            )
-        }
-    }
-}
-
-@Composable
-private fun getUsedOfTotalText(context: Context, storageInfo: StorageInfo): String {
-    val usedText = Formatter.formatFileSize(context, storageInfo.usedBytes).replace(" ", "")
-    val totalText = Formatter.formatFileSize(context, storageInfo.totalBytes).replace(" ", "")
-    return stringResource(R.string.used_storage, usedText, totalText)
-}
-
-private fun getStatusStorageColor(usedPercent: Int) = when {
-    usedPercent < 70 -> MeverPurple
-    usedPercent in 70..90 -> MeverOrange
-    else -> MeverRed
-}
-
 private fun handleClickMenu(
     context: Context,
     title: String,
@@ -571,6 +468,7 @@ private fun handleClickMenu(
     onClickNotificationPermission: () -> Unit,
     onClickChangeTheme: (ThemeType) -> Unit,
     onClickPip: () -> Unit,
+    onClickQuickNotif: () -> Unit,
     onClickCleanCache: () -> Unit,
     onClickPaypal: () -> Unit,
     onClickQris: () -> Unit,
@@ -581,8 +479,10 @@ private fun handleClickMenu(
     when (title) {
         getString(R.string.language) -> onClickChangeLanguage(languageCode)
         getString(R.string.notification) -> onClickNotificationPermission()
+        getString(R.string.appearance_and_icons),
         getString(R.string.theme) -> onClickChangeTheme(themeType)
         getString(R.string.pip) -> onClickPip()
+        getString(R.string.quick_download_notif_title) -> onClickQuickNotif()
         getString(R.string.clean_cache) -> onClickCleanCache()
         getString(R.string.paypal) -> onClickPaypal()
         getString(R.string.qris) -> onClickQris()
@@ -593,10 +493,7 @@ private fun handleClickMenu(
 }
 
 @Composable
-private fun SettingShimmer(
-    deviceType: DeviceType,
-    modifier: Modifier = Modifier
-) {
+private fun SettingShimmer(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -621,18 +518,20 @@ private fun SettingShimmer(
                 )
             }
         }
-        StorageSectionLoading(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = Dp24, vertical = Dp32),
-            deviceType = deviceType
+                .padding(start = Dp24, end = Dp24, top = Dp24, bottom = Dp32)
+                .height(Dp62)
+                .clip(RoundedCornerShape(Dp16))
+                .meverShimmer(true)
         )
         repeat(3) { sectionIndex ->
             Box(
                 modifier = Modifier
                     .padding(start = Dp24, end = Dp24, bottom = Dp12)
-                    .width(if (sectionIndex == 0) 80.dp else if (sectionIndex == 1) 100.dp else 60.dp)
-                    .height(20.dp)
+                    .width(if (sectionIndex == 0) Dp80 else if (sectionIndex == 1) Dp100 else Dp60)
+                    .height(Dp20)
                     .clip(RoundedCornerShape(Dp4))
                     .meverShimmer(true)
             )
@@ -656,8 +555,8 @@ private fun SettingShimmer(
                         )
                         Box(
                             modifier = Modifier
-                                .width(130.dp)
-                                .height(16.dp)
+                                .width(Dp130)
+                                .height(Dp16)
                                 .clip(RoundedCornerShape(Dp4))
                                 .meverShimmer(true)
                         )

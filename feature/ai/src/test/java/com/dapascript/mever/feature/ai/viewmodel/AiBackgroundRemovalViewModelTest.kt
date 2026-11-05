@@ -7,8 +7,10 @@ import com.dapascript.mever.core.common.util.state.UiState
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.feature.ai.screen.attr.AiBackgroundRemovalAttr.BgRemovalType.QuickColor
 import com.dapascript.mever.feature.ai.screen.attr.AiBackgroundRemovalAttr.BgRemovalType.TransparentImage
+import com.dapascript.mever.core.data.repository.SubscriptionRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -43,6 +45,9 @@ class AiBackgroundRemovalViewModelTest {
     @Mock
     lateinit var repository: MeverRepository
 
+    @Mock
+    lateinit var subscriptionRepository: SubscriptionRepository
+
     private lateinit var viewModel: AiBackgroundRemovalViewModel
 
     @Before
@@ -52,8 +57,9 @@ class AiBackgroundRemovalViewModelTest {
 
         whenever(repository.getClickCount()).thenReturn(flowOf(2))
         whenever(repository.getAdsThreshold()).thenReturn(flowOf(5))
+        whenever(subscriptionRepository.isProActive).thenReturn(MutableStateFlow(false))
 
-        viewModel = AiBackgroundRemovalViewModel(context, processor, repository)
+        viewModel = AiBackgroundRemovalViewModel(context, processor, repository, subscriptionRepository)
     }
 
     @After

@@ -21,6 +21,7 @@ import com.dapascript.mever.core.data.source.local.MeverDataStore
 import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_IS_GO_IMG_ENABLED
 import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_IS_IMAGE_AI_ENABLED
 import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_RESOLUTIONS
+import com.dapascript.mever.core.data.repository.SubscriptionRepository
 import com.ketch.Status.PAUSED
 import com.ketch.Status.PROGRESS
 import com.ketch.Status.QUEUED
@@ -42,16 +43,21 @@ import javax.inject.Inject
 @HiltViewModel
 internal class HomeLandingViewModel @Inject constructor(
     private val repository: MeverRepository,
-    private val deeplinkManager: DeeplinkManager
+    private val deeplinkManager: DeeplinkManager,
+    subscriptionRepository: SubscriptionRepository
 ) : BaseViewModel() {
+
+    val isProActive = subscriptionRepository.isProActive
 
     var urlSocialMediaState by mutableStateOf(TextFieldValue(""))
     var selectedQuality by mutableStateOf("")
-    var shouldShowDonationOfferDialog by mutableStateOf(true)
+    var shouldShowDonationOfferDialog by mutableStateOf(false)
     var contents by mutableStateOf<List<ContentEntity>>(emptyList())
     var errorMessage by mutableStateOf("")
     var storageInfo by mutableStateOf<StorageInfo?>(null)
     var hasCheckedUpdate by mutableStateOf(false)
+    var snackbarMessage by mutableStateOf("")
+    var contentId by mutableStateOf<Int?>(null)
 
     private val _refreshTrigger = MutableStateFlow(0)
 

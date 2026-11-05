@@ -120,7 +120,7 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp6
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.MeverBlack
 import com.dapascript.mever.core.common.ui.theme.MeverDark
-import com.dapascript.mever.core.common.ui.theme.MeverPurple
+import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
@@ -362,7 +362,7 @@ fun MeverVideoPlayer(
         titleColor = MeverWhite,
         descriptionColor = MeverWhite,
         backgroundColor = MeverDark,
-        primaryActionColor = MeverPurple,
+        primaryActionColor = colors.alwaysPurple,
         onClickPrimaryAction = { onClickBack() }
     )
 
@@ -678,7 +678,7 @@ private fun VideoBottomControlSection(
                         thumbTrackGapSize = Dp0,
                         trackInsideCornerSize = Dp0,
                         colors = colors(
-                            activeTrackColor = MeverPurple,
+                            activeTrackColor = colors.alwaysPurple,
                             inactiveTrackColor = MeverWhite.copy(alpha = 0.3f)
                         )
                     )
@@ -688,7 +688,7 @@ private fun VideoBottomControlSection(
                         modifier = Modifier
                             .size(Dp16)
                             .clip(shape = CircleShape),
-                        colors = colors(thumbColor = MeverPurple),
+                        colors = colors(thumbColor = colors.alwaysPurple),
                         interactionSource = interactionSource
                     )
                 }

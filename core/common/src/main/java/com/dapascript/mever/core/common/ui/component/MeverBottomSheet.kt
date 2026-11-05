@@ -37,8 +37,8 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp0
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp80
-import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
+import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.isDarkMode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,6 +47,7 @@ fun MeverBottomSheet(
     modifier: Modifier = Modifier,
     isAlwaysRectangular: Boolean = false,
     isDisableContentDrag: Boolean = false,
+    showDragHandle: Boolean = true,
     skipPartiallyExpanded: Boolean = true,
     shouldDismissOnBackPress: Boolean = true,
     shouldDismissOnClickOutside: Boolean = false,
@@ -106,31 +107,33 @@ fun MeverBottomSheet(
         },
         containerColor = colors.whiteDark,
         properties = ModalBottomSheetProperties(
+            isAppearanceLightStatusBars = isDarkMode.not(),
+            isAppearanceLightNavigationBars = isDarkMode.not(),
             shouldDismissOnClickOutside = shouldDismissOnClickOutside,
             shouldDismissOnBackPress = shouldDismissOnBackPress
         ),
-        dragHandle = {
-            HorizontalDivider(
-                thickness = Dp2,
-                color = colors.blackWhite,
-                modifier = Modifier
-                    .width(Dp80)
-                    .padding(vertical = Dp24)
-            )
-        },
+        dragHandle = if (showDragHandle) {
+            {
+                HorizontalDivider(
+                    thickness = Dp2,
+                    color = colors.blackWhite,
+                    modifier = Modifier
+                        .width(Dp80)
+                        .padding(vertical = Dp24)
+                )
+            }
+        } else null,
         onDismissRequest = onDismissBottomSheet
     ) {
         val view = LocalView.current
-        val isDarkMode = MeverThemeAttr.isDarkMode
+        val isDarkMode = isDarkMode
 
         LaunchedEffect(view, isDarkMode) {
-            val window = (view.parent as? DialogWindowProvider)?.window
-            if (window != null) {
-                WindowCompat.setDecorFitsSystemWindows(window, false)
-                WindowCompat.getInsetsController(window, view).apply {
-                    isAppearanceLightStatusBars = isDarkMode.not()
-                    isAppearanceLightNavigationBars = isDarkMode.not()
-                }
+            val window = (view.parent as? DialogWindowProvider)?.window ?: return@LaunchedEffect
+            WindowCompat.enableEdgeToEdge(window)
+            WindowCompat.getInsetsController(window, view).apply {
+                isAppearanceLightStatusBars = isDarkMode.not()
+                isAppearanceLightNavigationBars = isDarkMode.not()
             }
         }
 

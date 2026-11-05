@@ -131,7 +131,6 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
-import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp32
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.LocalActivity
@@ -165,7 +164,7 @@ import androidx.core.content.FileProvider.getUriForFile
 @Composable
 internal fun AiBackgroundRemovalScreen(
     navigator: Navigator,
-    viewModel: AiBackgroundRemovalViewModel = hiltViewModel()
+    viewModel: AiBackgroundRemovalViewModel = hiltViewModel(),
 ) = with(viewModel) {
     val context = LocalContext.current
     val activity = LocalActivity.current
@@ -176,6 +175,7 @@ internal fun AiBackgroundRemovalScreen(
     val selectedBackground = selectedBackground.collectAsStateValue()
     val getButtonClickCount = getButtonClickCount.collectAsStateValue()
     val adsThreshold = adsThreshold.collectAsStateValue()
+    val isProActive = isProActive.collectAsStateValue()
     var permissionsToRequest by remember { mutableStateOf<List<String>>(emptyList()) }
     var isLoading by rememberSaveable { mutableStateOf(false) }
     var isSaved by rememberSaveable { mutableStateOf(false) }
@@ -193,14 +193,13 @@ internal fun AiBackgroundRemovalScreen(
     var saturation by rememberSaveable { mutableFloatStateOf(1f) }
     var value by rememberSaveable { mutableFloatStateOf(1f) }
     val color = remember(hue, saturation, value) { Color.hsv(hue, saturation, value) }
-
     val isExpanded by remember(titleHeight) {
         derivedStateOf {
             if (titleHeight == 0) return@derivedStateOf true
             listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset < (titleHeight / 2)
         }
     }
-    val interstitialAd = rememberInterstitialAd {
+    val interstitialAd = rememberInterstitialAd(isProActive = isProActive) {
         resultBitmap?.let {
             saveImage(bitmap = it)
         }
@@ -917,7 +916,7 @@ private fun ActionButtons(
             },
             buttonType = Filled(
                 backgroundColor = colors.alwaysPurple,
-                contentColor = MeverWhite
+                contentColor = colors.alwaysWhiteBlack
             ),
             isLoading = isProcessing || isLoading,
             isEnabled = isProcessing.not() && isLoading.not(),

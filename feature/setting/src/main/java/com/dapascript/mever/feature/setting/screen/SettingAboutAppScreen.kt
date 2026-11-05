@@ -1,6 +1,8 @@
 package com.dapascript.mever.feature.setting.screen
 
 import android.content.Context
+import android.widget.Toast
+import android.widget.Toast.LENGTH_SHORT
 import androidx.activity.SystemBarStyle.Companion.dark
 import androidx.activity.SystemBarStyle.Companion.light
 import androidx.activity.enableEdgeToEdge
@@ -23,12 +25,14 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter.Companion.tint
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration.Companion.Underline
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.base.BaseScreen
 import com.dapascript.mever.core.common.ui.attr.MeverButtonAttr.MeverButtonType.Outlined
@@ -36,40 +40,65 @@ import com.dapascript.mever.core.common.ui.attr.MeverTopBarAttr.TopBarArgs
 import com.dapascript.mever.core.common.ui.component.MeverButton
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp150
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
+import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp52
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp90
 import com.dapascript.mever.core.common.ui.theme.MeverDark
-import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
+import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.isDarkMode
+import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.isDoodle
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.LocalActivity
+import com.dapascript.mever.core.common.util.copyToClipboard
 import com.dapascript.mever.core.common.util.getAppVersion
 import com.dapascript.mever.core.common.util.navigateToBrowser
+import com.dapascript.mever.core.common.util.onCustomClick
 import com.dapascript.mever.core.navigation.helper.Navigator
+import com.dapascript.mever.feature.setting.viewmodel.SettingAboutAppViewModel
 import java.time.LocalDate
 
 @Composable
-internal fun SettingAboutAppScreen(navigator: Navigator) {
+internal fun SettingAboutAppScreen(
+    navigator: Navigator,
+    viewModel: SettingAboutAppViewModel = hiltViewModel()
+) {
     val context = LocalContext.current
     val activity = LocalActivity.current
-    val isDarkMode = MeverThemeAttr.isDarkMode
+    val isDarkMode = isDarkMode
+    val isDoodle = isDoodle
+    val contentColor = if (isDoodle) colors.blackWhite else MeverWhite
 
     BaseScreen(
         topBarArgs = TopBarArgs(
             title = "",
-            iconBackColor = MeverWhite
+            iconBackColor = contentColor
         ),
         useStatusBarsPadding = false,
         onBackHandler = { navigator.navigateBack() }
     ) {
-        DisposableEffect(isDarkMode) {
+        DisposableEffect(isDarkMode, isDoodle) {
+            val isDarkBar = isDoodle.not() || isDarkMode
             activity.enableEdgeToEdge(
-                statusBarStyle = dark(scrim = MeverTransparent.toArgb()),
-                navigationBarStyle = dark(scrim = MeverTransparent.toArgb())
+                statusBarStyle = if (isDarkBar) {
+                    dark(scrim = MeverTransparent.toArgb())
+                } else {
+                    light(
+                        scrim = MeverTransparent.toArgb(),
+                        darkScrim = MeverDark.toArgb()
+                    )
+                },
+                navigationBarStyle = if (isDarkBar) {
+                    dark(scrim = MeverTransparent.toArgb())
+                } else {
+                    light(
+                        scrim = MeverTransparent.toArgb(),
+                        darkScrim = MeverDark.toArgb()
+                    )
+                }
             )
             onDispose {
                 activity.enableEdgeToEdge(
@@ -95,9 +124,12 @@ internal fun SettingAboutAppScreen(navigator: Navigator) {
 
         SettingAboutAppContent(
             context = context,
+            contentColor = contentColor,
+            isDoodle = isDoodle,
+            userId = viewModel.userId,
             modifier = Modifier
                 .fillMaxSize()
-                .background(colors.alwaysPurple)
+                .background(if (isDoodle) colors.whiteDark else colors.alwaysPurple)
                 .navigationBarsPadding()
         )
     }
@@ -106,8 +138,13 @@ internal fun SettingAboutAppScreen(navigator: Navigator) {
 @Composable
 private fun SettingAboutAppContent(
     context: Context,
+    contentColor: Color,
+    isDoodle: Boolean,
+    userId: String,
     modifier: Modifier = Modifier
 ) {
+    val userIdCopiedMsg = stringResource(R.string.user_id_copied)
+
     Box(modifier = modifier) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -119,59 +156,77 @@ private fun SettingAboutAppContent(
                     .width(Dp150)
                     .height(Dp52),
                 painter = painterResource(R.drawable.ic_mever),
-                colorFilter = tint(MeverWhite),
+                colorFilter = tint(contentColor),
                 contentDescription = "Logo Mever"
             )
             Spacer(modifier = Modifier.height(Dp8))
             Text(
                 text = "Media Saver",
                 style = typography.bodyBold2,
-                color = MeverWhite
+                color = contentColor
             )
             Spacer(modifier = Modifier.height(Dp8))
             Image(
                 modifier = Modifier.size(Dp90),
                 painter = painterResource(R.drawable.ic_download),
+                colorFilter = if (isDoodle) tint(contentColor) else null,
                 contentDescription = "Download Icon"
             )
             Spacer(modifier = Modifier.height(Dp16))
-            // get years
             Text(
                 text = stringResource(
                     R.string.copyright,
                     LocalDate.now().year
                 ),
                 style = typography.body2,
-                color = MeverWhite
+                color = contentColor
             )
             Spacer(modifier = Modifier.height(Dp24))
             MeverButton(
                 title = stringResource(R.string.license).uppercase(),
                 buttonType = Outlined(
-                    borderColor = MeverWhite,
-                    contentColor = MeverWhite
+                    borderColor = contentColor,
+                    contentColor = contentColor
                 )
-            ) { navigateToBrowser(context, "https://mever.zeabur.app/license") }
+            ) { navigateToBrowser(context, "https://mever.my.id/license") }
             Spacer(modifier = Modifier.height(Dp16))
             TextButton(
-                onClick = { navigateToBrowser(context, "https://mever.zeabur.app/privacy-policy") },
+                onClick = { navigateToBrowser(context, "https://mever.my.id/privacy-policy") },
                 content = {
                     Text(
                         text = stringResource(R.string.policy),
                         style = typography.body2,
-                        color = MeverWhite,
+                        color = contentColor,
                         textDecoration = Underline
                     )
                 }
             )
         }
-        Text(
+        Column(
             modifier = Modifier
                 .align(BottomCenter)
                 .padding(bottom = Dp16),
-            text = getAppVersion(context),
-            style = typography.body1,
-            color = MeverWhite
-        )
+            horizontalAlignment = CenterHorizontally
+        ) {
+            Text(
+                text = getAppVersion(context),
+                style = typography.body1,
+                color = contentColor
+            )
+            if (userId.isNotBlank()) {
+                Spacer(modifier = Modifier.height(Dp2))
+                Text(
+                    text = userId,
+                    style = typography.label2,
+                    color = contentColor.copy(alpha = 0.7f),
+                    modifier = Modifier
+                        .onCustomClick {
+                            copyToClipboard(context, userId)
+                            Toast.makeText(context, userIdCopiedMsg, LENGTH_SHORT).show()
+                        }
+                        .padding(horizontal = Dp8, vertical = Dp2)
+                )
+            }
+        }
     }
 }

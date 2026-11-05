@@ -24,12 +24,20 @@ import com.dapascript.mever.core.common.util.DeviceType
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.DeviceType.TABLET
 
-private val interphases = FontFamily(
+val poppinsFamily = FontFamily(
     Font(R.font.poppins_regular, FontWeight.Normal),
     Font(R.font.poppins_medium, FontWeight.Medium),
     Font(R.font.poppins_semibold, FontWeight.SemiBold),
     Font(R.font.poppins_bold, FontWeight.Bold),
     Font(R.font.poppins_extrabold, FontWeight.ExtraBold)
+)
+
+val comicSansFamily = FontFamily(
+    Font(R.font.comic_sans_regular, FontWeight.Normal),
+    Font(R.font.comic_sans_regular, FontWeight.Medium),
+    Font(R.font.comic_sans_bold, FontWeight.SemiBold),
+    Font(R.font.comic_sans_bold, FontWeight.Bold),
+    Font(R.font.comic_sans_bold, FontWeight.ExtraBold)
 )
 
 private const val HEADLINE_LINE_HEIGHT = 1.2
@@ -41,169 +49,170 @@ private const val UNDERLINE_LINE_HEIGHT = 1.2
 
 data class MeverTypography(
     val deviceType: DeviceType = PHONE,
+    val fontFamily: FontFamily = poppinsFamily,
     val h1: TextStyle = TextStyle(
-        fontFamily = interphases,
+        fontFamily = fontFamily,
         fontWeight = FontWeight.ExtraBold,
         fontSize = adjustFontSize(deviceType, Sp28),
         lineHeight = Sp28 * HEADLINE_LINE_HEIGHT,
         lineHeightStyle = LineHeightStyle(alignment = Center, trim = None)
     ),
     val h2: TextStyle = TextStyle(
-        fontFamily = interphases,
+        fontFamily = fontFamily,
         fontWeight = FontWeight.Bold,
         fontSize = adjustFontSize(deviceType, Sp24),
         lineHeight = Sp24 * HEADLINE_LINE_HEIGHT,
         lineHeightStyle = LineHeightStyle(alignment = Center, trim = None)
     ),
     val h3: TextStyle = TextStyle(
-        fontFamily = interphases,
+        fontFamily = fontFamily,
         fontWeight = FontWeight.Bold,
         fontSize = adjustFontSize(deviceType, Sp18),
         lineHeight = Sp18 * HEADLINE_LINE_HEIGHT,
         lineHeightStyle = LineHeightStyle(alignment = Center, trim = None)
     ),
     val h4: TextStyle = TextStyle(
-        fontFamily = interphases,
+        fontFamily = fontFamily,
         fontWeight = FontWeight.Bold,
         fontSize = adjustFontSize(deviceType, Sp16),
         lineHeight = Sp16 * HEADLINE_LINE_HEIGHT,
         lineHeightStyle = LineHeightStyle(alignment = Center, trim = None)
     ),
     val h5: TextStyle = TextStyle(
-        fontFamily = interphases,
+        fontFamily = fontFamily,
         fontWeight = FontWeight.Bold,
         fontSize = adjustFontSize(deviceType, Sp14),
         lineHeight = Sp14 * HEADLINE_LINE_HEIGHT,
         lineHeightStyle = LineHeightStyle(alignment = Center, trim = None)
     ),
     val h6: TextStyle = TextStyle(
-        fontFamily = interphases,
+        fontFamily = fontFamily,
         fontWeight = FontWeight.Bold,
         fontSize = adjustFontSize(deviceType, Sp12),
         lineHeight = Sp12 * HEADLINE_LINE_HEIGHT,
         lineHeightStyle = LineHeightStyle(alignment = Center, trim = None)
     ),
     val body1: TextStyle = TextStyle(
-        fontFamily = interphases,
+        fontFamily = fontFamily,
         fontWeight = FontWeight.Normal,
         fontSize = adjustFontSize(deviceType, Sp16),
         lineHeight = Sp16 * BODY_LINE_HEIGHT,
         lineHeightStyle = LineHeightStyle(alignment = Center, trim = None)
     ),
     val bodyBold1: TextStyle = TextStyle(
-        fontFamily = interphases,
+        fontFamily = fontFamily,
         fontWeight = FontWeight.SemiBold,
         fontSize = adjustFontSize(deviceType, Sp16),
         lineHeight = Sp16 * BODY_LINE_HEIGHT,
         lineHeightStyle = LineHeightStyle(alignment = Center, trim = None)
     ),
     val body2: TextStyle = TextStyle(
-        fontFamily = interphases,
+        fontFamily = fontFamily,
         fontWeight = FontWeight.Normal,
         fontSize = adjustFontSize(deviceType, Sp14),
         lineHeight = Sp14 * BODY_LINE_HEIGHT,
         lineHeightStyle = LineHeightStyle(alignment = Center, trim = None)
     ),
     val bodyBold2: TextStyle = TextStyle(
-        fontFamily = interphases,
+        fontFamily = fontFamily,
         fontWeight = FontWeight.SemiBold,
         fontSize = adjustFontSize(deviceType, Sp14),
         lineHeight = Sp14 * BODY_LINE_HEIGHT,
         lineHeightStyle = LineHeightStyle(alignment = Center, trim = None)
     ),
     val body3: TextStyle = TextStyle(
-        fontFamily = interphases,
+        fontFamily = fontFamily,
         fontWeight = FontWeight.Normal,
         fontSize = adjustFontSize(deviceType, Sp12),
         lineHeight = Sp12 * BODY_LINE_HEIGHT,
         lineHeightStyle = LineHeightStyle(alignment = Center, trim = None)
     ),
     val bodyBold3: TextStyle = TextStyle(
-        fontFamily = interphases,
+        fontFamily = fontFamily,
         fontWeight = FontWeight.SemiBold,
         fontSize = adjustFontSize(deviceType, Sp12),
         lineHeight = Sp12 * BODY_LINE_HEIGHT,
         lineHeightStyle = LineHeightStyle(alignment = Center, trim = None)
     ),
     val label1: TextStyle = TextStyle(
-        fontFamily = interphases,
+        fontFamily = fontFamily,
         fontWeight = FontWeight.Normal,
         fontSize = adjustFontSize(deviceType, Sp14),
         lineHeight = Sp14 * LABEL_LINE_HEIGHT,
         lineHeightStyle = LineHeightStyle(alignment = Center, trim = None)
     ),
     val labelBold1: TextStyle = TextStyle(
-        fontFamily = interphases,
+        fontFamily = fontFamily,
         fontWeight = FontWeight.SemiBold,
         fontSize = adjustFontSize(deviceType, Sp14),
         lineHeight = Sp14 * LABEL_LINE_HEIGHT,
         lineHeightStyle = LineHeightStyle(alignment = Center, trim = None)
     ),
     val label2: TextStyle = TextStyle(
-        fontFamily = interphases,
+        fontFamily = fontFamily,
         fontWeight = FontWeight.Normal,
         fontSize = adjustFontSize(deviceType, Sp12),
         lineHeight = Sp12 * LABEL_LINE_HEIGHT,
         lineHeightStyle = LineHeightStyle(alignment = Center, trim = None)
     ),
     val labelBold2: TextStyle = TextStyle(
-        fontFamily = interphases,
+        fontFamily = fontFamily,
         fontWeight = FontWeight.SemiBold,
         fontSize = adjustFontSize(deviceType, Sp12),
         lineHeight = Sp12 * LABEL_LINE_HEIGHT,
         lineHeightStyle = LineHeightStyle(alignment = Center, trim = None)
     ),
     val label3: TextStyle = TextStyle(
-        fontFamily = interphases,
+        fontFamily = fontFamily,
         fontWeight = FontWeight.Normal,
         fontSize = adjustFontSize(deviceType, Sp10),
         lineHeight = Sp10 * LABEL_LINE_HEIGHT,
         lineHeightStyle = LineHeightStyle(alignment = Center, trim = None)
     ),
     val labelBold3: TextStyle = TextStyle(
-        fontFamily = interphases,
+        fontFamily = fontFamily,
         fontWeight = FontWeight.SemiBold,
         fontSize = adjustFontSize(deviceType, Sp10),
         lineHeight = Sp10 * LABEL_LINE_HEIGHT,
         lineHeightStyle = LineHeightStyle(alignment = Center, trim = None)
     ),
     val amount1: TextStyle = TextStyle(
-        fontFamily = interphases,
+        fontFamily = fontFamily,
         fontWeight = FontWeight.ExtraBold,
         fontSize = adjustFontSize(deviceType, Sp40),
         lineHeight = Sp40 * AMOUNT_LINE_HEIGHT,
         lineHeightStyle = LineHeightStyle(alignment = Center, trim = None)
     ),
     val amount2: TextStyle = TextStyle(
-        fontFamily = interphases,
+        fontFamily = fontFamily,
         fontWeight = FontWeight.ExtraBold,
         fontSize = adjustFontSize(deviceType, Sp28),
         lineHeight = Sp28 * AMOUNT_LINE_HEIGHT,
         lineHeightStyle = LineHeightStyle(alignment = Center, trim = None)
     ),
     val amount3: TextStyle = TextStyle(
-        fontFamily = interphases,
+        fontFamily = fontFamily,
         fontWeight = FontWeight.ExtraBold,
         fontSize = adjustFontSize(deviceType, Sp20),
         lineHeight = Sp20 * AMOUNT_LINE_HEIGHT,
         lineHeightStyle = LineHeightStyle(alignment = Center, trim = None)
     ),
     val avatar1: TextStyle = TextStyle(
-        fontFamily = interphases,
+        fontFamily = fontFamily,
         fontWeight = FontWeight.SemiBold,
         fontSize = adjustFontSize(deviceType, Sp24),
         lineHeight = Sp18 * AVATAR_LINE_HEIGHT,
         lineHeightStyle = LineHeightStyle(alignment = Center, trim = None)
     ),
     val numbers1: TextStyle = TextStyle(
-        fontFamily = interphases,
+        fontFamily = fontFamily,
         fontWeight = FontWeight.SemiBold,
         fontSize = adjustFontSize(deviceType, Sp16),
         lineHeight = Sp16 * BODY_LINE_HEIGHT,
         lineHeightStyle = LineHeightStyle(alignment = Center, trim = None)
     ),
     val underline1: TextStyle = TextStyle(
-        fontFamily = interphases,
+        fontFamily = fontFamily,
         fontWeight = FontWeight.Medium,
         fontSize = adjustFontSize(deviceType, Sp16),
         lineHeight = Sp16 * UNDERLINE_LINE_HEIGHT,
@@ -211,7 +220,7 @@ data class MeverTypography(
         textDecoration = Underline
     ),
     val underlineBold1: TextStyle = TextStyle(
-        fontFamily = interphases,
+        fontFamily = fontFamily,
         fontWeight = FontWeight.Bold,
         fontSize = adjustFontSize(deviceType, Sp16),
         lineHeight = Sp16 * UNDERLINE_LINE_HEIGHT,
@@ -219,7 +228,7 @@ data class MeverTypography(
         textDecoration = Underline
     ),
     val underline2: TextStyle = TextStyle(
-        fontFamily = interphases,
+        fontFamily = fontFamily,
         fontWeight = FontWeight.Medium,
         fontSize = adjustFontSize(deviceType, Sp14),
         lineHeight = Sp14 * UNDERLINE_LINE_HEIGHT,
@@ -227,7 +236,7 @@ data class MeverTypography(
         textDecoration = Underline
     ),
     val underlineBold2: TextStyle = TextStyle(
-        fontFamily = interphases,
+        fontFamily = fontFamily,
         fontWeight = FontWeight.Bold,
         fontSize = adjustFontSize(deviceType, Sp14),
         lineHeight = Sp14 * UNDERLINE_LINE_HEIGHT,
@@ -235,7 +244,7 @@ data class MeverTypography(
         textDecoration = Underline
     ),
     val underline3: TextStyle = TextStyle(
-        fontFamily = interphases,
+        fontFamily = fontFamily,
         fontWeight = FontWeight.Medium,
         fontSize = adjustFontSize(deviceType, Sp14),
         lineHeight = Sp12 * UNDERLINE_LINE_HEIGHT,
@@ -243,7 +252,7 @@ data class MeverTypography(
         textDecoration = Underline
     ),
     val underlineBold3: TextStyle = TextStyle(
-        fontFamily = interphases,
+        fontFamily = fontFamily,
         fontWeight = FontWeight.Bold,
         fontSize = adjustFontSize(deviceType, Sp14),
         lineHeight = Sp12 * UNDERLINE_LINE_HEIGHT,
@@ -251,7 +260,7 @@ data class MeverTypography(
         textDecoration = Underline
     ),
     val underline4: TextStyle = TextStyle(
-        fontFamily = interphases,
+        fontFamily = fontFamily,
         fontWeight = FontWeight.Medium,
         fontSize = adjustFontSize(deviceType, Sp14),
         lineHeight = Sp10 * UNDERLINE_LINE_HEIGHT,
@@ -259,7 +268,7 @@ data class MeverTypography(
         textDecoration = Underline
     ),
     val underline4Regular: TextStyle = TextStyle(
-        fontFamily = interphases,
+        fontFamily = fontFamily,
         fontWeight = FontWeight.Normal,
         fontSize = adjustFontSize(deviceType, Sp14),
         lineHeight = Sp10 * UNDERLINE_LINE_HEIGHT,

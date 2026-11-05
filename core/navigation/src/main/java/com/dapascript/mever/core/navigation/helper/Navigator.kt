@@ -82,10 +82,7 @@ class Navigator(
      */
     private fun trimBackStackTo(popUpTo: Any, isInclusive: Boolean) {
         state.backStacks.values.forEach { stack ->
-            val targetScreenIndex = when (popUpTo) {
-                is KClass<*> -> stack.indexOfLast { it::class == popUpTo }
-                else -> stack.indexOf(popUpTo)
-            }
+            val targetScreenIndex = findTargetIndex(stack, popUpTo)
             
             if (targetScreenIndex != -1) {
                 val removeCount = if (isInclusive) {
@@ -99,36 +96,85 @@ class Navigator(
     }
 
     /**
-     * Navigates back one screen, and optionally passes a result back to the previous screen.
+     * Finds the index of a target screen in a given stack.
+     * Supports exact instance, KClass, or accidentally passed Companion object.
      */
-    fun navigateBack(result: Any? = null) {
-        if (result != null) {
-            _navResult.trySend(result)
+    private fun findTargetIndex(stack: List<NavKey>, target: Any): Int {
+        val targetClass = when {
+            target is KClass<*> -> target.java
+            target.javaClass.enclosingClass != null && target.javaClass.simpleName == "Companion" -> target.javaClass.enclosingClass
+            else -> null
         }
-        navigateBack() // calls the version without a result parameter below
+
+        return if (targetClass != null) {
+            stack.indexOfLast { it.javaClass == targetClass }
+        } else {
+            stack.indexOf(target)
+        }
     }
 
     /**
-     * Navigates back one screen.
-     * If we are at the root screen (Splash or HomeLanding), it closes the app.
+     * Navigates back.
+     *
+     * @param popUpTo Can be an exact screen instance (e.g., DetailRoute(1)), a KClass (e.g., DetailRoute::class), or route companion object. If null, pops back one screen.
+     * @param isInclusive If true, and popUpTo is set, it will remove the popUpTo screen as well.
+     * @param result Optional data to pass back to the destination screen via [navResult].
      */
-    fun navigateBack() {
+    fun navigateBack(
+        popUpTo: Any? = null,
+        isInclusive: Boolean = false,
+        result: Any? = null
+    ) {
         // Prevent double-clicking back button too fast (debounce)
         val currentTime = System.currentTimeMillis()
         if (currentTime - lastBackPressTime < backPressThreshold) return
         lastBackPressTime = currentTime
 
-        // Get the back stack for the tab we're currently looking at
+        // Send result if provided
+        if (result != null) {
+            _navResult.trySend(result)
+        }
+
+        // If popUpTo is specified, pop back to that specific destination
+        if (popUpTo != null) {
+            val orderedStacks = listOfNotNull(
+                state.topLevelRoute to state.backStacks[state.topLevelRoute]
+            ) + state.backStacks.filterKeys { it != state.topLevelRoute }.toList()
+
+            for ((routeKey, stack) in orderedStacks) {
+                if (stack == null) continue
+                val targetIndex = findTargetIndex(stack, popUpTo)
+
+                if (targetIndex != -1) {
+                    val removeCount = if (isInclusive) {
+                        stack.size - targetIndex
+                    } else {
+                        stack.size - targetIndex - 1
+                    }
+
+                    if (removeCount > 0) {
+                        if (isInclusive && targetIndex == 0) {
+                            activity?.finish()
+                        } else {
+                            repeat(removeCount) { stack.removeLastOrNull() }
+                        }
+                    }
+
+                    if (state.topLevelRoute != routeKey) {
+                        state.topLevelRoute = routeKey
+                    }
+                    return
+                }
+            }
+            return
+        }
+
+        // Default: Navigate back one screen
         val currentBackStack = state.backStacks[state.topLevelRoute] ?: return
-        
-        // Find out what screen is currently visible
         val currentVisibleScreen = currentBackStack.lastOrNull() ?: return
 
-        // Decide what to do based on the current screen
         when (currentVisibleScreen) {
-            // If we are on Splash or HomeLanding, going back means exiting the app
             is SplashRoute, is HomeLandingRoute -> activity?.finish()
-            // Otherwise, just remove the top screen to reveal the one underneath it
             else -> currentBackStack.removeLastOrNull()
         }
     }

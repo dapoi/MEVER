@@ -48,11 +48,17 @@ import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeQuickTools
 import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.getCardColor
 import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.getRoute
 
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.dapascript.mever.core.common.util.state.collectAsStateValue
+import com.dapascript.mever.feature.home.viewmodel.HomeLandingViewModel
+
 @Composable
 internal fun HomeQuickToolsScreen(
     navigator: Navigator,
-    args: HomeQuickToolsRoute
-) {
+    args: HomeQuickToolsRoute,
+    viewModel: HomeLandingViewModel = hiltViewModel(),
+) = with(viewModel) {
+    val isProActive = isProActive.collectAsStateValue()
     val listState = rememberLazyListState()
     var titleHeight by rememberSaveable { mutableIntStateOf(0) }
     val isExpanded by remember(titleHeight) {
@@ -125,6 +131,7 @@ internal fun HomeQuickToolsScreen(
                 }
             }
             MeverBannerAd(
+                isProActive = isProActive,
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.BottomCenter)

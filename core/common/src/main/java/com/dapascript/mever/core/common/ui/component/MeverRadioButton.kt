@@ -23,7 +23,6 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp16
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp3
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
-import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
 import com.dapascript.mever.core.common.util.onCustomClick
@@ -51,14 +50,14 @@ fun MeverRadioButton(
     ) {
         if (isChoosen) Box(
             modifier = Modifier
-                .background(MeverPurple, CircleShape)
+                .background(colors.alwaysPurple, CircleShape)
                 .size(Dp14)
                 .padding(Dp3)
         )
         Icon(
             painter = painterResource(R.drawable.ic_circle),
             contentDescription = "Radio button",
-            tint = MeverPurple
+            tint = colors.alwaysPurple
         )
     }
     Text(

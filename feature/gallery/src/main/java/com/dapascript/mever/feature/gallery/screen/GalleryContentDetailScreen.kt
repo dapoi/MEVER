@@ -54,8 +54,12 @@ import kotlin.math.absoluteValue
 internal fun GalleryContentDetailScreen(
     navigator: Navigator,
     args: GalleryContentDetailRoute,
-    viewModel: GalleryContentDetailViewModel = hiltViewModel()
+    viewModel: GalleryContentDetailViewModel = hiltViewModel(),
 ) = with(viewModel) {
+    val isPipEnabled = isPipEnabled.collectAsStateValue()
+    val isProActive = isProActive.collectAsStateValue()
+    val getButtonClickCount = getButtonClickCount.collectAsStateValue()
+    val adsThreshold = adsThreshold.collectAsStateValue()
     var isFullScreen by rememberSaveable { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
     var imageUrl by remember { mutableStateOf("") }
@@ -64,10 +68,7 @@ internal fun GalleryContentDetailScreen(
     val context = LocalContext.current
     val activity = LocalActivity.current
     val resources = LocalResources.current
-    val isPipEnabled = isPipEnabled.collectAsStateValue()
-    val getButtonClickCount = getButtonClickCount.collectAsStateValue()
-    val adsThreshold = adsThreshold.collectAsStateValue()
-    val interstitialAd = rememberInterstitialAd { checkStoragePermissions = getStoragePermission() }
+    val interstitialAd = rememberInterstitialAd(isProActive = isProActive) { checkStoragePermissions = getStoragePermission() }
     val isDarkMode = MeverThemeAttr.isDarkMode
 
     BaseScreen(

@@ -59,7 +59,6 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp24
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp250
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp4
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
-import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp20
@@ -75,6 +74,7 @@ internal fun HandleBottomSheetDownload(
     isInPreview: Boolean,
     loadingItemIndex: Int?,
     modifier: Modifier = Modifier,
+    isProActive: Boolean = false,
     onClickDownload: (List<String>) -> Unit,
     onClickPreview: (Int) -> Unit,
     onClickDismiss: () -> Unit
@@ -186,6 +186,7 @@ internal fun HandleBottomSheetDownload(
                 color = colors.blackWhite.copy(alpha = 0.12f)
             )
             MeverBannerAd(
+                isProActive = isProActive,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = Dp8)
@@ -304,7 +305,7 @@ private fun MeverCheckBoxButton(
                 else -> CircularProgressIndicator(
                     modifier = Modifier.size(Dp20),
                     strokeCap = Round,
-                    color = MeverPurple
+                    color = colors.alwaysPurple
                 )
             }
         }

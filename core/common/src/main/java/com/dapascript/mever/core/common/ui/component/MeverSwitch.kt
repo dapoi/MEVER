@@ -5,6 +5,8 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.Unspecified
+import com.dapascript.mever.core.common.ui.theme.MeverBlack
+import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverWhite
 
@@ -14,14 +16,17 @@ fun MeverSwitch(
     modifier: Modifier = Modifier,
     onCheckedChange: ((Boolean) -> Unit)? = null
 ) {
+    val isDoodle = MeverThemeAttr.isDoodle
+    val isDarkMode = MeverThemeAttr.isDarkMode
     Switch(
         modifier = modifier,
         colors = SwitchDefaults.colors(
-            checkedThumbColor = MeverWhite,
+            checkedThumbColor = if (isDoodle && isDarkMode) MeverBlack else MeverWhite,
             checkedTrackColor = colors.alwaysPurple,
-            uncheckedThumbColor = colors.grayLightGray,
-            uncheckedTrackColor = colors.lightGrayDarkGray,
-            uncheckedBorderColor = Unspecified
+            checkedBorderColor = Unspecified,
+            uncheckedThumbColor = colors.blackWhite.copy(alpha = 0.5f),
+            uncheckedTrackColor = colors.whiteDarkGray,
+            uncheckedBorderColor = colors.blackWhite.copy(alpha = 0.35f)
         ),
         checked = isChecked,
         onCheckedChange = onCheckedChange?.let { { onCheckedChange(it) } }

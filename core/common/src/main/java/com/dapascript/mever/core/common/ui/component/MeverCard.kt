@@ -60,9 +60,9 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp88
 import com.dapascript.mever.core.common.ui.theme.MeverGray
 import com.dapascript.mever.core.common.ui.theme.MeverLightGray
 import com.dapascript.mever.core.common.ui.theme.MeverRed
+import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
-import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.calculateDownloadedMegabytes
 import com.dapascript.mever.core.common.util.displayFileName
 import com.dapascript.mever.core.common.util.getContentType
@@ -88,6 +88,7 @@ fun MeverCard(
     onClickShare: (() -> Unit)? = null,
     onClickSelectedItem: (() -> Unit)? = null
 ) = with(cardArgs) {
+    val isDoodle = MeverThemeAttr.isDoodle
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -218,7 +219,7 @@ fun MeverCard(
                                         Text(
                                             text = stringResource(R.string.failed),
                                             style = typography.label2,
-                                            color = MeverRed
+                                            color = if (isDoodle) colors.blackWhite else MeverRed
                                         )
                                     }
 
@@ -285,7 +286,7 @@ fun MeverCard(
                                         .fillMaxWidth()
                                         .height(Dp5)
                                         .padding(bottom = Dp2),
-                                    color = if (status == FAILED) MeverRed else colors.alwaysPurple,
+                                    color = if (status == FAILED) (if (isDoodle) colors.blackWhite else MeverRed) else colors.alwaysPurple,
                                     trackColor = MeverLightGray,
                                     gapSize = -Dp15,
                                     strokeCap = Round,
@@ -322,7 +323,7 @@ fun MeverCard(
                             title = stringResource(R.string.delete_button),
                             buttonType = Filled(
                                 backgroundColor = colors.alwaysPurple,
-                                contentColor = MeverWhite
+                                contentColor = colors.alwaysWhiteBlack
                             )
                         ) { onClickDelete?.invoke() }
                     }

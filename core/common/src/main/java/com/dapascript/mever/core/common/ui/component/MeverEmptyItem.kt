@@ -25,19 +25,22 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp40
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
+import com.dapascript.mever.core.common.util.getDoodleEmptyStateDrawable
 import androidx.compose.ui.text.style.TextAlign.Companion.Center as TextAlignCenter
 
 @Composable
 fun MeverEmptyItem(
-    image: Int,
     title: String,
     description: String,
     modifier: Modifier = Modifier,
+    image: Int = R.drawable.ic_empty_state,
     imageSize: Dp = Dp250,
     isHorizontal: Boolean = false,
     actionButtonLabel: String? = null,
     onClickAction: (() -> Unit)? = null
 ) {
+    val emptyStateImage = getDoodleEmptyStateDrawable(image)
+
     if (isHorizontal) {
         Row(
             modifier = modifier.fillMaxWidth(),
@@ -46,7 +49,7 @@ fun MeverEmptyItem(
         ) {
             MeverImage(
                 modifier = Modifier.size(imageSize),
-                source = image,
+                source = emptyStateImage,
                 contentScale = Fit
             )
             Spacer(modifier = Modifier.size(Dp16))
@@ -71,7 +74,7 @@ fun MeverEmptyItem(
         ) {
             MeverImage(
                 modifier = Modifier.size(imageSize),
-                source = image,
+                source = emptyStateImage,
                 contentScale = Fit
             )
             MeverEmptyItemContent(
@@ -113,7 +116,7 @@ private fun MeverEmptyItemContent(
             title = actionButtonLabel ?: stringResource(R.string.ok),
             buttonType = MeverButtonAttr.MeverButtonType.Filled(
                 backgroundColor = colors.alwaysPurple,
-                contentColor = colors.alwaysWhite
+                contentColor = colors.alwaysWhiteBlack
             )
         ) { onClickAction() }
     }

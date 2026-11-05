@@ -7,8 +7,10 @@ import com.dapascript.mever.core.data.deeplink.DeeplinkManager
 import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.source.local.MeverDataStore
+import com.dapascript.mever.core.data.repository.SubscriptionRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -40,6 +42,7 @@ class HomeLandingViewModelTest {
 
     @Mock lateinit var repository: MeverRepository
     @Mock lateinit var deeplinkManager: DeeplinkManager
+    @Mock lateinit var subscriptionRepository: SubscriptionRepository
 
     private lateinit var viewModel: HomeLandingViewModel
 
@@ -58,7 +61,8 @@ class HomeLandingViewModelTest {
         whenever(repository.getAdsThreshold()).thenReturn(flowOf(3))
         whenever(repository.observeDownloads()).thenReturn(flowOf(emptyList()))
         whenever(deeplinkManager.deeplinkEvent).thenReturn(flowOf(null))
-        viewModel = HomeLandingViewModel(repository, deeplinkManager)
+        whenever(subscriptionRepository.isProActive).thenReturn(MutableStateFlow(false))
+        viewModel = HomeLandingViewModel(repository, deeplinkManager, subscriptionRepository)
     }
 
     @After

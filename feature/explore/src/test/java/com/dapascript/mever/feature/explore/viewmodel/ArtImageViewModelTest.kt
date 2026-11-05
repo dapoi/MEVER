@@ -5,8 +5,10 @@ import com.dapascript.mever.core.common.util.state.ApiState
 import com.dapascript.mever.core.common.util.state.UiState
 import com.dapascript.mever.core.data.model.local.ArtEntity
 import com.dapascript.mever.core.data.repository.MeverRepository
+import com.dapascript.mever.core.data.repository.SubscriptionRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -38,6 +40,9 @@ class ArtImageViewModelTest {
     @Mock
     lateinit var repository: MeverRepository
 
+    @Mock
+    lateinit var subscriptionRepository: SubscriptionRepository
+
     private val fakeArtworks = listOf(
         ArtEntity(
             id = "101",
@@ -59,6 +64,7 @@ class ArtImageViewModelTest {
         whenever(repository.getArtworks(any(), any(), any())).thenReturn(
             flowOf(ApiState.Success(fakeArtworks))
         )
+        whenever(subscriptionRepository.isProActive).thenReturn(MutableStateFlow(false))
     }
 
     @After
@@ -71,7 +77,7 @@ class ArtImageViewModelTest {
         whenever(repository.getArtworks(eq("monet"), any(), any())).thenReturn(
             flowOf(ApiState.Loading, ApiState.Success(fakeArtworks))
         )
-        val vm = ArtImageViewModel(repository)
+        val vm = ArtImageViewModel(repository, subscriptionRepository)
         val states = mutableListOf<UiState<List<ArtEntity>>>()
         val job = launch { vm.artResponseState.collect { states.add(it) } }
         vm.getArtworks("monet")
@@ -89,7 +95,7 @@ class ArtImageViewModelTest {
         whenever(repository.getArtworks(eq("error"), any(), any())).thenReturn(
             flowOf(ApiState.Error(Throwable("Network error")))
         )
-        val vm = ArtImageViewModel(repository)
+        val vm = ArtImageViewModel(repository, subscriptionRepository)
         val states = mutableListOf<UiState<List<ArtEntity>>>()
         val job = launch { vm.artResponseState.collect { states.add(it) } }
         vm.getArtworks("error")
@@ -124,7 +130,7 @@ class ArtImageViewModelTest {
             flowOf(ApiState.Success(page2Artworks))
         )
 
-        val vm = ArtImageViewModel(repository)
+        val vm = ArtImageViewModel(repository, subscriptionRepository)
         vm.getArtworks("")
         advanceUntilIdle()
 
@@ -137,7 +143,7 @@ class ArtImageViewModelTest {
 
     @Test
     fun `startDownload calls repository download`() {
-        val vm = ArtImageViewModel(repository)
+        val vm = ArtImageViewModel(repository, subscriptionRepository)
         vm.startDownload("https://artic.edu/image1.jpg", "MEVER_ART_101.jpg")
         verify(repository).download(
             url = "https://artic.edu/image1.jpg",

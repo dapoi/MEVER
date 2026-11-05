@@ -4,11 +4,19 @@ import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import com.dapascript.mever.BuildConfig.VERSION_NAME
 import com.dapascript.mever.core.common.base.BaseViewModel
+import com.dapascript.mever.core.common.ui.theme.ThemePalette
+import com.dapascript.mever.core.common.ui.theme.ThemePalette.CLASSIC
 import com.dapascript.mever.core.common.ui.theme.ThemeType
+import com.dapascript.mever.core.common.util.AppIconType
+import com.dapascript.mever.core.common.util.AppIconType.Default
 import com.dapascript.mever.core.data.deeplink.DeeplinkManager
 import com.dapascript.mever.core.data.repository.MeverRepository
+import com.dapascript.mever.core.data.repository.SubscriptionRepository
+import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_APP_ICON
 import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_LAST_INTERACTION_TIME
+import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_QUICK_NOTIF
 import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_THEME
+import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_THEME_PALETTE
 import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_VERSION
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -23,7 +31,8 @@ import javax.inject.Inject
 @HiltViewModel
 internal class MainViewModel @Inject constructor(
     private val repository: MeverRepository,
-    private val deeplinkManager: DeeplinkManager
+    private val deeplinkManager: DeeplinkManager,
+    private val subscriptionRepository: SubscriptionRepository
 ) : BaseViewModel() {
 
     val themeType = repository.getPreference(KEY_THEME, ThemeType.System.name).map { name ->
@@ -38,12 +47,58 @@ internal class MainViewModel @Inject constructor(
         initialValue = ThemeType.System
     )
 
+    val themePalette = repository.getPreference(KEY_THEME_PALETTE, CLASSIC.name).map { name ->
+        try {
+            ThemePalette.valueOf(name)
+        } catch (_: IllegalArgumentException) {
+            CLASSIC
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = WhileSubscribed(),
+        initialValue = CLASSIC
+    )
+
+    val isProActive = subscriptionRepository.isProActive
+    val isEntitlementChecked = subscriptionRepository.isEntitlementChecked
+
+    val isQuickNotifEnabled = repository.getPreference(KEY_QUICK_NOTIF, false).stateIn(
+        scope = viewModelScope,
+        started = WhileSubscribed(),
+        initialValue = false
+    )
+
     private val _navDeeplinkTrigger = Channel<Unit>(capacity = Channel.CONFLATED)
     val navDeeplinkTrigger = _navDeeplinkTrigger.receiveAsFlow()
 
     init {
         viewModelScope.launch {
             repository.savePreference(KEY_VERSION, VERSION_NAME)
+        }
+        viewModelScope.launch {
+            isProActive.collect { isPro ->
+                if (!isPro) {
+                    val currentPalette = repository.getPreference(KEY_THEME_PALETTE, CLASSIC.name).first()
+                    try {
+                        if (ThemePalette.valueOf(currentPalette).isProOnly) {
+                            repository.savePreference(KEY_THEME_PALETTE, CLASSIC.name)
+                        }
+                    } catch (_: IllegalArgumentException) {
+                        repository.savePreference(KEY_THEME_PALETTE, CLASSIC.name)
+                    }
+
+                    val currentIcon = repository.getPreference(KEY_APP_ICON, Default.name).first()
+                    try {
+                        if (AppIconType.valueOf(currentIcon).isProOnly) {
+                            repository.savePreference(KEY_APP_ICON, Default.name)
+                        }
+                    } catch (_: IllegalArgumentException) {
+                        repository.savePreference(KEY_APP_ICON, Default.name)
+                    }
+
+                    repository.savePreference(KEY_QUICK_NOTIF, false)
+                }
+            }
         }
     }
 
@@ -54,6 +109,10 @@ internal class MainViewModel @Inject constructor(
                 _navDeeplinkTrigger.send(Unit)
             }
         }
+    }
+
+    fun checkSubscriptionEntitlement() {
+        subscriptionRepository.checkEntitlement()
     }
 
     fun updateInteractionTime() {

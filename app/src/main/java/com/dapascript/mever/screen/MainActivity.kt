@@ -19,19 +19,30 @@ import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass.Companion
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass.Companion.Medium
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.res.stringResource
 import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import com.dapascript.mever.BuildConfig.ADMOB_ID
+import com.dapascript.mever.core.common.R
+import com.dapascript.mever.core.common.ui.component.MeverDialog
 import com.dapascript.mever.core.common.ui.theme.MeverDark
 import com.dapascript.mever.core.common.ui.theme.MeverTheme
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
+import com.dapascript.mever.core.common.ui.theme.ThemePalette.CLASSIC
 import com.dapascript.mever.core.common.ui.theme.ThemeType.Dark
 import com.dapascript.mever.core.common.ui.theme.ThemeType.Light
+import com.dapascript.mever.core.common.util.AppIconManager.isProIconActive
+import com.dapascript.mever.core.common.util.AppIconManager.resetToDefaultIfProOnly
 import com.dapascript.mever.core.common.util.DeviceType.DESKTOP
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.DeviceType.TABLET
@@ -40,8 +51,12 @@ import com.dapascript.mever.core.common.util.LocalDeviceType
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.Path.HOME
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.Query.URL
 import com.dapascript.mever.core.common.util.deeplink.buildMeverDeeplink
+import com.dapascript.mever.core.common.util.notification.QuickDownloadNotificationHelper.cancelQuickDownloadNotification
+import com.dapascript.mever.core.common.util.notification.QuickDownloadNotificationHelper.requestTileUpdate
+import com.dapascript.mever.core.common.util.notification.QuickDownloadNotificationHelper.showQuickDownloadNotification
 import com.dapascript.mever.core.common.util.recreateActivity
 import com.dapascript.mever.core.common.util.state.collectAsStateValue
+import kotlinx.coroutines.flow.combine
 import com.dapascript.mever.core.navigation.MainNavigation
 import com.dapascript.mever.core.navigation.base.BaseNavGraph
 import com.dapascript.mever.viewmodel.MainViewModel
@@ -69,6 +84,30 @@ class MainActivity : AppCompatActivity() {
 
         setContent {
             val themeType = viewModel.themeType.collectAsStateValue()
+            val themePalette = viewModel.themePalette.collectAsStateValue()
+            val isQuickNotifEnabled = viewModel.isQuickNotifEnabled.collectAsStateValue()
+            val isProActive = viewModel.isProActive.collectAsStateValue()
+            var showProExpiredDialog by rememberSaveable { mutableStateOf(false) }
+
+            LaunchedEffect(Unit) {
+                combine(viewModel.isEntitlementChecked, viewModel.isProActive) { checked, isPro ->
+                    checked && isPro.not()
+                }.collect { shouldReset ->
+                    if (shouldReset && isProIconActive(this@MainActivity)) {
+                        showProExpiredDialog = true
+                    }
+                }
+            }
+
+            LaunchedEffect(isQuickNotifEnabled, isProActive) {
+                if (isQuickNotifEnabled && isProActive) {
+                    showQuickDownloadNotification(this@MainActivity)
+                } else {
+                    cancelQuickDownloadNotification(this@MainActivity)
+                }
+                requestTileUpdate(this@MainActivity)
+            }
+
             val windowSizeClass = calculateWindowSizeClass(this)
             val deviceType = remember(windowSizeClass) {
                 when (windowSizeClass.widthSizeClass) {
@@ -81,6 +120,10 @@ class MainActivity : AppCompatActivity() {
                 Light -> false
                 Dark -> true
                 else -> isSystemInDarkTheme()
+            }
+            val activePalette = remember(themePalette, isProActive) {
+                if (isProActive || themePalette.isProOnly.not()) themePalette
+                else CLASSIC
             }
 
             SideEffect {
@@ -106,8 +149,24 @@ class MainActivity : AppCompatActivity() {
 
             MeverTheme(
                 deviceType = deviceType,
-                isDarkMode = isDarkMode
+                isDarkMode = isDarkMode,
+                themePalette = activePalette
             ) {
+                MeverDialog(
+                    showDialog = showProExpiredDialog,
+                    image = null,
+                    title = stringResource(R.string.pro_expired_title),
+                    description = stringResource(R.string.pro_expired_desc),
+                    primaryActionLabel = stringResource(R.string.ok),
+                    secondaryActionLabel = null,
+                    dismissOnClickOutside = false,
+                    dismissOnBackPress = false,
+                    onClickPrimaryAction = {
+                        showProExpiredDialog = false
+                        resetToDefaultIfProOnly(this@MainActivity)
+                    }
+                )
+
                 Surface(modifier = Modifier.fillMaxSize(), color = colors.whiteDark) {
                     CompositionLocalProvider(
                         LocalActivity provides this,
@@ -131,6 +190,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+        viewModel.checkSubscriptionEntitlement()
         viewModel.checkIdleTimeout { recreateActivity(context = this, activity = this) }
     }
 

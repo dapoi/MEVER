@@ -6,6 +6,7 @@ import com.dapascript.mever.core.common.base.BaseViewModel
 import com.dapascript.mever.core.data.model.local.WaStatusEntity
 import com.dapascript.mever.core.data.model.local.WaType
 import com.dapascript.mever.core.data.repository.MeverRepository
+import com.dapascript.mever.core.data.repository.SubscriptionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,8 +15,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 internal class WaStatusViewModel @Inject constructor(
-    private val meverRepository: MeverRepository
+    private val meverRepository: MeverRepository,
+    subscriptionRepository: SubscriptionRepository
 ) : BaseViewModel() {
+    val isProActive = subscriptionRepository.isProActive
     private val _waStatuses = MutableStateFlow<List<WaStatusEntity>?>(null)
     val waStatuses = _waStatuses.asStateFlow()
 

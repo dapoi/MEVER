@@ -63,12 +63,10 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp52
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp6
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp64
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
-import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverTheme
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
 import com.dapascript.mever.core.common.ui.theme.MeverTransparent
-import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.ui.theme.MeverYellow
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp19
 import com.dapascript.mever.core.common.ui.theme.TextDimens.Sp36
@@ -353,7 +351,7 @@ private fun PagerIndicator(
                     .size(width = size, height = Dp8)
                     .clip(RoundedCornerShape(Dp48))
                     .background(
-                        if (isSelected) MeverPurple
+                        if (isSelected) colors.alwaysPurple
                         else colors.grayLightGray.copy(alpha = alpha)
                     )
             )
@@ -401,8 +399,8 @@ private fun ButtonOnboardSection(
     title = if (isLastPage) stringResource(R.string.lets_start)
     else stringResource(R.string.next),
     buttonType = Filled(
-        backgroundColor = MeverPurple,
-        contentColor = MeverWhite
+        backgroundColor = colors.alwaysPurple,
+        contentColor = colors.alwaysWhiteBlack
     ),
     shape = RoundedCornerShape(Dp48),
     interval = 100L,

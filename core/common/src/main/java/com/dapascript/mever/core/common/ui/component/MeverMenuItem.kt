@@ -59,12 +59,15 @@ fun MeverMenuItem(
             .fillMaxWidth()
             .padding(vertical = Dp12)
             .clip(shape)
-            .onCustomClick { onClick() },
+            .onCustomClick(enabled = enabled) { onClick() }
+            .graphicsLayer { alpha = if (enabled) 1f else 0.38f },
         horizontalArrangement = SpaceBetween,
         verticalAlignment = CenterVertically
     ) {
         Row(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier
+                .weight(1f)
+                .padding(end = Dp4),
             horizontalArrangement = spacedBy(Dp16),
             verticalAlignment = CenterVertically
         ) {
@@ -72,14 +75,23 @@ fun MeverMenuItem(
                 icon = leadingIcon,
                 iconBackgroundColor = leadingIconBackground,
                 iconSize = leadingIconSize,
-                iconPadding = leadingIconPadding
+                iconPadding = leadingIconPadding,
+                iconTint = leadingIconTint
             )
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = leadingTitle,
-                    style = themeTypography.bodyBold1,
-                    color = themeColors.blackWhite
-                )
+                Row(
+                    verticalAlignment = CenterVertically,
+                    horizontalArrangement = spacedBy(Dp12)
+                ) {
+                    Text(
+                        text = leadingTitle,
+                        style = themeTypography.bodyBold1,
+                        color = themeColors.blackWhite
+                    )
+                    if (isProOnly) {
+                        MeverProBadge()
+                    }
+                }
                 leadingDesc?.let {
                     Text(
                         modifier = Modifier.padding(top = Dp4),
@@ -102,7 +114,9 @@ fun MeverMenuItem(
                         Text(
                             text = title,
                             style = themeTypography.body2,
-                            color = themeColors.blackWhite.copy(alpha = 0.7f)
+                            color = if (enabled) themeColors.blackWhite.copy(alpha = 0.7f) else themeColors.blackWhite.copy(
+                                alpha = 0.38f
+                            )
                         )
                     }
                     Box(
@@ -116,7 +130,11 @@ fun MeverMenuItem(
                     ) {
                         Image(
                             painter = painterResource(R.drawable.ic_back),
-                            colorFilter = tint(color = themeColors.blackWhite),
+                            colorFilter = tint(
+                                color = if (enabled) themeColors.blackWhite else themeColors.blackWhite.copy(
+                                    alpha = 0.38f
+                                )
+                            ),
                             contentDescription = "Arrow Right",
                             modifier = Modifier
                                 .size(Dp16)

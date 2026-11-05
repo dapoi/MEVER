@@ -54,15 +54,17 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp2
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp20
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp200
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp8
+import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
+import com.dapascript.mever.core.common.util.getDoodleErrorStateDrawable
 import com.dapascript.mever.core.common.util.onCustomClick
 
 @Suppress("ASSIGNED_VALUE_IS_NEVER_READ")
 @Composable
 fun MeverDialog(
     showDialog: Boolean,
-    image: Int? = R.drawable.ic_error_state,
+    image: Int? = if (MeverThemeAttr.isDoodle) R.drawable.ic_error_state_doodle else R.drawable.ic_error_state,
     title: String? = stringResource(R.string.error_title),
     description: String? = stringResource(R.string.error_desc),
     primaryActionLabel: String? = stringResource(R.string.retry),
@@ -72,11 +74,14 @@ fun MeverDialog(
     backgroundColor: Color? = null,
     primaryActionColor: Color? = null,
     secondaryActionColor: Color? = null,
+    dismissOnClickOutside: Boolean = true,
+    dismissOnBackPress: Boolean = true,
     onDismiss: (() -> Unit)? = null,
     onClickPrimaryAction: (() -> Unit)? = null,
     onClickSecondaryAction: (() -> Unit)? = null,
     content: @Composable (() -> Unit)? = null
 ) {
+    val dialogImage = image?.let { img -> getDoodleErrorStateDrawable(img) }
     val currentDismiss = rememberUpdatedState(onDismiss)
     val currentPrimary = rememberUpdatedState(onClickPrimaryAction)
     val currentSecondary = rememberUpdatedState(onClickSecondaryAction)
@@ -98,14 +103,23 @@ fun MeverDialog(
 
     if (showAnimatedDialog) {
         Dialog(
-            properties = DialogProperties(),
-            onDismissRequest = { onDismissRequest() }
+            properties = DialogProperties(
+                dismissOnClickOutside = dismissOnClickOutside,
+                dismissOnBackPress = dismissOnBackPress
+            ),
+            onDismissRequest = {
+                if (dismissOnClickOutside || dismissOnBackPress) {
+                    onDismissRequest()
+                }
+            }
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .pointerInput(Unit) {
-                        detectTapGestures { onDismissRequest() }
+                    .pointerInput(dismissOnClickOutside) {
+                        if (dismissOnClickOutside) {
+                            detectTapGestures { onDismissRequest() }
+                        }
                     },
                 contentAlignment = Center
             ) {
@@ -138,7 +152,7 @@ fun MeverDialog(
                     ) {
                         DialogContent(
                             title = title,
-                            image = image,
+                            image = dialogImage,
                             description = description,
                             primaryActionLabel = primaryActionLabel,
                             secondaryActionLabel = secondaryActionLabel,

@@ -98,11 +98,12 @@ import kotlin.time.Duration.Companion.seconds
 @Composable
 internal fun ImageFinderScreen(
     navigator: Navigator,
-    viewModel: ImageFinderViewModel = hiltViewModel()
+    viewModel: ImageFinderViewModel = hiltViewModel(),
 ) = with(viewModel) {
+    val imageFinderState = imageFinderResponseState.collectAsStateValue()
+    val isProActive = isProActive.collectAsStateValue()
     val context = LocalContext.current
     val deviceType = LocalDeviceType.current
-    val imageFinderState = imageFinderResponseState.collectAsStateValue()
     val gridState = rememberLazyStaggeredGridState()
     var errorMessage by remember { mutableStateOf("") }
     var lastQuery by rememberSaveable { mutableStateOf("") }
@@ -328,6 +329,7 @@ internal fun ImageFinderScreen(
                 }
             }
             MeverBannerAd(
+                isProActive = isProActive,
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(BottomCenter)

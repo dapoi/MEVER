@@ -11,6 +11,8 @@ import com.dapascript.mever.core.data.deeplink.DeeplinkManager
 import com.dapascript.mever.core.data.deeplink.DeeplinkManagerImpl
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.repository.MeverRepositoryImpl
+import com.dapascript.mever.core.data.repository.SubscriptionRepository
+import com.dapascript.mever.core.data.repository.SubscriptionRepositoryImpl
 import com.dapascript.mever.core.data.repository.base.BaseRepositoryArgs
 import com.dapascript.mever.core.data.source.local.MeverDataStore
 import com.dapascript.mever.core.data.source.remote.ApiService
@@ -124,4 +126,10 @@ internal class DataModule {
     fun provideBackgroundRemovalProcessor(
         @ApplicationContext context: Context
     ): BackgroundRemovalProcessor = BackgroundRemovalProcessor(context)
+
+    @Singleton
+    @Provides
+    fun provideSubscriptionRepository(
+        impl: SubscriptionRepositoryImpl
+    ): SubscriptionRepository = impl
 }

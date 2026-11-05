@@ -68,9 +68,12 @@ class MeverDataStore @Inject constructor(
         const val KEY_SHOW_SUPPORTED_PLATFORM = "show_supported_platform"
         const val KEY_RESOLUTIONS = "youtube_resolutions"
         const val KEY_THEME = "theme"
+        const val KEY_THEME_PALETTE = "theme_palette"
+        const val KEY_APP_ICON = "app_icon"
         const val KEY_CLICK_COUNT = "click_count"
         const val KEY_ADS_THRESHOLD = "ads_threshold"
         const val KEY_PIP = "pip_enabled"
+        const val KEY_QUICK_NOTIF = "quick_notif_enabled"
         const val KEY_IS_FIRST_CHANGE = "is_first_change_language"
         const val KEY_LAST_INTERACTION_TIME = "last_interaction_time"
 

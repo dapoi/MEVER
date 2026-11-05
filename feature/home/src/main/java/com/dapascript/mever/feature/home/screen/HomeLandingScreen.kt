@@ -1,5 +1,6 @@
 package com.dapascript.mever.feature.home.screen
 
+import android.app.Activity.RESULT_OK
 import android.content.Context
 import android.content.res.Resources
 import androidx.activity.ComponentActivity
@@ -111,13 +112,12 @@ import com.dapascript.mever.core.common.ui.theme.Dimens.Dp48
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp5
 import com.dapascript.mever.core.common.ui.theme.Dimens.Dp6
 import com.dapascript.mever.core.common.ui.theme.Dimens.DpHalf
-import com.dapascript.mever.core.common.ui.theme.MeverPurple
 import com.dapascript.mever.core.common.ui.theme.MeverRed
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
-import com.dapascript.mever.core.common.ui.theme.MeverWhite
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.FadeSide.Bottom
+import com.dapascript.mever.core.common.util.getDoodleHeaderDrawable
 import com.dapascript.mever.core.common.util.FadeSide.Top
 import com.dapascript.mever.core.common.util.InAppUpdateManager
 import com.dapascript.mever.core.common.util.LocalActivity
@@ -205,7 +205,7 @@ import com.dapascript.mever.feature.home.R as FeatureHomeR
 @Composable
 internal fun HomeLandingScreen(
     navigator: Navigator,
-    viewModel: HomeLandingViewModel = hiltViewModel()
+    viewModel: HomeLandingViewModel = hiltViewModel(),
 ) = with(viewModel) {
     BaseScreen(
         hideDefaultTopBar = true,
@@ -216,13 +216,20 @@ internal fun HomeLandingScreen(
         var isUpdateRefused by rememberSaveable { mutableStateOf(false) }
         val activity = LocalActivity.current
         val context = LocalContext.current
+        val resources = LocalResources.current
         val isAnyDownloadActive = isAnyDownloadActive.collectAsStateValue()
         val getButtonClickCount = getButtonClickCount.collectAsStateValue()
         val adsThresholdValue = adsThreshold.collectAsStateValue()
         val scope = rememberCoroutineScope()
         val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
         val inAppUpdateManager = remember { InAppUpdateManager(activity) }
-        val updateLauncher = rememberLauncherForActivityResult(StartIntentSenderForResult()) { }
+        val updateLauncher = rememberLauncherForActivityResult(
+            contract = StartIntentSenderForResult()
+        ) { result ->
+            if (result.resultCode == RESULT_OK) {
+                snackbarMessage = resources.getString(R.string.update_downloading_in_background)
+            } else shouldShowDonationOfferDialog = true
+        }
         val lazyListState = rememberLazyListState()
         val syncedItems = remember { mutableSetOf<Int>() }
         val showTopFade by remember {
@@ -253,7 +260,9 @@ internal fun HomeLandingScreen(
                     updateType = FLEXIBLE,
                     updateAvailability = UPDATE_AVAILABLE,
                     launcher = updateLauncher,
-                    onUpdateNotAvailable = {}
+                    onUpdateNotAvailable = {
+                        shouldShowDonationOfferDialog = true
+                    }
                 )
                 hasCheckedUpdate = true
             }
@@ -297,6 +306,7 @@ internal fun HomeLandingScreen(
             onClickSecondaryAction = {
                 isUpdateReady = false
                 isUpdateRefused = true
+                shouldShowDonationOfferDialog = true
             }
         )
 
@@ -351,8 +361,6 @@ private fun HomeLandingContent(
     lazyListState: LazyListState = rememberLazyListState(),
     onIsInPreviewChange: (Boolean) -> Unit
 ) = with(viewModel) {
-    val resources = LocalResources.current
-    val deviceType = LocalDeviceType.current
     val downloadList = downloadList.collectAsStateValue()
     val downloaderResponseState = downloaderResponseState.collectAsStateValue()
     val youtubeResolutions = youtubeResolutions.collectAsStateValue()
@@ -360,6 +368,9 @@ private fun HomeLandingContent(
     val isImageAiEnabled = isImageAiEnabled.collectAsStateValue()
     val isGoImgEnabled = isGoImgEnabled.collectAsStateValue()
     val deeplinkEvent = deeplinkEvent.collectAsStateValue()
+    val isProActive = isProActive.collectAsStateValue()
+    val resources = LocalResources.current
+    val deviceType = LocalDeviceType.current
     val featuresCard = remember(context, isImageAiEnabled, isGoImgEnabled) {
         getFeatureCards(context, isImageAiEnabled, isGoImgEnabled)
     }
@@ -375,8 +386,6 @@ private fun HomeLandingContent(
     var isPlaylistNotSupported by remember { mutableStateOf(false) }
     var loadingItemIndex by remember { mutableStateOf<Int?>(null) }
     var isDownloadProcessing by remember { mutableStateOf(false) }
-    var snackbarMessage by remember { mutableStateOf("") }
-    var contentId by remember { mutableStateOf<Int?>(null) }
     val onClickCardAction: (DownloadModel) -> Unit = { download ->
         with(download) {
             when (status) {
@@ -418,7 +427,7 @@ private fun HomeLandingContent(
             }
         }
     }
-    val interstitialController = rememberInterstitialAd {
+    val interstitialController = rememberInterstitialAd(isProActive = isProActive) {
         checkStoragePermissions = getStoragePermission()
     }
     val notificationManager = remember(context) {
@@ -484,9 +493,9 @@ private fun HomeLandingContent(
         )
     }
 
-    LaunchedEffect(randomDonateDialogOffer, shouldShowDonationOfferDialog) {
+    LaunchedEffect(randomDonateDialogOffer, shouldShowDonationOfferDialog, isProActive) {
         delay(1.seconds)
-        if (shouldShowDonationOfferDialog) {
+        if (isProActive.not() && shouldShowDonationOfferDialog) {
             (0..2).random(Random).also { randomValue ->
                 randomDonateDialogOffer = randomValue
                 shouldShowDonationOfferDialog = false
@@ -537,6 +546,7 @@ private fun HomeLandingContent(
         isDownloadProcessing = isDownloadProcessing,
         isInPreview = isInPreview,
         loadingItemIndex = loadingItemIndex,
+        isProActive = isProActive,
         onClickDownload = { urls ->
             isDownloadProcessing = true
             scope.launch {
@@ -671,7 +681,7 @@ private fun HomeLandingContent(
     )
 
     MeverDialog(
-        showDialog = randomDonateDialogOffer == 1,
+        showDialog = isProActive.not() && randomDonateDialogOffer == 1,
         image = R.drawable.ic_coffee,
         title = stringResource(R.string.thanks),
         description = stringResource(R.string.donation_desc),
@@ -751,7 +761,9 @@ private fun HomeLandingContent(
                 MeverTopBar(
                     modifier = Modifier.fillMaxWidth(),
                     topBarArgs = TopBarArgs(
-                        iconBack = R.drawable.ic_mever,
+                        iconBack = remember(isProActive) {
+                            if (isProActive) R.drawable.ic_mever_pro else R.drawable.ic_mever
+                        },
                         actionMenus = getListActionMenu(
                             resources = resources,
                             hasDownloadProgress = showBadge
@@ -907,10 +919,13 @@ private fun HomeLandingContent(
     ) {
         MeverSnackbar(
             message = snackbarMessage,
-            actionMessage = stringResource(R.string.cancel),
-            snackbarColor = MeverRed,
-            onClickSnackbarAction = { delete(contentId ?: 0) },
-            onClearSnackbar = { snackbarMessage = "" }
+            actionMessage = if (contentId != null) stringResource(R.string.cancel) else null,
+            snackbarColor = if (contentId != null) MeverRed else colors.alwaysPurple,
+            onClickSnackbarAction = { contentId?.let { delete(it) } },
+            onClearSnackbar = {
+                snackbarMessage = ""
+                contentId = null
+            }
         )
     }
 }
@@ -948,7 +963,7 @@ private fun HeaderSection(modifier: Modifier = Modifier) {
                 .then(
                     if (deviceType != PHONE) Modifier.sizeIn(maxHeight = Dp150) else Modifier
                 ),
-            painter = painterResource(id = R.drawable.ic_header),
+            painter = painterResource(id = getDoodleHeaderDrawable()),
             contentScale = Fit,
             contentDescription = null
         )
@@ -1001,7 +1016,7 @@ private fun DownloaderSection(
                             pasteFromClipboard(context)?.let { onChangeUrl(TextFieldValue(it)) }
                         },
                         painter = painterResource(id = R.drawable.ic_link),
-                        tint = MeverPurple,
+                        tint = colors.alwaysPurple,
                         contentDescription = null
                     )
                 }
@@ -1048,7 +1063,7 @@ private fun DownloaderSection(
                     title = "",
                     buttonType = Filled(
                         backgroundColor = colors.alwaysPurple,
-                        contentColor = MeverWhite
+                        contentColor = colors.alwaysWhiteBlack
                     ),
                     shape = CircleShape,
                     isEnabled = getPlatformType(urlProvider().text.trim()) != ALL && isLoading.not(),
@@ -1253,7 +1268,6 @@ private fun RecentlyDownloadedSection(
             if (downloadList.isEmpty()) {
                 MeverEmptyItem(
                     modifier = Modifier.fillMaxWidth(),
-                    image = R.drawable.ic_empty_state,
                     imageSize = Dp160,
                     title = stringResource(R.string.no_downloads),
                     description = stringResource(R.string.empty_list_desc),

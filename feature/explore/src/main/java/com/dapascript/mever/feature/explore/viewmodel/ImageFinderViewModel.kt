@@ -10,6 +10,7 @@ import com.dapascript.mever.core.common.util.state.UiState.StateInitial
 import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.feature.explore.BuildConfig.DEBUG
+import com.dapascript.mever.core.data.repository.SubscriptionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,8 +18,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 internal class ImageFinderViewModel @Inject constructor(
-    private val repository: MeverRepository
+    private val repository: MeverRepository,
+    subscriptionRepository: SubscriptionRepository
 ) : BaseViewModel() {
+
+    val isProActive = subscriptionRepository.isProActive
 
     var query by mutableStateOf("")
     var contents by mutableStateOf<List<ContentEntity>?>(null)

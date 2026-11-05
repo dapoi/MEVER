@@ -166,7 +166,7 @@ fun MeverPhotoViewer(
             title = stringResource(R.string.download),
             buttonType = Filled(
                 backgroundColor = colors.alwaysPurple,
-                contentColor = colors.alwaysWhite
+                contentColor = colors.alwaysWhiteBlack
             )
         ) { onClickDownload(image) }
         AnimatedVisibility(

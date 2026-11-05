@@ -34,6 +34,7 @@ moshi = "1.15.2"
 nav3 = "1.2.0"
 playServicesBase = "18.11.1"
 retrofit = "3.0.0"
+revenuecat = "11.0.1"
 timber = "5.0.1"
 workRuntime = "2.12.0"
 
@@ -83,6 +84,7 @@ okhttp-interceptor = { group = "com.squareup.okhttp3", name = "logging-intercept
 play-services-base = { group = "com.google.android.gms", name = "play-services-base", version.ref = "playServicesBase" }
 retrofit-lib = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 retrofit-moshi = { group = "com.squareup.retrofit2", name = "converter-moshi", version.ref = "retrofit" }
+revenuecat-purchases = { group = "com.revenuecat.purchases", name = "purchases", version.ref = "revenuecat" }
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
 work-runtime = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workRuntime" }
 

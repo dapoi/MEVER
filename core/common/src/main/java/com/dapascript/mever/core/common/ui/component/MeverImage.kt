@@ -13,6 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.ContentScale.Companion.Crop
@@ -37,7 +38,8 @@ fun MeverImage(
     modifier: Modifier = Modifier,
     contentScale: ContentScale = Crop,
     isImageError: Boolean = false,
-    isVideoThumbnail: Boolean = false
+    isVideoThumbnail: Boolean = false,
+    colorFilter: ColorFilter? = null
 ) = Box(modifier = modifier) {
     val context = LocalContext.current
     var isLoading by remember { mutableStateOf(true) }
@@ -73,6 +75,7 @@ fun MeverImage(
                         .build()
                 },
                 contentScale = contentScale,
+                colorFilter = colorFilter,
                 contentDescription = "Thumbnail",
                 onState = { state ->
                     isLoading = when (state) {
