@@ -1,5 +1,6 @@
-package com.dapascript.mever.service
+package com.dapascript.mever.quickdownload
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.ClipboardManager
 import android.content.Intent
@@ -16,39 +17,57 @@ import com.dapascript.mever.core.common.R
 import com.dapascript.mever.core.common.service.QuickDownloadService
 import com.dapascript.mever.core.common.util.getNotificationPermission
 import com.dapascript.mever.core.common.util.notification.QuickDownloadNotificationHelper
+import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.repository.SubscriptionRepository
-import com.dapascript.mever.core.data.source.local.MeverDataStore
 import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_QUICK_NOTIF
 import com.dapascript.mever.core.data.worker.MeverWorkerHelper
 import com.dapascript.mever.screen.MainActivity
-import dagger.hilt.EntryPoint
-import dagger.hilt.InstallIn
-import dagger.hilt.android.EntryPointAccessors
-import dagger.hilt.components.SingletonComponent
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class QuickDownloadTileService : TileService() {
 
-    @EntryPoint
-    @InstallIn(SingletonComponent::class)
-    interface QuickDownloadTileEntryPoint {
-        fun subscriptionRepository(): SubscriptionRepository
-    }
+    @Inject
+    lateinit var subscriptionRepository: SubscriptionRepository
 
-    private val subscriptionRepository: SubscriptionRepository by lazy {
-        EntryPointAccessors.fromApplication(
-            applicationContext,
-            QuickDownloadTileEntryPoint::class.java
-        ).subscriptionRepository()
-    }
+    @Inject
+    lateinit var meverRepository: MeverRepository
+
+    private var listeningJob: Job? = null
 
     override fun onStartListening() {
         super.onStartListening()
-        updateTileState()
+        listeningJob?.cancel()
+        listeningJob = CoroutineScope(Dispatchers.Main).launch {
+            combine(
+                meverRepository.getPreference(KEY_QUICK_NOTIF, false),
+                subscriptionRepository.isProActive
+            ) { isPrefEnabled, isPro ->
+                isPrefEnabled to isPro
+            }.collect { (isPrefEnabled, isPro) ->
+                updateTileState(isPrefEnabled, isPro)
+            }
+        }
+    }
+
+    override fun onStopListening() {
+        listeningJob?.cancel()
+        listeningJob = null
+        super.onStopListening()
+    }
+
+    override fun onDestroy() {
+        listeningJob?.cancel()
+        listeningJob = null
+        super.onDestroy()
     }
 
     override fun onClick() {
@@ -84,7 +103,7 @@ class QuickDownloadTileService : TileService() {
 
             QuickDownloadNotificationHelper.showQuickDownloadNotification(this)
             CoroutineScope(Dispatchers.IO).launch {
-                MeverDataStore(applicationContext).savePreference(KEY_QUICK_NOTIF, true)
+                meverRepository.savePreference(KEY_QUICK_NOTIF, true)
             }
             tile.state = Tile.STATE_ACTIVE
             tile.updateTile()
@@ -124,7 +143,7 @@ class QuickDownloadTileService : TileService() {
             } else {
                 QuickDownloadNotificationHelper.cancelQuickDownloadNotification(this)
                 CoroutineScope(Dispatchers.IO).launch {
-                    MeverDataStore(applicationContext).savePreference(KEY_QUICK_NOTIF, false)
+                    meverRepository.savePreference(KEY_QUICK_NOTIF, false)
                 }
                 tile.state = Tile.STATE_INACTIVE
                 tile.updateTile()
@@ -132,16 +151,20 @@ class QuickDownloadTileService : TileService() {
         }
     }
 
-    private fun updateTileState() {
+    private fun updateTileState(
+        isPrefEnabled: Boolean = isQuickDownloadPrefEnabled(),
+        pro: Boolean = isPro()
+    ) {
         val tile = qsTile ?: return
-        val pro = isPro()
-        if (!pro && isQuickDownloadActive()) {
+        val isServiceRunning = QuickDownloadService.isRunning
+        val isRunning = isPrefEnabled && isServiceRunning
+        if (!pro && isRunning) {
             QuickDownloadNotificationHelper.cancelQuickDownloadNotification(this)
             CoroutineScope(Dispatchers.IO).launch {
-                MeverDataStore(applicationContext).savePreference(KEY_QUICK_NOTIF, false)
+                meverRepository.savePreference(KEY_QUICK_NOTIF, false)
             }
         }
-        val isEnabled = pro && isQuickDownloadActive()
+        val isEnabled = pro && isRunning
         tile.state = when {
             !pro -> Tile.STATE_UNAVAILABLE
             isEnabled -> Tile.STATE_ACTIVE
@@ -163,7 +186,7 @@ class QuickDownloadTileService : TileService() {
         }
     }
 
-    @android.annotation.SuppressLint("StartActivityAndCollapseDeprecated")
+    @SuppressLint("StartActivityAndCollapseDeprecated")
     private fun openApp() {
         val intent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
@@ -183,14 +206,17 @@ class QuickDownloadTileService : TileService() {
     }
 
     private fun isQuickDownloadActive(): Boolean {
-        val isPrefEnabled = try {
+        return isQuickDownloadPrefEnabled() && QuickDownloadService.isRunning
+    }
+
+    private fun isQuickDownloadPrefEnabled(): Boolean {
+        return try {
             runBlocking(Dispatchers.IO) {
-                MeverDataStore(applicationContext).getPreference(KEY_QUICK_NOTIF, false).first()
+                meverRepository.getPreference(KEY_QUICK_NOTIF, false).first()
             }
         } catch (_: Exception) {
             false
         }
-        return isPrefEnabled && QuickDownloadService.isRunning
     }
 
     private fun getClipboardUrl(): String? {

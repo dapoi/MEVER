@@ -1,4 +1,4 @@
-package com.dapascript.mever.receiver
+package com.dapascript.mever.quickdownload
 
 import android.content.BroadcastReceiver
 import android.content.ClipboardManager
@@ -14,21 +14,32 @@ import com.dapascript.mever.core.common.util.notification.QuickDownloadNotificat
 import com.dapascript.mever.core.common.util.notification.QuickDownloadNotificationHelper.ACTION_QUICK_DOWNLOAD_DISMISS
 import com.dapascript.mever.core.common.util.notification.QuickDownloadNotificationHelper.ACTION_QUICK_DOWNLOAD_REPLY
 import com.dapascript.mever.core.common.util.notification.QuickDownloadNotificationHelper.KEY_TEXT_REPLY
-import com.dapascript.mever.core.data.source.local.MeverDataStore
+import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_QUICK_NOTIF
 import com.dapascript.mever.core.data.worker.MeverWorkerHelper
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class QuickDownloadReceiver : BroadcastReceiver() {
+
+    @Inject
+    lateinit var meverRepository: MeverRepository
 
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == ACTION_QUICK_DOWNLOAD_DISMISS) {
             QuickDownloadNotificationHelper.cancelQuickDownloadNotification(context)
+            val pendingResult = goAsync()
             CoroutineScope(IO).launch {
-                MeverDataStore(context.applicationContext).savePreference(KEY_QUICK_NOTIF, false)
-                QuickDownloadNotificationHelper.requestTileUpdate(context)
+                try {
+                    meverRepository.savePreference(KEY_QUICK_NOTIF, false)
+                    QuickDownloadNotificationHelper.requestTileUpdate(context)
+                } finally {
+                    pendingResult.finish()
+                }
             }
             return
         }

@@ -22,6 +22,7 @@ class QuickDownloadService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_STOP) {
+            isRunning = false
             stopForegroundService()
             return START_NOT_STICKY
         }

@@ -104,7 +104,7 @@ object QuickDownloadNotificationHelper {
 
         val bigText = if (hasProcessingItems) {
             val info = context.getString(R.string.quick_download_processing_info)
-            val urlListText = urlsSnapshot.joinToString("\n") { "• $it" }
+            val urlListText = urlsSnapshot.joinToString("\n") { "$it" }
             "⏳ $info\n\n$urlListText"
         } else {
             context.getString(R.string.quick_download_notif_desc)
@@ -183,6 +183,7 @@ object QuickDownloadNotificationHelper {
     }
 
     fun cancelQuickDownloadNotification(context: Context) {
+        QuickDownloadService.isRunning = false
         activeProcessingUrls.clear()
         val intent = Intent(context, QuickDownloadService::class.java).apply {
             action = QuickDownloadService.ACTION_STOP
@@ -199,7 +200,7 @@ object QuickDownloadNotificationHelper {
         try {
             val componentName = ComponentName(
                 context.packageName,
-                "com.dapascript.mever.service.QuickDownloadTileService"
+                "com.dapascript.mever.quickdownload.QuickDownloadTileService"
             )
             TileService.requestListeningState(context.applicationContext, componentName)
         } catch (_: Exception) {}

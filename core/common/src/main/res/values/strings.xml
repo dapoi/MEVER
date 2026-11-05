@@ -236,7 +236,7 @@
     <string name="included_benefits">Included Benefits</string>
     <string name="quick_download_processing_info">Fetching media details, please wait…</string>
     <string name="feature_no_ads_desc">Zero interruptions, pure uninterrupted downloading</string>
-    <string name="feature_quick_download_desc">Download instantly from notification tray when copying links</string>
+    <string name="feature_quick_download_desc">Download instantly from notification without opening the app</string>
     <string name="feature_doodle_theme_desc">Unlock the exclusive Doodle theme and matching app icon</string>
     <string name="per_month">/month</string>
     <string name="cancel_anytime_google_play">Cancel anytime in Google Play</string>

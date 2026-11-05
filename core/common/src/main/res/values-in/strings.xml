@@ -235,7 +235,7 @@
     <string name="included_benefits">Manfaat Termasuk</string>
     <string name="quick_download_processing_info">Memproses rincian media, mohon tunggu…</string>
     <string name="feature_no_ads_desc">Tanpa gangguan, unduh media lancar tanpa iklan</string>
-    <string name="feature_quick_download_desc">Unduh langsung dari bilah notifikasi saat menyalin tautan</string>
+    <string name="feature_quick_download_desc">Unduh langsung dari bilah notifikasi tanpa membuka aplikasi</string>
     <string name="feature_doodle_theme_desc">Buka tema eksklusif Doodle dan ikon aplikasi yang serasi</string>
     <string name="per_month">/bulan</string>
     <string name="cancel_anytime_google_play">Batalkan kapan saja di Google Play</string>

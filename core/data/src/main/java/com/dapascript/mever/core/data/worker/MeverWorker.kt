@@ -53,6 +53,8 @@ import com.dapascript.mever.core.common.util.worker.WorkerConstant.SIZE_LIMIT
 import com.dapascript.mever.core.data.R
 import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.dapascript.mever.core.data.repository.SubscriptionRepository
+import com.dapascript.mever.core.data.source.local.MeverDataStore
+import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_RESOLUTIONS
 import com.dapascript.mever.core.data.source.remote.ApiService
 import com.dapascript.mever.core.data.util.MoshiHelper
 import com.ketch.Ketch
@@ -61,6 +63,7 @@ import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.first
 import retrofit2.HttpException
 import java.io.IOException
 import java.net.SocketTimeoutException
@@ -75,7 +78,8 @@ internal class MeverWorker @AssistedInject constructor(
     private val apiService: ApiService,
     private val moshiHelper: MoshiHelper,
     private val ketch: Ketch,
-    private val subscriptionRepository: SubscriptionRepository
+    private val subscriptionRepository: SubscriptionRepository,
+    private val dataStore: MeverDataStore
 ) : CoroutineWorker(context, workerParameters) {
 
     override suspend fun doWork(): Result {
@@ -107,6 +111,13 @@ internal class MeverWorker @AssistedInject constructor(
 
                     if (isFromNotif && subscriptionRepository.checkProActive().not()) {
                         throw Exception(context.getString(UiR.string.quick_download_pro_required))
+                    }
+
+                    if (platform == YOUTUBE || platform == YOUTUBE_MUSIC) {
+                        val resolutions = dataStore.getPreference(KEY_RESOLUTIONS, "").first()
+                        if (resolutions.isBlank()) {
+                            throw Exception(context.getString(UiR.string.unsupported_yt))
+                        }
                     }
 
                     val res = getApiDownloader(

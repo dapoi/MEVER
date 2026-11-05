@@ -113,7 +113,7 @@
             android:foregroundServiceType="dataSync" />
 
         <service
-            android:name=".service.QuickDownloadTileService"
+            android:name=".quickdownload.QuickDownloadTileService"
             android:exported="true"
             android:icon="@drawable/ic_download"
             android:label="@string/quick_download_notif_title"
@@ -121,10 +121,13 @@
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
+            <meta-data
+                android:name="android.service.quicksettings.ACTIVE_TILE"
+                android:value="true" />
         </service>
 
         <receiver
-            android:name=".receiver.QuickDownloadReceiver"
+            android:name=".quickdownload.QuickDownloadReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.dapascript.mever.ACTION_QUICK_DOWNLOAD_REPLY" />
