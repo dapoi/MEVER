@@ -252,9 +252,7 @@
     <string name="app_icon">App Icon</string>
     <string name="app_icon_desc">Customize your home screen launcher icon</string>
     <string name="theme_palette_default">Classic Purple</string>
-    <string name="theme_palette_default_desc">Signature purple accent with clean Poppins typography</string>
     <string name="theme_palette_doodle">Doodle (B&amp;W)</string>
-    <string name="theme_palette_doodle_desc">Black &amp; white comic aesthetic with hand-drawn Comic Sans style</string>
     <string name="icon_default">Classic</string>
     <string name="icon_doodle">Doodle</string>
     <string name="app_icon_changed">App icon updated successfully</string>
