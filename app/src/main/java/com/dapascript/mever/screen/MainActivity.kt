@@ -75,12 +75,13 @@ class MainActivity : AppCompatActivity() {
 
     private val viewModel: MainViewModel by viewModels()
     private var lastInteractionCheck = 0L
+    private var hasIncomingDeeplink = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setupAdmob()
-        setupIntent(intent = intent, isTriggerNavigation = false)
+        hasIncomingDeeplink = setupIntent(intent = intent, isTriggerNavigation = false)
 
         setContent {
             val themeType = viewModel.themeType.collectAsStateValue()
@@ -191,7 +192,12 @@ class MainActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         viewModel.checkSubscriptionEntitlement()
-        viewModel.checkIdleTimeout { recreateActivity(context = this, activity = this) }
+        if (hasIncomingDeeplink) {
+            hasIncomingDeeplink = false
+            viewModel.updateInteractionTime()
+        } else {
+            viewModel.checkIdleTimeout { recreateActivity(context = this, activity = this) }
+        }
     }
 
     override fun onStop() {
@@ -222,9 +228,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupIntent(intent: Intent?, isTriggerNavigation: Boolean) {
+    private fun setupIntent(intent: Intent?, isTriggerNavigation: Boolean): Boolean {
         val action = intent?.action
         val type = intent?.type
+        var isDeeplinkHandled = false
 
         when (action) {
             ACTION_SEND if type == "text/plain" -> {
@@ -234,14 +241,17 @@ class MainActivity : AppCompatActivity() {
                         params = mapOf(URL to url)
                     )
                     viewModel.handleDeeplink(deepLink.toUri(), isTriggerNavigation)
+                    isDeeplinkHandled = true
                 }
             }
 
             ACTION_VIEW -> intent.data?.let { uri ->
                 viewModel.handleDeeplink(uri, isTriggerNavigation)
+                isDeeplinkHandled = true
             }
         }
 
         action?.let { intent.action = "" }
+        return isDeeplinkHandled
     }
 }
