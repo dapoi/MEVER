@@ -1,6 +1,5 @@
 import config.getEnvVariable
-import util.CollectionLibs.testDependencies
-import util.implementation
+import util.Dependencies.testDependencies
 
 plugins {
     alias(libs.plugins.convention.application)

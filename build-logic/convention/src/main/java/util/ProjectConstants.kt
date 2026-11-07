@@ -1,10 +1,14 @@
 package util
 
-object ConstantLibs {
+object ProjectConstants {
+    const val CORE_DATA = ":core:data"
+    const val CORE_COMMON = ":core:common"
+    const val CORE_NAVIGATION = ":core:navigation"
+
     val coreModules = listOf(
-        ":core:data",
-        ":core:common",
-        ":core:navigation"
+        CORE_DATA,
+        CORE_COMMON,
+        CORE_NAVIGATION
     )
     val resourceExcludes = listOf(
         "/META-INF/{AL2.0,LGPL2.1}",

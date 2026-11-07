@@ -6,10 +6,12 @@ import config.configCompose
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
-import util.ConstantLibs.MAX_SDK_VERSION
-import util.ConstantLibs.jniLibsDoNotStrip
-import util.ConstantLibs.resourceExcludes
+import org.gradle.kotlin.dsl.dependencies
+import util.ProjectConstants.MAX_SDK_VERSION
+import util.ProjectConstants.jniLibsDoNotStrip
+import util.ProjectConstants.resourceExcludes
 import util.alias
+import util.implementation
 import util.libs
 
 class ApplicationModulePlugin : Plugin<Project> {
@@ -31,6 +33,10 @@ class ApplicationModulePlugin : Plugin<Project> {
                     resources.excludes.addAll(resourceExcludes)
                     jniLibs { jniLibs.keepDebugSymbols.addAll(jniLibsDoNotStrip) }
                 }
+            }
+
+            dependencies {
+                implementation(libs.firebase.crashlytics.get())
             }
         }
     }

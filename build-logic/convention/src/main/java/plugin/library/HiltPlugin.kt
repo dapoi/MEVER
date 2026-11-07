@@ -1,14 +1,14 @@
-package plugin
+package plugin.library
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.dependencies
-import util.ConstantLibs.KSP
+import util.ProjectConstants.KSP
 import util.alias
 import util.implementation
 import util.libs
 
-class HiltLibPlugin : Plugin<Project> {
+class HiltPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             with(pluginManager) {

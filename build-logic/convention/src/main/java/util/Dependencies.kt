@@ -2,16 +2,15 @@ package util
 
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.dependencies
-import util.ConstantLibs.KSP
-import util.ConstantLibs.coreModules
+import util.ProjectConstants.CORE_COMMON
+import util.ProjectConstants.KSP
 
-object CollectionLibs {
-    fun Project.commonDependencies() {
+object Dependencies {
+    fun Project.composeDependencies() {
         dependencies {
             val bom = libs.androidx.compose.bom.get()
             implementation(platform(bom))
             androidTestImplementation(platform(bom))
-            implementation(libs.ads.get())
             implementation(libs.androidx.activity.compose.get())
             implementation(libs.androidx.appcompat.get())
             implementation(libs.androidx.compose.material3.get())
@@ -22,31 +21,34 @@ object CollectionLibs {
             implementation(libs.coil.compose.get())
             implementation(libs.coil.network.get())
             implementation(libs.coil.video.get())
-            implementation(libs.documentFile.get())
-            implementation(libs.firebase.crashlytics.get())
-            implementation(libs.google.play.update.core.get())
-            implementation(libs.google.play.update.ktx.get())
-            implementation(libs.ketch.get())
-            implementation(libs.media3.exoplayer.get())
-            implementation(libs.media3.session.get())
-            implementation(libs.media3.ui.get())
+        }
+    }
+
+    fun Project.commonDependencies() {
+        dependencies {
+            api(libs.ads.get())
+            api(libs.google.play.update.core.get())
+            api(libs.google.play.update.ktx.get())
+            api(libs.ketch.get())
+            api(libs.media3.exoplayer.get())
+            api(libs.media3.session.get())
+            api(libs.media3.ui.get())
+            api(libs.timber.get())
             implementation(libs.mlkit.subject.segmentation.get())
             implementation(libs.play.services.base.get())
-            implementation(libs.revenuecat.purchases.get())
-            implementation(libs.timber.get())
         }
     }
 
     fun Project.dataDependencies() {
         dependencies {
-            implementation(project(coreModules[1]))
+            implementation(project(CORE_COMMON))
             implementation(libs.dataStorePreferences.get())
-            implementation(libs.ketch.get())
+            api(libs.ketch.get())
             implementation(libs.moshi.kotlin.get())
             implementation(libs.okhttp.interceptor.get())
             implementation(libs.retrofit.lib.get())
             implementation(libs.retrofit.moshi.get())
-            implementation(libs.revenuecat.purchases.get())
+            api(libs.revenuecat.purchases.get())
             implementation(libs.timber.get())
             implementation(libs.work.runtime.get())
             add(KSP, libs.moshi.codegen.get())
@@ -60,7 +62,6 @@ object CollectionLibs {
             testImplementation(libs.coroutines.test.get())
             testImplementation(libs.mockito.core.get())
             testImplementation(libs.mockito.kotlin.get())
-            testImplementation(libs.mockito.inline.get())
             testImplementation(libs.arch.core.testing.get())
         }
     }

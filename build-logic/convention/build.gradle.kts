@@ -66,15 +66,15 @@ gradlePlugin {
         // Registering the plugins for Android, Compose, and Hilt
         register("androidLibrary") {
             id = "convention.android.library"
-            implementationClass = "plugin.AndroidLibPlugin"
+            implementationClass = "plugin.library.AndroidLibraryPlugin"
         }
         register("composeLibrary") {
             id = "convention.compose.library"
-            implementationClass = "plugin.ComposeLibPlugin"
+            implementationClass = "plugin.library.ComposeLibraryPlugin"
         }
         register("hiltLibrary") {
             id = "convention.hilt"
-            implementationClass = "plugin.HiltLibPlugin"
+            implementationClass = "plugin.library.HiltPlugin"
         }
     }
 }

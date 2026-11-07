@@ -3,8 +3,8 @@ package plugin.module
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.dependencies
-import util.CollectionLibs.testDependencies
-import util.ConstantLibs.coreModules
+import util.Dependencies.testDependencies
+import util.ProjectConstants.coreModules
 import util.alias
 import util.implementation
 import util.libs
@@ -15,7 +15,7 @@ class FeatureModulePlugin : Plugin<Project> {
             with(pluginManager) {
                 alias(libs.plugins.convention.android.library)
                 alias(libs.plugins.convention.compose.library)
-                alias(libs.plugins.convention.navigation)
+                alias(libs.plugins.convention.hilt)
             }
 
             dependencies {

@@ -3,7 +3,7 @@ package config
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.dsl.LibraryExtension
 import org.gradle.api.Project
-import util.CollectionLibs.commonDependencies
+import util.Dependencies.composeDependencies
 
 internal fun Project.configCompose(
     extension: Any
@@ -12,5 +12,5 @@ internal fun Project.configCompose(
         is ApplicationExtension -> extension.buildFeatures { compose = true }
         is LibraryExtension -> extension.buildFeatures { compose = true }
     }
-    commonDependencies()
+    composeDependencies()
 }

@@ -1,17 +1,17 @@
-package plugin
+package plugin.library
 
 import com.android.build.api.dsl.LibraryExtension
-import util.alias
 import config.configCompose
-import util.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
+import util.alias
+import util.libs
 
-class ComposeLibPlugin : Plugin<Project> {
+class ComposeLibraryPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
-            pluginManager.alias(libs.plugins.android.library)
+            pluginManager.alias(libs.plugins.kotlin.compose)
             extensions.configure<LibraryExtension> { configCompose(this) }
         }
     }
