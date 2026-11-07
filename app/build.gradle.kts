@@ -81,7 +81,5 @@ dependencies {
     implementation(projects.feature.startup)
     implementation(projects.feature.wa)
 
-    implementation(libs.androidx.lifecycle.process)
-
     testDependencies()
 }

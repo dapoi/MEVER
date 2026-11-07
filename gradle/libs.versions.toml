@@ -24,7 +24,6 @@ kotlin = "2.4.21"
 kotlinxSerializationJson = "1.12.0"
 ksp = "2.3.7"
 lifecycleViewmodelNav3 = "2.11.0"
-lifecycleProcess = "2.11.0"
 media3 = "1.11.1"
 mlkitSubjectSegmentation = "16.0.0-beta1"
 mockitoCore = "5.24.0"
@@ -48,7 +47,6 @@ androidx-compose-materialWindow = { group = "androidx.compose.material3", name =
 androidx-compose-ui-tooling-debug = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtxVersion" }
-androidx-lifecycle-process = { group = "androidx.lifecycle", name = "lifecycle-process", version.ref = "lifecycleProcess" }
 androidx-lifecycle-viewmodel-navigation3 = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-navigation3", version.ref = "lifecycleViewmodelNav3" }
 androidx-navigation3-runtime = { group = "androidx.navigation3", name = "navigation3-runtime", version.ref = "nav3" }
 androidx-navigation3-ui = { group = "androidx.navigation3", name = "navigation3-ui", version.ref = "nav3" }
