@@ -1,4 +1,5 @@
 import config.getEnvVariable
+import util.CollectionLibs.testDependencies
 import util.implementation
 
 plugins {
@@ -82,9 +83,5 @@ dependencies {
 
     implementation(libs.androidx.lifecycle.process)
 
-    testImplementation(libs.coroutines.test)
-    testImplementation(libs.mockito.core)
-    testImplementation(libs.mockito.kotlin)
-    testImplementation(libs.mockito.inline)
-    testImplementation(libs.arch.core.testing)
+    testDependencies()
 }
