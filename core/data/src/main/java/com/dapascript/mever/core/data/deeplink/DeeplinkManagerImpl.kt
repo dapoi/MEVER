@@ -4,6 +4,7 @@ import android.net.Uri
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.HOST
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.Path.HOME
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.Path.IMAGE_GENERATOR
+import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.Path.SETTING_QUICK_DOWNLOAD
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.Query.ART_STYLE
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.Query.ERROR
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkConstant.Query.PROMPT
@@ -14,6 +15,7 @@ import com.dapascript.mever.core.data.deeplink.event.DeeplinkEvent
 import com.dapascript.mever.core.data.deeplink.event.DeeplinkEvent.Default
 import com.dapascript.mever.core.data.deeplink.event.DeeplinkEvent.DownloadResult
 import com.dapascript.mever.core.data.deeplink.event.DeeplinkEvent.ImageGenerator
+import com.dapascript.mever.core.data.deeplink.event.DeeplinkEvent.SettingQuickDownload
 import com.dapascript.mever.core.data.deeplink.event.DeeplinkEvent.SharedUrl
 import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.dapascript.mever.core.data.model.local.ImageAiEntity
@@ -73,6 +75,8 @@ internal class DeeplinkManagerImpl @Inject constructor(
                     )
                 }
             }
+
+            SETTING_QUICK_DOWNLOAD -> SettingQuickDownload
 
             else -> Default
         }

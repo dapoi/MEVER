@@ -8,6 +8,8 @@ import android.provider.DocumentsContract.Document.COLUMN_LAST_MODIFIED
 import android.provider.DocumentsContract.buildChildDocumentsUriUsingTree
 import android.provider.DocumentsContract.buildDocumentUriUsingTree
 import android.provider.DocumentsContract.getTreeDocumentId
+import androidx.work.Data
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.workDataOf
 import com.dapascript.mever.core.common.util.encodeMetaData
 import com.dapascript.mever.core.common.util.getContentTypeFromFile
@@ -19,7 +21,9 @@ import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFiles
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getMeverFolder
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.ACTION_DOWNLOAD
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.ACTION_GENERATE_AI
+import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_ACTION
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_ART_STYLE
+import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_IS_FROM_NOTIF
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_PROMPT
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_QUALITY
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_TYPE
@@ -33,6 +37,7 @@ import com.dapascript.mever.core.data.model.local.WaType
 import com.dapascript.mever.core.data.repository.base.BaseRepository
 import com.dapascript.mever.core.data.repository.base.BaseRepositoryArgs
 import com.dapascript.mever.core.data.source.local.MeverDataStore
+import com.dapascript.mever.core.data.worker.MeverWorker
 import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_ADS_THRESHOLD
 import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_CLICK_COUNT
 import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.MAX_ADS_THRESHOLD
@@ -196,6 +201,20 @@ internal class MeverRepositoryImpl @Inject constructor(
                 }
                 .forEach { ketch.clearDb(it.id) }
         }
+    }
+
+    override fun enqueueQuickDownload(url: String) {
+        val inputData = Data.Builder()
+            .putString(KEY_ACTION, ACTION_DOWNLOAD)
+            .putString(KEY_URL, url)
+            .putBoolean(KEY_IS_FROM_NOTIF, true)
+            .build()
+
+        val workRequest = OneTimeWorkRequestBuilder<MeverWorker>()
+            .setInputData(inputData)
+            .build()
+
+        workManager.enqueue(workRequest)
     }
 
     override fun <T : Any> getPreference(

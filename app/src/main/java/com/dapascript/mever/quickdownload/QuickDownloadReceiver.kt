@@ -16,7 +16,6 @@ import com.dapascript.mever.core.common.util.notification.QuickDownloadNotificat
 import com.dapascript.mever.core.common.util.notification.QuickDownloadNotificationHelper.KEY_TEXT_REPLY
 import com.dapascript.mever.core.data.repository.MeverRepository
 import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_QUICK_NOTIF
-import com.dapascript.mever.core.data.worker.MeverWorkerHelper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
@@ -72,7 +71,7 @@ class QuickDownloadReceiver : BroadcastReceiver() {
                     ).show()
                 }
 
-                MeverWorkerHelper.enqueueDownloadWorker(context, validUrl)
+                meverRepository.enqueueQuickDownload(validUrl)
                 QuickDownloadNotificationHelper.showQuickDownloadNotification(
                     context = context,
                     isProcessing = true,

@@ -7,6 +7,7 @@ object DeeplinkConstant {
     object Path {
         const val HOME = "/home"
         const val IMAGE_GENERATOR = "/image-generator"
+        const val SETTING_QUICK_DOWNLOAD = "/setting-quick-download"
     }
 
     object Query {

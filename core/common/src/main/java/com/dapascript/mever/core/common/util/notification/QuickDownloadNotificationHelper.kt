@@ -11,9 +11,7 @@ import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.service.quicksettings.TileService
 import androidx.core.app.NotificationCompat
 import androidx.core.app.RemoteInput
-import androidx.core.content.ContextCompat
 import com.dapascript.mever.core.common.R
-import com.dapascript.mever.core.common.service.QuickDownloadService
 import com.dapascript.mever.core.common.util.getNotificationPermission
 import java.util.Collections
 import java.util.LinkedHashSet
@@ -166,31 +164,12 @@ object QuickDownloadNotificationHelper {
         }
 
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-        if (QuickDownloadService.isRunning) {
-            notificationManager.notify(NOTIFICATION_ID, buildNotification(context))
-        } else {
-            val intent = Intent(context, QuickDownloadService::class.java).apply {
-                action = QuickDownloadService.ACTION_START
-            }
-            try {
-                ContextCompat.startForegroundService(context, intent)
-            } catch (_: Exception) {
-                notificationManager.notify(NOTIFICATION_ID, buildNotification(context))
-            }
-        }
+        notificationManager.notify(NOTIFICATION_ID, buildNotification(context))
         requestTileUpdate(context)
     }
 
     fun cancelQuickDownloadNotification(context: Context) {
-        QuickDownloadService.isRunning = false
         activeProcessingUrls.clear()
-        val intent = Intent(context, QuickDownloadService::class.java).apply {
-            action = QuickDownloadService.ACTION_STOP
-        }
-        try {
-            context.stopService(intent)
-        } catch (_: Exception) {}
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.cancel(NOTIFICATION_ID)
         requestTileUpdate(context)

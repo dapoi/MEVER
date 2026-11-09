@@ -203,13 +203,13 @@
     <string name="quick_download_turn_off">Turn Off</string>
     <string name="quick_download_notif_section_desc">Keep a persistent notification in your status bar to quickly paste and download media without opening the app.</string>
     <string name="quick_tile_section_title">Quick Settings Tile</string>
-    <string name="quick_tile_section_desc">If the notification was dismissed, you can still download copied links or easily restore the notification anytime by adding the MEVER shortcut to your Quick Settings panel.</string>
-    <string name="quick_tile_how_to_use">Restore or download if notification was dismissed</string>
+    <string name="quick_tile_section_desc">Quickly access Quick Download settings anytime by adding the MEVER shortcut to your Quick Settings panel.</string>
+    <string name="quick_tile_how_to_use">Quickly open Quick Download settings</string>
     <string name="quick_tile_step_1">Swipe down twice from the top of your screen to fully open Quick Settings.</string>
     <string name="quick_tile_step_2">Tap the Edit button (pencil icon) in Quick Settings.</string>
     <string name="quick_tile_step_3">Scroll down to find the Quick Download tile.</string>
     <string name="quick_tile_step_4">Hold and drag the tile into your active tiles grid.</string>
-    <string name="quick_tile_step_5">Tap the tile anytime to trigger quick download or restore the notification!</string>
+    <string name="quick_tile_step_5">Tap the tile anytime to open Quick Download settings!</string>
     <string name="quick_tile_pro_required">MEVER PRO is required to use Quick Settings Tile.</string>
     <string name="quick_download_pro_required">MEVER PRO is required for Quick Download.</string>
     <string name="quick_download_processing_title">Processing Link…</string>

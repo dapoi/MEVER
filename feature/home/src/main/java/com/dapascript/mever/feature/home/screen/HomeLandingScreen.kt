@@ -117,7 +117,6 @@ import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.colors
 import com.dapascript.mever.core.common.ui.theme.MeverThemeAttr.typography
 import com.dapascript.mever.core.common.util.DeviceType.PHONE
 import com.dapascript.mever.core.common.util.FadeSide.Bottom
-import com.dapascript.mever.core.common.util.getDoodleHeaderDrawable
 import com.dapascript.mever.core.common.util.FadeSide.Top
 import com.dapascript.mever.core.common.util.InAppUpdateManager
 import com.dapascript.mever.core.common.util.LocalActivity
@@ -138,6 +137,7 @@ import com.dapascript.mever.core.common.util.changeToCurrentDate
 import com.dapascript.mever.core.common.util.clearFocusOnKeyboardDismiss
 import com.dapascript.mever.core.common.util.deeplink.DeeplinkNotificationManager.NOTIFICATION_ID
 import com.dapascript.mever.core.common.util.fadingEdge
+import com.dapascript.mever.core.common.util.getDoodleHeaderDrawable
 import com.dapascript.mever.core.common.util.getExtensionFromUrl
 import com.dapascript.mever.core.common.util.getPlatformType
 import com.dapascript.mever.core.common.util.getStoragePermission
@@ -155,8 +155,10 @@ import com.dapascript.mever.core.common.util.storage.StorageUtil.StorageInfo
 import com.dapascript.mever.core.common.util.storage.StorageUtil.getStorageInfo
 import com.dapascript.mever.core.common.util.storage.StorageUtil.isStorageFull
 import com.dapascript.mever.core.common.util.syncToGallery
+import com.dapascript.mever.core.data.deeplink.event.DeeplinkEvent
 import com.dapascript.mever.core.data.deeplink.event.DeeplinkEvent.DownloadResult
 import com.dapascript.mever.core.data.deeplink.event.DeeplinkEvent.ImageGenerator
+import com.dapascript.mever.core.data.deeplink.event.DeeplinkEvent.SettingQuickDownload
 import com.dapascript.mever.core.data.deeplink.event.DeeplinkEvent.SharedUrl
 import com.dapascript.mever.core.navigation.helper.Navigator
 import com.dapascript.mever.core.navigation.route.AiScreenRoute.AiImageGeneratorResultRoute
@@ -171,6 +173,8 @@ import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeQuickTools
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeQuickToolsRoute.FeatureCard.QuickToolsType.REMOVE_BG
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeQuickToolsRoute.FeatureCard.QuickToolsType.WA
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLandingRoute
+import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingPaywallRoute
+import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingQuickDownloadRoute
 import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.getCardColor
 import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.getRoute
 import com.dapascript.mever.feature.home.screen.component.HandleBottomSheetDownload
@@ -450,41 +454,6 @@ private fun HomeLandingContent(
             }
     }
 
-    LaunchedEffect(deeplinkEvent) {
-        when (val event = deeplinkEvent) {
-            is SharedUrl -> {
-                urlSocialMediaState = TextFieldValue(event.url)
-                onClickWithAds(
-                    buttonClickCount = getButtonClickCount,
-                    adsThreshold = adsThreshold,
-                    onIncrementClickCount = { incrementClickCount() },
-                    onShowAds = { interstitialController.showAd() },
-                    onClickAction = { checkStoragePermissions = getStoragePermission() }
-                )
-            }
-
-            is DownloadResult -> {
-                urlSocialMediaState = TextFieldValue(event.url)
-                contents = event.contents
-                errorMessage = event.errorMessage
-            }
-
-            is ImageGenerator -> {
-                navigator.navigate(
-                    route = AiImageGeneratorResultRoute(
-                        prompt = event.prompt,
-                        artStyle = event.artStyle,
-                        imageResponse = event.imageResponse,
-                        isFromDeeplink = true
-                    )
-                )
-            }
-
-            else -> return@LaunchedEffect
-        }
-        consumeDeeplinkEvent()
-    }
-
     LaunchedEffect(downloaderResponseState) {
         downloaderResponseState.handleUiState(
             onLoading = { showLoading = true },
@@ -539,6 +508,17 @@ private fun HomeLandingContent(
             }
         )
     }
+
+    HandleDeeplinkEvent(
+        viewModel = viewModel,
+        navigator = navigator,
+        getButtonClickCount = getButtonClickCount,
+        adsThreshold = adsThreshold,
+        isProActive = isProActive,
+        deeplinkEvent = deeplinkEvent,
+        onShowAds = { interstitialController.showAd() },
+        onRequestStoragePermission = { checkStoragePermissions = getStoragePermission() }
+    )
 
     HandleBottomSheetDownload(
         modifier = Modifier.fillMaxWidth(),
@@ -1316,6 +1296,57 @@ private fun RecentlyDownloadedSection(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun HandleDeeplinkEvent(
+    viewModel: HomeLandingViewModel,
+    navigator: Navigator,
+    getButtonClickCount: Int,
+    adsThreshold: Int,
+    isProActive: Boolean,
+    deeplinkEvent: DeeplinkEvent?,
+    onShowAds: () -> Unit,
+    onRequestStoragePermission: () -> Unit
+) = with(viewModel) {
+    LaunchedEffect(deeplinkEvent) {
+        when (val event = deeplinkEvent) {
+            is SharedUrl -> {
+                urlSocialMediaState = TextFieldValue(event.url)
+                onClickWithAds(
+                    buttonClickCount = getButtonClickCount,
+                    adsThreshold = adsThreshold,
+                    onIncrementClickCount = { incrementClickCount() },
+                    onShowAds = onShowAds,
+                    onClickAction = onRequestStoragePermission
+                )
+            }
+
+            is DownloadResult -> {
+                urlSocialMediaState = TextFieldValue(event.url)
+                contents = event.contents
+                errorMessage = event.errorMessage
+            }
+
+            is ImageGenerator -> {
+                navigator.navigate(
+                    route = AiImageGeneratorResultRoute(
+                        prompt = event.prompt,
+                        artStyle = event.artStyle,
+                        imageResponse = event.imageResponse,
+                        isFromDeeplink = true
+                    )
+                )
+            }
+
+            is SettingQuickDownload -> {
+                navigator.navigate(if (isProActive) SettingQuickDownloadRoute else SettingPaywallRoute)
+            }
+
+            else -> return@LaunchedEffect
+        }
+        consumeDeeplinkEvent()
     }
 }
 

@@ -20,4 +20,6 @@ sealed interface DeeplinkEvent {
         val imageResponse: String,
         val errorMessage: String
     ) : DeeplinkEvent
+
+    data object SettingQuickDownload : DeeplinkEvent
 }

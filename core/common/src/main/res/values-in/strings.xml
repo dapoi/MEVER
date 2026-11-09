@@ -202,13 +202,13 @@
     <string name="quick_download_turn_off">Nonaktifkan</string>
     <string name="quick_download_notif_section_desc">Tampilkan notifikasi tetap di bilah status untuk menempel dan mengunduh media secara langsung tanpa membuka aplikasi.</string>
     <string name="quick_tile_section_title">Pengaturan Cepat</string>
-    <string name="quick_tile_section_desc">Jika notifikasi ditutup atau terhapus, Anda tetap dapat mengunduh tautan tersalin atau memunculkan kembali notifikasi kapan saja menggunakan pintasan di Pengaturan Cepat.</string>
-    <string name="quick_tile_how_to_use">Gunakan jika notifikasi tidak sengaja ditutup</string>
+    <string name="quick_tile_section_desc">Akses pengaturan Pintasan Unduh dengan cepat kapan saja menggunakan pintasan di Pengaturan Cepat.</string>
+    <string name="quick_tile_how_to_use">Buka pengaturan Pintasan Unduh dengan cepat</string>
     <string name="quick_tile_step_1">Tarik ke bawah dua kali dari atas layar untuk membuka Pengaturan Cepat sepenuhnya.</string>
     <string name="quick_tile_step_2">Ketuk tombol Edit (ikon pensil) di Pengaturan Cepat.</string>
     <string name="quick_tile_step_3">Gulir ke bawah untuk menemukan Pintasan Unduh.</string>
     <string name="quick_tile_step_4">Tahan dan seret tombol tersebut ke daftar aktif Anda.</string>
-    <string name="quick_tile_step_5">Ketuk tombol kapan saja untuk mengunduh cepat atau mengaktifkan notifikasi kembali!</string>
+    <string name="quick_tile_step_5">Ketuk tombol kapan saja untuk membuka pengaturan Pintasan Unduh!</string>
     <string name="quick_tile_pro_required">MEVER PRO diperlukan untuk menggunakan Pengaturan Cepat.</string>
     <string name="quick_download_pro_required">MEVER PRO diperlukan untuk menggunakan Pintasan Unduh.</string>
     <string name="quick_download_processing_title">Memproses Tautan…</string>

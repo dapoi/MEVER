@@ -48,6 +48,7 @@ interface MeverRepository {
     fun deleteDownloads(ids: List<Int>)
     fun deleteAllDownloads()
     suspend fun refreshDownloadDatabase()
+    fun enqueueQuickDownload(url: String)
 
     // Preferences (DataStore)
     fun <T : Any> getPreference(keyName: String, defaultValue: T): Flow<T>
