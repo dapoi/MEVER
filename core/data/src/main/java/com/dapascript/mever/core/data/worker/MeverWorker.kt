@@ -50,6 +50,7 @@ import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_RESULT
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_TYPE
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.KEY_URL
 import com.dapascript.mever.core.common.util.worker.WorkerConstant.SIZE_LIMIT
+import com.dapascript.mever.core.common.util.syncToGallery
 import com.dapascript.mever.core.data.R
 import com.dapascript.mever.core.data.model.local.ContentEntity
 import com.dapascript.mever.core.data.repository.SubscriptionRepository
@@ -58,16 +59,25 @@ import com.dapascript.mever.core.data.source.local.MeverDataStore.Companion.KEY_
 import com.dapascript.mever.core.data.source.remote.ApiService
 import com.dapascript.mever.core.data.util.MoshiHelper
 import com.ketch.Ketch
+import com.ketch.Status.CANCELLED
+import com.ketch.Status.FAILED
+import com.ketch.Status.SUCCESS
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.withTimeoutOrNull
 import retrofit2.HttpException
 import java.io.IOException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
+import kotlin.time.Duration.Companion.minutes
 import com.dapascript.mever.core.common.R as UiR
 import com.dapascript.mever.core.common.util.notification.QuickDownloadNotificationHelper.showQuickDownloadNotification as showQuickDownloadNotificationHelper
 
@@ -135,7 +145,7 @@ internal class MeverWorker @AssistedInject constructor(
                         val meverFolder = getMeverFolder()
                         val platformTag = getPlatformType(url, type).platformName
 
-                        bestContents.forEachIndexed { index, content ->
+                        val downloadTasks = bestContents.mapIndexed { index, content ->
                             val extension = getExtensionFromUrl(
                                 url = content.downloadUrl,
                                 extensionFromResponse = content.type
@@ -159,14 +169,38 @@ internal class MeverWorker @AssistedInject constructor(
 
                             val sanitized = sanitizeFilename(rawFileName)
 
-                            ketch.download(
+                            val downloadId = ketch.download(
                                 url = content.downloadUrl,
                                 path = meverFolder.path,
                                 fileName = sanitized,
                                 tag = platformTag,
                                 metaData = encodeMetaData(content.thumbnail, rawFileName)
                             )
+                            downloadId to sanitized
                         }
+
+                        showQuickDownloadNotificationHelper(
+                            context = context,
+                            isProcessing = false,
+                            processingUrl = url
+                        )
+
+                        withTimeoutOrNull(10.minutes) {
+                            coroutineScope {
+                                downloadTasks.map { (downloadId, fileName) ->
+                                    async {
+                                        ketch.observeDownloadById(downloadId)
+                                            .firstOrNull { it != null && it.status in listOf(SUCCESS, FAILED, CANCELLED) }
+                                            ?.let { model ->
+                                                if (model.status == SUCCESS) {
+                                                    syncToGallery(context, fileName)
+                                                }
+                                            }
+                                    }
+                                }.awaitAll()
+                            }
+                        }
+
                         bestContents
                     } else {
                         res
