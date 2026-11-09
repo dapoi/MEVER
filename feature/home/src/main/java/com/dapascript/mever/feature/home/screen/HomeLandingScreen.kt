@@ -3,6 +3,7 @@ package com.dapascript.mever.feature.home.screen
 import android.app.Activity.RESULT_OK
 import android.content.Context
 import android.content.res.Resources
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -173,7 +174,6 @@ import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeQuickTools
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeQuickToolsRoute.FeatureCard.QuickToolsType.REMOVE_BG
 import com.dapascript.mever.core.navigation.route.HomeScreenRoute.HomeQuickToolsRoute.FeatureCard.QuickToolsType.WA
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingLandingRoute
-import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingPaywallRoute
 import com.dapascript.mever.core.navigation.route.SettingScreenRoute.SettingQuickDownloadRoute
 import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.getCardColor
 import com.dapascript.mever.feature.home.screen.attr.HomeLandingScreenAttr.getRoute
@@ -511,6 +511,7 @@ private fun HomeLandingContent(
 
     HandleDeeplinkEvent(
         viewModel = viewModel,
+        context = context,
         navigator = navigator,
         getButtonClickCount = getButtonClickCount,
         adsThreshold = adsThreshold,
@@ -1302,6 +1303,7 @@ private fun RecentlyDownloadedSection(
 @Composable
 private fun HandleDeeplinkEvent(
     viewModel: HomeLandingViewModel,
+    context: Context,
     navigator: Navigator,
     getButtonClickCount: Int,
     adsThreshold: Int,
@@ -1341,7 +1343,12 @@ private fun HandleDeeplinkEvent(
             }
 
             is SettingQuickDownload -> {
-                navigator.navigate(if (isProActive) SettingQuickDownloadRoute else SettingPaywallRoute)
+                if (isProActive) navigator.navigate(SettingQuickDownloadRoute)
+                else Toast.makeText(
+                    context,
+                    context.getString(R.string.quick_download_pro_required),
+                    Toast.LENGTH_LONG
+                ).show()
             }
 
             else -> return@LaunchedEffect
